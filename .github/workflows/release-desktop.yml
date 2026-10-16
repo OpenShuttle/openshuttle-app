@@ -1,0 +1,155 @@
+name: Release desktop
+
+# Builds and publishes the desktop app when a tag desktop-vMAJOR.MINOR.PATCH
+# is pushed on a commit of main. See docs/releasing.md.
+on:
+  push:
+    tags:
+      - "desktop-v*"
+
+permissions:
+  contents: read
+
+env:
+  # renovate: datasource=go depName=github.com/wailsapp/wails/v3
+  WAILS_VERSION: v3.0.0-beta.30
+  NODE_VERSION: "24"
+
+jobs:
+  check:
+    name: Check the tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read the version
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#desktop-v}"
+          if ! [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Tag $tag must be desktop-vMAJOR.MINOR.PATCH, for example desktop-v1.0.1"
+            exit 1
+          fi
+          compat="$(perl -ne 'print $1 if /^const Compat = (\d+)/' src/internal/version/version.go)"
+          if [[ "${BASH_REMATCH[1]}" != "$compat" ]]; then
+            echo "::error::MAJOR ${BASH_REMATCH[1]} differs from the compatibility generation $compat (src/internal/version/version.go)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Check the tag is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME does not point to a commit of main"
+            exit 1
+          fi
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-amd64
+            os: ubuntu-24.04
+          - target: windows-amd64
+            os: windows-latest
+          - target: macos-arm64
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: src/apps/desktop
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      GIT_COMMITTER_NAME: OpenShuttle
+      GIT_COMMITTER_EMAIL: release@openshuttle.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/apps/desktop/frontend/package-lock.json
+      - name: Install GTK and WebKit
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev
+      - name: Install NSIS
+        if: runner.os == 'Windows'
+        run: choco install nsis -y --no-progress && echo "C:\Program Files (x86)\NSIS" >> "$GITHUB_PATH"
+      - name: Install the Wails CLI
+        run: go install "github.com/wailsapp/wails/v3/cmd/wails3@${WAILS_VERSION}"
+      - name: Install frontend dependencies
+        working-directory: src/apps/desktop/frontend
+        run: npm ci
+      - name: Stamp the version
+        run: ./build/set-version.sh "$VERSION"
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          wails3 task linux:create:deb
+          mkdir -p ../../../dist
+          name="openshuttle-desktop-${VERSION}-${{ matrix.target }}"
+          tar -czf "../../../dist/${name}.tar.gz" -C bin openshuttle
+          cp bin/openshuttle.deb "../../../dist/${name}.deb"
+      - name: Test the release build
+        if: runner.os == 'Linux'
+        working-directory: src
+        # After packaging: the desktop package embeds the built frontend.
+        run: go test ./...
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          wails3 task windows:package
+          mkdir -p ../../../dist
+          name="openshuttle-desktop-${VERSION}-${{ matrix.target }}"
+          cp bin/openshuttle-amd64-installer.exe "../../../dist/${name}-setup.exe"
+          (cd bin && 7z a "../../../../dist/${name}-portable.zip" openshuttle.exe)
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          wails3 task darwin:package
+          mkdir -p ../../../dist
+          name="openshuttle-desktop-${VERSION}-${{ matrix.target }}"
+          ditto -c -k --keepParent bin/openshuttle.app "../../../dist/${name}.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish the release
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: desktop-*
+          merge-multiple: true
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS.txt
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "OpenShuttle desktop $VERSION" \
+            --generate-notes

@@ -15,7 +15,8 @@
     "create": "Create",
     "openedAt": "Opened {date}",
     "fileMissing": "File not found",
-    "archived": "Archived"
+    "archived": "Archived",
+    "version": "OpenShuttle {version} · compatibility {compat}"
   },
   "topBar": {
     "lastAction": "Last action · {time}",

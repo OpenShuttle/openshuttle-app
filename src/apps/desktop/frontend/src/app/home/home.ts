@@ -3,6 +3,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { LanguageService } from '../core/language.service';
 import { TournamentStore } from '../core/tournament.service';
+import { AppInfo, AppService } from '@bindings/apps/desktop';
 
 /** Home screen, outside any tournament: recent files, create, open. */
 @Component({
@@ -15,7 +16,12 @@ export class Home {
   protected readonly tournament = inject(TournamentStore);
   private readonly language = inject(LanguageService);
 
+  protected readonly app = signal<AppInfo | null>(null);
   protected readonly creating = signal(false);
+
+  constructor() {
+    void AppService.GetAppInfo().then((info) => this.app.set(info));
+  }
   protected readonly name = signal('');
 
   protected startCreate(): void {

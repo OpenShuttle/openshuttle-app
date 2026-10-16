@@ -21,6 +21,22 @@ export interface ActionView {
 }
 
 /**
+ * AppInfo describes the running app.
+ */
+export interface AppInfo {
+    /**
+     * Version is MAJOR.MINOR.PATCH, or "dev" outside a release.
+     */
+    "version": string;
+
+    /**
+     * Compat is the compatibility generation: apps with the same Compat
+     * work together. It equals the MAJOR of the version.
+     */
+    "compat": number;
+}
+
+/**
  * BracketPhase is a bracket on the stages screen.
  */
 export interface BracketPhase {

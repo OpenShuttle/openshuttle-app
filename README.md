@@ -18,3 +18,10 @@ See [CLAUDE.md](CLAUDE.md) for the architecture and the commands, and
 cd src/apps/desktop
 wails3 dev
 ```
+
+## Versions
+
+Versions are `MAJOR.MINOR.PATCH`. Apps sharing the same MAJOR work together
+(tournament files, relay protocol); MINOR is each app's own version; PATCH is
+for security fixes and dependency updates. Releases are published on GitHub
+from tags such as `desktop-v1.0.0`: see [docs/releasing.md](docs/releasing.md).

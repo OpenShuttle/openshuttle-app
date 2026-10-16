@@ -1,0 +1,76 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Dependency updates. A merged update ships in the next PATCH release (docs/releasing.md).",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(chore)",
+    ":timezone(Europe/Paris)",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "schedule": ["before 6am on monday"],
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "postUpdateOptions": ["gomodTidy", "npmDedupe"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"]
+  },
+  "packageRules": [
+    {
+      "description": "Wails: the Go module, the npm runtime and the CLI used by the release must move together.",
+      "matchPackageNames": ["github.com/wailsapp/wails/v3", "@wailsio/runtime"],
+      "groupName": "wails",
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Angular packages are released together and pin their TypeScript range.",
+      "matchPackageNames": ["@angular/**", "@angular-devkit/**", "typescript"],
+      "groupName": "angular"
+    },
+    {
+      "description": "Transloco packages are released together.",
+      "matchPackageNames": ["@jsverse/transloco**"],
+      "groupName": "transloco"
+    },
+    {
+      "description": "Frontend test tooling.",
+      "matchPackageNames": ["vitest", "jsdom"],
+      "groupName": "frontend test tools"
+    },
+    {
+      "description": "GitHub Actions in one PR.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "description": "Go toolchain directive and setup.",
+      "matchDatasources": ["golang-version"],
+      "groupName": "go toolchain"
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Versions pinned in workflows behind a '# renovate:' comment (the Wails CLI).",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s+\\w+: \"?(?<currentValue>[^\\s\"]+)\"?"
+      ]
+    },
+    {
+      "description": "The Wails CLI version given in CLAUDE.md.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^CLAUDE\\.md$/"],
+      "matchStrings": ["wailsapp/wails/v3/cmd/wails3@(?<currentValue>v[^`\\s]+)"],
+      "datasourceTemplate": "go",
+      "depNameTemplate": "github.com/wailsapp/wails/v3"
+    }
+  ]
+}

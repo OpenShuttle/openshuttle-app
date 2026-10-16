@@ -15,3 +15,6 @@ src/apps/desktop/frontend/node_modules/
 src/apps/desktop/frontend/.angular/
 src/apps/desktop/build/linux/appimage/build/
 src/apps/desktop/build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
+
+# Release packages (CI)
+/dist/

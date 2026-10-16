@@ -49,6 +49,7 @@ func main() {
 		Name:        "OpenShuttle",
 		Description: "Run badminton club tournaments, fully offline",
 		Services: []application.Service{
+			service(&AppService{}),
 			service(NewDisplayScreenService()),
 			service(NewSettingsService(appDB, emit)),
 			service(NewTournamentService(

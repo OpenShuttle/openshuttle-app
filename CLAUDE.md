@@ -178,6 +178,13 @@ cd src/apps/desktop/frontend && npm run i18n:check   # en.json and fr.json must 
 Generated bindings (`frontend/bindings`) are committed. Import them through the
 `@bindings/*` path alias (`@bindings/apps/desktop`, `@bindings/internal/engine`…).
 
+## Versions and releases
+
+- Every app is versioned `MAJOR.MINOR.PATCH`: MAJOR is the compatibility generation shared by all apps (`version.Compat` in `src/internal/version`), MINOR the app's own version, PATCH security fixes and dependency updates only. See ADR 3 and `docs/releasing.md`.
+- A release is a tag on a commit of `main`: `desktop-vX.Y.Z` (later `relay-v…`, `web-v…`). `.github/workflows/release-desktop.yml` checks it, stamps the version (`src/apps/desktop/build/set-version.sh`) and publishes the GitHub release. Never edit versions by hand in `main`: `version.txt` stays `dev`.
+- Bump `version.Compat` only when tournament files or the relay protocol break compatibility.
+- Renovate (`renovate.json`) keeps dependencies up to date. Keep the Wails Go module, `@wailsio/runtime` and the `WAILS_VERSION` of the release workflow on the same version (Renovate groups them).
+
 ## Design
 
 The Claude Design mockup lives in `docs/tournoi-badminton-interactif/project/`
