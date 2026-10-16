@@ -37,6 +37,15 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * ArchiveTournament closes the tournament: it records the archive, writes a
+ * copy where the user chooses, then closes the file. It returns the copy's
+ * path, or "" when the user cancelled.
+ */
+export function ArchiveTournament(): $CancellablePromise<string> {
+    return $Call.ByID(327538023);
+}
+
+/**
  * CallMatch calls a match on a court.
  */
 export function CallMatch(id: tournament$0.MatchID, court: number): $CancellablePromise<void> {
@@ -136,6 +145,16 @@ export function EndMatch(id: tournament$0.MatchID): $CancellablePromise<void> {
 }
 
 /**
+ * ExportCSV asks where to save a CSV file and writes content to it, with a
+ * UTF-8 byte order mark so spreadsheets read accents right. The frontend
+ * builds the content: it holds the translated column names. It returns the
+ * path, or "" when the user cancelled.
+ */
+export function ExportCSV(suggestedName: string, content: string): $CancellablePromise<string> {
+    return $Call.ByID(2192239444, suggestedName, content);
+}
+
+/**
  * GetCheckInView returns the check-in screen.
  */
 export function GetCheckInView(): $CancellablePromise<$models.CheckInView> {
@@ -189,6 +208,13 @@ export function GetHistoryView(): $CancellablePromise<$models.HistoryView> {
  */
 export function GetPhasesView(): $CancellablePromise<$models.PhasesView> {
     return $Call.ByID(1474962031);
+}
+
+/**
+ * GetResultsView returns the full standings of every category.
+ */
+export function GetResultsView(): $CancellablePromise<$models.ResultsView> {
+    return $Call.ByID(2612905081);
 }
 
 /**

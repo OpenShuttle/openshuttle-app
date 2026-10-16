@@ -470,6 +470,46 @@ export interface RecentTournament {
      * Exists is false when the file was moved or deleted since.
      */
     "exists": boolean;
+
+    /**
+     * Archived is set once the tournament was archived from this app.
+     */
+    "archived": boolean;
+}
+
+/**
+ * ResultCategory is the full standings of a category.
+ */
+export interface ResultCategory {
+    "category": engine$0.Category;
+    "slot": number;
+    "started": boolean;
+    "complete": boolean;
+    "rows": ResultRow[] | null;
+}
+
+/**
+ * ResultRow is a line of the full standings.
+ */
+export interface ResultRow {
+    /**
+     * 0 while not decided
+     */
+    "rank": number;
+    "tied": boolean;
+    "entrant": SideView;
+    "bracket": string;
+    "bracketName": string;
+    "poolPosition": number;
+}
+
+/**
+ * ResultsView is the results screen.
+ */
+export interface ResultsView {
+    "name": string;
+    "archived": boolean;
+    "categories": ResultCategory[] | null;
 }
 
 /**
@@ -546,6 +586,7 @@ export interface TournamentView {
      * Categories in slot order: the first gets --color-category-1.
      */
     "categories": CategoryRef[] | null;
+    "archived": boolean;
     "courts": number;
     "minRest": number;
     "priority": string;

@@ -22,6 +22,8 @@ type RecentTournament struct {
 	OpenedAt time.Time `json:"openedAt"`
 	// Exists is false when the file was moved or deleted since.
 	Exists bool `json:"exists"`
+	// Archived is set once the tournament was archived from this app.
+	Archived bool `json:"archived"`
 }
 
 func readRecent(ctx context.Context, db *store.AppDB) ([]RecentTournament, error) {
@@ -43,8 +45,9 @@ func readRecent(ctx context.Context, db *store.AppDB) ([]RecentTournament, error
 
 // touchRecent moves a tournament to the top of the list, most recent first.
 func touchRecent(list []RecentTournament, path, name string, now time.Time) []RecentTournament {
+	archived := slices.ContainsFunc(list, func(r RecentTournament) bool { return r.Path == path && r.Archived })
 	list = slices.DeleteFunc(slices.Clone(list), func(r RecentTournament) bool { return r.Path == path })
-	list = slices.Insert(list, 0, RecentTournament{Path: path, Name: name, OpenedAt: now.UTC(), Exists: true})
+	list = slices.Insert(list, 0, RecentTournament{Path: path, Name: name, OpenedAt: now.UTC(), Exists: true, Archived: archived})
 	if len(list) > maxRecentTournaments {
 		list = list[:maxRecentTournaments]
 	}
@@ -68,4 +71,15 @@ func writeRecent(ctx context.Context, db *store.AppDB, list []RecentTournament) 
 		return err
 	}
 	return db.SetSetting(ctx, settingRecentTournaments, string(raw))
+}
+
+// markArchived flags a tournament of the list as archived.
+func markArchived(list []RecentTournament, path string) []RecentTournament {
+	list = slices.Clone(list)
+	for i := range list {
+		if list[i].Path == path {
+			list[i].Archived = true
+		}
+	}
+	return list
 }

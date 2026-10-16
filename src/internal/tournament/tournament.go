@@ -16,9 +16,14 @@ import (
 
 // Event types. Once released, a type never changes meaning.
 const (
-	TypeCreated events.Type = "TournamentCreated"
-	TypeRenamed events.Type = "TournamentRenamed"
+	TypeCreated  events.Type = "TournamentCreated"
+	TypeRenamed  events.Type = "TournamentRenamed"
+	TypeArchived events.Type = "TournamentArchived"
 )
+
+// Archived is the payload of TypeArchived: the tournament is closed. It
+// stays readable and correctable: nothing is ever locked.
+type Archived struct{}
 
 // MaxNameLength is the longest tournament name, in characters.
 const MaxNameLength = 100
@@ -45,7 +50,8 @@ func (c Change) None() bool { return c.Type == "" }
 
 // State is the tournament as projected from its log.
 type State struct {
-	Name string
+	Name     string
+	Archived bool
 	// Version is the seq of the latest event, undo events included.
 	Version uint64
 	// Categories in the order they were added: the first is slot 1.
@@ -97,6 +103,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p Created) { s.Name = p.Name })
 	case TypeRenamed:
 		return decodeInto(e, func(p Renamed) { s.Name = p.Name })
+	case TypeArchived:
+		s.Archived = true
 	case TypeCategoryAdded:
 		return decodeInto(e, s.applyCategoryAdded)
 	case TypeCategoryRemoved:
@@ -199,6 +207,14 @@ func (s State) Rename(name string) (Change, error) {
 		return Change{}, err
 	}
 	return Change{TypeRenamed, Renamed{Name: name}}, nil
+}
+
+// Archive closes the tournament.
+func (s State) Archive() (Change, error) {
+	if s.Archived {
+		return Change{}, nil
+	}
+	return Change{TypeArchived, Archived{}}, nil
 }
 
 func collapseSpaces(s string) string {

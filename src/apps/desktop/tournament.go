@@ -31,6 +31,7 @@ type TournamentView struct {
 	CanUndo    bool        `json:"canUndo"`
 	// Categories in slot order: the first gets --color-category-1.
 	Categories []CategoryRef `json:"categories"`
+	Archived   bool          `json:"archived"`
 	Courts     int           `json:"courts"`
 	MinRest    int           `json:"minRest"`
 	Priority   string        `json:"priority"`
@@ -74,6 +75,7 @@ type TournamentService struct {
 type fileDialogs interface {
 	SaveTournament(suggestedName string) (string, error)
 	OpenTournament() (string, error)
+	SaveCSV(suggestedName string) (string, error)
 }
 
 func NewTournamentService(app *store.AppDB, emit func(string, any), now func() time.Time, backupDir string, dialogs fileDialogs) *TournamentService {
@@ -211,6 +213,7 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 		Name:       s.state.Name,
 		Version:    s.state.Version,
 		Categories: categoryRefs(s.state),
+		Archived:   s.state.Archived,
 		Courts:     s.state.Courts(),
 		MinRest:    s.state.MinRest(),
 		Priority:   s.state.CourtPriority(),

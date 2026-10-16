@@ -14,7 +14,8 @@
     "tournamentName": "Nom du tournoi",
     "create": "Créer",
     "openedAt": "Ouvert le {date}",
-    "fileMissing": "Fichier introuvable"
+    "fileMissing": "Fichier introuvable",
+    "archived": "Archivé"
   },
   "topBar": {
     "lastAction": "Dernière action · {time}",
@@ -66,7 +67,8 @@
     "BracketRemoved": "Tableau retiré : {bracket}",
     "RoutingSet": "Routage modifié : {category}",
     "BracketDrawn": "Tableau rempli : {bracket}",
-    "BracketSlotsSwapped": "Places inversées : {bracket}"
+    "BracketSlotsSwapped": "Places inversées : {bracket}",
+    "TournamentArchived": "Tournoi archivé"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -101,7 +103,8 @@
     "BracketRemoved": "retrait de {bracket}",
     "RoutingSet": "modification du routage",
     "BracketDrawn": "remplissage de {bracket}",
-    "BracketSlotsSwapped": "inversion dans {bracket}"
+    "BracketSlotsSwapped": "inversion dans {bracket}",
+    "TournamentArchived": "archivage"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -162,7 +165,8 @@
     "BRACKET_NOT_DRAWN": "Remplissez d'abord ce tableau.",
     "INVALID_SLOT": "Cette place n'existe pas.",
     "MATCH_NOT_READY": "Les deux participants de ce match ne sont pas encore connus.",
-    "BRACKET_NEXT_STARTED": "Le tour suivant a déjà été joué avec ce vainqueur : corrigez-le d'abord."
+    "BRACKET_NEXT_STARTED": "Le tour suivant a déjà été joué avec ce vainqueur : corrigez-le d'abord.",
+    "WRITE_FAILED": "Le fichier n'a pas pu être écrit. Vérifiez le dossier et réessayez."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -424,5 +428,31 @@
     "ofN": "Tour de {n}",
     "placeMatch": "Match pour la {place}{place, plural, =1 {re} other {e}} place",
     "places": "Places {from} à {to}"
+  },
+  "results": {
+    "title": "Résultats",
+    "export": "Exporter en CSV",
+    "archive": "Archiver le tournoi",
+    "archiveConfirm": "Confirmer l'archivage",
+    "archiveHint": "L'archivage enregistre une copie du fichier tournoi à l'endroit choisi, puis le ferme. Il reste possible de le rouvrir et de le corriger.",
+    "archived": "Ce tournoi est archivé.",
+    "exported": "Exporté vers {path}",
+    "final": "Définitif",
+    "provisional": "Provisoire",
+    "notStarted": "Pas encore de classement : validez d'abord le tirage.",
+    "rank": "Rang",
+    "origin": "Obtenu en",
+    "tiedRank": "{rank} ex.",
+    "eliminatedInPools": "Poules ({n}{n, plural, =1 {er} other {e}})",
+    "csv": {
+      "category": "Catégorie",
+      "rank": "Rang",
+      "bib": "Dossard",
+      "entrant": "Participant",
+      "club": "Club",
+      "origin": "Obtenu en",
+      "fileSuffix": "classement"
+    },
+    "bib": "Dossard"
   }
 }

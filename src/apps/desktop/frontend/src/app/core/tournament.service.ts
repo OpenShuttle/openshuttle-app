@@ -13,6 +13,7 @@ const CLOSED: TournamentView = {
   version: 0,
   lastAction: null,
   canUndo: false,
+  archived: false,
   categories: [],
   courts: 4,
   minRest: 10,

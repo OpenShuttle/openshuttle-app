@@ -33,7 +33,12 @@
       @for (r of tournament.recent(); track r.path) {
         <li>
           <button type="button" class="recent-item" [disabled]="!r.exists" (click)="tournament.open(r.path)">
-            <span class="recent-name">{{ r.name }}</span>
+            <span class="recent-name">
+              {{ r.name }}
+              @if (r.archived) {
+                <span class="archived">{{ t('home.archived') }}</span>
+              }
+            </span>
             <span class="recent-path">{{ r.path }}</span>
             <span class="recent-date">
               @if (r.exists) {

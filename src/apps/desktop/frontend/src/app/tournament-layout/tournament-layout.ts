@@ -27,7 +27,7 @@ export class TournamentLayout {
         { key: 'draw', path: 'draw' },
         { key: 'controlDesk', path: 'control-desk' },
         { key: 'stages', path: 'stages' },
-        { key: 'results' },
+        { key: 'results', path: 'results' },
       ],
     },
   ];

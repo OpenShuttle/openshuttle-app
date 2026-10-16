@@ -60,6 +60,8 @@ const (
 	CodeMatchNotReady      Code = "MATCH_NOT_READY"
 	CodeBracketNextStarted Code = "BRACKET_NEXT_STARTED"
 
+	CodeWriteFailed Code = "WRITE_FAILED"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"

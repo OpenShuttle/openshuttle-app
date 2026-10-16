@@ -1,0 +1,65 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('results.title') }}</h1>
+    <div class="actions">
+      <button type="button" class="btn" (click)="exportCsv()">{{ t('results.export') }}</button>
+      <button type="button" class="btn" [class.btn-confirm]="confirmingArchive()" (click)="archive()" (blur)="confirmingArchive.set(false)">
+        {{ t(confirmingArchive() ? 'results.archiveConfirm' : 'results.archive') }}
+      </button>
+    </div>
+  </div>
+
+  @if (view().archived) {
+    <div class="notice archived">{{ t('results.archived') }}</div>
+  }
+  @if (confirmingArchive()) {
+    <div class="notice">{{ t('results.archiveHint') }}</div>
+  }
+  @if (exported(); as path) {
+    <div class="notice done">{{ t('results.exported', { path }) }}</div>
+  }
+
+  @for (c of view().categories; track c.category) {
+    <section class="card">
+      <header class="cat-header">
+        <app-category-badge [category]="c.category" [slot]="c.slot" />
+        <h2>{{ t('category.name.' + c.category) }}</h2>
+        @if (c.started) {
+          <span class="status" [class.final]="c.complete">{{ t(c.complete ? 'results.final' : 'results.provisional') }}</span>
+        }
+      </header>
+
+      @if (!c.started) {
+        <p class="muted">
+          {{ t('results.notStarted') }}
+          <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+        </p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th class="num">{{ t('results.rank') }}</th>
+              <th class="num">{{ t('results.bib') }}</th>
+              <th>{{ t('phases.entrant') }}</th>
+              <th>{{ t('entrants.club') }}</th>
+              <th>{{ t('results.origin') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of c.rows; track r.entrant.entrant) {
+              <tr [class.podium]="r.rank >= 1 && r.rank <= 3">
+                <td class="num rank">{{ rank(r) }}</td>
+                <td class="num">{{ r.entrant.bib || '–' }}</td>
+                <td class="name">{{ names(r) }}</td>
+                <td class="muted">{{ (r.entrant.clubs ?? []).join(' / ') }}</td>
+                <td class="muted">{{ origin(r) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  } @empty {
+    <div class="card muted">{{ t('entrants.noCategory') }}</div>
+  }
+</ng-container>

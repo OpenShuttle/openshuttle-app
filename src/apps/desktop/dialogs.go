@@ -54,3 +54,18 @@ func documentsDir() string {
 	}
 	return home
 }
+
+func (nativeDialogs) SaveCSV(suggestedName string) (string, error) {
+	app := application.Get()
+	d := app.Dialog.SaveFile().
+		SetFilename(suggestedName).
+		AddFilter("CSV", "*.csv").
+		CanCreateDirectories(true)
+	if dir := documentsDir(); dir != "" {
+		d.SetDirectory(dir)
+	}
+	if w, ok := app.Window.GetByName(MainWindowName); ok {
+		d.AttachToWindow(w)
+	}
+	return d.PromptForSingleSelection()
+}

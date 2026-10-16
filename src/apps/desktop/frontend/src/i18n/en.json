@@ -14,7 +14,8 @@
     "tournamentName": "Tournament name",
     "create": "Create",
     "openedAt": "Opened {date}",
-    "fileMissing": "File not found"
+    "fileMissing": "File not found",
+    "archived": "Archived"
   },
   "topBar": {
     "lastAction": "Last action · {time}",
@@ -66,7 +67,8 @@
     "BracketRemoved": "Bracket removed: {bracket}",
     "RoutingSet": "Advancement changed: {category}",
     "BracketDrawn": "Bracket filled: {bracket}",
-    "BracketSlotsSwapped": "Bracket slots swapped: {bracket}"
+    "BracketSlotsSwapped": "Bracket slots swapped: {bracket}",
+    "TournamentArchived": "Tournament archived"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -101,7 +103,8 @@
     "BracketRemoved": "removal of {bracket}",
     "RoutingSet": "advancement change",
     "BracketDrawn": "filling of {bracket}",
-    "BracketSlotsSwapped": "slot swap in {bracket}"
+    "BracketSlotsSwapped": "slot swap in {bracket}",
+    "TournamentArchived": "archive"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -162,7 +165,8 @@
     "BRACKET_NOT_DRAWN": "Fill this bracket first.",
     "INVALID_SLOT": "This slot does not exist.",
     "MATCH_NOT_READY": "Both entrants of this match are not known yet.",
-    "BRACKET_NEXT_STARTED": "The next round was already played with this winner: correct it first."
+    "BRACKET_NEXT_STARTED": "The next round was already played with this winner: correct it first.",
+    "WRITE_FAILED": "The file could not be written. Check the folder and try again."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -424,5 +428,31 @@
     "ofN": "Round of {n}",
     "placeMatch": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} place match",
     "places": "Places {from}–{to}"
+  },
+  "results": {
+    "title": "Results",
+    "export": "Export as CSV",
+    "archive": "Archive the tournament",
+    "archiveConfirm": "Confirm archive",
+    "archiveHint": "Archiving saves a copy of the tournament file where you choose, then closes it. It can still be reopened and corrected.",
+    "archived": "This tournament is archived.",
+    "exported": "Exported to {path}",
+    "final": "Final",
+    "provisional": "Provisional",
+    "notStarted": "No standings yet: confirm the draw first.",
+    "rank": "Rank",
+    "origin": "Earned in",
+    "tiedRank": "{rank}=",
+    "eliminatedInPools": "Pools ({n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}})",
+    "csv": {
+      "category": "Category",
+      "rank": "Rank",
+      "bib": "Bib",
+      "entrant": "Entrant",
+      "club": "Club",
+      "origin": "Earned in",
+      "fileSuffix": "standings"
+    },
+    "bib": "Bib"
   }
 }

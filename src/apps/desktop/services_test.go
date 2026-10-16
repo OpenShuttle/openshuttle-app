@@ -30,8 +30,8 @@ func (r *recorder) last() emitted {
 }
 
 type fakeDialogs struct {
-	save, open string
-	suggested  string
+	save, open, csv string
+	suggested       string
 }
 
 func (f *fakeDialogs) SaveTournament(name string) (string, error) {
@@ -40,6 +40,11 @@ func (f *fakeDialogs) SaveTournament(name string) (string, error) {
 }
 
 func (f *fakeDialogs) OpenTournament() (string, error) { return f.open, nil }
+
+func (f *fakeDialogs) SaveCSV(name string) (string, error) {
+	f.suggested = name
+	return f.csv, nil
+}
 
 type fixture struct {
 	ctx      context.Context
