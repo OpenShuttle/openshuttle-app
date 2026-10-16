@@ -64,6 +64,10 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Walkover in a bracket**: counts as a loss, the opponent advances.
 - **Pool tiebreaks**, in a per-stage configurable order: wins, head-to-head, set difference, point difference, random draw. Always differences, never ratios.
 - **Timed match tie**: decided by a golden point.
+- **Head-to-head** only applies between exactly two tied entrants. When a criterion splits a tied group, each subgroup is ranked again from the first criterion (so a pair left from a 3-way tie can be decided by head-to-head).
+- **Random draw**: the engine never draws. Lots are recorded as an event; until then, entrants still tied in a complete pool are flagged `DrawNeeded` and share their rank.
+- **Set scores**: a set is won at `PointsPerSet` with a 2-point lead, deuce up to `Cap` (at `Cap-1` all, the next point wins). `Cap = 0`: no cap. `Cap = PointsPerSet`: no deuce.
+- **Timed score**: one set holding the final points. A golden point is counted in the score, so it is a 1-point win.
 
 ## Match lifecycle (v1, decided)
 
