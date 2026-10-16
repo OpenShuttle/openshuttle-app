@@ -265,6 +265,8 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
 	var p struct {
+		A        tournament.MatchID  `json:"a"`
+		B        tournament.MatchID  `json:"b"`
 		Match    tournament.MatchID  `json:"match"`
 		Court    int                 `json:"court"`
 		Courts   int                 `json:"courts"`
@@ -290,7 +292,7 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypePoolStageConfigured,
 		tournament.TypePoolsDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
-	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded:
+	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded, tournament.TypeScoreCleared:
 		v.Params["a"], v.Params["b"] = matchLabel(s.state, p.Match)
 		if m, ok := s.state.Match(p.Match); ok {
 			v.Params["court"] = itoa(m.Court)
@@ -301,8 +303,13 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		if e.Type == tournament.TypeScoreRecorded {
 			v.Params["score"] = scoreLabel(p.Score)
 		}
-	case tournament.TypeEntrantWithdrawn:
+	case tournament.TypeEntrantWithdrawn, tournament.TypeEntrantReinstated:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
+	case tournament.TypeMatchesSwapped:
+		v.Params["first"], v.Params["second"] = string(p.A), string(p.B)
+	case tournament.TypeLotsDrawn:
+		v.Params["category"] = string(p.Category)
+		v.Params["pool"] = engine.PoolName(p.Pool)
 	case tournament.TypeCourtsSet:
 		v.Params["courts"] = itoa(p.Courts)
 	case tournament.TypeMinRestSet:

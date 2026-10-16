@@ -45,6 +45,10 @@ const (
 	CodeEntrantInPools    Code = "ENTRANT_IN_POOLS"
 	CodeEntrantNotInPools Code = "ENTRANT_NOT_IN_POOLS"
 
+	CodeNoScore             Code = "NO_SCORE"
+	CodeEntrantNotWithdrawn Code = "ENTRANT_NOT_WITHDRAWN"
+	CodeNoTie               Code = "NO_TIE"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"

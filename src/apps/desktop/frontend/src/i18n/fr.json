@@ -56,7 +56,11 @@
     "MatchCalled": "Terrain {court} : {a} contre {b}",
     "MatchEnded": "Terrain {court} terminé : {a} contre {b}",
     "ScoreRecorded": "Score {a} contre {b} : {score}",
-    "EntrantWithdrawn": "Forfait : {names}"
+    "EntrantWithdrawn": "Forfait : {names}",
+    "ScoreCleared": "Score effacé : {a} contre {b}",
+    "EntrantReinstated": "Forfait annulé : {names}",
+    "MatchesSwapped": "Matchs inversés : {first} et {second}",
+    "LotsDrawn": "Tirage au sort : {category} poule {pool}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -81,7 +85,11 @@
     "MatchCalled": "appel de {a} contre {b}",
     "MatchEnded": "fin de {a} contre {b}",
     "ScoreRecorded": "score de {a} contre {b}",
-    "EntrantWithdrawn": "forfait de {names}"
+    "EntrantWithdrawn": "forfait de {names}",
+    "ScoreCleared": "effacement de {a} contre {b}",
+    "EntrantReinstated": "annulation du forfait de {names}",
+    "MatchesSwapped": "inversion de {first} et {second}",
+    "LotsDrawn": "tirage au sort {category} poule {pool}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -129,7 +137,10 @@
     "ENTRANT_PLAYING": "Un joueur de ce match est sur un autre terrain.",
     "MATCHES_STARTED": "Des matchs ont commencé : le tirage ne peut plus être rouvert.",
     "ENTRANT_IN_POOLS": "Ce participant est dans les poules : déclarez plutôt un forfait.",
-    "ENTRANT_NOT_IN_POOLS": "Ce participant n'est pas dans les poules."
+    "ENTRANT_NOT_IN_POOLS": "Ce participant n'est pas dans les poules.",
+    "NO_SCORE": "Ce match n'a pas de score.",
+    "ENTRANT_NOT_WITHDRAWN": "Ce participant n'a pas déclaré forfait.",
+    "NO_TIE": "Aucune égalité à départager dans cette poule."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -313,10 +324,44 @@
     "walkoverHint": "Déclare un forfait : tous les matchs de poule de ce participant passent en WO.",
     "goldenPoint": "Décidé au point en or",
     "scoreKeys": "Entrée pour valider · Échap pour fermer",
-    "saveScore": "Valider le score"
+    "saveScore": "Valider le score",
+    "walkoverConfirm": "Confirmer le forfait"
   },
   "priority": {
     "balanced": "Équilibrée",
     "first": "{category} d'abord"
+  },
+  "historyPanel": {
+    "title": "Historique"
+  },
+  "phases": {
+    "title": "Phases",
+    "correctionMode": "Mode correction",
+    "correctionHint": "Mode correction : modifiez ou effacez un score, déclarez ou annulez un forfait, inversez deux matchs. Chaque action est journalisée et annulable.",
+    "swapPick": "Choisissez le match à inverser avec {id}.",
+    "notStarted": "Les poules apparaissent une fois le tirage validé.",
+    "winSets": "{sets, plural, =1 {1 set} other {{sets} sets gagnants}} de {points}{cap, plural, =0 {} other { · plafond {cap}}}",
+    "winTimed": "Au temps · {minutes} min · point en or",
+    "complete": "Terminée",
+    "inProgress": "En cours",
+    "drawLots": "Tirer au sort",
+    "tiebreaks": "Départage :",
+    "rank": "Rg",
+    "entrant": "Participant",
+    "played": "J",
+    "playedLong": "Joués",
+    "wins": "V",
+    "winsLong": "Victoires",
+    "sets": "Sets",
+    "points": "Points",
+    "forfeit": "Forfait",
+    "tied": "Ex aequo : tirage au sort",
+    "reinstate": "Annuler le forfait",
+    "scorePending": "Score en attente",
+    "toPlay": "À jouer",
+    "editScore": "Modifier",
+    "clearScore": "Effacer",
+    "swap": "Inverser",
+    "swapHere": "Inverser ici"
   }
 }

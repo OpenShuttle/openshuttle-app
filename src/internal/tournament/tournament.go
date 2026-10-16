@@ -64,6 +64,7 @@ type State struct {
 	priority  string
 	matches   []Match
 	withdrawn map[engine.EntrantID]bool
+	lots      map[PoolRef]map[engine.EntrantID]int
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -137,6 +138,14 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At) })
 	case TypeEntrantWithdrawn:
 		return decodeInto(e, func(p EntrantWithdrawn) { s.applyEntrantWithdrawn(p, e.At) })
+	case TypeScoreCleared:
+		return decodeInto(e, s.applyScoreCleared)
+	case TypeEntrantReinstated:
+		return decodeInto(e, s.applyEntrantReinstated)
+	case TypeMatchesSwapped:
+		return decodeInto(e, s.applyMatchesSwapped)
+	case TypeLotsDrawn:
+		return decodeInto(e, s.applyLotsDrawn)
 	}
 	return nil
 }

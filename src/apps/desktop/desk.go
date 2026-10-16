@@ -190,13 +190,9 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 	return v
 }
 
-// matchViewer returns a function turning matches into views.
-func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Match) MatchView {
-	slots := map[engine.Category]int{}
-	for _, ref := range categoryRefs(st) {
-		slots[ref.Category] = ref.Slot
-	}
-	side := func(id engine.EntrantID) SideView {
+// sideViewer returns a function describing an entrant as a match side.
+func sideViewer(st tournament.State) func(engine.EntrantID) SideView {
+	return func(id engine.EntrantID) SideView {
 		e, _ := st.Entrant(id)
 		sv := SideView{Entrant: id, Bib: e.Bib, Names: []string{}, Clubs: e.Clubs(), Withdrawn: st.Withdrawn(id)}
 		for _, p := range e.Players {
@@ -207,6 +203,15 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 		}
 		return sv
 	}
+}
+
+// matchViewer returns a function turning matches into views.
+func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Match) MatchView {
+	slots := map[engine.Category]int{}
+	for _, ref := range categoryRefs(st) {
+		slots[ref.Category] = ref.Slot
+	}
+	side := sideViewer(st)
 	return func(m tournament.Match) MatchView {
 		v := MatchView{
 			ID: m.ID, CategoryRef: CategoryRef{m.Category, slots[m.Category]},

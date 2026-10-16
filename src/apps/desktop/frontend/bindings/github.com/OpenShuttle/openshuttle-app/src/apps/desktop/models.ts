@@ -247,6 +247,29 @@ export interface FormatView {
 }
 
 /**
+ * HistoryEntry is a line of the history panel.
+ */
+export interface HistoryEntry {
+    "seq": number;
+    "type": string;
+    "at": string;
+    "operator": string;
+    "params": { [_ in string]?: string } | null;
+
+    /**
+     * Undone is set when a later undo cancelled this entry.
+     */
+    "undone": boolean;
+}
+
+/**
+ * HistoryView lists every action, newest first.
+ */
+export interface HistoryView {
+    "entries": HistoryEntry[] | null;
+}
+
+/**
  * MatchView is a match as every desk screen shows it.
  */
 export interface MatchView {
@@ -281,6 +304,28 @@ export interface Monitor {
 }
 
 /**
+ * PhaseCategory is one category of the phases screen.
+ */
+export interface PhaseCategory {
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": tournament$0.PoolStage;
+
+    /**
+     * Started is false until the draw is confirmed.
+     */
+    "started": boolean;
+    "pools": PoolPhase[] | null;
+}
+
+/**
+ * PhasesView is the phases screen.
+ */
+export interface PhasesView {
+    "categories": PhaseCategory[] | null;
+}
+
+/**
  * PlayerView is a player as shown on the entrants and check-in screens.
  */
 export interface PlayerView {
@@ -294,6 +339,18 @@ export interface PlayerView {
      * Duplicate warns that another player has the same full name.
      */
     "duplicate": boolean;
+}
+
+/**
+ * PoolPhase is one pool of the phases screen.
+ */
+export interface PoolPhase {
+    "index": number;
+    "name": string;
+    "complete": boolean;
+    "drawNeeded": boolean;
+    "standings": StandingView[] | null;
+    "matches": MatchView[] | null;
 }
 
 /**
@@ -358,6 +415,23 @@ export interface SideView {
     "names": string[] | null;
     "clubs": string[] | null;
     "withdrawn": boolean;
+}
+
+/**
+ * StandingView is a row of a pool ranking.
+ */
+export interface StandingView {
+    "rank": number;
+    "entrant": SideView;
+    "played": number;
+    "wins": number;
+    "losses": number;
+    "setsWon": number;
+    "setsLost": number;
+    "pointsWon": number;
+    "pointsLost": number;
+    "withdrawn": boolean;
+    "drawNeeded": boolean;
 }
 
 /**

@@ -7,6 +7,7 @@ import { Language, LanguageService } from '../core/language.service';
 import { TournamentStore } from '../core/tournament.service';
 import { ActionView } from '@bindings/apps/desktop';
 import { CategoryBadge } from '../shared/category-badge';
+import { ActionLabels } from '../core/action-label';
 
 /** Main window: top bar, then the home screen or the open tournament. */
 @Component({
@@ -21,6 +22,7 @@ export class Shell implements OnInit {
   protected readonly tournament = inject(TournamentStore);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  private readonly labels = inject(ActionLabels);
 
   protected readonly monitorId = signal('');
   protected readonly view = this.tournament.view;
@@ -66,30 +68,7 @@ export class Shell implements OnInit {
 
   /** Translated label of a history entry. */
   protected actionLabel(action: ActionView): string {
-    const params = this.translatedParams(action.params ?? {});
-    if (action.type !== 'ActionUndone') {
-      return this.transloco.translate(`history.${action.type}`, params);
-    }
-    const undone = this.transloco.translate(`historyShort.${params['action']}`, params);
-    return this.transloco.translate('history.ActionUndone', { action: undone });
-  }
-
-  private translatedParams(params: Record<string, string | undefined>): Record<string, string> {
-    const out: Record<string, string> = {};
-    for (const [key, value] of Object.entries(params)) {
-      out[key] = value ?? '';
-      if (key === 'category' && value) {
-        out[key] = this.transloco.translate(`category.short.${value}`);
-      } else if (key === 'priority' && value) {
-        out[key] =
-          value === 'balanced'
-            ? this.transloco.translate('priority.balanced')
-            : this.transloco.translate('priority.first', {
-                category: this.transloco.translate(`category.short.${value}`),
-              });
-      }
-    }
-    return out;
+    return this.labels.label(action);
   }
 
   protected time(iso: string): string {

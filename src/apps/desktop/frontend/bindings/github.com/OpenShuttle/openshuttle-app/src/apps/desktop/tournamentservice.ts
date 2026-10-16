@@ -51,6 +51,13 @@ export function CheckInPlayer(id: tournament$0.PlayerID): $CancellablePromise<vo
 }
 
 /**
+ * ClearScore removes a recorded score.
+ */
+export function ClearScore(id: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(965784427, id);
+}
+
+/**
  * CloseTournament closes the current tournament, if any.
  */
 export function CloseTournament(): $CancellablePromise<void> {
@@ -84,6 +91,13 @@ export function CreateTournament(name: string): $CancellablePromise<string> {
  */
 export function CreateTournamentAt(path: string, name: string): $CancellablePromise<void> {
     return $Call.ByID(3827390496, path, name);
+}
+
+/**
+ * DrawLots breaks the remaining ties of a complete pool by lot.
+ */
+export function DrawLots(c: engine$0.Category, pool: number): $CancellablePromise<void> {
+    return $Call.ByID(1395438836, c, pool);
 }
 
 /**
@@ -143,6 +157,20 @@ export function GetFormatView(): $CancellablePromise<$models.FormatView> {
 }
 
 /**
+ * GetHistoryView returns every action, newest first.
+ */
+export function GetHistoryView(): $CancellablePromise<$models.HistoryView> {
+    return $Call.ByID(3433877163);
+}
+
+/**
+ * GetPhasesView returns the phases screen.
+ */
+export function GetPhasesView(): $CancellablePromise<$models.PhasesView> {
+    return $Call.ByID(1474962031);
+}
+
+/**
  * GetTournamentView returns the current tournament, or Open=false.
  */
 export function GetTournamentView(): $CancellablePromise<$models.TournamentView> {
@@ -190,6 +218,13 @@ export function RecordScore(id: tournament$0.MatchID, score: engine$0.Score): $C
  */
 export function RegisterEntrant(c: engine$0.Category, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
     return $Call.ByID(2540135563, c, players);
+}
+
+/**
+ * ReinstateEntrant cancels a forfeit.
+ */
+export function ReinstateEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
+    return $Call.ByID(2366109721, id);
 }
 
 /**
@@ -246,6 +281,13 @@ export function SetMinRest(minutes: number): $CancellablePromise<void> {
  */
 export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
     return $Call.ByID(932998391, id, seed);
+}
+
+/**
+ * SwapMatches swaps two waiting matches in the call order.
+ */
+export function SwapMatches(a: tournament$0.MatchID, b: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(2755653850, a, b);
 }
 
 /**

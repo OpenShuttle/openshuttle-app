@@ -39,6 +39,10 @@ export const routes: Routes = [
             loadComponent: () => import('./control-desk/control-desk').then((m) => m.ControlDesk),
           },
           {
+            path: 'stages',
+            loadComponent: () => import('./phases/phases').then((m) => m.Phases),
+          },
+          {
             path: 'check-in',
             loadComponent: () => import('./check-in/check-in').then((m) => m.CheckIn),
           },

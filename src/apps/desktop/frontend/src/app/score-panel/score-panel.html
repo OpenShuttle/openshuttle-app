@@ -32,11 +32,18 @@
             max="99"
             inputmode="numeric"
             [value]="points()[side][i] ?? ''"
-            (input)="set(side, i, $event)"
+            (input)="set(side, i, $event); confirmingForfeit.set(null)"
           />
         }
-        <button type="button" class="btn btn-small wo" (click)="walkover(s.entrant)" [attr.title]="t('desk.walkoverHint')">
-          {{ t('desk.walkover') }}
+        <button
+          type="button"
+          tabindex="-1"
+          class="btn btn-small wo"
+          [class.confirm]="confirmingForfeit() === s.entrant"
+          (click)="walkover(s.entrant)"
+          [attr.title]="t('desk.walkoverHint')"
+        >
+          {{ t(confirmingForfeit() === s.entrant ? 'desk.walkoverConfirm' : 'desk.walkover') }}
         </button>
       }
     </div>

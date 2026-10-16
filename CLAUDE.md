@@ -109,6 +109,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Pool matches are derived, not stored**: confirming a draw generates the round-robin matches (circle method, rounds interleaved across pools, IDs like `MD-A3`). Events record what happens to them: `MatchCalled`, `MatchEnded`, `ScoreRecorded`, `EntrantWithdrawn`. Event times are the call and end times. Once a match has started, the draw cannot be reopened and entrants cannot be removed (declare a forfeit).
 - **Calling is refused only when impossible**: a match already in progress on that court, or an entrant already on another court. Resting is shown in the queue, never enforced.
 - **Proposals** give each free or finished court the next ready match in queue order (round order, categories merged by court priority), never two proposals sharing an entrant. The view depends on the time, so the control desk refetches every 15 s.
+- **Corrections** (Stages screen, correction mode): edit or clear a score, declare or cancel a forfeit, swap two waiting matches, draw lots for a complete pool still tied after every other criterion (`LotsDrawn` stores the lots). A forfeit takes a second click and stays out of the Tab order of the score panel: Enter there always means "save the score".
 - **Score JSON** is `{sets: [{a, b}], goldenPoint}`, win conditions `{kind, setsToWin, pointsPerSet, cap, minutes}`: these are stored in events, never rename them.
 
 ## Glossary (French spec → code)

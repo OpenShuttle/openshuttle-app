@@ -234,6 +234,7 @@ func (s State) PoolStandings(c engine.Category, pool int) engine.PoolStandings {
 		Entrants:  d.Pools[pool],
 		Withdrawn: map[engine.EntrantID]bool{},
 		Tiebreaks: s.PoolStage(c).Tiebreaks,
+		DrawLots:  s.lots[PoolRef{c, pool}],
 	}
 	for _, id := range d.Pools[pool] {
 		p.Withdrawn[id] = s.withdrawn[id]

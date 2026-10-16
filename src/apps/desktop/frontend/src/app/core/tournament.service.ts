@@ -160,6 +160,22 @@ export class TournamentStore {
     return this.command(() => Backend.SetCourtPriority(priority));
   }
 
+  clearScore(id: MatchID): Promise<boolean> {
+    return this.command(() => Backend.ClearScore(id));
+  }
+
+  reinstateEntrant(id: EntrantID): Promise<boolean> {
+    return this.command(() => Backend.ReinstateEntrant(id));
+  }
+
+  swapMatches(a: MatchID, b: MatchID): Promise<boolean> {
+    return this.command(() => Backend.SwapMatches(a, b));
+  }
+
+  drawLots(category: Category, pool: number): Promise<boolean> {
+    return this.command(() => Backend.DrawLots(category, pool));
+  }
+
   /** Runs a command that returns nothing; true when it succeeded. */
   private command(call: () => Promise<void>): Promise<boolean> {
     return this.run(async () => {

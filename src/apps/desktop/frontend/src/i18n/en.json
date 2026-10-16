@@ -56,7 +56,11 @@
     "MatchCalled": "Court {court}: {a} vs {b}",
     "MatchEnded": "Court {court} ended: {a} vs {b}",
     "ScoreRecorded": "Score {a} vs {b}: {score}",
-    "EntrantWithdrawn": "Forfeit: {names}"
+    "EntrantWithdrawn": "Forfeit: {names}",
+    "ScoreCleared": "Score cleared: {a} vs {b}",
+    "EntrantReinstated": "Forfeit cancelled: {names}",
+    "MatchesSwapped": "Matches swapped: {first} and {second}",
+    "LotsDrawn": "Lots drawn: {category} pool {pool}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -81,7 +85,11 @@
     "MatchCalled": "call of {a} vs {b}",
     "MatchEnded": "end of {a} vs {b}",
     "ScoreRecorded": "score of {a} vs {b}",
-    "EntrantWithdrawn": "forfeit of {names}"
+    "EntrantWithdrawn": "forfeit of {names}",
+    "ScoreCleared": "clearing of {a} vs {b}",
+    "EntrantReinstated": "forfeit cancellation of {names}",
+    "MatchesSwapped": "swap of {first} and {second}",
+    "LotsDrawn": "lots of {category} pool {pool}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -129,7 +137,10 @@
     "ENTRANT_PLAYING": "A player of this match is on another court.",
     "MATCHES_STARTED": "Matches have started: the draw can no longer be reopened.",
     "ENTRANT_IN_POOLS": "This entrant is in the pools: declare a forfeit instead.",
-    "ENTRANT_NOT_IN_POOLS": "This entrant is not in the pools."
+    "ENTRANT_NOT_IN_POOLS": "This entrant is not in the pools.",
+    "NO_SCORE": "This match has no score.",
+    "ENTRANT_NOT_WITHDRAWN": "This entrant has not forfeited.",
+    "NO_TIE": "No tie to break in this pool."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -313,10 +324,44 @@
     "walkoverHint": "Declares a forfeit: all the pool matches of this entrant become walkovers.",
     "goldenPoint": "Decided by a golden point",
     "scoreKeys": "Enter to save · Esc to close",
-    "saveScore": "Save score"
+    "saveScore": "Save score",
+    "walkoverConfirm": "Confirm forfeit"
   },
   "priority": {
     "balanced": "Balanced",
     "first": "{category} first"
+  },
+  "historyPanel": {
+    "title": "History"
+  },
+  "phases": {
+    "title": "Stages",
+    "correctionMode": "Correction mode",
+    "correctionHint": "Correction mode: edit or clear a score, declare or cancel a forfeit, swap two matches. Every action is logged and can be undone.",
+    "swapPick": "Pick the match to swap with {id}.",
+    "notStarted": "The pools appear once the draw is confirmed.",
+    "winSets": "{sets, plural, =1 {1 set} other {best of {sets, plural, =2 {3} other {5}}}} of {points}{cap, plural, =0 {} other { · cap {cap}}}",
+    "winTimed": "Timed · {minutes} min · golden point",
+    "complete": "Complete",
+    "inProgress": "In progress",
+    "drawLots": "Draw lots",
+    "tiebreaks": "Tiebreaks:",
+    "rank": "Rk",
+    "entrant": "Entrant",
+    "played": "P",
+    "playedLong": "Played",
+    "wins": "W",
+    "winsLong": "Wins",
+    "sets": "Sets",
+    "points": "Points",
+    "forfeit": "Forfeit",
+    "tied": "Tied: draw lots",
+    "reinstate": "Cancel forfeit",
+    "scorePending": "Score pending",
+    "toPlay": "To play",
+    "editScore": "Edit",
+    "clearScore": "Clear",
+    "swap": "Swap",
+    "swapHere": "Swap here"
   }
 }

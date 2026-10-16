@@ -92,6 +92,12 @@
 .wo {
   color: var(--color-alert);
   border-color: var(--color-alert-border);
+
+  &.confirm {
+    background: var(--color-alert);
+    border-color: var(--color-alert);
+    color: #fff;
+  }
 }
 
 .golden {

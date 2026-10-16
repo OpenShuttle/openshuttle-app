@@ -1,0 +1,158 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('phases.title') }}</h1>
+    <div class="header-actions">
+      <button type="button" class="btn" (click)="showHistory.set(!showHistory())">{{ t('historyPanel.title') }}</button>
+      <button type="button" class="btn" [class.btn-correction]="correction()" (click)="toggleCorrection()" [attr.aria-pressed]="correction()">
+        {{ t('phases.correctionMode') }}
+      </button>
+    </div>
+  </div>
+
+  @if (correction()) {
+    <div class="correction-banner">
+      {{ t('phases.correctionHint') }}
+      @if (swapping(); as s) {
+        <strong>{{ t('phases.swapPick', { id: s.id }) }}</strong>
+        <button type="button" class="link" (click)="swapping.set(null)">{{ t('common.cancel') }}</button>
+      }
+    </div>
+  }
+
+  @if ((view().categories ?? []).length === 0) {
+    <div class="empty">
+      {{ t('entrants.noCategory') }}
+      <a routerLink="../info">{{ t('entrants.goToInfo') }}</a>
+    </div>
+  } @else if (current(); as c) {
+    <div class="tabs" role="tablist">
+      @for (cat of view().categories; track cat.category) {
+        <button type="button" role="tab" class="tab" [class.active]="cat.category === c.category" (click)="select(cat.category)">
+          <app-category-badge [category]="cat.category" [slot]="cat.slot" />
+          {{ t('category.name.' + cat.category) }}
+        </button>
+      }
+    </div>
+
+    <p class="stage">
+      {{ t('format.stage', { n: 1 }) }} · {{ t('format.pools') }} ·
+      {{ t(winKey(c), { sets: c.stage.win.setsToWin, points: c.stage.win.pointsPerSet, cap: c.stage.win.cap || 0, minutes: c.stage.win.minutes }) }}
+    </p>
+
+    @if (!c.started) {
+      <div class="empty">
+        {{ t('phases.notStarted') }}
+        <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+      </div>
+    } @else {
+      <div class="pools">
+        @for (pool of c.pools; track pool.index) {
+          <section class="pool">
+            <header class="pool-header">
+              <h2>{{ t('desk.pool', { pool: pool.name }) }}</h2>
+              <span class="status" [class.done]="pool.complete">{{ t(pool.complete ? 'phases.complete' : 'phases.inProgress') }}</span>
+              @if (pool.drawNeeded) {
+                <button type="button" class="btn btn-small" (click)="tournament.drawLots(c.category, pool.index)">{{ t('phases.drawLots') }}</button>
+              }
+            </header>
+            <p class="tiebreaks">
+              {{ t('phases.tiebreaks') }}
+              @for (tb of c.stage.tiebreaks; track tb; let last = $last) {
+                {{ t('tiebreak.' + tb) }}{{ last ? '' : ' › ' }}
+              }
+            </p>
+
+            <table class="standings">
+              <thead>
+                <tr>
+                  <th>{{ t('phases.rank') }}</th>
+                  <th class="left">{{ t('phases.entrant') }}</th>
+                  <th [attr.title]="t('phases.playedLong')">{{ t('phases.played') }}</th>
+                  <th [attr.title]="t('phases.winsLong')">{{ t('phases.wins') }}</th>
+                  <th>{{ t('phases.sets') }}</th>
+                  <th>{{ t('phases.points') }}</th>
+                  @if (correction()) {
+                    <th></th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of pool.standings; track r.entrant.entrant) {
+                  <tr [class.withdrawn]="r.withdrawn">
+                    <td class="rank">{{ r.rank }}</td>
+                    <td class="left">
+                      <span class="bib">{{ r.entrant.bib }}</span> {{ names(r.entrant) }}
+                      @if (r.withdrawn) {
+                        <span class="tag alert">{{ t('phases.forfeit') }}</span>
+                      }
+                      @if (r.drawNeeded) {
+                        <span class="tag">{{ t('phases.tied') }}</span>
+                      }
+                    </td>
+                    <td>{{ r.played }}</td>
+                    <td class="strong">{{ r.wins }}</td>
+                    <td>{{ diff(r.setsWon, r.setsLost) }}</td>
+                    <td>{{ diff(r.pointsWon, r.pointsLost) }}</td>
+                    @if (correction()) {
+                      <td>
+                        @if (r.withdrawn) {
+                          <button type="button" class="btn btn-tiny" (click)="tournament.reinstateEntrant(r.entrant.entrant)">{{ t('phases.reinstate') }}</button>
+                        } @else {
+                          <button type="button" class="btn btn-tiny danger" (click)="tournament.withdrawEntrant(r.entrant.entrant)">{{ t('desk.walkover') }}</button>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <ul class="matches">
+              @for (m of pool.matches; track m.id) {
+                <li [class.picked]="swapping()?.id === m.id">
+                  <span class="mid">{{ m.id }}</span>
+                  <span class="vs">{{ m.a.bib }} – {{ m.b.bib }}</span>
+                  <span class="result">
+                    @if (m.walkover) {
+                      <span class="tag alert">WO</span>
+                    } @else if (m.score) {
+                      {{ scoreText(m) }}
+                    } @else if (m.court && !m.endedAt) {
+                      <span class="tag playing">{{ t('desk.courtN', { n: m.court }) }}</span>
+                    } @else if (m.endedAt) {
+                      <span class="tag">{{ t('phases.scorePending') }}</span>
+                    } @else {
+                      <span class="muted">{{ t('phases.toPlay') }}</span>
+                    }
+                  </span>
+                  @if (correction()) {
+                    <span class="actions">
+                      @if (!m.walkover) {
+                        <button type="button" class="btn btn-tiny" (click)="scoring.set(m)">{{ t(m.score ? 'phases.editScore' : 'desk.enterScore') }}</button>
+                      }
+                      @if (m.score) {
+                        <button type="button" class="btn btn-tiny" (click)="tournament.clearScore(m.id)">{{ t('phases.clearScore') }}</button>
+                      }
+                      @if (waiting(m)) {
+                        <button type="button" class="btn btn-tiny" (click)="swap(m)">
+                          {{ t(swapping() && swapping()?.id !== m.id ? 'phases.swapHere' : 'phases.swap') }}
+                        </button>
+                      }
+                    </span>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+    }
+  }
+
+  @if (scoring(); as m) {
+    <app-score-panel [match]="m" (closed)="scoring.set(null)" />
+  }
+  @if (showHistory()) {
+    <app-history-panel (closed)="showHistory.set(false)" />
+  }
+</ng-container>

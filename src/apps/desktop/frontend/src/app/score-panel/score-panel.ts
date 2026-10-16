@@ -43,6 +43,8 @@ export class ScorePanel {
   /** points[side][set], as typed. */
   protected readonly points = signal<string[][]>([[], []]);
   protected readonly goldenPoint = signal(false);
+  /** Entrant whose forfeit waits for a second click to confirm. */
+  protected readonly confirmingForfeit = signal<EntrantID | null>(null);
 
   constructor() {
     // Start from the recorded score when correcting one.
@@ -74,7 +76,16 @@ export class ScorePanel {
     }
   }
 
+  /**
+   * A forfeit turns every pool match of the entrant into a walkover: it takes
+   * a second click, and the buttons stay out of the Tab order, so typing a
+   * score and pressing Enter can never declare one.
+   */
   protected async walkover(entrant: EntrantID): Promise<void> {
+    if (this.confirmingForfeit() !== entrant) {
+      this.confirmingForfeit.set(entrant);
+      return;
+    }
     if (await this.tournament.withdrawEntrant(entrant)) {
       this.closed.emit();
     }
