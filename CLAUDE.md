@@ -56,7 +56,10 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - No player ranking or level management (no FFBaD classification such as P10, NC). Entrants have no level field.
 - A tournament file is self-contained: entrants are copied from the registry at creation.
 - Every file stores its schema version and is migrated on open.
-- WAL mode always. Automatic periodic backup copy. A crash or power cut must never lose more than the last action.
+- WAL mode and `synchronous=FULL` always: a committed action survives a power cut. Automatic periodic backup copy (`VACUUM INTO`, named `<name>.backup-YYYYMMDD-HHMMSS.openshuttle`, rotated).
+- Files are recognized by their SQLite `application_id` (`OSHT` tournament, `OSAP` app.db), versioned by `user_version`. Migrations are append-only lists in `internal/store`.
+- Undo appends an `ActionUndone` event targeting an earlier seq; undoing an undo restores its target. `events.Active` gives the events in effect. Nothing is deleted from the log.
+- Open SQLite with a plain path, never a `file:` URI (Windows paths, `#` and `%` in names).
 
 ## Domain rules (v1, decided)
 

@@ -11,6 +11,14 @@ const (
 	CodeInvalidSetCount     Code = "INVALID_SET_COUNT"
 	CodeInvalidTimedScore   Code = "INVALID_TIMED_SCORE"
 	CodeInvalidCategory     Code = "INVALID_CATEGORY"
+
+	CodeNothingToUndo Code = "NOTHING_TO_UNDO"
+	CodeInvalidEvent  Code = "INVALID_EVENT"
+
+	CodeFileExists         Code = "FILE_EXISTS"
+	CodeFileNotFound       Code = "FILE_NOT_FOUND"
+	CodeNotATournamentFile Code = "NOT_A_TOURNAMENT_FILE"
+	CodeFileTooNew         Code = "FILE_TOO_NEW"
 )
 
 // Error is a domain error carrying a stable code. Set is the 1-based index of
@@ -22,6 +30,11 @@ type Error struct {
 
 func (e *Error) Error() string {
 	return string(e.Code)
+}
+
+// NewError returns an error with the given code.
+func NewError(code Code) *Error {
+	return &Error{Code: code}
 }
 
 func newError(code Code) *Error {
