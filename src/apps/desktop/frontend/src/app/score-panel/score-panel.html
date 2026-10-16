@@ -1,0 +1,57 @@
+<ng-container *transloco="let t">
+  <div class="backdrop" (click)="closed.emit()"></div>
+  <form class="panel" role="dialog" aria-modal="true" (submit)="$event.preventDefault(); save()">
+    <header class="header">
+      <app-category-badge [category]="match().category" [slot]="match().slot" />
+      <span class="title">{{ t('desk.poolMatch', { pool: match().pool, id: match().id }) }}</span>
+      @if (match().court) {
+        <span class="court">{{ t('desk.courtN', { n: match().court }) }}</span>
+      }
+      <button type="button" class="close" (click)="closed.emit()" [attr.aria-label]="t('common.cancel')">×</button>
+    </header>
+
+    <div class="grid" [style.grid-template-columns]="'minmax(0, 1fr) repeat(' + setCount() + ', 64px) auto'">
+      <span></span>
+      @for (i of sets(); track i) {
+        <span class="set-label">{{ timed() ? t('desk.points') : t('desk.setN', { n: i + 1 }) }}</span>
+      }
+      <span></span>
+
+      @for (side of [0, 1]; track side) {
+        @let s = side === 0 ? match().a : match().b;
+        <div class="side">
+          <span class="bib">{{ s.bib || '–' }}</span>
+          <span class="names">{{ (s.names ?? []).join(' / ') }}</span>
+        </div>
+        @for (i of sets(); track i) {
+          <input
+            #point
+            class="input point"
+            type="number"
+            min="0"
+            max="99"
+            inputmode="numeric"
+            [value]="points()[side][i] ?? ''"
+            (input)="set(side, i, $event)"
+          />
+        }
+        <button type="button" class="btn btn-small wo" (click)="walkover(s.entrant)" [attr.title]="t('desk.walkoverHint')">
+          {{ t('desk.walkover') }}
+        </button>
+      }
+    </div>
+
+    @if (timed()) {
+      <label class="golden">
+        <input type="checkbox" [checked]="goldenPoint()" (change)="goldenPoint.set($any($event.target).checked)" />
+        {{ t('desk.goldenPoint') }}
+      </label>
+    }
+
+    <footer class="footer">
+      <span class="hint">{{ t('desk.scoreKeys') }}</span>
+      <button type="button" class="btn" (click)="closed.emit()">{{ t('common.cancel') }}</button>
+      <button type="submit" class="btn btn-primary">{{ t('desk.saveScore') }}</button>
+    </footer>
+  </form>
+</ng-container>

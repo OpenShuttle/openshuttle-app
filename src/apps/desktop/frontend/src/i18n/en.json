@@ -28,7 +28,10 @@
     "categories": "Categories",
     "categoriesHint": "Up to {max} categories, played at the same time on shared courts. A player can only be in one category.",
     "noCategory": "No category yet. Add one to enter players.",
-    "removeCategory": "Remove"
+    "removeCategory": "Remove",
+    "courts": "Courts",
+    "minRest": "Minimum rest between two matches",
+    "minutes": "{n} min"
   },
   "history": {
     "TournamentCreated": "Tournament created: {name}",
@@ -46,7 +49,14 @@
     "PoolsDrawn": "Pools drawn: {category}",
     "EntrantMoved": "{names} moved to pool {pool}",
     "DrawConfirmed": "Draw confirmed: {category}",
-    "DrawReopened": "Draw reopened: {category}"
+    "DrawReopened": "Draw reopened: {category}",
+    "CourtsSet": "Courts: {courts}",
+    "MinRestSet": "Minimum rest: {minutes} min",
+    "CourtPrioritySet": "Court priority: {priority}",
+    "MatchCalled": "Court {court}: {a} vs {b}",
+    "MatchEnded": "Court {court} ended: {a} vs {b}",
+    "ScoreRecorded": "Score {a} vs {b}: {score}",
+    "EntrantWithdrawn": "Forfeit: {names}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -64,7 +74,14 @@
     "PoolsDrawn": "draw of {category}",
     "EntrantMoved": "move of {names}",
     "DrawConfirmed": "draw confirmation of {category}",
-    "DrawReopened": "reopening of {category}"
+    "DrawReopened": "reopening of {category}",
+    "CourtsSet": "courts change",
+    "MinRestSet": "rest change",
+    "CourtPrioritySet": "priority change",
+    "MatchCalled": "call of {a} vs {b}",
+    "MatchEnded": "end of {a} vs {b}",
+    "ScoreRecorded": "score of {a} vs {b}",
+    "EntrantWithdrawn": "forfeit of {names}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -99,7 +116,20 @@
     "NO_DRAW": "Draw the pools first.",
     "DRAW_CONFIRMED": "The draw is confirmed. Reopen it first.",
     "INVALID_POOL": "This pool does not exist.",
-    "ENTRANT_NOT_IN_DRAW": "This entrant is not checked in."
+    "ENTRANT_NOT_IN_DRAW": "This entrant is not checked in.",
+    "INVALID_COURTS": "Between 1 and 20 courts.",
+    "INVALID_REST": "Rest between 0 and 60 minutes.",
+    "INVALID_PRIORITY": "Unknown court priority.",
+    "MATCH_NOT_FOUND": "This match no longer exists.",
+    "MATCH_STARTED": "This match has already been called.",
+    "MATCH_NOT_PLAYING": "This match is not in progress.",
+    "MATCH_WALKOVER": "This match is a walkover: one side forfeited.",
+    "INVALID_COURT": "This court does not exist.",
+    "COURT_BUSY": "A match is in progress on this court.",
+    "ENTRANT_PLAYING": "A player of this match is on another court.",
+    "MATCHES_STARTED": "Matches have started: the draw can no longer be reopened.",
+    "ENTRANT_IN_POOLS": "This entrant is in the pools: declare a forfeit instead.",
+    "ENTRANT_NOT_IN_POOLS": "This entrant is not in the pools."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -234,5 +264,59 @@
     "unplaced": "Checked in after the draw: drag them into a pool",
     "seedsTitle": "Seeds",
     "seedsHint": "Seeds are spread first: S1 in pool A, S2 in B… then back."
+  },
+  "desk": {
+    "title": "Control desk",
+    "countPlaying": "{n} playing",
+    "countFree": "{n} free",
+    "countPending": "{n, plural, one {# score pending} other {# scores pending}}",
+    "priority": "Court priority",
+    "notStarted": "No match yet: confirm a draw to generate the pool matches.",
+    "goToDraw": "Go to the draw",
+    "court": "Court",
+    "courtN": "Court {n}",
+    "state": {
+      "free": "Free",
+      "playing": "Playing",
+      "finished": "Finished"
+    },
+    "pool": "Pool {pool}",
+    "poolMatch": "Pool {pool} · {id}",
+    "versus": "vs",
+    "playedFor": "Played for",
+    "end": "End",
+    "enterScore": "Enter score",
+    "endedAt": "Ended at {time}",
+    "scorePendingClick": "Score pending · click to enter",
+    "nextProposed": "Next proposed · {id}",
+    "proposed": "Proposed · {id}",
+    "startNext": "Start next",
+    "call": "Call",
+    "noMatchReady": "No match ready for this court.",
+    "pendingScores": "Pending scores",
+    "noPending": "No score pending.",
+    "pendingKey": "S opens the oldest one.",
+    "endedMinutesAgo": "Ended at {time} · {minutes} min ago",
+    "nextMatches": "Next matches",
+    "queueEmpty": "Every match has been called.",
+    "reason": {
+      "ready": "Ready",
+      "playing": "Playing on court {court}",
+      "resting": "Resting for {minutes} min",
+      "absent": "Player absent"
+    },
+    "alerts": "Alerts",
+    "poolComplete": "Pool {pool} is complete",
+    "points": "Points",
+    "setN": "Set {n}",
+    "walkover": "Forfeit",
+    "walkoverHint": "Declares a forfeit: all the pool matches of this entrant become walkovers.",
+    "goldenPoint": "Decided by a golden point",
+    "scoreKeys": "Enter to save · Esc to close",
+    "saveScore": "Save score"
+  },
+  "priority": {
+    "balanced": "Balanced",
+    "first": "{category} first"
   }
 }

@@ -39,3 +39,127 @@
   font-weight: 700;
   color: var(--color-display-muted);
 }
+
+.board {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.8vw;
+  padding: 1.8vw;
+}
+
+.calls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vw;
+}
+
+.call {
+  display: flex;
+  gap: 1.6vw;
+  padding: 1.2vw 1.4vw;
+  background: var(--color-display-surface);
+  border-radius: 1.2vw;
+
+  &.latest {
+    outline: 0.3vw solid var(--color-brand);
+  }
+}
+
+.call-court {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 9vw;
+
+  .label {
+    font-size: 1.1vw;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-display-muted);
+  }
+
+  .number {
+    font: 800 7vw/1 var(--font-mono);
+    color: var(--color-brand);
+  }
+}
+
+.call-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5vw;
+  min-width: 0;
+}
+
+.call-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  font-size: 1.4vw;
+  font-weight: 700;
+  color: var(--color-display-muted);
+}
+
+// A very visible category badge, read from 10 m.
+.big-badge ::ng-deep .badge {
+  font-size: 1.6vw;
+  padding: 0.3vw 0.8vw;
+  border-radius: 0.4vw;
+}
+
+.call-side {
+  font-size: 2.4vw;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bib {
+  font-family: var(--font-mono);
+  color: var(--color-brand);
+  margin-right: 0.6vw;
+}
+
+.courts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  gap: 0.8vw;
+  align-content: start;
+}
+
+.court {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  padding: 0.8vw 1vw;
+  background: var(--color-display-surface);
+  border-radius: 0.8vw;
+  border-left: 0.5vw solid var(--color-free);
+
+  &.busy {
+    border-left-color: var(--color-playing);
+  }
+}
+
+.court-number {
+  font: 800 2.6vw/1 var(--font-mono);
+  min-width: 3vw;
+}
+
+.court-match {
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+  font: 700 1.6vw var(--font-mono);
+}
+
+.court-free {
+  font-size: 1.4vw;
+  font-weight: 700;
+  color: var(--color-display-muted);
+}

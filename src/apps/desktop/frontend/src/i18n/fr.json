@@ -28,7 +28,10 @@
     "categories": "Catégories",
     "categoriesHint": "Jusqu'à {max} catégories, jouées en même temps sur des terrains partagés. Un joueur ne peut être inscrit que dans une catégorie.",
     "noCategory": "Aucune catégorie. Ajoutez-en une pour inscrire des joueurs.",
-    "removeCategory": "Retirer"
+    "removeCategory": "Retirer",
+    "courts": "Terrains",
+    "minRest": "Repos minimum entre deux matchs",
+    "minutes": "{n} min"
   },
   "history": {
     "TournamentCreated": "Tournoi créé : {name}",
@@ -46,7 +49,14 @@
     "PoolsDrawn": "Poules tirées : {category}",
     "EntrantMoved": "{names} déplacé(s) en poule {pool}",
     "DrawConfirmed": "Tirage validé : {category}",
-    "DrawReopened": "Tirage rouvert : {category}"
+    "DrawReopened": "Tirage rouvert : {category}",
+    "CourtsSet": "Terrains : {courts}",
+    "MinRestSet": "Repos minimum : {minutes} min",
+    "CourtPrioritySet": "Priorité terrains : {priority}",
+    "MatchCalled": "Terrain {court} : {a} contre {b}",
+    "MatchEnded": "Terrain {court} terminé : {a} contre {b}",
+    "ScoreRecorded": "Score {a} contre {b} : {score}",
+    "EntrantWithdrawn": "Forfait : {names}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -64,7 +74,14 @@
     "PoolsDrawn": "tirage {category}",
     "EntrantMoved": "déplacement de {names}",
     "DrawConfirmed": "validation du tirage {category}",
-    "DrawReopened": "réouverture du tirage {category}"
+    "DrawReopened": "réouverture du tirage {category}",
+    "CourtsSet": "changement de terrains",
+    "MinRestSet": "changement du repos",
+    "CourtPrioritySet": "changement de priorité",
+    "MatchCalled": "appel de {a} contre {b}",
+    "MatchEnded": "fin de {a} contre {b}",
+    "ScoreRecorded": "score de {a} contre {b}",
+    "EntrantWithdrawn": "forfait de {names}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -99,7 +116,20 @@
     "NO_DRAW": "Tirez d'abord les poules.",
     "DRAW_CONFIRMED": "Le tirage est validé. Rouvrez-le d'abord.",
     "INVALID_POOL": "Cette poule n'existe pas.",
-    "ENTRANT_NOT_IN_DRAW": "Ce participant n'est pas pointé."
+    "ENTRANT_NOT_IN_DRAW": "Ce participant n'est pas pointé.",
+    "INVALID_COURTS": "Entre 1 et 20 terrains.",
+    "INVALID_REST": "Repos entre 0 et 60 minutes.",
+    "INVALID_PRIORITY": "Priorité de terrains inconnue.",
+    "MATCH_NOT_FOUND": "Ce match n'existe plus.",
+    "MATCH_STARTED": "Ce match a déjà été appelé.",
+    "MATCH_NOT_PLAYING": "Ce match n'est pas en cours.",
+    "MATCH_WALKOVER": "Ce match est un WO : un participant a déclaré forfait.",
+    "INVALID_COURT": "Ce terrain n'existe pas.",
+    "COURT_BUSY": "Un match est en cours sur ce terrain.",
+    "ENTRANT_PLAYING": "Un joueur de ce match est sur un autre terrain.",
+    "MATCHES_STARTED": "Des matchs ont commencé : le tirage ne peut plus être rouvert.",
+    "ENTRANT_IN_POOLS": "Ce participant est dans les poules : déclarez plutôt un forfait.",
+    "ENTRANT_NOT_IN_POOLS": "Ce participant n'est pas dans les poules."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -234,5 +264,59 @@
     "unplaced": "Pointés après le tirage : glissez-les dans une poule",
     "seedsTitle": "Têtes de série",
     "seedsHint": "Les têtes de série sont réparties d'abord : TS1 en poule A, TS2 en B… puis retour."
+  },
+  "desk": {
+    "title": "Table de marque",
+    "countPlaying": "{n} en cours",
+    "countFree": "{n} {n, plural, one {libre} other {libres}}",
+    "countPending": "{n, plural, one {# score en attente} other {# scores en attente}}",
+    "priority": "Priorité terrains",
+    "notStarted": "Aucun match : validez un tirage pour générer les matchs de poules.",
+    "goToDraw": "Aller au tirage",
+    "court": "Terrain",
+    "courtN": "Terrain {n}",
+    "state": {
+      "free": "Libre",
+      "playing": "En cours",
+      "finished": "Terminé"
+    },
+    "pool": "Poule {pool}",
+    "poolMatch": "Poule {pool} · {id}",
+    "versus": "contre",
+    "playedFor": "Joué depuis",
+    "end": "Terminer",
+    "enterScore": "Saisir le score",
+    "endedAt": "Terminé à {time}",
+    "scorePendingClick": "Score en attente · cliquer pour saisir",
+    "nextProposed": "Suivant proposé · {id}",
+    "proposed": "Proposé · {id}",
+    "startNext": "Lancer le suivant",
+    "call": "Appeler",
+    "noMatchReady": "Aucun match prêt pour ce terrain.",
+    "pendingScores": "Scores en attente",
+    "noPending": "Aucun score en attente.",
+    "pendingKey": "S ouvre le plus ancien.",
+    "endedMinutesAgo": "Terminé à {time} · il y a {minutes} min",
+    "nextMatches": "Prochains matchs",
+    "queueEmpty": "Tous les matchs ont été appelés.",
+    "reason": {
+      "ready": "Prêt",
+      "playing": "Joue sur le terrain {court}",
+      "resting": "En repos depuis {minutes} min",
+      "absent": "Joueur absent"
+    },
+    "alerts": "Alertes",
+    "poolComplete": "Poule {pool} terminée",
+    "points": "Points",
+    "setN": "Set {n}",
+    "walkover": "Forfait",
+    "walkoverHint": "Déclare un forfait : tous les matchs de poule de ce participant passent en WO.",
+    "goldenPoint": "Décidé au point en or",
+    "scoreKeys": "Entrée pour valider · Échap pour fermer",
+    "saveScore": "Valider le score"
+  },
+  "priority": {
+    "balanced": "Équilibrée",
+    "first": "{category} d'abord"
   }
 }

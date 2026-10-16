@@ -78,6 +78,55 @@ export interface CheckInView {
 }
 
 /**
+ * ControlDeskView is the control desk: courts, pending scores, queue, alerts.
+ */
+export interface ControlDeskView {
+    "now": string;
+    "courts": CourtView[] | null;
+    "pending": MatchView[] | null;
+    "queue": QueueView[] | null;
+    "complete": PoolRefView[] | null;
+    "priority": string;
+    "minRest": number;
+    "categories": CategoryRef[] | null;
+
+    /**
+     * Started is false until a draw is confirmed: there is nothing to call yet.
+     */
+    "started": boolean;
+}
+
+/**
+ * CourtView is a court card: its match and the next match proposed.
+ */
+export interface CourtView {
+    "number": number;
+    "state": tournament$0.CourtState;
+    "match": MatchView | null;
+    "proposal": MatchView | null;
+}
+
+/**
+ * DisplayCourt is a court on the display screen.
+ */
+export interface DisplayCourt {
+    "number": number;
+
+    /**
+     * nil when free
+     */
+    "match": MatchView | null;
+}
+
+/**
+ * DisplayView is the display screen: latest calls in big, then every court.
+ */
+export interface DisplayView {
+    "calls": MatchView[] | null;
+    "courts": DisplayCourt[] | null;
+}
+
+/**
  * DrawCategory is one category of the draw screen.
  */
 export interface DrawCategory {
@@ -198,6 +247,29 @@ export interface FormatView {
 }
 
 /**
+ * MatchView is a match as every desk screen shows it.
+ */
+export interface MatchView {
+    "id": tournament$0.MatchID;
+    "category": engine$0.Category;
+    "slot": number;
+    "pool": string;
+
+    /**
+     * 1-based
+     */
+    "round": number;
+    "a": SideView;
+    "b": SideView;
+    "court": number;
+    "calledAt": string | null;
+    "endedAt": string | null;
+    "score": engine$0.Score | null;
+    "walkover": boolean;
+    "win": engine$0.WinCondition;
+}
+
+/**
  * Monitor describes a screen the display window can be placed on.
  */
 export interface Monitor {
@@ -222,6 +294,25 @@ export interface PlayerView {
      * Duplicate warns that another player has the same full name.
      */
     "duplicate": boolean;
+}
+
+/**
+ * PoolRefView names a pool.
+ */
+export interface PoolRefView {
+    "category": engine$0.Category;
+    "slot": number;
+    "pool": string;
+}
+
+/**
+ * QueueView is a match waiting to be called, with why it is not ready.
+ */
+export interface QueueView {
+    "match": MatchView;
+    "reason": tournament$0.NotReady;
+    "court": number;
+    "restingSince": string | null;
 }
 
 /**
@@ -255,6 +346,21 @@ export interface Settings {
 }
 
 /**
+ * SideView is one side of a match.
+ */
+export interface SideView {
+    "entrant": engine$0.EntrantID;
+    "bib": number;
+
+    /**
+     * "First Last" per player
+     */
+    "names": string[] | null;
+    "clubs": string[] | null;
+    "withdrawn": boolean;
+}
+
+/**
  * TournamentView is what the top bar and the home screen need.
  */
 export interface TournamentView {
@@ -269,4 +375,7 @@ export interface TournamentView {
      * Categories in slot order: the first gets --color-category-1.
      */
     "categories": CategoryRef[] | null;
+    "courts": number;
+    "minRest": number;
+    "priority": string;
 }

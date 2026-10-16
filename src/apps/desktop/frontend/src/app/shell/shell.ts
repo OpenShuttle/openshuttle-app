@@ -77,10 +77,17 @@ export class Shell implements OnInit {
   private translatedParams(params: Record<string, string | undefined>): Record<string, string> {
     const out: Record<string, string> = {};
     for (const [key, value] of Object.entries(params)) {
-      out[key] =
-        key === 'category' && value
-          ? this.transloco.translate(`category.short.${value}`)
-          : (value ?? '');
+      out[key] = value ?? '';
+      if (key === 'category' && value) {
+        out[key] = this.transloco.translate(`category.short.${value}`);
+      } else if (key === 'priority' && value) {
+        out[key] =
+          value === 'balanced'
+            ? this.transloco.translate('priority.balanced')
+            : this.transloco.translate('priority.first', {
+                category: this.transloco.translate(`category.short.${value}`),
+              });
+      }
     }
     return out;
   }

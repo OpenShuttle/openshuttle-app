@@ -6,6 +6,56 @@
 import * as engine$0 from "../engine/models.js";
 
 /**
+ * CourtState is the state of a court.
+ */
+export enum CourtState {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    CourtFree = "free",
+    CourtPlaying = "playing",
+
+    /**
+     * ended by the desk, score not entered yet
+     */
+    CourtFinished = "finished",
+};
+
+/**
+ * MatchID identifies a match: category, pool and number, like "MD-A3".
+ */
+export type MatchID = string;
+
+/**
+ * NotReady says why a queued match cannot be called yet.
+ */
+export enum NotReady {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    ReasonNone = "",
+
+    /**
+     * an entrant is on a court
+     */
+    ReasonPlaying = "playing",
+
+    /**
+     * an entrant ended a match less than MinRest ago
+     */
+    ReasonResting = "resting",
+
+    /**
+     * a player is no longer checked in
+     */
+    ReasonAbsent = "absent",
+};
+
+/**
  * PlayerID identifies a player within a tournament.
  */
 export type PlayerID = string;

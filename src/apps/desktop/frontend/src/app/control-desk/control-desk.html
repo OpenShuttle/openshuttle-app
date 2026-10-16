@@ -1,0 +1,157 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('desk.title') }}</h1>
+    <div class="counters">
+      <span class="counter playing"><span class="swatch"></span>{{ t('desk.countPlaying', { n: counts().playing }) }}</span>
+      <span class="counter free"><span class="swatch"></span>{{ t('desk.countFree', { n: counts().free }) }}</span>
+      <span class="counter finished"><span class="swatch"></span>{{ t('desk.countPending', { n: counts().pending }) }}</span>
+    </div>
+    @if ((view().categories ?? []).length > 1) {
+      <div class="priority">
+        <span class="field-label">{{ t('desk.priority') }}</span>
+        <div class="segments">
+          <button type="button" class="segment" [class.active]="view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
+            {{ t('priority.balanced') }}
+          </button>
+          @for (c of view().categories; track c.category) {
+            <button type="button" class="segment" [class.active]="view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
+              {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (!view().started) {
+    <div class="empty">
+      {{ t('desk.notStarted') }}
+      <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <div class="courts">
+        @for (c of view().courts; track c.number) {
+          <article class="court" [class]="'court ' + c.state">
+            <header class="court-header">
+              <span class="court-number">{{ c.number }}</span>
+              <span class="court-label">{{ t('desk.court') }}</span>
+              <span class="state">{{ t('desk.state.' + c.state) }}</span>
+              @if (c.match; as m) {
+                <span class="pool"><app-category-badge [category]="m.category" [slot]="m.slot" /> {{ t('desk.pool', { pool: m.pool }) }}</span>
+              }
+            </header>
+
+            @if (c.state === 'playing' && c.match; as m) {
+              <div class="match">
+                <div class="side"><span class="bib">{{ m.a.bib }}</span><span class="names">{{ names(m.a) }}</span></div>
+                <span class="versus">{{ t('desk.versus') }}</span>
+                <div class="side"><span class="bib">{{ m.b.bib }}</span><span class="names">{{ names(m.b) }}</span></div>
+              </div>
+              <div class="court-footer">
+                <span class="timer"><span class="field-label">{{ t('desk.playedFor') }}</span> {{ elapsed(m.calledAt) }}</span>
+                <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
+                <button type="button" class="btn btn-primary" (click)="end(c)">{{ t('desk.end') }} <span class="kbd">{{ c.number }}</span></button>
+              </div>
+            } @else if (c.state === 'finished' && c.match; as m) {
+              <button type="button" class="finished-match" (click)="scoring.set(m)">
+                <span class="field-label">{{ t('desk.endedAt', { time: time(m.endedAt) }) }}</span>
+                <span class="line">{{ m.a.bib }} {{ names(m.a) }}</span>
+                <span class="line">{{ m.b.bib }} {{ names(m.b) }}</span>
+                <span class="cta">{{ t('desk.scorePendingClick') }}</span>
+              </button>
+              @if (c.proposal; as p) {
+                <div class="proposal">
+                  <span class="field-label">{{ t('desk.nextProposed', { id: p.id }) }}</span>
+                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ p.a.bib }} {{ names(p.a) }} – {{ p.b.bib }} {{ names(p.b) }}</span>
+                </div>
+              }
+              <div class="court-footer">
+                <button type="button" class="btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }} <span class="kbd">{{ c.number }}</span></button>
+                <button type="button" class="btn btn-primary" [disabled]="!c.proposal" (click)="call(c)">{{ t('desk.startNext') }}</button>
+              </div>
+            } @else {
+              @if (c.proposal; as p) {
+                <div class="proposal">
+                  <span class="field-label">{{ t('desk.proposed', { id: p.id }) }}</span>
+                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.pool', { pool: p.pool }) }}</span>
+                  <div class="side"><span class="bib">{{ p.a.bib }}</span><span class="names">{{ names(p.a) }}</span></div>
+                  <div class="side"><span class="bib">{{ p.b.bib }}</span><span class="names">{{ names(p.b) }}</span></div>
+                </div>
+                <div class="court-footer">
+                  <button type="button" class="btn btn-primary" (click)="call(c)">{{ t('desk.call') }} <span class="kbd">{{ c.number }}</span></button>
+                </div>
+              } @else {
+                <p class="idle">{{ t('desk.noMatchReady') }}</p>
+              }
+            }
+          </article>
+        }
+      </div>
+
+      <aside class="side-column">
+        <section class="panel">
+          <h2>{{ t('desk.pendingScores') }}</h2>
+          @for (m of view().pending; track m.id) {
+            <button type="button" class="pending" [class.late]="late(m)" (click)="scoring.set(m)">
+              <span class="pending-court">{{ m.court ? t('desk.courtN', { n: m.court }) : '–' }}</span>
+              <span class="pending-match">
+                <app-category-badge [category]="m.category" [slot]="m.slot" />
+                {{ m.a.bib }} – {{ m.b.bib }}
+              </span>
+              <span class="pending-time">{{ t('desk.endedMinutesAgo', { time: time(m.endedAt), minutes: minutesSince(m.endedAt) }) }}</span>
+            </button>
+          } @empty {
+            <p class="muted">{{ t('desk.noPending') }}</p>
+          }
+          @if ((view().pending ?? []).length > 0) {
+            <p class="muted small">{{ t('desk.pendingKey') }}</p>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>{{ t('desk.nextMatches') }}</h2>
+            @if ((view().categories ?? []).length > 1) {
+              <select (change)="queueFilter.set($any($event.target).value)">
+                <option value="all">{{ t('checkIn.allCategories') }}</option>
+                @for (c of view().categories; track c.category) {
+                  <option [value]="c.category">{{ t('category.short.' + c.category) }}</option>
+                }
+              </select>
+            }
+          </div>
+          @for (q of queue().slice(0, 12); track q.match.id) {
+            <div class="queue-item" [class.waiting]="q.reason">
+              <app-category-badge [category]="q.match.category" [slot]="q.match.slot" />
+              <span class="queue-match">{{ q.match.pool }} · {{ q.match.a.bib }} – {{ q.match.b.bib }}</span>
+              <span class="reason">
+                @switch (q.reason) {
+                  @case ('playing') { {{ t('desk.reason.playing', { court: q.court }) }} }
+                  @case ('resting') { {{ t('desk.reason.resting', { minutes: minutesSince(q.restingSince) }) }} }
+                  @case ('absent') { {{ t('desk.reason.absent') }} }
+                  @default { {{ t('desk.reason.ready') }} }
+                }
+              </span>
+            </div>
+          } @empty {
+            <p class="muted">{{ t('desk.queueEmpty') }}</p>
+          }
+        </section>
+
+        @if ((view().complete ?? []).length > 0) {
+          <section class="panel">
+            <h2>{{ t('desk.alerts') }}</h2>
+            @for (p of view().complete; track p.category + p.pool) {
+              <div class="alert"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.poolComplete', { pool: p.pool }) }}</div>
+            }
+          </section>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (scoring(); as m) {
+    <app-score-panel [match]="m" (closed)="scoring.set(null)" />
+  }
+</ng-container>

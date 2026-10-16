@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
-import { Category, EntrantID } from '@bindings/internal/engine';
-import { PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
+import { Category, EntrantID, Score } from '@bindings/internal/engine';
+import { MatchID, PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -14,6 +14,9 @@ const CLOSED: TournamentView = {
   lastAction: null,
   canUndo: false,
   categories: [],
+  courts: 4,
+  minRest: 10,
+  priority: 'balanced',
 };
 
 /**
@@ -127,6 +130,34 @@ export class TournamentStore {
 
   reopenDraw(category: Category): Promise<boolean> {
     return this.command(() => Backend.ReopenDraw(category));
+  }
+
+  callMatch(id: MatchID, court: number): Promise<boolean> {
+    return this.command(() => Backend.CallMatch(id, court));
+  }
+
+  endMatch(id: MatchID): Promise<boolean> {
+    return this.command(() => Backend.EndMatch(id));
+  }
+
+  recordScore(id: MatchID, score: Score): Promise<boolean> {
+    return this.command(() => Backend.RecordScore(id, score));
+  }
+
+  withdrawEntrant(id: EntrantID): Promise<boolean> {
+    return this.command(() => Backend.WithdrawEntrant(id));
+  }
+
+  setCourts(courts: number): Promise<boolean> {
+    return this.command(() => Backend.SetCourts(courts));
+  }
+
+  setMinRest(minutes: number): Promise<boolean> {
+    return this.command(() => Backend.SetMinRest(minutes));
+  }
+
+  setCourtPriority(priority: string): Promise<boolean> {
+    return this.command(() => Backend.SetCourtPriority(priority));
   }
 
   /** Runs a command that returns nothing; true when it succeeded. */

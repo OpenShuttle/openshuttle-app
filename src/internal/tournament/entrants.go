@@ -154,6 +154,10 @@ func (s State) RemoveEntrant(id engine.EntrantID) (Change, error) {
 	if _, ok := s.Entrant(id); !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
 	}
+	if slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) }) {
+		// Its matches exist: declare a forfeit instead.
+		return Change{}, engine.NewError(engine.CodeEntrantInPools)
+	}
 	return Change{TypeEntrantRemoved, EntrantRemoved{ID: id}}, nil
 }
 

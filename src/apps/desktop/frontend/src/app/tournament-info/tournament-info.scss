@@ -62,3 +62,42 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.row-label {
+  font-weight: 700;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--color-bg);
+    font-size: 18px;
+    font-weight: 700;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+  }
+
+  .value {
+    min-width: 72px;
+    text-align: center;
+    font: 700 15px var(--font-mono);
+  }
+}

@@ -58,6 +58,12 @@ type State struct {
 	// stages holds the configured pool stages; missing means the default.
 	stages map[engine.Category]PoolStage
 	draws  map[engine.Category]*Draw
+
+	courts    int  // 0: DefaultCourts
+	minRest   *int // nil: DefaultMinRest
+	priority  string
+	matches   []Match
+	withdrawn map[engine.EntrantID]bool
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -107,9 +113,30 @@ func (s *State) apply(e events.Event) error {
 	case TypeEntrantMoved:
 		return decodeInto(e, s.applyEntrantMoved)
 	case TypeDrawConfirmed:
-		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, true) })
+		return decodeInto(e, func(p DrawConfirmed) {
+			s.setConfirmed(p.Category, true)
+			s.dropMatches(p.Category)
+			s.generateMatches(p.Category)
+		})
 	case TypeDrawReopened:
-		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, false) })
+		return decodeInto(e, func(p DrawConfirmed) {
+			s.setConfirmed(p.Category, false)
+			s.dropMatches(p.Category)
+		})
+	case TypeCourtsSet:
+		return decodeInto(e, func(p CourtsSet) { s.courts = p.Courts })
+	case TypeMinRestSet:
+		return decodeInto(e, func(p MinRestSet) { s.minRest = &p.Minutes })
+	case TypeCourtPrioritySet:
+		return decodeInto(e, func(p CourtPrioritySet) { s.priority = p.Priority })
+	case TypeMatchCalled:
+		return decodeInto(e, func(p MatchCalled) { s.applyMatchCalled(p, e.At, e.Seq) })
+	case TypeMatchEnded:
+		return decodeInto(e, func(p MatchEnded) { s.applyMatchEnded(p, e.At) })
+	case TypeScoreRecorded:
+		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At) })
+	case TypeEntrantWithdrawn:
+		return decodeInto(e, func(p EntrantWithdrawn) { s.applyEntrantWithdrawn(p, e.At) })
 	}
 	return nil
 }

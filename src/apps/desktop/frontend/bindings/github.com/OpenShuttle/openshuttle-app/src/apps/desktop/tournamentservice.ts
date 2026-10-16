@@ -30,6 +30,13 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * CallMatch calls a match on a court.
+ */
+export function CallMatch(id: tournament$0.MatchID, court: number): $CancellablePromise<void> {
+    return $Call.ByID(145134171, id, court);
+}
+
+/**
  * CancelCheckIn marks a player absent again.
  */
 export function CancelCheckIn(id: tournament$0.PlayerID): $CancellablePromise<void> {
@@ -87,10 +94,31 @@ export function DrawPools(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * EndMatch ends a match in progress; its score can be entered later.
+ */
+export function EndMatch(id: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(136809332, id);
+}
+
+/**
  * GetCheckInView returns the check-in screen.
  */
 export function GetCheckInView(): $CancellablePromise<$models.CheckInView> {
     return $Call.ByID(3805916304);
+}
+
+/**
+ * GetControlDeskView returns the control desk.
+ */
+export function GetControlDeskView(): $CancellablePromise<$models.ControlDeskView> {
+    return $Call.ByID(49606547);
+}
+
+/**
+ * GetDisplayView returns the display screen.
+ */
+export function GetDisplayView(): $CancellablePromise<$models.DisplayView> {
+    return $Call.ByID(1930187305);
 }
 
 /**
@@ -151,6 +179,13 @@ export function OpenTournamentDialog(): $CancellablePromise<string> {
 }
 
 /**
+ * RecordScore records or corrects a score.
+ */
+export function RecordScore(id: tournament$0.MatchID, score: engine$0.Score): $CancellablePromise<void> {
+    return $Call.ByID(1504913535, id, score);
+}
+
+/**
  * RegisterEntrant enters a player (singles) or a pair (doubles).
  */
 export function RegisterEntrant(c: engine$0.Category, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
@@ -186,6 +221,27 @@ export function ReopenDraw(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * SetCourtPriority sets "balanced" or the category played first.
+ */
+export function SetCourtPriority(priority: string): $CancellablePromise<void> {
+    return $Call.ByID(5921109, priority);
+}
+
+/**
+ * SetCourts sets the number of courts.
+ */
+export function SetCourts(n: number): $CancellablePromise<void> {
+    return $Call.ByID(1744146534, n);
+}
+
+/**
+ * SetMinRest sets the minimum rest between two matches, in minutes.
+ */
+export function SetMinRest(minutes: number): $CancellablePromise<void> {
+    return $Call.ByID(3469076232, minutes);
+}
+
+/**
  * SetSeed seeds an entrant, or clears its seed with 0.
  */
 export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
@@ -204,4 +260,11 @@ export function Undo(): $CancellablePromise<void> {
  */
 export function UpdateEntrant(id: engine$0.EntrantID, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
     return $Call.ByID(3847520683, id, players);
+}
+
+/**
+ * WithdrawEntrant declares a forfeit: all the entrant's pool matches become walkovers.
+ */
+export function WithdrawEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
+    return $Call.ByID(3772126482, id);
 }

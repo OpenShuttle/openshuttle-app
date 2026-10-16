@@ -24,6 +24,28 @@ export enum Category {
 export type EntrantID = string;
 
 /**
+ * Score is the result of a played match. A timed match has exactly one set
+ * holding the final points, golden point included.
+ */
+export interface Score {
+    "sets": SetScore[] | null;
+
+    /**
+     * GoldenPoint is set when a timed match was tied at the whistle and
+     * decided by a golden point. The golden point is counted in Sets.
+     */
+    "goldenPoint"?: boolean;
+}
+
+/**
+ * SetScore is the points of each side in one set.
+ */
+export interface SetScore {
+    "a": number;
+    "b": number;
+}
+
+/**
  * Tiebreak is a pool ranking criterion. Criteria always use differences,
  * never ratios, so walkovers stay neutral.
  */

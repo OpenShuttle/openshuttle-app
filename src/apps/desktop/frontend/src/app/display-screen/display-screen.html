@@ -2,7 +2,47 @@
   <header class="bar">
     <span class="brand">{{ t('app.name') }}</span>
   </header>
-  <main class="stage">
-    <p class="waiting">{{ t('displayScreen.waiting') }}</p>
-  </main>
+
+  @if ((view().calls ?? []).length === 0) {
+    <main class="stage">
+      <p class="waiting">{{ t('displayScreen.waiting') }}</p>
+    </main>
+  } @else {
+    <main class="board">
+      <section class="calls">
+        @for (m of view().calls; track trackCall(m); let first = $first) {
+          <div class="call" [class.latest]="first">
+            <div class="call-court">
+              <span class="label">{{ t('desk.court') }}</span>
+              <span class="number">{{ m.court }}</span>
+            </div>
+            <div class="call-body">
+              <span class="call-meta">
+                <app-category-badge class="big-badge" [category]="m.category" [slot]="m.slot" />
+                {{ t('desk.pool', { pool: m.pool }) }}
+              </span>
+              <span class="call-side"><span class="bib">{{ m.a.bib }}</span> {{ names(m.a) }}</span>
+              <span class="call-side"><span class="bib">{{ m.b.bib }}</span> {{ names(m.b) }}</span>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="courts">
+        @for (c of view().courts; track c.number) {
+          <div class="court" [class.busy]="c.match">
+            <span class="court-number">{{ c.number }}</span>
+            @if (c.match; as m) {
+              <span class="court-match">
+                <app-category-badge [category]="m.category" [slot]="m.slot" />
+                {{ m.a.bib }} – {{ m.b.bib }}
+              </span>
+            } @else {
+              <span class="court-free">{{ t('desk.state.free') }}</span>
+            }
+          </div>
+        }
+      </section>
+    </main>
+  }
 </ng-container>

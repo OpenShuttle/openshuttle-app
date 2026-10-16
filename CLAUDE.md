@@ -106,6 +106,10 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Format (v1 so far)**: one pool stage per category (number of pools, win condition, tiebreak order). Brackets and advancement rules come next. Pool sizes are as even as possible, larger pools first.
 - **Draw**: only present entrants (all players checked in). Seeds are placed in a snake (A, B, C, C, B, A…); the others in random order, each into the pool with the fewest same-club players. Go seeds the random generator; the `PoolsDrawn` event stores the resulting pools, never the seed. Drawing is refused only below two present entrants per pool; imbalance, same club and two seeds in a pool are warnings. A confirmed draw locks moves and the number of pools until reopened.
 - **Drag and drop** uses pointer events, not HTML5 drag and drop (unreliable across WebKitGTK, WebView2 and WKWebView).
+- **Pool matches are derived, not stored**: confirming a draw generates the round-robin matches (circle method, rounds interleaved across pools, IDs like `MD-A3`). Events record what happens to them: `MatchCalled`, `MatchEnded`, `ScoreRecorded`, `EntrantWithdrawn`. Event times are the call and end times. Once a match has started, the draw cannot be reopened and entrants cannot be removed (declare a forfeit).
+- **Calling is refused only when impossible**: a match already in progress on that court, or an entrant already on another court. Resting is shown in the queue, never enforced.
+- **Proposals** give each free or finished court the next ready match in queue order (round order, categories merged by court priority), never two proposals sharing an entrant. The view depends on the time, so the control desk refetches every 15 s.
+- **Score JSON** is `{sets: [{a, b}], goldenPoint}`, win conditions `{kind, setsToWin, pointsPerSet, cap, minutes}`: these are stored in events, never rename them.
 
 ## Glossary (French spec → code)
 

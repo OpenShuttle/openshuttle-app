@@ -3,6 +3,7 @@ package tournament
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
@@ -12,10 +13,11 @@ import (
 type game struct {
 	t   *testing.T
 	log []events.Event
+	now time.Time // time of the next events
 }
 
 func newGame(t *testing.T, categories ...engine.Category) *game {
-	g := &game{t: t}
+	g := &game{t: t, now: t0}
 	g.append(Change{TypeCreated, Created{Name: "Plume"}})
 	for _, c := range categories {
 		g.do(func(s State) (Change, error) { return s.AddCategory(c) })
@@ -34,7 +36,7 @@ func (g *game) state() State {
 
 func (g *game) append(ch Change) {
 	g.t.Helper()
-	d, err := events.NewDraft(ch.Type, ch.Data, t0, "Julie")
+	d, err := events.NewDraft(ch.Type, ch.Data, g.now, "Julie")
 	if err != nil {
 		g.t.Fatal(err)
 	}

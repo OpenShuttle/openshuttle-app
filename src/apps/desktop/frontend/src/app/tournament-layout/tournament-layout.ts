@@ -25,7 +25,7 @@ export class TournamentLayout {
       items: [
         { key: 'checkIn', path: 'check-in' },
         { key: 'draw', path: 'draw' },
-        { key: 'controlDesk' },
+        { key: 'controlDesk', path: 'control-desk' },
         { key: 'stages' },
         { key: 'results' },
       ],

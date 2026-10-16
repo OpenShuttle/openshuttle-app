@@ -22,8 +22,8 @@ func (s Side) Opponent() Side {
 
 // SetScore is the points of each side in one set.
 type SetScore struct {
-	A int
-	B int
+	A int `json:"a"`
+	B int `json:"b"`
 }
 
 // Winner returns the side with more points, or SideNone on a tie.
@@ -47,10 +47,10 @@ func (s SetScore) points(side Side) (own, other int) {
 // Score is the result of a played match. A timed match has exactly one set
 // holding the final points, golden point included.
 type Score struct {
-	Sets []SetScore
+	Sets []SetScore `json:"sets"`
 	// GoldenPoint is set when a timed match was tied at the whistle and
 	// decided by a golden point. The golden point is counted in Sets.
-	GoldenPoint bool
+	GoldenPoint bool `json:"goldenPoint,omitempty"`
 }
 
 // SetsWon returns the number of sets won by each side.

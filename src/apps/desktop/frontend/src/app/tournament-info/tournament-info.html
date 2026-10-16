@@ -25,6 +25,25 @@
   </section>
 
   <section class="card">
+    <div class="row">
+      <span class="row-label">{{ t('tournamentInfo.courts') }}</span>
+      <div class="stepper">
+        <button type="button" [disabled]="tournament.view().courts <= 1" (click)="tournament.setCourts(tournament.view().courts - 1)">−</button>
+        <span class="value">{{ tournament.view().courts }}</span>
+        <button type="button" [disabled]="tournament.view().courts >= 20" (click)="tournament.setCourts(tournament.view().courts + 1)">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">{{ t('tournamentInfo.minRest') }}</span>
+      <div class="stepper">
+        <button type="button" [disabled]="tournament.view().minRest <= 0" (click)="tournament.setMinRest(tournament.view().minRest - 1)">−</button>
+        <span class="value">{{ t('tournamentInfo.minutes', { n: tournament.view().minRest }) }}</span>
+        <button type="button" [disabled]="tournament.view().minRest >= 60" (click)="tournament.setMinRest(tournament.view().minRest + 1)">+</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
     <div class="field">
       <span class="field-label">{{ t('tournamentInfo.categories') }}</span>
       <p class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</p>

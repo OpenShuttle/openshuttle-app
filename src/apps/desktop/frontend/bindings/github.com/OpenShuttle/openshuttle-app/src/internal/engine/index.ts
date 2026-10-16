@@ -9,5 +9,7 @@ export {
 
 export type {
     EntrantID,
+    Score,
+    SetScore,
     WinCondition
 } from "./models.js";

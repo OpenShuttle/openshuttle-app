@@ -31,6 +31,9 @@ type TournamentView struct {
 	CanUndo    bool        `json:"canUndo"`
 	// Categories in slot order: the first gets --color-category-1.
 	Categories []CategoryRef `json:"categories"`
+	Courts     int           `json:"courts"`
+	MinRest    int           `json:"minRest"`
+	Priority   string        `json:"priority"`
 }
 
 // CategoryRef is a category with its slot (1 or 2), which sets its color.
@@ -208,6 +211,9 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 		Name:       s.state.Name,
 		Version:    s.state.Version,
 		Categories: categoryRefs(s.state),
+		Courts:     s.state.Courts(),
+		MinRest:    s.state.MinRest(),
+		Priority:   s.state.CourtPriority(),
 	}
 	if len(s.log) > 0 {
 		v.LastAction = s.describe(s.log[len(s.log)-1])
@@ -259,6 +265,12 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
 	var p struct {
+		Match    tournament.MatchID  `json:"match"`
+		Court    int                 `json:"court"`
+		Courts   int                 `json:"courts"`
+		Minutes  int                 `json:"minutes"`
+		Priority string              `json:"priority"`
+		Score    engine.Score        `json:"score"`
 		Pool     int                 `json:"pool"`
 		Seed     int                 `json:"seed"`
 		Entrant  engine.EntrantID    `json:"entrant"`
@@ -278,9 +290,28 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypePoolStageConfigured,
 		tournament.TypePoolsDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
+	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded:
+		v.Params["a"], v.Params["b"] = matchLabel(s.state, p.Match)
+		if m, ok := s.state.Match(p.Match); ok {
+			v.Params["court"] = itoa(m.Court)
+		}
+		if e.Type == tournament.TypeMatchCalled {
+			v.Params["court"] = itoa(p.Court)
+		}
+		if e.Type == tournament.TypeScoreRecorded {
+			v.Params["score"] = scoreLabel(p.Score)
+		}
+	case tournament.TypeEntrantWithdrawn:
+		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
+	case tournament.TypeCourtsSet:
+		v.Params["courts"] = itoa(p.Courts)
+	case tournament.TypeMinRestSet:
+		v.Params["minutes"] = itoa(p.Minutes)
+	case tournament.TypeCourtPrioritySet:
+		v.Params["priority"] = p.Priority
 	case tournament.TypeEntrantSeeded:
 		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq)
-		v.Params["seed"] = strconv.Itoa(p.Seed)
+		v.Params["seed"] = itoa(p.Seed)
 	case tournament.TypeEntrantMoved:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
 		v.Params["pool"] = engine.PoolName(p.Pool)
@@ -424,3 +455,5 @@ func fileNameFor(name string) string {
 	}
 	return clean + store.TournamentExtension
 }
+
+func itoa(n int) string { return strconv.Itoa(n) }

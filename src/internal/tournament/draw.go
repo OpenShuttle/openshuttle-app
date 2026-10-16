@@ -158,6 +158,9 @@ func (s State) ReopenDraw(c engine.Category) (Change, error) {
 	if !d.Confirmed {
 		return Change{}, nil
 	}
+	if s.MatchesStarted(c) {
+		return Change{}, engine.NewError(engine.CodeMatchesStarted)
+	}
 	return Change{TypeDrawReopened, DrawConfirmed{Category: c}}, nil
 }
 
