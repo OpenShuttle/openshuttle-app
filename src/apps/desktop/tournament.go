@@ -265,6 +265,7 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
 	var p struct {
+		Bracket  string              `json:"bracket"`
 		A        tournament.MatchID  `json:"a"`
 		B        tournament.MatchID  `json:"b"`
 		Match    tournament.MatchID  `json:"match"`
@@ -305,6 +306,12 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		}
 	case tournament.TypeEntrantWithdrawn, tournament.TypeEntrantReinstated:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
+	case tournament.TypeBracketAdded, tournament.TypeBracketConfigured, tournament.TypeBracketRemoved,
+		tournament.TypeBracketDrawn, tournament.TypeBracketSlotsSwapped:
+		v.Params["category"] = string(p.Category)
+		v.Params["bracket"] = s.bracketNameAt(p.Category, string(p.ID), e.Seq)
+	case tournament.TypeRoutingSet:
+		v.Params["category"] = string(p.Category)
 	case tournament.TypeMatchesSwapped:
 		v.Params["first"], v.Params["second"] = string(p.A), string(p.B)
 	case tournament.TypeLotsDrawn:
@@ -464,3 +471,19 @@ func fileNameFor(name string) string {
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }
+
+// bracketName returns the name of a bracket as last set before seq, so that
+// history keeps naming removed brackets.
+func (s *TournamentService) bracketNameAt(c engine.Category, id string, seq uint64) string {
+	name := id
+	for _, e := range s.log[:min(int(seq), len(s.log))] {
+		if e.Type != tournament.TypeBracketAdded && e.Type != tournament.TypeBracketConfigured {
+			continue
+		}
+		var p tournament.BracketAdded
+		if e.Decode(&p) == nil && p.Category == c && p.ID == id {
+			name = p.Name
+		}
+	}
+	return name
+}

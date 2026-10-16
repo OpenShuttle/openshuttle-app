@@ -355,6 +355,7 @@
 }
 
 .alert {
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -374,4 +375,9 @@
   &.small {
     font-size: 12px;
   }
+}
+
+.queue-stage {
+  font-family: var(--font-sans);
+  font-weight: 600;
 }

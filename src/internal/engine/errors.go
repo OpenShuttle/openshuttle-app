@@ -49,6 +49,17 @@ const (
 	CodeEntrantNotWithdrawn Code = "ENTRANT_NOT_WITHDRAWN"
 	CodeNoTie               Code = "NO_TIE"
 
+	CodeBracketNotFound    Code = "BRACKET_NOT_FOUND"
+	CodeTooManyBrackets    Code = "TOO_MANY_BRACKETS"
+	CodeInvalidRouting     Code = "INVALID_ROUTING"
+	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
+	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
+	CodeBracketStarted     Code = "BRACKET_STARTED"
+	CodeBracketNotDrawn    Code = "BRACKET_NOT_DRAWN"
+	CodeInvalidSlot        Code = "INVALID_SLOT"
+	CodeMatchNotReady      Code = "MATCH_NOT_READY"
+	CodeBracketNextStarted Code = "BRACKET_NEXT_STARTED"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"

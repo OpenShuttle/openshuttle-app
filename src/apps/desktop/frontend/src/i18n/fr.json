@@ -60,7 +60,13 @@
     "ScoreCleared": "Score effacé : {a} contre {b}",
     "EntrantReinstated": "Forfait annulé : {names}",
     "MatchesSwapped": "Matchs inversés : {first} et {second}",
-    "LotsDrawn": "Tirage au sort : {category} poule {pool}"
+    "LotsDrawn": "Tirage au sort : {category} poule {pool}",
+    "BracketAdded": "Tableau ajouté : {bracket}",
+    "BracketConfigured": "Tableau modifié : {bracket}",
+    "BracketRemoved": "Tableau retiré : {bracket}",
+    "RoutingSet": "Routage modifié : {category}",
+    "BracketDrawn": "Tableau rempli : {bracket}",
+    "BracketSlotsSwapped": "Places inversées : {bracket}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -89,7 +95,13 @@
     "ScoreCleared": "effacement de {a} contre {b}",
     "EntrantReinstated": "annulation du forfait de {names}",
     "MatchesSwapped": "inversion de {first} et {second}",
-    "LotsDrawn": "tirage au sort {category} poule {pool}"
+    "LotsDrawn": "tirage au sort {category} poule {pool}",
+    "BracketAdded": "ajout de {bracket}",
+    "BracketConfigured": "modification de {bracket}",
+    "BracketRemoved": "retrait de {bracket}",
+    "RoutingSet": "modification du routage",
+    "BracketDrawn": "remplissage de {bracket}",
+    "BracketSlotsSwapped": "inversion dans {bracket}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -140,7 +152,17 @@
     "ENTRANT_NOT_IN_POOLS": "Ce participant n'est pas dans les poules.",
     "NO_SCORE": "Ce match n'a pas de score.",
     "ENTRANT_NOT_WITHDRAWN": "Ce participant n'a pas déclaré forfait.",
-    "NO_TIE": "Aucune égalité à départager dans cette poule."
+    "NO_TIE": "Aucune égalité à départager dans cette poule.",
+    "BRACKET_NOT_FOUND": "Ce tableau n'existe plus.",
+    "TOO_MANY_BRACKETS": "Au plus 8 tableaux par catégorie.",
+    "INVALID_ROUTING": "Ce routage pointe vers un tableau qui n'existe pas.",
+    "POOLS_NOT_COMPLETE": "Toutes les poules doivent d'abord être terminées.",
+    "TIE_UNRESOLVED": "Une poule a encore une égalité : faites le tirage au sort dans Phases.",
+    "BRACKET_STARTED": "Un match de ce tableau a commencé.",
+    "BRACKET_NOT_DRAWN": "Remplissez d'abord ce tableau.",
+    "INVALID_SLOT": "Cette place n'existe pas.",
+    "MATCH_NOT_READY": "Les deux participants de ce match ne sont pas encore connus.",
+    "BRACKET_NEXT_STARTED": "Le tour suivant a déjà été joué avec ce vainqueur : corrigez-le d'abord."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -242,7 +264,22 @@
     "tiebreaks": "Départage, dans l'ordre",
     "moveUp": "Monter",
     "moveDown": "Descendre",
-    "bracketsSoon": "Les tableaux et le routage arrivent ensuite."
+    "bracket": "Tableau à élimination directe",
+    "bracketName": "Nom",
+    "removeBracket": "Retirer",
+    "addBracket": "Ajouter un tableau",
+    "mainBracket": "Tableau principal",
+    "bracketN": "Tableau {n}",
+    "placement": "Classement",
+    "fullPlacement": "Toutes les places jouées",
+    "tiedByRound": "Ex aequo par tour perdu",
+    "fullPlacementHint": "Les perdants jouent les places suivantes : classement complet, sans ex aequo.",
+    "tiedByRoundHint": "Les perdants d'un même tour partagent leurs places.",
+    "routingKicker": "Depuis les poules",
+    "routing": "Routage",
+    "position": "{n}{n, plural, =1 {er} other {e}} de poule",
+    "eliminated": "Éliminé",
+    "routingHint": "Chaque rang de poule va dans un tableau. Les tableaux se remplissent quand toutes les poules sont terminées."
   },
   "tiebreak": {
     "wins": "Victoires",
@@ -325,7 +362,8 @@
     "goldenPoint": "Décidé au point en or",
     "scoreKeys": "Entrée pour valider · Échap pour fermer",
     "saveScore": "Valider le score",
-    "walkoverConfirm": "Confirmer le forfait"
+    "walkoverConfirm": "Confirmer le forfait",
+    "fillBrackets": "Poules terminées : remplissez les tableaux"
   },
   "priority": {
     "balanced": "Équilibrée",
@@ -362,6 +400,29 @@
     "editScore": "Modifier",
     "clearScore": "Effacer",
     "swap": "Inverser",
-    "swapHere": "Inverser ici"
+    "swapHere": "Inverser ici",
+    "bracketStatus": {
+      "notDrawn": "Non rempli",
+      "ready": "Prêt",
+      "inProgress": "En cours",
+      "finished": "Terminé"
+    },
+    "routedCount": "{n, plural, one {# participant} other {# participants}} issus des poules",
+    "drawBracket": "Remplir depuis les poules",
+    "redrawBracket": "Remplir à nouveau",
+    "waitPools": "Disponible quand toutes les poules sont terminées et les égalités tranchées.",
+    "firstRoundSlots": "Premier tour",
+    "slotsHint": "Cliquez deux places pour les inverser.",
+    "bye": "Exempt",
+    "tbd": "À déterminer",
+    "places": "Classement"
+  },
+  "round": {
+    "final": "Finale",
+    "semi": "Demi-finales",
+    "quarter": "Quarts de finale",
+    "ofN": "Tour de {n}",
+    "placeMatch": "Match pour la {place}{place, plural, =1 {re} other {e}} place",
+    "places": "Places {from} à {to}"
   }
 }

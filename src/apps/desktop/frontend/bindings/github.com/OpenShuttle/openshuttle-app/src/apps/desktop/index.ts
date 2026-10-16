@@ -12,6 +12,8 @@ export {
 
 export type {
     ActionView,
+    BracketPhase,
+    BracketView,
     CategoryEntrants,
     CategoryRef,
     CheckInRow,
@@ -34,11 +36,13 @@ export type {
     Monitor,
     PhaseCategory,
     PhasesView,
+    PlaceView,
     PlayerView,
     PoolPhase,
     PoolRefView,
     QueueView,
     RecentTournament,
+    RoundView,
     Settings,
     SideView,
     StandingView,

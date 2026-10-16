@@ -24,9 +24,16 @@ type MatchID string
 type Match struct {
 	ID       MatchID
 	Category engine.Category
-	Pool     int // 0 is A
+	Pool     int // 0 is A; -1 for a bracket match
 	Round    int // 0-based round within the pool
 	A, B     engine.EntrantID
+
+	// Bracket matches: the bracket and the sub-bracket whose first round
+	// this match is. A and B are "" until known; ByeA/ByeB mark byes.
+	Bracket     string
+	Start, Size int
+	Index       int
+	ByeA, ByeB  bool
 
 	Court    int // 0 until called
 	CalledAt time.Time
@@ -68,6 +75,8 @@ type ScoreRecorded struct {
 // pool, all the entrant's matches become walkovers, played or not.
 type EntrantWithdrawn struct {
 	Entrant engine.EntrantID `json:"entrant"`
+	// Scope is ScopePools or ScopeBrackets; empty in pools for older files.
+	Scope string `json:"scope,omitempty"`
 }
 
 // Matches returns every pool match, in schedule order: round by round,
@@ -89,11 +98,24 @@ func (s State) matchIndex(id MatchID) int {
 	return slices.IndexFunc(s.matches, func(m Match) bool { return m.ID == id })
 }
 
+// Forfeit scopes: a forfeit in the pools turns every pool match of the
+// entrant into a walkover; a forfeit once the brackets are drawn only loses
+// the bracket matches, pool results stay.
+const (
+	ScopePools    = "pools"
+	ScopeBrackets = "brackets"
+)
+
 // Withdrawn reports whether an entrant forfeited.
-func (s State) Withdrawn(id engine.EntrantID) bool { return s.withdrawn[id] }
+func (s State) Withdrawn(id engine.EntrantID) bool { return s.withdrawn[id] != "" }
 
 // Walkover reports whether a match is a walkover: one side withdrew.
-func (s State) Walkover(m Match) bool { return s.withdrawn[m.A] || s.withdrawn[m.B] }
+func (s State) Walkover(m Match) bool {
+	if m.Bracket == "" {
+		return s.withdrawn[m.A] == ScopePools || s.withdrawn[m.B] == ScopePools
+	}
+	return s.Playable(m) && (s.withdrawn[m.A] != "" || s.withdrawn[m.B] != "")
+}
 
 // Decided reports whether a match has a result: a score or a walkover.
 func (s State) Decided(m Match) bool { return m.Score != nil || s.Walkover(m) }
@@ -105,6 +127,11 @@ func (s State) Playing(m Match) bool {
 
 // WinCondition returns the win condition of a match.
 func (s State) WinCondition(m Match) engine.WinCondition {
+	if m.Bracket != "" {
+		if b := s.bracket(m.Category, m.Bracket); b != nil {
+			return b.Win
+		}
+	}
 	return s.PoolStage(m.Category).Win
 }
 
@@ -116,6 +143,8 @@ func (s State) CallMatch(id MatchID, court int) (Change, error) {
 	switch {
 	case !ok:
 		return Change{}, engine.NewError(engine.CodeMatchNotFound)
+	case !s.Playable(m):
+		return Change{}, engine.NewError(engine.CodeMatchNotReady)
 	case s.Walkover(m):
 		return Change{}, engine.NewError(engine.CodeMatchWalkover)
 	case m.Called() || m.Score != nil:
@@ -155,11 +184,26 @@ func (s State) RecordScore(id MatchID, score engine.Score) (Change, error) {
 	if !ok {
 		return Change{}, engine.NewError(engine.CodeMatchNotFound)
 	}
+	if !s.Playable(m) {
+		return Change{}, engine.NewError(engine.CodeMatchNotReady)
+	}
 	if s.Walkover(m) {
 		return Change{}, engine.NewError(engine.CodeMatchWalkover)
 	}
-	if _, err := engine.ValidateScore(s.WinCondition(m), score); err != nil {
+	winner, err := engine.ValidateScore(s.WinCondition(m), score)
+	if err != nil {
 		return Change{}, err
+	}
+	if m.Bracket != "" && s.nextStarted(m) {
+		was := s.winnerOf(m)
+		now := m.A
+		if winner == engine.SideB {
+			now = m.B
+		}
+		if was != now {
+			// The next round was played by the other entrant.
+			return Change{}, engine.NewError(engine.CodeBracketNextStarted)
+		}
 	}
 	score.Sets = slices.Clone(score.Sets)
 	return Change{TypeScoreRecorded, ScoreRecorded{Match: id, Score: score}}, nil
@@ -173,10 +217,14 @@ func (s State) WithdrawEntrant(id engine.EntrantID) (Change, error) {
 	if !slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) }) {
 		return Change{}, engine.NewError(engine.CodeEntrantNotInPools)
 	}
-	if s.withdrawn[id] {
+	if s.withdrawn[id] != "" {
 		return Change{}, nil
 	}
-	return Change{TypeEntrantWithdrawn, EntrantWithdrawn{Entrant: id}}, nil
+	scope := ScopePools
+	if slices.ContainsFunc(s.matches, func(m Match) bool { return m.Bracket != "" && m.Has(id) }) {
+		scope = ScopeBrackets
+	}
+	return Change{TypeEntrantWithdrawn, EntrantWithdrawn{Entrant: id, Scope: scope}}, nil
 }
 
 // MatchesStarted reports whether a category has a match called, scored or
@@ -221,7 +269,7 @@ func (s *State) generateMatches(c engine.Category) {
 }
 
 func (s *State) dropMatches(c engine.Category) {
-	s.matches = slices.DeleteFunc(s.matches, func(m Match) bool { return m.Category == c })
+	s.matches = slices.DeleteFunc(s.matches, func(m Match) bool { return m.Category == c && m.Bracket == "" })
 }
 
 func (s *State) applyMatchCalled(p MatchCalled, at time.Time, seq uint64) {
@@ -250,9 +298,13 @@ func (s *State) applyScoreRecorded(p ScoreRecorded, at time.Time) {
 
 func (s *State) applyEntrantWithdrawn(p EntrantWithdrawn, at time.Time) {
 	if s.withdrawn == nil {
-		s.withdrawn = map[engine.EntrantID]bool{}
+		s.withdrawn = map[engine.EntrantID]string{}
 	}
-	s.withdrawn[p.Entrant] = true
+	scope := p.Scope
+	if scope == "" {
+		scope = ScopePools
+	}
+	s.withdrawn[p.Entrant] = scope
 	// A match in progress stops: the court is free again.
 	for i, m := range s.matches {
 		if m.Has(p.Entrant) && m.Called() && m.EndedAt.IsZero() {

@@ -63,8 +63,13 @@ type State struct {
 	minRest   *int // nil: DefaultMinRest
 	priority  string
 	matches   []Match
-	withdrawn map[engine.EntrantID]bool
+	withdrawn map[engine.EntrantID]string // forfeit scope
 	lots      map[PoolRef]map[engine.EntrantID]int
+
+	brackets       map[engine.Category][]*Bracket
+	bracketNumbers map[engine.Category]int // highest bracket number ever used
+	routing        map[engine.Category][]string
+	places         map[string][]Place // "<category>/<bracket>"
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -82,6 +87,7 @@ func Project(log []events.Event) (State, error) {
 			return State{}, err
 		}
 	}
+	s.refreshBrackets()
 	return s, nil
 }
 
@@ -146,6 +152,18 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyMatchesSwapped)
 	case TypeLotsDrawn:
 		return decodeInto(e, s.applyLotsDrawn)
+	case TypeBracketAdded:
+		return decodeInto(e, s.applyBracketAdded)
+	case TypeBracketConfigured:
+		return decodeInto(e, s.applyBracketConfigured)
+	case TypeBracketRemoved:
+		return decodeInto(e, s.applyBracketRemoved)
+	case TypeRoutingSet:
+		return decodeInto(e, s.applyRoutingSet)
+	case TypeBracketDrawn:
+		return decodeInto(e, s.applyBracketDrawn)
+	case TypeBracketSlotsSwapped:
+		return decodeInto(e, s.applyBracketSlotsSwapped)
 	}
 	return nil
 }

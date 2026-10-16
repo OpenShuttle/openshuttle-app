@@ -3,7 +3,7 @@
   <form class="panel" role="dialog" aria-modal="true" (submit)="$event.preventDefault(); save()">
     <header class="header">
       <app-category-badge [category]="match().category" [slot]="match().slot" />
-      <span class="title">{{ t('desk.poolMatch', { pool: match().pool, id: match().id }) }}</span>
+      <span class="title"><app-match-stage [match]="match()" /> · {{ match().id }}</span>
       @if (match().court) {
         <span class="court">{{ t('desk.courtN', { n: match().court }) }}</span>
       }

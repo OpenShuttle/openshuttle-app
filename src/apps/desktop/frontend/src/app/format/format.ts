@@ -1,9 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoDirective } from '@jsverse/transloco';
-import { FormatCategory, FormatView, TournamentService } from '@bindings/apps/desktop';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { BracketView, FormatCategory, FormatView, TournamentService } from '@bindings/apps/desktop';
 import { Category, Tiebreak, WinCondition, WinConditionKind } from '@bindings/internal/engine';
-import { PoolStage } from '@bindings/internal/tournament';
+import { BracketConfig, PoolStage } from '@bindings/internal/tournament';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
@@ -22,6 +22,7 @@ const DEFAULT_TIMED: WinCondition = { kind: WinConditionKind.WinByTime, minutes:
 })
 export class Format {
   protected readonly tournament = inject(TournamentStore);
+  private readonly transloco = inject(TranslocoService);
   protected readonly view = liveView<FormatView>(() => TournamentService.GetFormatView(), {
     categories: [],
   });
@@ -70,6 +71,45 @@ export class Format {
 
   protected tiebreaks(fc: FormatCategory): Tiebreak[] {
     return fc.stage.tiebreaks ?? [];
+  }
+
+  protected addBracket(fc: FormatCategory): void {
+    const n = (fc.brackets ?? []).length;
+    const name = this.transloco.translate(n === 0 ? 'format.mainBracket' : 'format.bracketN', { n: n + 1 });
+    void this.tournament.addBracket(fc.category, { name, win: { ...DEFAULT_SETS }, fullPlacement: true });
+  }
+
+  protected setBracket(fc: FormatCategory, b: BracketView, change: Partial<BracketConfig>): void {
+    const cfg: BracketConfig = { name: b.name, win: b.win, fullPlacement: b.fullPlacement };
+    void this.tournament.configureBracket(fc.category, b.id, { ...cfg, ...change });
+  }
+
+  protected setBracketKind(fc: FormatCategory, b: BracketView, kind: WinConditionKind): void {
+    if (kind !== b.win.kind) {
+      this.setBracket(fc, b, { win: kind === WinConditionKind.WinByTime ? DEFAULT_TIMED : DEFAULT_SETS });
+    }
+  }
+
+  protected setBracketWin(fc: FormatCategory, b: BracketView, field: keyof WinCondition, event: Event): void {
+    const value = Number((event.target as HTMLInputElement | HTMLSelectElement).value);
+    if (Number.isInteger(value)) {
+      this.setBracket(fc, b, { win: { ...b.win, [field]: value } });
+    }
+  }
+
+  protected value(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  /** Pool positions 1..rows with their destination ("" for eliminated). */
+  protected routes(fc: FormatCategory): { position: number; target: string }[] {
+    return Array.from({ length: fc.routingRows }, (_, i) => ({ position: i + 1, target: fc.routing?.[i] ?? '' }));
+  }
+
+  protected setRoute(fc: FormatCategory, position: number, event: Event): void {
+    const routing = this.routes(fc).map((r) => r.target);
+    routing[position - 1] = (event.target as HTMLSelectElement).value;
+    void this.tournament.setRouting(fc.category, routing);
   }
 
   private save(fc: FormatCategory, change: Partial<PoolStage>): void {

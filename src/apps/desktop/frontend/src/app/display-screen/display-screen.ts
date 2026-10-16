@@ -4,11 +4,12 @@ import { DisplayView, MatchView, SideView, TournamentService } from '@bindings/a
 
 import { liveView } from '../core/live-view';
 import { CategoryBadge } from '../shared/category-badge';
+import { MatchStage } from '../shared/match-stage';
 
 /** Display screen: second window on the hall monitor. Read-only, read from 10 m. */
 @Component({
   selector: 'app-display-screen',
-  imports: [TranslocoDirective, CategoryBadge],
+  imports: [TranslocoDirective, CategoryBadge, MatchStage],
   templateUrl: './display-screen.html',
   styleUrl: './display-screen.scss',
 })

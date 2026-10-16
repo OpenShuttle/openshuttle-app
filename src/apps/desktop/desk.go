@@ -33,6 +33,15 @@ type MatchView struct {
 	Score    *engine.Score       `json:"score"`
 	Walkover bool                `json:"walkover"`
 	Win      engine.WinCondition `json:"win"`
+	// Bracket matches: Pool is empty, the round plays for places
+	// PlaceFrom..PlaceTo with RoundSize entrants (2 for a final).
+	Bracket     string `json:"bracket"`
+	BracketName string `json:"bracketName"`
+	PlaceFrom   int    `json:"placeFrom"`
+	PlaceTo     int    `json:"placeTo"`
+	RoundSize   int    `json:"roundSize"`
+	ByeA        bool   `json:"byeA"`
+	ByeB        bool   `json:"byeB"`
 }
 
 // CourtView is a court card: its match and the next match proposed.
@@ -59,14 +68,17 @@ type PoolRefView struct {
 
 // ControlDeskView is the control desk: courts, pending scores, queue, alerts.
 type ControlDeskView struct {
-	Now        time.Time     `json:"now"`
-	Courts     []CourtView   `json:"courts"`
-	Pending    []MatchView   `json:"pending"`
-	Queue      []QueueView   `json:"queue"`
-	Complete   []PoolRefView `json:"complete"`
-	Priority   string        `json:"priority"`
-	MinRest    int           `json:"minRest"`
-	Categories []CategoryRef `json:"categories"`
+	Now      time.Time     `json:"now"`
+	Courts   []CourtView   `json:"courts"`
+	Pending  []MatchView   `json:"pending"`
+	Queue    []QueueView   `json:"queue"`
+	Complete []PoolRefView `json:"complete"`
+	// BracketsToFill lists categories whose pools are over with brackets
+	// still to fill from them.
+	BracketsToFill []CategoryRef `json:"bracketsToFill"`
+	Priority       string        `json:"priority"`
+	MinRest        int           `json:"minRest"`
+	Categories     []CategoryRef `json:"categories"`
 	// Started is false until a draw is confirmed: there is nothing to call yet.
 	Started bool `json:"started"`
 }
@@ -159,8 +171,22 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 	for _, ref := range v.Categories {
 		slots[ref.Category] = ref.Slot
 	}
+	v.BracketsToFill = []CategoryRef{}
+	hasBrackets := map[engine.Category]bool{}
+	for _, ref := range v.Categories {
+		brackets := st.Brackets(ref.Category)
+		hasBrackets[ref.Category] = len(brackets) > 0
+		if poolsSettled(st, ref.Category) && slices.ContainsFunc(brackets, func(b tournament.Bracket) bool {
+			return !b.Drawn() && len(st.Routed(ref.Category, b.ID)) >= 2
+		}) {
+			v.BracketsToFill = append(v.BracketsToFill, ref)
+		}
+	}
 	for _, p := range st.CompletePools() {
-		v.Complete = append(v.Complete, PoolRefView{CategoryRef{p.Category, slots[p.Category]}, engine.PoolName(p.Pool)})
+		// Once brackets exist, the "fill the brackets" alert replaces these.
+		if !hasBrackets[p.Category] {
+			v.Complete = append(v.Complete, PoolRefView{CategoryRef{p.Category, slots[p.Category]}, engine.PoolName(p.Pool)})
+		}
 	}
 	return v
 }
@@ -218,6 +244,13 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 			Pool: engine.PoolName(m.Pool), Round: m.Round + 1,
 			A: side(m.A), B: side(m.B), Court: m.Court, Score: m.Score,
 			Walkover: st.Walkover(m), Win: st.WinCondition(m),
+		}
+		if m.Bracket != "" {
+			b, _ := st.Bracket(m.Category, m.Bracket)
+			v.Pool, v.Round = "", 0
+			v.Bracket, v.BracketName = m.Bracket, b.Name
+			v.PlaceFrom, v.PlaceTo, v.RoundSize = m.Start, m.Start+m.Size-1, m.Size
+			v.ByeA, v.ByeB = m.ByeA, m.ByeB
 		}
 		if m.Called() {
 			t := m.CalledAt

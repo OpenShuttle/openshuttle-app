@@ -5,6 +5,7 @@ import { EntrantID, Score, WinConditionKind } from '@bindings/internal/engine';
 
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
+import { MatchStage } from '../shared/match-stage';
 
 /** Builds the score from the typed points, ignoring sets left empty. */
 export function scoreFrom(points: string[][], goldenPoint: boolean): Score {
@@ -23,7 +24,7 @@ export function scoreFrom(points: string[][], goldenPoint: boolean): Score {
 /** Score entry for one match: opened from a court or the pending list. */
 @Component({
   selector: 'app-score-panel',
-  imports: [TranslocoDirective, CategoryBadge],
+  imports: [TranslocoDirective, CategoryBadge, MatchStage],
   templateUrl: './score-panel.html',
   styleUrl: './score-panel.scss',
   host: { '(keydown.escape)': 'closed.emit()' },

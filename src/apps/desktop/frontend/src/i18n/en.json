@@ -60,7 +60,13 @@
     "ScoreCleared": "Score cleared: {a} vs {b}",
     "EntrantReinstated": "Forfeit cancelled: {names}",
     "MatchesSwapped": "Matches swapped: {first} and {second}",
-    "LotsDrawn": "Lots drawn: {category} pool {pool}"
+    "LotsDrawn": "Lots drawn: {category} pool {pool}",
+    "BracketAdded": "Bracket added: {bracket}",
+    "BracketConfigured": "Bracket changed: {bracket}",
+    "BracketRemoved": "Bracket removed: {bracket}",
+    "RoutingSet": "Advancement changed: {category}",
+    "BracketDrawn": "Bracket filled: {bracket}",
+    "BracketSlotsSwapped": "Bracket slots swapped: {bracket}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -89,7 +95,13 @@
     "ScoreCleared": "clearing of {a} vs {b}",
     "EntrantReinstated": "forfeit cancellation of {names}",
     "MatchesSwapped": "swap of {first} and {second}",
-    "LotsDrawn": "lots of {category} pool {pool}"
+    "LotsDrawn": "lots of {category} pool {pool}",
+    "BracketAdded": "adding {bracket}",
+    "BracketConfigured": "change of {bracket}",
+    "BracketRemoved": "removal of {bracket}",
+    "RoutingSet": "advancement change",
+    "BracketDrawn": "filling of {bracket}",
+    "BracketSlotsSwapped": "slot swap in {bracket}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -140,7 +152,17 @@
     "ENTRANT_NOT_IN_POOLS": "This entrant is not in the pools.",
     "NO_SCORE": "This match has no score.",
     "ENTRANT_NOT_WITHDRAWN": "This entrant has not forfeited.",
-    "NO_TIE": "No tie to break in this pool."
+    "NO_TIE": "No tie to break in this pool.",
+    "BRACKET_NOT_FOUND": "This bracket no longer exists.",
+    "TOO_MANY_BRACKETS": "At most 8 brackets per category.",
+    "INVALID_ROUTING": "This advancement points to a bracket that does not exist.",
+    "POOLS_NOT_COMPLETE": "Every pool must be complete first.",
+    "TIE_UNRESOLVED": "A pool still has a tie: draw lots on the Stages screen first.",
+    "BRACKET_STARTED": "A match of this bracket has started.",
+    "BRACKET_NOT_DRAWN": "Fill this bracket first.",
+    "INVALID_SLOT": "This slot does not exist.",
+    "MATCH_NOT_READY": "Both entrants of this match are not known yet.",
+    "BRACKET_NEXT_STARTED": "The next round was already played with this winner: correct it first."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -242,7 +264,22 @@
     "tiebreaks": "Tiebreaks, in order",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "bracketsSoon": "Brackets and advancement rules come next."
+    "bracket": "Knockout bracket",
+    "bracketName": "Name",
+    "removeBracket": "Remove",
+    "addBracket": "Add a bracket",
+    "mainBracket": "Main bracket",
+    "bracketN": "Bracket {n}",
+    "placement": "Placement",
+    "fullPlacement": "Every place played",
+    "tiedByRound": "Tied by round lost",
+    "fullPlacementHint": "Losers play for the lower places: a full ranking with no tie.",
+    "tiedByRoundHint": "Entrants losing in the same round share their places.",
+    "routingKicker": "From the pools",
+    "routing": "Advancement",
+    "position": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of pool",
+    "eliminated": "Eliminated",
+    "routingHint": "Each pool position goes to a bracket. Brackets are filled once every pool is complete."
   },
   "tiebreak": {
     "wins": "Wins",
@@ -325,7 +362,8 @@
     "goldenPoint": "Decided by a golden point",
     "scoreKeys": "Enter to save · Esc to close",
     "saveScore": "Save score",
-    "walkoverConfirm": "Confirm forfeit"
+    "walkoverConfirm": "Confirm forfeit",
+    "fillBrackets": "Pools complete: fill the brackets"
   },
   "priority": {
     "balanced": "Balanced",
@@ -362,6 +400,29 @@
     "editScore": "Edit",
     "clearScore": "Clear",
     "swap": "Swap",
-    "swapHere": "Swap here"
+    "swapHere": "Swap here",
+    "bracketStatus": {
+      "notDrawn": "Not filled",
+      "ready": "Ready",
+      "inProgress": "In progress",
+      "finished": "Finished"
+    },
+    "routedCount": "{n, plural, one {# entrant} other {# entrants}} from the pools",
+    "drawBracket": "Fill from the pools",
+    "redrawBracket": "Fill again",
+    "waitPools": "Available once every pool is complete and ties are broken.",
+    "firstRoundSlots": "First round",
+    "slotsHint": "Click two slots to swap them.",
+    "bye": "Bye",
+    "tbd": "To be decided",
+    "places": "Places"
+  },
+  "round": {
+    "final": "Final",
+    "semi": "Semi-finals",
+    "quarter": "Quarter-finals",
+    "ofN": "Round of {n}",
+    "placeMatch": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} place match",
+    "places": "Places {from}–{to}"
   }
 }

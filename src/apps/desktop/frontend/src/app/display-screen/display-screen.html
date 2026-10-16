@@ -19,7 +19,7 @@
             <div class="call-body">
               <span class="call-meta">
                 <app-category-badge class="big-badge" [category]="m.category" [slot]="m.slot" />
-                {{ t('desk.pool', { pool: m.pool }) }}
+                <app-match-stage [match]="m" />
               </span>
               <span class="call-side"><span class="bib">{{ m.a.bib }}</span> {{ names(m.a) }}</span>
               <span class="call-side"><span class="bib">{{ m.b.bib }}</span> {{ names(m.b) }}</span>

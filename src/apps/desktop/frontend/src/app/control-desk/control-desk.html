@@ -38,7 +38,7 @@
               <span class="court-label">{{ t('desk.court') }}</span>
               <span class="state">{{ t('desk.state.' + c.state) }}</span>
               @if (c.match; as m) {
-                <span class="pool"><app-category-badge [category]="m.category" [slot]="m.slot" /> {{ t('desk.pool', { pool: m.pool }) }}</span>
+                <span class="pool"><app-category-badge [category]="m.category" [slot]="m.slot" /> <app-match-stage [match]="m" /></span>
               }
             </header>
 
@@ -74,7 +74,7 @@
               @if (c.proposal; as p) {
                 <div class="proposal">
                   <span class="field-label">{{ t('desk.proposed', { id: p.id }) }}</span>
-                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.pool', { pool: p.pool }) }}</span>
+                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> <app-match-stage [match]="p" /></span>
                   <div class="side"><span class="bib">{{ p.a.bib }}</span><span class="names">{{ names(p.a) }}</span></div>
                   <div class="side"><span class="bib">{{ p.b.bib }}</span><span class="names">{{ names(p.b) }}</span></div>
                 </div>
@@ -124,7 +124,7 @@
           @for (q of queue().slice(0, 12); track q.match.id) {
             <div class="queue-item" [class.waiting]="q.reason">
               <app-category-badge [category]="q.match.category" [slot]="q.match.slot" />
-              <span class="queue-match">{{ q.match.pool }} · {{ q.match.a.bib }} – {{ q.match.b.bib }}</span>
+              <span class="queue-match"><app-match-stage class="queue-stage" [match]="q.match" /> · {{ q.match.a.bib }} – {{ q.match.b.bib }}</span>
               <span class="reason">
                 @switch (q.reason) {
                   @case ('playing') { {{ t('desk.reason.playing', { court: q.court }) }} }
@@ -139,9 +139,14 @@
           }
         </section>
 
-        @if ((view().complete ?? []).length > 0) {
+        @if ((view().complete ?? []).length + (view().bracketsToFill ?? []).length > 0) {
           <section class="panel">
             <h2>{{ t('desk.alerts') }}</h2>
+            @for (c of view().bracketsToFill; track c.category) {
+              <a class="alert" routerLink="../stages">
+                <app-category-badge [category]="c.category" [slot]="c.slot" /> {{ t('desk.fillBrackets') }}
+              </a>
+            }
             @for (p of view().complete; track p.category + p.pool) {
               <div class="alert"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.poolComplete', { pool: p.pool }) }}</div>
             }

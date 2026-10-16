@@ -149,6 +149,96 @@
     }
   }
 
+  @if (current(); as c) {
+    @for (b of c.brackets; track b.id) {
+      <section class="bracket">
+        <header class="pool-header">
+          <h2>{{ b.name }}</h2>
+          <span class="status" [class.done]="bracketStatus(b) === 'finished'">{{ t('phases.bracketStatus.' + bracketStatus(b)) }}</span>
+          <span class="muted small">{{ t('phases.routedCount', { n: b.routed }) }} · {{ t(b.fullPlacement ? 'format.fullPlacement' : 'format.tiedByRound') }}</span>
+          @if (!b.started) {
+            <button type="button" class="btn btn-small" [disabled]="!b.canDraw" (click)="tournament.drawBracket(c.category, b.id)">
+              {{ t(b.drawn ? 'phases.redrawBracket' : 'phases.drawBracket') }}
+            </button>
+          }
+        </header>
+        @if (!b.canDraw && !b.drawn) {
+          <p class="muted small">{{ t('phases.waitPools') }}</p>
+        }
+
+        @if (b.drawn) {
+          @if (correction() && !b.started) {
+            <div class="slots">
+              <span class="field-label">{{ t('phases.firstRoundSlots') }}</span>
+              @for (sl of b.slots; track $index; let i = $index) {
+                <button
+                  type="button"
+                  class="slot"
+                  [class.picked]="swappingSlot() === b.id + ':' + i"
+                  (click)="swapSlot(c, b, i)"
+                >
+                  <span class="slot-n">{{ i + 1 }}</span>
+                  {{ sl.entrant ? sl.bib + ' ' + names(sl) : t('phases.bye') }}
+                </button>
+              }
+              <span class="muted small">{{ t('phases.slotsHint') }}</span>
+            </div>
+          }
+
+          <div class="rounds">
+            @for (r of b.rounds; track r.from + '-' + r.size) {
+              @let label = round(r);
+              <div class="round">
+                <span class="round-title">{{ t(label.key, label.params) }}</span>
+                @for (m of r.matches; track m.id) {
+                  <div class="bmatch" [class.bye]="m.byeA || m.byeB">
+                    <div class="bside" [class.won]="winner(m) === 'a'">
+                      @let a = sideLabel(m.a, m.byeA);
+                      <span>{{ a.key ? t(a.key) : a.text }}</span>
+                    </div>
+                    <div class="bside" [class.won]="winner(m) === 'b'">
+                      @let bb = sideLabel(m.b, m.byeB);
+                      <span>{{ bb.key ? t(bb.key) : bb.text }}</span>
+                    </div>
+                    <div class="bfoot">
+                      <span class="mid">{{ m.id }}</span>
+                      <span class="result">
+                        @if (m.walkover) {
+                          <span class="tag alert">WO</span>
+                        } @else if (m.score) {
+                          {{ scoreText(m) }}
+                        } @else if (m.court && !m.endedAt) {
+                          <span class="tag playing">{{ t('desk.courtN', { n: m.court }) }}</span>
+                        } @else if (m.endedAt) {
+                          <span class="tag">{{ t('phases.scorePending') }}</span>
+                        }
+                      </span>
+                      @if (correction() && m.a.entrant && m.b.entrant && !m.walkover) {
+                        <button type="button" class="btn btn-tiny" (click)="scoring.set(m)">{{ t(m.score ? 'phases.editScore' : 'desk.enterScore') }}</button>
+                        @if (m.score) {
+                          <button type="button" class="btn btn-tiny" (click)="tournament.clearScore(m.id)">{{ t('phases.clearScore') }}</button>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if ((b.places ?? []).length > 0) {
+            <div class="places">
+              <span class="field-label">{{ t('phases.places') }}</span>
+              @for (p of b.places; track p.entrant.entrant) {
+                <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span> {{ p.entrant.bib }} {{ names(p.entrant) }}</div>
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+  }
+
   @if (scoring(); as m) {
     <app-score-panel [match]="m" (closed)="scoring.set(null)" />
   }

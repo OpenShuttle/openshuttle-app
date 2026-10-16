@@ -6,6 +6,20 @@
 import * as engine$0 from "../engine/models.js";
 
 /**
+ * BracketConfig is what the format editor sets on a bracket.
+ */
+export interface BracketConfig {
+    "name": string;
+    "win": engine$0.WinCondition;
+
+    /**
+     * FullPlacement plays every place (losers play for the lower places).
+     * Otherwise entrants losing in the same round are tied.
+     */
+    "fullPlacement": boolean;
+}
+
+/**
  * CourtState is the state of a court.
  */
 export enum CourtState {

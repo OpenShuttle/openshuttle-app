@@ -38,8 +38,9 @@ type PhaseCategory struct {
 	CategoryRef
 	Stage tournament.PoolStage `json:"stage"`
 	// Started is false until the draw is confirmed.
-	Started bool        `json:"started"`
-	Pools   []PoolPhase `json:"pools"`
+	Started  bool           `json:"started"`
+	Pools    []PoolPhase    `json:"pools"`
+	Brackets []BracketPhase `json:"brackets"`
 }
 
 // PhasesView is the phases screen.
@@ -111,13 +112,14 @@ func (s *TournamentService) GetPhasesView() PhasesView {
 					pool.DrawNeeded = pool.DrawNeeded || row.DrawNeeded
 				}
 				for _, m := range st.Matches() {
-					if m.Category == ref.Category && m.Pool == i {
+					if m.Category == ref.Category && m.Bracket == "" && m.Pool == i {
 						pool.Matches = append(pool.Matches, mv(m))
 					}
 				}
 				pc.Pools = append(pc.Pools, pool)
 			}
 		}
+		pc.Brackets = s.bracketPhases(st, ref.Category)
 		v.Categories = append(v.Categories, pc)
 	}
 	return v

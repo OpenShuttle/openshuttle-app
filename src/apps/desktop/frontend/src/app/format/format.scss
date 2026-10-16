@@ -202,3 +202,59 @@
     opacity: 0.35;
   }
 }
+
+.row-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.btn-small {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.danger {
+  color: var(--color-alert);
+  border-color: var(--color-alert-border);
+}
+
+.wide {
+  width: 320px;
+}
+
+.add-bracket {
+  align-self: flex-start;
+}
+
+.routing {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 8px 20px;
+  padding-bottom: 12px;
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  select {
+    flex: 1;
+  }
+}
+
+.route-rank {
+  width: 110px;
+  font-weight: 700;
+}
+
+.arrow {
+  color: var(--color-text-muted);
+}
+
+.card > .note {
+  display: block;
+  padding-bottom: 16px;
+}

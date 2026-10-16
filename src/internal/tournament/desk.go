@@ -154,12 +154,17 @@ func (s State) orderedWaiting() []Match {
 	total := map[engine.Category]int{}
 	done := map[engine.Category]int{}
 	for _, m := range s.matches {
+		if m.ByeA || m.ByeB {
+			continue // byes are never played
+		}
 		total[m.Category]++
 		if m.Called() || s.Decided(m) {
 			done[m.Category]++
 			continue
 		}
-		waiting[m.Category] = append(waiting[m.Category], m)
+		if s.Playable(m) {
+			waiting[m.Category] = append(waiting[m.Category], m)
+		}
 	}
 
 	priority := s.CourtPriority()
@@ -206,6 +211,9 @@ func (s State) CompletePools() []PoolRef {
 	open := map[PoolRef]bool{}
 	var order []PoolRef
 	for _, m := range s.matches {
+		if m.Bracket != "" {
+			continue
+		}
 		ref := PoolRef{m.Category, m.Pool}
 		if _, seen := open[ref]; !seen {
 			order = append(order, ref)
@@ -237,10 +245,10 @@ func (s State) PoolStandings(c engine.Category, pool int) engine.PoolStandings {
 		DrawLots:  s.lots[PoolRef{c, pool}],
 	}
 	for _, id := range d.Pools[pool] {
-		p.Withdrawn[id] = s.withdrawn[id]
+		p.Withdrawn[id] = s.withdrawn[id] == ScopePools
 	}
 	for _, m := range s.matches {
-		if m.Category == c && m.Pool == pool {
+		if m.Category == c && m.Bracket == "" && m.Pool == pool {
 			p.Matches = append(p.Matches, engine.PoolMatch{A: m.A, B: m.B, Score: m.Score})
 		}
 	}

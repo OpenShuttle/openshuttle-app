@@ -51,6 +51,9 @@ func (s State) ClearScore(id MatchID) (Change, error) {
 	if m.Score == nil {
 		return Change{}, engine.NewError(engine.CodeNoScore)
 	}
+	if s.nextStarted(m) {
+		return Change{}, engine.NewError(engine.CodeBracketNextStarted)
+	}
 	return Change{TypeScoreCleared, ScoreCleared{Match: id}}, nil
 }
 
@@ -59,7 +62,7 @@ func (s State) ReinstateEntrant(id engine.EntrantID) (Change, error) {
 	if _, ok := s.Entrant(id); !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
 	}
-	if !s.withdrawn[id] {
+	if s.withdrawn[id] == "" {
 		return Change{}, engine.NewError(engine.CodeEntrantNotWithdrawn)
 	}
 	return Change{TypeEntrantReinstated, EntrantReinstated{Entrant: id}}, nil

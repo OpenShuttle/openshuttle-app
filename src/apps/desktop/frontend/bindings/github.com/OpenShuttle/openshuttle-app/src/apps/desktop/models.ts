@@ -21,6 +21,56 @@ export interface ActionView {
 }
 
 /**
+ * BracketPhase is a bracket on the stages screen.
+ */
+export interface BracketPhase {
+    "id": string;
+    "name": string;
+    "win": engine$0.WinCondition;
+
+    /**
+     * FullPlacement plays every place (losers play for the lower places).
+     * Otherwise entrants losing in the same round are tied.
+     */
+    "fullPlacement": boolean;
+    "drawn": boolean;
+    "started": boolean;
+
+    /**
+     * Routed is the number of entrants the pools send to this bracket.
+     */
+    "routed": number;
+
+    /**
+     * CanDraw is set when every pool is complete with no tie left.
+     */
+    "canDraw": boolean;
+
+    /**
+     * first round, byes have an empty entrant
+     */
+    "slots": SideView[] | null;
+    "rounds": RoundView[] | null;
+    "places": PlaceView[] | null;
+}
+
+/**
+ * BracketView is a bracket in the format editor.
+ */
+export interface BracketView {
+    "id": string;
+    "name": string;
+    "win": engine$0.WinCondition;
+
+    /**
+     * FullPlacement plays every place (losers play for the lower places).
+     * Otherwise entrants losing in the same round are tied.
+     */
+    "fullPlacement": boolean;
+    "drawn": boolean;
+}
+
+/**
  * CategoryEntrants lists the entrants of one category, with check-in totals.
  */
 export interface CategoryEntrants {
@@ -86,6 +136,12 @@ export interface ControlDeskView {
     "pending": MatchView[] | null;
     "queue": QueueView[] | null;
     "complete": PoolRefView[] | null;
+
+    /**
+     * BracketsToFill lists categories whose pools are over with brackets
+     * still to fill from them.
+     */
+    "bracketsToFill": CategoryRef[] | null;
     "priority": string;
     "minRest": number;
     "categories": CategoryRef[] | null;
@@ -237,6 +293,14 @@ export interface FormatCategory {
      * PoolsLocked is set once the draw is confirmed.
      */
     "poolsLocked": boolean;
+    "brackets": BracketView[] | null;
+
+    /**
+     * Routing[i] is the bracket of pool position i+1, "" for eliminated;
+     * RoutingRows is how many positions to show (the largest pool).
+     */
+    "routing": string[] | null;
+    "routingRows": number;
 }
 
 /**
@@ -290,6 +354,18 @@ export interface MatchView {
     "score": engine$0.Score | null;
     "walkover": boolean;
     "win": engine$0.WinCondition;
+
+    /**
+     * Bracket matches: Pool is empty, the round plays for places
+     * PlaceFrom..PlaceTo with RoundSize entrants (2 for a final).
+     */
+    "bracket": string;
+    "bracketName": string;
+    "placeFrom": number;
+    "placeTo": number;
+    "roundSize": number;
+    "byeA": boolean;
+    "byeB": boolean;
 }
 
 /**
@@ -316,6 +392,7 @@ export interface PhaseCategory {
      */
     "started": boolean;
     "pools": PoolPhase[] | null;
+    "brackets": BracketPhase[] | null;
 }
 
 /**
@@ -323,6 +400,15 @@ export interface PhaseCategory {
  */
 export interface PhasesView {
     "categories": PhaseCategory[] | null;
+}
+
+/**
+ * PlaceView is a final position of a bracket.
+ */
+export interface PlaceView {
+    "from": number;
+    "to": number;
+    "entrant": SideView;
 }
 
 /**
@@ -384,6 +470,17 @@ export interface RecentTournament {
      * Exists is false when the file was moved or deleted since.
      */
     "exists": boolean;
+}
+
+/**
+ * RoundView is the first round of a sub-bracket: the entrants playing for
+ * places From..To.
+ */
+export interface RoundView {
+    "from": number;
+    "to": number;
+    "size": number;
+    "matches": MatchView[] | null;
 }
 
 /**

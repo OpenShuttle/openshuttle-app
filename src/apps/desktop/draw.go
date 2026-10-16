@@ -29,7 +29,12 @@ type FormatCategory struct {
 	Sizes   []int `json:"sizes"`
 	Matches int   `json:"matches"`
 	// PoolsLocked is set once the draw is confirmed.
-	PoolsLocked bool `json:"poolsLocked"`
+	PoolsLocked bool          `json:"poolsLocked"`
+	Brackets    []BracketView `json:"brackets"`
+	// Routing[i] is the bracket of pool position i+1, "" for eliminated;
+	// RoutingRows is how many positions to show (the largest pool).
+	Routing     []string `json:"routing"`
+	RoutingRows int      `json:"routingRows"`
 }
 
 // FormatView is the format screen.
@@ -133,6 +138,23 @@ func (s *TournamentService) GetFormatView() FormatView {
 		}
 		if d, ok := st.Draw(ref.Category); ok && d.Confirmed {
 			fc.PoolsLocked = true
+		}
+		fc.Brackets = []BracketView{}
+		for _, b := range st.Brackets(ref.Category) {
+			fc.Brackets = append(fc.Brackets, BracketView{ID: b.ID, BracketConfig: b.BracketConfig, Drawn: b.Drawn()})
+		}
+		fc.Routing = st.Routing(ref.Category)
+		if fc.Routing == nil {
+			fc.Routing = []string{}
+		}
+		fc.RoutingRows = max(len(fc.Routing), 2)
+		if len(fc.Sizes) > 0 {
+			fc.RoutingRows = max(fc.RoutingRows, fc.Sizes[0])
+		}
+		if d, ok := st.Draw(ref.Category); ok {
+			for _, pool := range d.Pools {
+				fc.RoutingRows = max(fc.RoutingRows, len(pool))
+			}
 		}
 		v.Categories = append(v.Categories, fc)
 	}

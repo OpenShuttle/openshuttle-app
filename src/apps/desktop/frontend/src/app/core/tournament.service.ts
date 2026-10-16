@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { MatchID, PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
+import { BracketConfig, MatchID, PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -174,6 +174,30 @@ export class TournamentStore {
 
   drawLots(category: Category, pool: number): Promise<boolean> {
     return this.command(() => Backend.DrawLots(category, pool));
+  }
+
+  addBracket(category: Category, cfg: BracketConfig): Promise<boolean> {
+    return this.command(() => Backend.AddBracket(category, cfg));
+  }
+
+  configureBracket(category: Category, id: string, cfg: BracketConfig): Promise<boolean> {
+    return this.command(() => Backend.ConfigureBracket(category, id, cfg));
+  }
+
+  removeBracket(category: Category, id: string): Promise<boolean> {
+    return this.command(() => Backend.RemoveBracket(category, id));
+  }
+
+  setRouting(category: Category, routing: string[]): Promise<boolean> {
+    return this.command(() => Backend.SetRouting(category, routing));
+  }
+
+  drawBracket(category: Category, id: string): Promise<boolean> {
+    return this.command(() => Backend.DrawBracket(category, id));
+  }
+
+  swapBracketSlots(category: Category, id: string, a: number, b: number): Promise<boolean> {
+    return this.command(() => Backend.SwapBracketSlots(category, id, a, b));
   }
 
   /** Runs a command that returns nothing; true when it succeeded. */

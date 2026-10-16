@@ -111,6 +111,107 @@
       </div>
     </section>
 
-    <p class="note">{{ t('format.bracketsSoon') }}</p>
+    @for (b of fc.brackets; track b.id; let i = $index) {
+      <section class="card">
+        <div class="stage-title row-title">
+          <div>
+            <span class="field-label">{{ t('format.stage', { n: i + 2 }) }} · {{ b.id }}</span>
+            <h2>{{ t('format.bracket') }}</h2>
+          </div>
+          <button type="button" class="btn btn-small danger" [disabled]="b.drawn" (click)="tournament.removeBracket(fc.category, b.id)">
+            {{ t('format.removeBracket') }}
+          </button>
+        </div>
+
+        <div class="setting">
+          <span class="label">{{ t('format.bracketName') }}</span>
+          <div class="control">
+            <input class="input wide" maxlength="60" [value]="b.name" (change)="setBracket(fc, b, { name: value($event) })" />
+          </div>
+        </div>
+
+        <div class="setting">
+          <span class="label">{{ t('format.winCondition') }}</span>
+          <div class="control">
+            <div class="segments">
+              <button type="button" class="segment" [class.active]="b.win.kind === kinds.WinBySets" (click)="setBracketKind(fc, b, kinds.WinBySets)">
+                {{ t('format.bySets') }}
+              </button>
+              <button type="button" class="segment" [class.active]="b.win.kind === kinds.WinByTime" [disabled]="!fc.timedAllowed" (click)="setBracketKind(fc, b, kinds.WinByTime)">
+                {{ t('format.byTime') }}
+              </button>
+            </div>
+            @if (b.win.kind === kinds.WinBySets) {
+              <div class="fields">
+                <label>
+                  <span class="field-label">{{ t('format.setsToWin') }}</span>
+                  <select (change)="setBracketWin(fc, b, 'setsToWin', $event)">
+                    @for (n of [1, 2, 3]; track n) {
+                      <option [value]="n" [selected]="b.win.setsToWin === n">{{ t('format.setsToWinValue', { n }) }}</option>
+                    }
+                  </select>
+                </label>
+                <label>
+                  <span class="field-label">{{ t('format.pointsPerSet') }}</span>
+                  <input class="input" type="number" min="1" max="99" [value]="b.win.pointsPerSet" (change)="setBracketWin(fc, b, 'pointsPerSet', $event)" />
+                </label>
+                <label>
+                  <span class="field-label">{{ t('format.cap') }}</span>
+                  <input class="input" type="number" min="0" max="99" [value]="b.win.cap ?? 0" (change)="setBracketWin(fc, b, 'cap', $event)" />
+                </label>
+              </div>
+            } @else {
+              <div class="fields">
+                <label>
+                  <span class="field-label">{{ t('format.minutes') }}</span>
+                  <input class="input" type="number" min="1" max="60" [value]="b.win.minutes" (change)="setBracketWin(fc, b, 'minutes', $event)" />
+                </label>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="setting">
+          <span class="label">{{ t('format.placement') }}</span>
+          <div class="control">
+            <div class="segments">
+              <button type="button" class="segment" [class.active]="b.fullPlacement" (click)="setBracket(fc, b, { fullPlacement: true })">
+                {{ t('format.fullPlacement') }}
+              </button>
+              <button type="button" class="segment" [class.active]="!b.fullPlacement" (click)="setBracket(fc, b, { fullPlacement: false })">
+                {{ t('format.tiedByRound') }}
+              </button>
+            </div>
+            <span class="note">{{ t(b.fullPlacement ? 'format.fullPlacementHint' : 'format.tiedByRoundHint') }}</span>
+          </div>
+        </div>
+      </section>
+    }
+
+    <button type="button" class="btn add-bracket" (click)="addBracket(fc)">+ {{ t('format.addBracket') }}</button>
+
+    @if ((fc.brackets ?? []).length > 0) {
+      <section class="card">
+        <div class="stage-title">
+          <span class="field-label">{{ t('format.routingKicker') }}</span>
+          <h2>{{ t('format.routing') }}</h2>
+        </div>
+        <div class="routing">
+          @for (r of routes(fc); track r.position) {
+            <label class="route">
+              <span class="route-rank">{{ t('format.position', { n: r.position }) }}</span>
+              <span class="arrow">→</span>
+              <select (change)="setRoute(fc, r.position, $event)">
+                <option value="" [selected]="r.target === ''">{{ t('format.eliminated') }}</option>
+                @for (b of fc.brackets; track b.id) {
+                  <option [value]="b.id" [selected]="r.target === b.id">{{ b.name }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+        <span class="note">{{ t('format.routingHint') }}</span>
+      </section>
+    }
   }
 </ng-container>

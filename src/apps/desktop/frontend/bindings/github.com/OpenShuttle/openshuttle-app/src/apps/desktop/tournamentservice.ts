@@ -23,6 +23,13 @@ import * as tournament$0 from "../../internal/tournament/models.js";
 import * as $models from "./models.js";
 
 /**
+ * AddBracket adds a bracket stage.
+ */
+export function AddBracket(c: engine$0.Category, cfg: tournament$0.BracketConfig): $CancellablePromise<void> {
+    return $Call.ByID(1268967619, c, cfg);
+}
+
+/**
  * AddCategory adds a category (MS, WS, MD, WD, XD) to the tournament.
  */
 export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
@@ -65,6 +72,13 @@ export function CloseTournament(): $CancellablePromise<void> {
 }
 
 /**
+ * ConfigureBracket changes a bracket.
+ */
+export function ConfigureBracket(c: engine$0.Category, id: string, cfg: tournament$0.BracketConfig): $CancellablePromise<void> {
+    return $Call.ByID(905097286, c, id, cfg);
+}
+
+/**
  * ConfigurePoolStage sets the pool stage of a category.
  */
 export function ConfigurePoolStage(c: engine$0.Category, stage: tournament$0.PoolStage): $CancellablePromise<void> {
@@ -91,6 +105,13 @@ export function CreateTournament(name: string): $CancellablePromise<string> {
  */
 export function CreateTournamentAt(path: string, name: string): $CancellablePromise<void> {
     return $Call.ByID(3827390496, path, name);
+}
+
+/**
+ * DrawBracket fills a bracket from the final pool standings.
+ */
+export function DrawBracket(c: engine$0.Category, id: string): $CancellablePromise<void> {
+    return $Call.ByID(4066182796, c, id);
 }
 
 /**
@@ -228,6 +249,13 @@ export function ReinstateEntrant(id: engine$0.EntrantID): $CancellablePromise<vo
 }
 
 /**
+ * RemoveBracket removes a bracket.
+ */
+export function RemoveBracket(c: engine$0.Category, id: string): $CancellablePromise<void> {
+    return $Call.ByID(273713370, c, id);
+}
+
+/**
  * RemoveCategory removes a category that has no entrant.
  */
 export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> {
@@ -277,10 +305,24 @@ export function SetMinRest(minutes: number): $CancellablePromise<void> {
 }
 
 /**
+ * SetRouting sets the bracket of each pool position ("" for eliminated).
+ */
+export function SetRouting(c: engine$0.Category, routing: string[] | null): $CancellablePromise<void> {
+    return $Call.ByID(98262176, c, routing);
+}
+
+/**
  * SetSeed seeds an entrant, or clears its seed with 0.
  */
 export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
     return $Call.ByID(932998391, id, seed);
+}
+
+/**
+ * SwapBracketSlots swaps two first-round slots before the bracket starts.
+ */
+export function SwapBracketSlots(c: engine$0.Category, id: string, a: number, b: number): $CancellablePromise<void> {
+    return $Call.ByID(1220495432, c, id, a, b);
 }
 
 /**

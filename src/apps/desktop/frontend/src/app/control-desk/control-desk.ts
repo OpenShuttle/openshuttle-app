@@ -9,6 +9,7 @@ import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { ScorePanel } from '../score-panel/score-panel';
 import { CategoryBadge } from '../shared/category-badge';
+import { MatchStage } from '../shared/match-stage';
 
 /** Pending scores older than this are highlighted. */
 const LATE_SCORE_MINUTES = 10;
@@ -19,6 +20,7 @@ const EMPTY: ControlDeskView = {
   pending: [],
   queue: [],
   complete: [],
+  bracketsToFill: [],
   priority: 'balanced',
   minRest: 10,
   categories: [],
@@ -28,7 +30,7 @@ const EMPTY: ControlDeskView = {
 /** Control desk: courts, pending scores, queue, alerts. */
 @Component({
   selector: 'app-control-desk',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge, ScorePanel],
+  imports: [TranslocoDirective, RouterLink, CategoryBadge, ScorePanel, MatchStage],
   templateUrl: './control-desk.html',
   styleUrl: './control-desk.scss',
 })
