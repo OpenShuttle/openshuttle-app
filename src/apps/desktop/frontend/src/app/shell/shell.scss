@@ -151,6 +151,10 @@
 }
 
 .gear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 10px;
   text-decoration: none;
   color: inherit;
 }
