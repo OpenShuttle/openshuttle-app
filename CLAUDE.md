@@ -99,6 +99,10 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **The draw is per category.** Moving an entrant to a pool of the other category is refused (impossible action, not a warning).
 - **UI**: every match, court, queue item and call shows a colored category badge (English: `MS`, `WS`, `MD`, `WD`, `XD`; French: `SH`, `SD`, `DH`, `DD`, `DM`). The control desk is a single view with a category filter on the queue. The display screen mixes both categories, with a very visible badge.
 - **Full standings** require full-placement brackets. Otherwise, entrants losing in the same round are tied.
+- **Players live inside their entrant**: categories are disjoint, so each player belongs to exactly one entrant. Same full name twice is a warning (homonyms exist), never a refusal.
+- **IDs come from the event seq** (`e12`, `p12.1`): deterministic on replay and never reused, even after an undo of an undo.
+- **Bibs** are recorded in the `PlayerCheckedIn` event and never reused: a removed entrant or a cancelled check-in keeps its number out of circulation. A cancelled check-in keeps the entrant's bib.
+- **Removing a category with entrants is refused** (`CATEGORY_NOT_EMPTY`): it would silently drop them.
 
 ## Glossary (French spec → code)
 
@@ -158,7 +162,7 @@ cd src/apps/desktop/frontend && npm run i18n:check   # en.json and fr.json must 
 ```
 
 Generated bindings (`frontend/bindings`) are committed. Import them through the
-`@bindings/*` path alias.
+`@bindings/*` path alias (`@bindings/apps/desktop`, `@bindings/internal/engine`…).
 
 ## Design
 

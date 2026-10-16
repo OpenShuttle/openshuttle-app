@@ -1,0 +1,78 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('checkIn.title') }}</h1>
+    <div class="totals">
+      <span class="total">{{ t('checkIn.playersPresent', { present: view().present, total: view().players }) }}</span>
+      @for (c of view().categories; track c.category) {
+        <span class="total">
+          <app-category-badge [category]="c.category" [slot]="c.slot" />
+          @if (c.doubles) {
+            {{ t('checkIn.pairsComplete', { complete: c.entrantsComplete, total: c.entrants?.length ?? 0 }) }}
+          } @else {
+            {{ t('checkIn.playersPresent', { present: c.playersPresent, total: c.players }) }}
+          }
+        </span>
+      }
+    </div>
+  </div>
+
+  <div class="filters">
+    <input
+      class="input search"
+      type="search"
+      autofocus
+      [placeholder]="t('checkIn.search')"
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+      (keydown.enter)="onSearchEnter()"
+      (keydown.escape)="search.set('')"
+    />
+    <div class="segments" role="radiogroup">
+      <button type="button" class="segment" [class.active]="category() === 'all'" (click)="category.set('all')">
+        {{ t('checkIn.allCategories') }}
+      </button>
+      @for (c of view().categories; track c.category) {
+        <button type="button" class="segment" [class.active]="category() === c.category" (click)="category.set(c.category)">
+          {{ t('category.short.' + c.category) }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (view().players === 0) {
+    <div class="empty">{{ t('checkIn.noPlayer') }}</div>
+  } @else if (rows().length === 0) {
+    <div class="empty">{{ t('checkIn.noMatch') }}</div>
+  } @else {
+    <ul class="list">
+      @for (r of rows(); track r.id) {
+        <li class="row" [class.present]="r.checkedIn">
+          <span class="bib" [attr.title]="t('checkIn.bib')">{{ r.bib || '–' }}</span>
+          <div class="who">
+            <span class="name">
+              {{ r.lastName }} {{ r.firstName }}
+              @if (r.duplicate) {
+                <span class="warning">{{ t('entrants.duplicate') }}</span>
+              }
+            </span>
+            <span class="meta">
+              <app-category-badge [category]="r.category" [slot]="r.slot" />
+              @if (r.club) {
+                <span>{{ r.club }}</span>
+              }
+              @if (r.partner; as p) {
+                <span class="partner">
+                  <span class="dot" [class.on]="p.checkedIn"></span>
+                  {{ t('checkIn.withPartner', { name: p.firstName + ' ' + p.lastName }) }}
+                </span>
+              }
+            </span>
+          </div>
+          <button type="button" class="btn toggle" [class.on]="r.checkedIn" (click)="toggle(r)">
+            {{ t(r.checkedIn ? 'checkIn.present' : 'checkIn.markPresent') }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</ng-container>

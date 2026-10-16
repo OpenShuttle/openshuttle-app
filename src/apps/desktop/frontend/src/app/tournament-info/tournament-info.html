@@ -23,4 +23,33 @@
       <span class="path">{{ tournament.view().path }}</span>
     </div>
   </section>
+
+  <section class="card">
+    <div class="field">
+      <span class="field-label">{{ t('tournamentInfo.categories') }}</span>
+      <p class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</p>
+    </div>
+
+    @for (c of tournament.view().categories; track c.category) {
+      <div class="category">
+        <app-category-badge [category]="c.category" [slot]="c.slot" />
+        <span class="category-name">{{ t('category.name.' + c.category) }}</span>
+        <button type="button" class="btn btn-small" (click)="tournament.removeCategory(c.category)">
+          {{ t('tournamentInfo.removeCategory') }}
+        </button>
+      </div>
+    } @empty {
+      <p class="hint">{{ t('tournamentInfo.noCategory') }}</p>
+    }
+
+    @if (!full()) {
+      <div class="add">
+        @for (c of available(); track c) {
+          <button type="button" class="btn" (click)="tournament.addCategory(c)">
+            + {{ t('category.name.' + c) }}
+          </button>
+        }
+      </div>
+    }
+  </section>
 </ng-container>

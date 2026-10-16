@@ -54,6 +54,8 @@
 }
 
 .brand-sub {
+  display: flex;
+  gap: 4px;
   font-size: 12px;
   color: var(--color-text-muted);
 }
@@ -146,5 +148,4 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 20px 24px 24px;
 }

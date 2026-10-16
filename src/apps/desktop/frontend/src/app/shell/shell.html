@@ -5,7 +5,13 @@
       <div class="brand-text">
         <span class="brand-name">{{ view().open ? view().name : t('app.name') }}</span>
         @if (view().open) {
-          <span class="brand-sub">{{ t('app.name') }}</span>
+          <span class="brand-sub">
+            @for (c of view().categories; track c.category) {
+              <app-category-badge [category]="c.category" [slot]="c.slot" />
+            } @empty {
+              {{ t('app.name') }}
+            }
+          </span>
         }
       </div>
     </div>
@@ -15,13 +21,7 @@
         <div class="last-action-text">
           @if (lastAction(); as action) {
             <span class="field-label">{{ t('topBar.lastAction', { time: time(action.at) }) }}</span>
-            <span class="last-action-label">
-              @if (action.type === 'ActionUndone') {
-                {{ t('history.ActionUndone', { action: t('historyShort.' + action.params?.['action'], action.params ?? {}) }) }}
-              } @else {
-                {{ t('history.' + action.type, action.params ?? {}) }}
-              }
-            </span>
+            <span class="last-action-label" [attr.title]="actionLabel(action)">{{ actionLabel(action) }}</span>
           }
         </div>
         <button type="button" class="btn" [disabled]="!view().canUndo" (click)="undo()">
@@ -70,10 +70,6 @@
   }
 
   <main class="content">
-    @if (view().open) {
-      <app-tournament-info />
-    } @else {
-      <app-home />
-    }
+    <router-outlet />
   </main>
 </ng-container>

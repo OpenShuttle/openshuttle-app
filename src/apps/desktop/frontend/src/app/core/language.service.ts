@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Events } from '@wailsio/runtime';
-import { SettingsService } from '@bindings/index';
+import { SettingsService } from '@bindings/apps/desktop';
 
 export const AVAILABLE_LANGUAGES = ['en', 'fr'] as const;
 export type Language = (typeof AVAILABLE_LANGUAGES)[number];

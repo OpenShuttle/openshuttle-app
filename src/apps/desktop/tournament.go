@@ -27,6 +27,14 @@ type TournamentView struct {
 	Version    uint64      `json:"version"`
 	LastAction *ActionView `json:"lastAction"`
 	CanUndo    bool        `json:"canUndo"`
+	// Categories in slot order: the first gets --color-category-1.
+	Categories []CategoryRef `json:"categories"`
+}
+
+// CategoryRef is a category with its slot (1 or 2), which sets its color.
+type CategoryRef struct {
+	Category engine.Category `json:"category"`
+	Slot     int             `json:"slot"`
 }
 
 // ActionView describes a log entry for display. The frontend translates
@@ -156,30 +164,32 @@ func (s *TournamentService) CloseTournament() {
 
 // RenameTournament renames the current tournament.
 func (s *TournamentService) RenameTournament(ctx context.Context, name string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.file == nil {
-		return engine.NewError(engine.CodeNoTournament)
-	}
-	renamed, changed, err := tournament.Rename(s.state, name)
-	if err != nil || !changed {
-		return err
-	}
-	return s.appendLocked(ctx, tournament.TypeRenamed, renamed)
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.Rename(name) })
 }
 
 // Undo cancels the latest action still in effect.
 func (s *TournamentService) Undo(ctx context.Context) error {
+	return s.execute(ctx, func(tournament.State) (tournament.Change, error) {
+		last, ok := events.LastUndoable(s.log, tournament.Undoable)
+		if !ok {
+			return tournament.Change{}, engine.NewError(engine.CodeNothingToUndo)
+		}
+		return tournament.Change{Type: events.TypeUndone, Data: events.Undone{Target: last.Seq}}, nil
+	})
+}
+
+// execute runs a command against the current state and appends its change.
+func (s *TournamentService) execute(ctx context.Context, cmd func(tournament.State) (tournament.Change, error)) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.file == nil {
 		return engine.NewError(engine.CodeNoTournament)
 	}
-	last, ok := events.LastUndoable(s.log, tournament.Undoable)
-	if !ok {
-		return engine.NewError(engine.CodeNothingToUndo)
+	ch, err := cmd(s.state)
+	if err != nil || ch.None() {
+		return err
 	}
-	return s.appendLocked(ctx, events.TypeUndone, events.Undone{Target: last.Seq})
+	return s.appendLocked(ctx, ch.Type, ch.Data)
 }
 
 // GetTournamentView returns the current tournament, or Open=false.
@@ -187,13 +197,14 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.file == nil {
-		return TournamentView{}
+		return TournamentView{Categories: []CategoryRef{}}
 	}
 	v := TournamentView{
-		Open:    true,
-		Path:    s.file.Path(),
-		Name:    s.state.Name,
-		Version: s.state.Version,
+		Open:       true,
+		Path:       s.file.Path(),
+		Name:       s.state.Name,
+		Version:    s.state.Version,
+		Categories: categoryRefs(s.state),
 	}
 	if len(s.log) > 0 {
 		v.LastAction = s.describe(s.log[len(s.log)-1])
@@ -244,14 +255,28 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 // describe turns an event into an ActionView. An undo describes its target.
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
+	var p struct {
+		Name     string              `json:"name"`
+		Category engine.Category     `json:"category"`
+		ID       engine.EntrantID    `json:"id"`
+		Player   tournament.PlayerID `json:"player"`
+		Bib      int                 `json:"bib"`
+		Players  []tournament.Player `json:"players"`
+	}
+	if e.Type != events.TypeUndone && e.Decode(&p) != nil {
+		return v
+	}
 	switch e.Type {
 	case tournament.TypeCreated, tournament.TypeRenamed:
-		var p struct {
-			Name string `json:"name"`
-		}
-		if e.Decode(&p) == nil {
-			v.Params["name"] = p.Name
-		}
+		v.Params["name"] = p.Name
+	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved:
+		v.Params["category"] = string(p.Category)
+	case tournament.TypeEntrantRegistered, tournament.TypeEntrantUpdated:
+		v.Params["names"] = playerNames(p.Players)
+	case tournament.TypeEntrantRemoved:
+		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq)
+	case tournament.TypePlayerCheckedIn, tournament.TypeCheckInCancelled:
+		v.Params["name"] = s.playerNameAt(p.Player, e.Seq)
 	case events.TypeUndone:
 		var u events.Undone
 		if e.Decode(&u) == nil && u.Target >= 1 && int(u.Target) <= len(s.log) {
@@ -261,6 +286,58 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		}
 	}
 	return v
+}
+
+// registrations walks the log (undone events included, so history can name
+// removed entrants) before seq, newest first.
+func (s *TournamentService) registrations(before uint64, visit func(engine.EntrantID, []tournament.Player) bool) {
+	for i := min(int(before), len(s.log)) - 1; i >= 0; i-- {
+		e := s.log[i]
+		if e.Type != tournament.TypeEntrantRegistered && e.Type != tournament.TypeEntrantUpdated {
+			continue
+		}
+		var p struct {
+			ID      engine.EntrantID    `json:"id"`
+			Players []tournament.Player `json:"players"`
+		}
+		if e.Decode(&p) == nil && !visit(p.ID, p.Players) {
+			return
+		}
+	}
+}
+
+func (s *TournamentService) entrantNamesAt(id engine.EntrantID, seq uint64) string {
+	names := ""
+	s.registrations(seq, func(eid engine.EntrantID, players []tournament.Player) bool {
+		if eid == id {
+			names = playerNames(players)
+			return false
+		}
+		return true
+	})
+	return names
+}
+
+func (s *TournamentService) playerNameAt(id tournament.PlayerID, seq uint64) string {
+	name := ""
+	s.registrations(seq, func(_ engine.EntrantID, players []tournament.Player) bool {
+		for _, p := range players {
+			if p.ID == id {
+				name = p.FirstName + " " + p.LastName
+				return false
+			}
+		}
+		return true
+	})
+	return name
+}
+
+func playerNames(players []tournament.Player) string {
+	names := make([]string, len(players))
+	for i, p := range players {
+		names[i] = p.FirstName + " " + p.LastName
+	}
+	return strings.Join(names, " / ")
 }
 
 func (s *TournamentService) operator(ctx context.Context) string {

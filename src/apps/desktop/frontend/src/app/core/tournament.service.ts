@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
-import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/index';
+import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
+import { Category, EntrantID } from '@bindings/internal/engine';
+import { PlayerID, PlayerInput } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -11,6 +13,7 @@ const CLOSED: TournamentView = {
   version: 0,
   lastAction: null,
   canUndo: false,
+  categories: [],
 };
 
 /**
@@ -70,6 +73,42 @@ export class TournamentStore {
   undo(): Promise<boolean> {
     return this.run(async () => {
       await Backend.Undo();
+      return true;
+    });
+  }
+
+  addCategory(category: Category): Promise<boolean> {
+    return this.command(() => Backend.AddCategory(category));
+  }
+
+  removeCategory(category: Category): Promise<boolean> {
+    return this.command(() => Backend.RemoveCategory(category));
+  }
+
+  registerEntrant(category: Category, players: PlayerInput[]): Promise<boolean> {
+    return this.command(() => Backend.RegisterEntrant(category, players));
+  }
+
+  updateEntrant(id: EntrantID, players: PlayerInput[]): Promise<boolean> {
+    return this.command(() => Backend.UpdateEntrant(id, players));
+  }
+
+  removeEntrant(id: EntrantID): Promise<boolean> {
+    return this.command(() => Backend.RemoveEntrant(id));
+  }
+
+  checkIn(id: PlayerID): Promise<boolean> {
+    return this.command(() => Backend.CheckInPlayer(id));
+  }
+
+  cancelCheckIn(id: PlayerID): Promise<boolean> {
+    return this.command(() => Backend.CancelCheckIn(id));
+  }
+
+  /** Runs a command that returns nothing; true when it succeeded. */
+  private command(call: () => Promise<void>): Promise<boolean> {
+    return this.run(async () => {
+      await call();
       return true;
     });
   }

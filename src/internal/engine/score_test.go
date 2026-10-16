@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -128,5 +129,22 @@ func TestScoreTotals(t *testing.T) {
 	}
 	if a, b := s.Points(); a != 60 || b != 50 {
 		t.Errorf("Points() = %d, %d, want 60, 50", a, b)
+	}
+}
+
+func TestErrorJSON(t *testing.T) {
+	// The frontend reads {code, set}: keep these names even if an error is
+	// marshaled by a generic JSON encoder.
+	for _, tt := range []struct {
+		err  *Error
+		want string
+	}{
+		{&Error{Code: CodeInvalidSetScore, Set: 2}, `{"code":"INVALID_SET_SCORE","set":2}`},
+		{NewError(CodeInvalidScore), `{"code":"INVALID_SCORE"}`},
+	} {
+		b, err := json.Marshal(tt.err)
+		if err != nil || string(b) != tt.want {
+			t.Errorf("json = %s, %v; want %s", b, err, tt.want)
+		}
 	}
 }

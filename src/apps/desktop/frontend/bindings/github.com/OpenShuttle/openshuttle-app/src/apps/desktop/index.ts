@@ -12,7 +12,14 @@ export {
 
 export type {
     ActionView,
+    CategoryEntrants,
+    CategoryRef,
+    CheckInRow,
+    CheckInView,
+    EntrantView,
+    EntrantsView,
     Monitor,
+    PlayerView,
     RecentTournament,
     Settings,
     TournamentView

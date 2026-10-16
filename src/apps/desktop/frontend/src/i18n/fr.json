@@ -24,17 +24,35 @@
     "title": "Infos du tournoi",
     "name": "Nom",
     "file": "Fichier",
-    "close": "Fermer le tournoi"
+    "close": "Fermer le tournoi",
+    "categories": "Catégories",
+    "categoriesHint": "Jusqu'à {max} catégories, jouées en même temps sur des terrains partagés. Un joueur ne peut être inscrit que dans une catégorie.",
+    "noCategory": "Aucune catégorie. Ajoutez-en une pour inscrire des joueurs.",
+    "removeCategory": "Retirer"
   },
   "history": {
     "TournamentCreated": "Tournoi créé : {name}",
     "TournamentRenamed": "Tournoi renommé : {name}",
-    "ActionUndone": "Annulé : {action}"
+    "ActionUndone": "Annulé : {action}",
+    "CategoryAdded": "Catégorie ajoutée : {category}",
+    "CategoryRemoved": "Catégorie retirée : {category}",
+    "EntrantRegistered": "Inscription : {names}",
+    "EntrantUpdated": "Inscription modifiée : {names}",
+    "EntrantRemoved": "Inscription retirée : {names}",
+    "PlayerCheckedIn": "{name} pointé(e)",
+    "PlayerCheckInCancelled": "{name} marqué(e) absent(e)"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
     "TournamentRenamed": "renommage en {name}",
-    "ActionUndone": "annulation"
+    "ActionUndone": "annulation",
+    "CategoryAdded": "ajout de {category}",
+    "CategoryRemoved": "retrait de {category}",
+    "EntrantRegistered": "inscription de {names}",
+    "EntrantUpdated": "modification de {names}",
+    "EntrantRemoved": "retrait de {names}",
+    "PlayerCheckedIn": "pointage de {name}",
+    "PlayerCheckInCancelled": "absence de {name}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -52,7 +70,16 @@
     "INVALID_SET_COUNT": "Nombre de sets incorrect pour ce match.",
     "INVALID_TIMED_SCORE": "Score invalide : une égalité doit être départagée par un point en or.",
     "INVALID_WIN_CONDITION": "Condition de victoire invalide.",
-    "INVALID_CATEGORY": "Catégorie inconnue."
+    "INVALID_CATEGORY": "Catégorie inconnue.",
+    "TOO_MANY_CATEGORIES": "Un tournoi compte au plus 2 catégories.",
+    "CATEGORY_EXISTS": "Cette catégorie est déjà dans le tournoi.",
+    "CATEGORY_NOT_FOUND": "Cette catégorie n'est pas dans le tournoi.",
+    "CATEGORY_NOT_EMPTY": "Retirez d'abord les inscrits de cette catégorie.",
+    "INVALID_PLAYER_NAME": "Joueur {set} : saisissez un prénom et un nom (50 caractères max).",
+    "INVALID_CLUB": "Joueur {set} : le nom du club est trop long (80 caractères max).",
+    "WRONG_PLAYER_COUNT": "Saisissez un joueur en simple, deux en double.",
+    "ENTRANT_NOT_FOUND": "Cette inscription n'existe plus.",
+    "PLAYER_NOT_FOUND": "Ce joueur n'existe plus."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -69,5 +96,64 @@
   "language": {
     "en": "English",
     "fr": "Français"
+  },
+  "category": {
+    "short": {
+      "MS": "SH",
+      "WS": "SD",
+      "MD": "DH",
+      "WD": "DD",
+      "XD": "DM"
+    },
+    "name": {
+      "MS": "Simple homme",
+      "WS": "Simple dame",
+      "MD": "Double homme",
+      "WD": "Double dame",
+      "XD": "Double mixte"
+    }
+  },
+  "nav": {
+    "preparation": "Préparation",
+    "dayOf": "Jour J",
+    "info": "Infos",
+    "entrants": "Inscrits",
+    "format": "Format",
+    "checkIn": "Pointage",
+    "draw": "Tirage",
+    "controlDesk": "Table de marque",
+    "stages": "Phases",
+    "results": "Résultats",
+    "soon": "Bientôt"
+  },
+  "entrants": {
+    "title": "Inscrits",
+    "noCategory": "Ajoutez d'abord une catégorie.",
+    "goToInfo": "Aller aux infos",
+    "addPlayer": "Inscrire un joueur",
+    "addPair": "Inscrire une paire",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "club": "Club",
+    "add": "Inscrire",
+    "empty": "Aucun inscrit dans cette catégorie.",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "remove": "Retirer",
+    "duplicate": "Même nom qu'un autre joueur"
+  },
+  "checkIn": {
+    "title": "Pointage",
+    "search": "Chercher un nom, un club ou un dossard",
+    "allCategories": "Toutes",
+    "playersPresent": "{present} / {total} joueurs",
+    "pairsComplete": "{complete} / {total} paires complètes",
+    "markPresent": "Marquer présent",
+    "present": "Présent",
+    "absent": "Absent",
+    "bib": "Dossard",
+    "withPartner": "avec {name}",
+    "noPlayer": "Aucun joueur inscrit.",
+    "noMatch": "Aucun joueur ne correspond à cette recherche."
   }
 }

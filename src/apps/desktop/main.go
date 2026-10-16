@@ -49,9 +49,9 @@ func main() {
 		Name:        "OpenShuttle",
 		Description: "Run badminton club tournaments, fully offline",
 		Services: []application.Service{
-			application.NewService(NewDisplayScreenService()),
-			application.NewService(NewSettingsService(appDB, emit)),
-			application.NewService(NewTournamentService(
+			service(NewDisplayScreenService()),
+			service(NewSettingsService(appDB, emit)),
+			service(NewTournamentService(
 				appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{},
 			)),
 		},
@@ -83,6 +83,12 @@ func main() {
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// service binds a service with our error marshaler. Wails v3 beta.30 ignores
+// the app-level MarshalError for bound methods: it must be set per service.
+func service[T any](instance *T) application.Service {
+	return application.NewServiceWithOptions(instance, application.ServiceOptions{MarshalError: marshalError})
 }
 
 // appDataDir is where app.db and backups live: the user config folder

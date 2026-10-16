@@ -13,7 +13,35 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as engine$0 from "../../internal/engine/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as tournament$0 from "../../internal/tournament/models.js";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as $models from "./models.js";
+
+/**
+ * AddCategory adds a category (MS, WS, MD, WD, XD) to the tournament.
+ */
+export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(3097701569, c);
+}
+
+/**
+ * CancelCheckIn marks a player absent again.
+ */
+export function CancelCheckIn(id: tournament$0.PlayerID): $CancellablePromise<void> {
+    return $Call.ByID(2540460619, id);
+}
+
+/**
+ * CheckInPlayer marks a player present, assigning the bib on the pair's first check-in.
+ */
+export function CheckInPlayer(id: tournament$0.PlayerID): $CancellablePromise<void> {
+    return $Call.ByID(116100660, id);
+}
 
 /**
  * CloseTournament closes the current tournament, if any.
@@ -35,6 +63,20 @@ export function CreateTournament(name: string): $CancellablePromise<string> {
  */
 export function CreateTournamentAt(path: string, name: string): $CancellablePromise<void> {
     return $Call.ByID(3827390496, path, name);
+}
+
+/**
+ * GetCheckInView returns the check-in screen.
+ */
+export function GetCheckInView(): $CancellablePromise<$models.CheckInView> {
+    return $Call.ByID(3805916304);
+}
+
+/**
+ * GetEntrantsView returns the entrants screen.
+ */
+export function GetEntrantsView(): $CancellablePromise<$models.EntrantsView> {
+    return $Call.ByID(1542905860);
 }
 
 /**
@@ -67,6 +109,27 @@ export function OpenTournamentDialog(): $CancellablePromise<string> {
 }
 
 /**
+ * RegisterEntrant enters a player (singles) or a pair (doubles).
+ */
+export function RegisterEntrant(c: engine$0.Category, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
+    return $Call.ByID(2540135563, c, players);
+}
+
+/**
+ * RemoveCategory removes a category that has no entrant.
+ */
+export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(2978704410, c);
+}
+
+/**
+ * RemoveEntrant withdraws an entrant.
+ */
+export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
+    return $Call.ByID(120374032, id);
+}
+
+/**
  * RenameTournament renames the current tournament.
  */
 export function RenameTournament(name: string): $CancellablePromise<void> {
@@ -78,4 +141,11 @@ export function RenameTournament(name: string): $CancellablePromise<void> {
  */
 export function Undo(): $CancellablePromise<void> {
     return $Call.ByID(2401579636);
+}
+
+/**
+ * UpdateEntrant changes the names and clubs of an entrant's players.
+ */
+export function UpdateEntrant(id: engine$0.EntrantID, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
+    return $Call.ByID(3847520683, id, players);
 }

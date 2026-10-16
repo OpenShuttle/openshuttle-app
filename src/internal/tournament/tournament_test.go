@@ -82,7 +82,7 @@ func TestRename(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, changed, err := Rename(s, tt.input)
+			ch, err := s.Rename(tt.input)
 			if tt.code != "" {
 				var e *engine.Error
 				if !errors.As(err, &e) || e.Code != tt.code {
@@ -90,8 +90,9 @@ func TestRename(t *testing.T) {
 				}
 				return
 			}
-			if err != nil || changed != tt.changed || got.Name != tt.want {
-				t.Errorf("Rename() = %q, %v, %v; want %q, %v", got.Name, changed, err, tt.want, tt.changed)
+			got, _ := ch.Data.(Renamed)
+			if err != nil || !ch.None() != tt.changed || got.Name != tt.want {
+				t.Errorf("Rename() = %+v, %v; want %q, %v", ch, err, tt.want, tt.changed)
 			}
 		})
 	}

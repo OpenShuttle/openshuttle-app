@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
-import { DisplayScreenService as Backend, Monitor } from '@bindings/index';
+import { DisplayScreenService as Backend, Monitor } from '@bindings/apps/desktop';
 
 /** Drives the display screen window from the main window. */
 @Injectable({ providedIn: 'root' })

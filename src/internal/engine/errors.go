@@ -12,6 +12,16 @@ const (
 	CodeInvalidTimedScore   Code = "INVALID_TIMED_SCORE"
 	CodeInvalidCategory     Code = "INVALID_CATEGORY"
 
+	CodeTooManyCategories Code = "TOO_MANY_CATEGORIES"
+	CodeCategoryExists    Code = "CATEGORY_EXISTS"
+	CodeCategoryNotFound  Code = "CATEGORY_NOT_FOUND"
+	CodeCategoryNotEmpty  Code = "CATEGORY_NOT_EMPTY"
+	CodeInvalidPlayerName Code = "INVALID_PLAYER_NAME"
+	CodeInvalidClub       Code = "INVALID_CLUB"
+	CodeWrongPlayerCount  Code = "WRONG_PLAYER_COUNT"
+	CodeEntrantNotFound   Code = "ENTRANT_NOT_FOUND"
+	CodePlayerNotFound    Code = "PLAYER_NOT_FOUND"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"
@@ -28,8 +38,8 @@ const (
 // Error is a domain error carrying a stable code. Set is the 1-based index of
 // the offending set when the error is about one set, 0 otherwise.
 type Error struct {
-	Code Code
-	Set  int
+	Code Code `json:"code"`
+	Set  int  `json:"set,omitempty"`
 }
 
 func (e *Error) Error() string {

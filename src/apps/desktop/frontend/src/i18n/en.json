@@ -24,17 +24,35 @@
     "title": "Tournament info",
     "name": "Name",
     "file": "File",
-    "close": "Close tournament"
+    "close": "Close tournament",
+    "categories": "Categories",
+    "categoriesHint": "Up to {max} categories, played at the same time on shared courts. A player can only be in one category.",
+    "noCategory": "No category yet. Add one to enter players.",
+    "removeCategory": "Remove"
   },
   "history": {
     "TournamentCreated": "Tournament created: {name}",
     "TournamentRenamed": "Tournament renamed: {name}",
-    "ActionUndone": "Undone: {action}"
+    "ActionUndone": "Undone: {action}",
+    "CategoryAdded": "Category added: {category}",
+    "CategoryRemoved": "Category removed: {category}",
+    "EntrantRegistered": "Entered: {names}",
+    "EntrantUpdated": "Entrant edited: {names}",
+    "EntrantRemoved": "Entrant removed: {names}",
+    "PlayerCheckedIn": "{name} checked in",
+    "PlayerCheckInCancelled": "{name} marked absent"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
     "TournamentRenamed": "rename to {name}",
-    "ActionUndone": "undo"
+    "ActionUndone": "undo",
+    "CategoryAdded": "adding {category}",
+    "CategoryRemoved": "removing {category}",
+    "EntrantRegistered": "entry of {names}",
+    "EntrantUpdated": "edit of {names}",
+    "EntrantRemoved": "removal of {names}",
+    "PlayerCheckedIn": "check-in of {name}",
+    "PlayerCheckInCancelled": "absence of {name}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -52,7 +70,16 @@
     "INVALID_SET_COUNT": "Wrong number of sets for this match.",
     "INVALID_TIMED_SCORE": "Invalid score: a tie must be decided by a golden point.",
     "INVALID_WIN_CONDITION": "Invalid win condition.",
-    "INVALID_CATEGORY": "Unknown category."
+    "INVALID_CATEGORY": "Unknown category.",
+    "TOO_MANY_CATEGORIES": "A tournament has at most 2 categories.",
+    "CATEGORY_EXISTS": "This category is already in the tournament.",
+    "CATEGORY_NOT_FOUND": "This category is not in the tournament.",
+    "CATEGORY_NOT_EMPTY": "Remove the entrants of this category first.",
+    "INVALID_PLAYER_NAME": "Player {set}: enter a first and a last name (50 characters max).",
+    "INVALID_CLUB": "Player {set}: the club name is too long (80 characters max).",
+    "WRONG_PLAYER_COUNT": "Enter one player in singles, two in doubles.",
+    "ENTRANT_NOT_FOUND": "This entrant no longer exists.",
+    "PLAYER_NOT_FOUND": "This player no longer exists."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -69,5 +96,64 @@
   "language": {
     "en": "English",
     "fr": "Français"
+  },
+  "category": {
+    "short": {
+      "MS": "MS",
+      "WS": "WS",
+      "MD": "MD",
+      "WD": "WD",
+      "XD": "XD"
+    },
+    "name": {
+      "MS": "Men's singles",
+      "WS": "Women's singles",
+      "MD": "Men's doubles",
+      "WD": "Women's doubles",
+      "XD": "Mixed doubles"
+    }
+  },
+  "nav": {
+    "preparation": "Preparation",
+    "dayOf": "Tournament day",
+    "info": "Info",
+    "entrants": "Entrants",
+    "format": "Format",
+    "checkIn": "Check-in",
+    "draw": "Draw",
+    "controlDesk": "Control desk",
+    "stages": "Stages",
+    "results": "Results",
+    "soon": "Coming soon"
+  },
+  "entrants": {
+    "title": "Entrants",
+    "noCategory": "Add a category first.",
+    "goToInfo": "Go to Info",
+    "addPlayer": "Add a player",
+    "addPair": "Add a pair",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "club": "Club",
+    "add": "Add",
+    "empty": "No entrant in this category yet.",
+    "edit": "Edit",
+    "save": "Save",
+    "remove": "Remove",
+    "duplicate": "Same name as another player"
+  },
+  "checkIn": {
+    "title": "Check-in",
+    "search": "Search a name, a club or a bib",
+    "allCategories": "All",
+    "playersPresent": "{present} / {total} players",
+    "pairsComplete": "{complete} / {total} pairs complete",
+    "markPresent": "Mark present",
+    "present": "Present",
+    "absent": "Absent",
+    "bib": "Bib number",
+    "withPartner": "with {name}",
+    "noPlayer": "No player entered yet.",
+    "noMatch": "No player matches this search."
   }
 }
