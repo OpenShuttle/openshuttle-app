@@ -180,6 +180,27 @@ export interface CourtView {
 }
 
 /**
+ * DisplayBoard is one standings view of the display screen rotation: a pool
+ * ranking, or the matches of a bracket.
+ */
+export interface DisplayBoard {
+    "category": engine$0.Category;
+    "slot": number;
+
+    /**
+     * pool boards
+     */
+    "pool": string;
+
+    /**
+     * bracket boards
+     */
+    "bracketName": string;
+    "standings": StandingView[] | null;
+    "matches": MatchView[] | null;
+}
+
+/**
  * DisplayCourt is a court on the display screen.
  */
 export interface DisplayCourt {
@@ -202,6 +223,11 @@ export interface DisplayView {
      * Round is the timed round in progress, for the shared countdown.
      */
     "round": TimedRoundView | null;
+
+    /**
+     * Boards are the standings and brackets the screen rotates through.
+     */
+    "boards": DisplayBoard[] | null;
 }
 
 /**
@@ -563,7 +589,7 @@ export interface RoundsView {
 }
 
 /**
- * Settings are the app settings stored in app.db.
+ * Settings are the app settings stored in app.db, for every tournament.
  */
 export interface Settings {
     /**
@@ -576,6 +602,33 @@ export interface Settings {
      * Operator is the name recorded with each tournament action.
      */
     "operator": string;
+
+    /**
+     * Monitor is the screen of the display window, "" for automatic.
+     */
+    "monitor": string;
+
+    /**
+     * RotationSeconds is how long the display screen shows each standings
+     * view before the next one.
+     */
+    "rotationSeconds": number;
+
+    /**
+     * Defaults of new tournaments.
+     */
+    "defaultCourts": number;
+    "defaultMinRest": number;
+
+    /**
+     * "sets" or "timed"
+     */
+    "defaultPoolWin": string;
+
+    /**
+     * TournamentsDir is where the file dialogs open.
+     */
+    "tournamentsDir": string;
 }
 
 /**
@@ -638,6 +691,11 @@ export interface TournamentView {
      */
     "categories": CategoryRef[] | null;
     "archived": boolean;
+
+    /**
+     * AvailableCategories are the categories that can still be added.
+     */
+    "availableCategories": engine$0.Category[] | null;
     "courts": number;
     "minRest": number;
     "priority": string;

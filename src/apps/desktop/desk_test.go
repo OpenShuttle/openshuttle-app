@@ -55,6 +55,9 @@ func TestControlDesk(t *testing.T) {
 		t.Errorf("call action = %+v", a)
 	}
 	d := f.svc.GetDisplayView()
+	if len(d.Boards) != 1 || d.Boards[0].Pool != "A" || len(d.Boards[0].Standings) != 4 {
+		t.Errorf("boards = %+v", d.Boards)
+	}
 	if len(d.Calls) != 1 || d.Calls[0].ID != "MS-A1" || d.Courts[0].Match == nil || d.Courts[1].Match != nil {
 		t.Errorf("display = %+v", d)
 	}

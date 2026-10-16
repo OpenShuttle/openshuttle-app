@@ -51,7 +51,7 @@ func main() {
 		Services: []application.Service{
 			service(&AppService{}),
 			service(NewDisplayScreenService()),
-			service(NewSettingsService(appDB, emit)),
+			service(NewSettingsService(appDB, emit, nativeDialogs{})),
 			service(NewTournamentService(
 				appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{},
 			)),

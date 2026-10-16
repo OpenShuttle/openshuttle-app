@@ -96,6 +96,18 @@ type DisplayView struct {
 	Courts []DisplayCourt `json:"courts"`
 	// Round is the timed round in progress, for the shared countdown.
 	Round *TimedRoundView `json:"round"`
+	// Boards are the standings and brackets the screen rotates through.
+	Boards []DisplayBoard `json:"boards"`
+}
+
+// DisplayBoard is one standings view of the display screen rotation: a pool
+// ranking, or the matches of a bracket.
+type DisplayBoard struct {
+	CategoryRef
+	Pool        string         `json:"pool"`        // pool boards
+	BracketName string         `json:"bracketName"` // bracket boards
+	Standings   []StandingView `json:"standings"`
+	Matches     []MatchView    `json:"matches"`
 }
 
 // CallMatch calls a match on a court.
@@ -218,6 +230,7 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 		v.Calls = append(v.Calls, mv(m))
 	}
 	v.Round = s.roundsView(st).Current
+	v.Boards = displayBoards(st, mv)
 	return v
 }
 
@@ -297,4 +310,41 @@ func scoreLabel(sc engine.Score) string {
 		parts[i] = itoa(set.A) + "-" + itoa(set.B)
 	}
 	return strings.Join(parts, " ")
+}
+
+// displayBoards lists, per category, each pool ranking then each filled
+// bracket with its matches whose entrants are known.
+func displayBoards(st tournament.State, mv func(tournament.Match) MatchView) []DisplayBoard {
+	side := sideViewer(st)
+	boards := []DisplayBoard{}
+	for _, ref := range categoryRefs(st) {
+		d, ok := st.Draw(ref.Category)
+		if !ok || !d.Confirmed {
+			continue
+		}
+		for p := range d.Pools {
+			b := DisplayBoard{CategoryRef: ref, Pool: engine.PoolName(p), Standings: []StandingView{}, Matches: []MatchView{}}
+			for _, row := range st.PoolStandings(ref.Category, p).Rows {
+				b.Standings = append(b.Standings, StandingView{
+					Rank: row.Rank, Entrant: side(row.Entrant), Played: row.Played, Wins: row.Wins, Losses: row.Losses,
+					SetsWon: row.SetsWon, SetsLost: row.SetsLost, PointsWon: row.PointsWon, PointsLost: row.PointsLost,
+					Withdrawn: row.Withdrawn, DrawNeeded: row.DrawNeeded,
+				})
+			}
+			boards = append(boards, b)
+		}
+		for _, br := range st.Brackets(ref.Category) {
+			if !br.Drawn() {
+				continue
+			}
+			b := DisplayBoard{CategoryRef: ref, BracketName: br.Name, Standings: []StandingView{}, Matches: []MatchView{}}
+			for _, m := range st.Matches() {
+				if m.Category == ref.Category && m.Bracket == br.ID && st.Playable(m) {
+					b.Matches = append(b.Matches, mv(m))
+				}
+			}
+			boards = append(boards, b)
+		}
+	}
+	return boards
 }

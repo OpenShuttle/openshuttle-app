@@ -30,19 +30,27 @@ func (r *recorder) last() emitted {
 }
 
 type fakeDialogs struct {
-	save, open, csv string
-	suggested       string
+	save, open, csv, folder string
+	suggested, dir          string
 }
 
-func (f *fakeDialogs) SaveTournament(name string) (string, error) {
-	f.suggested = name
+func (f *fakeDialogs) SaveTournament(dir, name string) (string, error) {
+	f.suggested, f.dir = name, dir
 	return f.save, nil
 }
 
-func (f *fakeDialogs) OpenTournament() (string, error) { return f.open, nil }
+func (f *fakeDialogs) OpenTournament(dir string) (string, error) {
+	f.dir = dir
+	return f.open, nil
+}
 
-func (f *fakeDialogs) SaveCSV(name string) (string, error) {
-	f.suggested = name
+func (f *fakeDialogs) ChooseFolder(dir string) (string, error) {
+	f.dir = dir
+	return f.folder, nil
+}
+
+func (f *fakeDialogs) SaveCSV(dir, name string) (string, error) {
+	f.suggested, f.dir = name, dir
 	return f.csv, nil
 }
 
@@ -70,7 +78,7 @@ func newFixture(t *testing.T) *fixture {
 		clock: time.Date(2026, 10, 17, 9, 0, 0, 0, time.UTC),
 	}
 	now := func() time.Time { f.clock = f.clock.Add(time.Second); return f.clock }
-	f.settings = NewSettingsService(app, f.rec.emit)
+	f.settings = NewSettingsService(app, f.rec.emit, f.dialogs)
 	f.svc = NewTournamentService(app, f.rec.emit, now, filepath.Join(dir, "backups"), f.dialogs)
 	t.Cleanup(func() {
 		f.svc.ServiceShutdown()
@@ -90,7 +98,8 @@ func wantCode(t *testing.T, err error, code engine.Code) {
 func TestSettings(t *testing.T) {
 	f := newFixture(t)
 	s, err := f.settings.GetSettings(f.ctx)
-	if err != nil || s != (Settings{}) {
+	if err != nil || s.Language != "" || s.RotationSeconds != 8 || s.DefaultCourts != 4 ||
+		s.DefaultMinRest != 10 || s.DefaultPoolWin != "sets" || s.TournamentsDir == "" {
 		t.Fatalf("default settings = %+v, %v", s, err)
 	}
 	if err := f.settings.SetLanguage(f.ctx, "fr"); err != nil {
@@ -101,12 +110,52 @@ func TestSettings(t *testing.T) {
 	}
 	wantCode(t, f.settings.SetLanguage(f.ctx, "de"), engine.CodeInvalidSetting)
 
-	if err := f.settings.SetOperator(f.ctx, "  Julie   M. "); err != nil {
-		t.Fatal(err)
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(f.settings.SetOperator(f.ctx, "  Julie   M. "))
+	must(f.settings.SetMonitor(f.ctx, "HDMI-1"))
+	must(f.settings.SetRotationSeconds(f.ctx, 12))
+	must(f.settings.SetDefaultCourts(f.ctx, 6))
+	must(f.settings.SetDefaultMinRest(f.ctx, 0))
+	must(f.settings.SetDefaultPoolWin(f.ctx, "timed"))
+	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 3), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetDefaultMinRest(f.ctx, 61), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetDefaultPoolWin(f.ctx, "golf"), engine.CodeInvalidSetting)
+
+	// Folder: cancelled, then chosen; dialogs open there.
+	if dir, err := f.settings.ChooseTournamentsDir(f.ctx); err != nil || dir != "" {
+		t.Fatalf("cancelled folder = %q, %v", dir, err)
+	}
+	f.dialogs.folder = f.dir
+	if dir, err := f.settings.ChooseTournamentsDir(f.ctx); err != nil || dir != f.dir {
+		t.Fatalf("folder = %q, %v", dir, err)
 	}
 	s, _ = f.settings.GetSettings(f.ctx)
-	if s != (Settings{Language: "fr", Operator: "Julie M."}) {
-		t.Errorf("settings = %+v", s)
+	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 12,
+		DefaultCourts: 6, DefaultMinRest: 0, DefaultPoolWin: "timed", TournamentsDir: f.dir}
+	if s != want {
+		t.Errorf("settings = %+v, want %+v", s, want)
+	}
+
+	// New tournaments take the defaults, and the save dialog opens in the folder.
+	f.dialogs.save = filepath.Join(f.dir, "defaults")
+	if _, err := f.svc.CreateTournament(f.ctx, "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	if f.dialogs.dir != f.dir {
+		t.Errorf("dialog opened in %q, want %q", f.dialogs.dir, f.dir)
+	}
+	if v := f.svc.GetTournamentView(); v.Courts != 6 || v.MinRest != 0 {
+		t.Errorf("tournament = %d courts, %d min rest", v.Courts, v.MinRest)
+	}
+	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
+	if fc := f.svc.GetFormatView().Categories[0]; fc.Stage.Win.Kind != engine.WinByTime {
+		t.Errorf("default pool win = %+v", fc.Stage.Win)
 	}
 }
 

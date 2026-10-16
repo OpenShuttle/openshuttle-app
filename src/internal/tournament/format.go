@@ -40,8 +40,17 @@ func (s State) PoolStage(c engine.Category) PoolStage {
 	if st, ok := s.stages[c]; ok {
 		return st
 	}
-	return DefaultPoolStage()
+	st := DefaultPoolStage()
+	// Timed pools by default, as long as a single category plays: rounds
+	// need every court.
+	if s.defaultTimed && len(s.Categories) == 1 {
+		st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: DefaultTimedMinutes}
+	}
+	return st
 }
+
+// DefaultTimedMinutes is the duration of a timed match by default.
+const DefaultTimedMinutes = 12
 
 // ConfigurePoolStage sets the pool stage of a category. A timed win condition
 // needs a single category. Changing the number of pools discards a draft
@@ -92,10 +101,17 @@ func validTiebreaks(tbs []engine.Tiebreak) bool {
 }
 
 // hasTimedStage reports whether a category plays timed matches.
+// Only stages set in the format count: a timed default gives way to sets
+// when a second category is added.
 func (s State) hasTimedStage() bool {
 	for _, c := range s.Categories {
-		if s.PoolStage(c).Win.Kind == engine.WinByTime {
+		if st, ok := s.stages[c]; ok && st.Win.Kind == engine.WinByTime {
 			return true
+		}
+		for _, b := range s.brackets[c] {
+			if b.Win.Kind == engine.WinByTime {
+				return true
+			}
 		}
 	}
 	return false

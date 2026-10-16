@@ -1,0 +1,132 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <button type="button" class="btn back" (click)="back()">← {{ t('settingsPage.back') }}</button>
+    <div>
+      <h1>{{ t('settingsPage.title') }}</h1>
+      <p class="lead">{{ t('settingsPage.lead') }}</p>
+    </div>
+  </div>
+
+  @if (settings.error(); as error) {
+    <div class="error" role="alert">{{ t('errors.' + error.code) }}</div>
+  }
+
+  @if (settings.value(); as s) {
+    <section class="card">
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settings.language') }}</span>
+          <span class="hint">{{ t('settingsPage.languageHint') }}</span>
+        </div>
+        <div class="segments">
+          @for (lang of language.languages; track lang) {
+            <button type="button" class="segment" [class.active]="language.active === lang" (click)="setLanguage(lang)">
+              {{ t('language.' + lang) }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>{{ t('settingsPage.displayScreen') }}</h2>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('displayScreen.monitor') }}</span>
+        </div>
+        <select (change)="setMonitor($event)">
+          <option value="" [selected]="s.monitor === ''">{{ t('displayScreen.monitorAuto') }}</option>
+          @for (m of display.monitors(); track m.id) {
+            <option [value]="m.id" [selected]="m.id === s.monitor">
+              {{ t('displayScreen.monitorLabel', { name: m.name, width: m.width, height: m.height }) }}
+            </option>
+          }
+        </select>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.rotation') }}</span>
+          <span class="hint">{{ t('settingsPage.rotationHint') }}</span>
+        </div>
+        <div class="stepper">
+          <button type="button" [disabled]="s.rotationSeconds <= 4" (click)="step('rotation', -1)">−</button>
+          <span class="value">{{ t('settingsPage.seconds', { n: s.rotationSeconds }) }}</span>
+          <button type="button" [disabled]="s.rotationSeconds >= 30" (click)="step('rotation', 1)">+</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>{{ t('nav.controlDesk') }}</h2>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.operator') }}</span>
+          <span class="hint">{{ t('settingsPage.operatorHint') }}</span>
+        </div>
+        <input
+          class="input operator"
+          maxlength="50"
+          [value]="s.operator"
+          (blur)="setOperator($event)"
+          (keydown.enter)="setOperator($event)"
+        />
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>{{ t('settingsPage.defaults') }}</h2>
+      <div class="row">
+        <div class="label"><span class="name">{{ t('tournamentInfo.courts') }}</span></div>
+        <div class="stepper">
+          <button type="button" [disabled]="s.defaultCourts <= 1" (click)="step('courts', -1)">−</button>
+          <span class="value">{{ s.defaultCourts }}</span>
+          <button type="button" [disabled]="s.defaultCourts >= 20" (click)="step('courts', 1)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label"><span class="name">{{ t('tournamentInfo.minRest') }}</span></div>
+        <div class="stepper">
+          <button type="button" [disabled]="s.defaultMinRest <= 0" (click)="step('rest', -1)">−</button>
+          <span class="value">{{ t('tournamentInfo.minutes', { n: s.defaultMinRest }) }}</span>
+          <button type="button" [disabled]="s.defaultMinRest >= 60" (click)="step('rest', 1)">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.poolWin') }}</span>
+          <span class="hint">{{ t('settingsPage.poolWinHint') }}</span>
+        </div>
+        <div class="segments">
+          <button type="button" class="segment" [class.active]="s.defaultPoolWin === 'timed'" (click)="setPoolWin('timed')">
+            {{ t('format.byTime') }}
+          </button>
+          <button type="button" class="segment" [class.active]="s.defaultPoolWin === 'sets'" (click)="setPoolWin('sets')">
+            {{ t('format.bySets') }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>{{ t('settingsPage.files') }}</h2>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.folder') }}</span>
+          <span class="hint mono">{{ s.tournamentsDir }}</span>
+        </div>
+        <button type="button" class="btn" (click)="chooseFolder()">{{ t('settingsPage.change') }}</button>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.autosave') }}</span>
+          <span class="hint">{{ t('settingsPage.autosaveHint') }}</span>
+        </div>
+        <span class="always">{{ t('settingsPage.always') }}</span>
+      </div>
+    </section>
+
+    @if (app(); as info) {
+      <p class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</p>
+    }
+  }
+</ng-container>

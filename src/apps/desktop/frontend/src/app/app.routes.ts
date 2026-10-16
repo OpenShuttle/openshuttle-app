@@ -12,6 +12,10 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./home/home').then((m) => m.Home) },
       {
+        path: 'settings',
+        loadComponent: () => import('./settings/settings').then((m) => m.SettingsPage),
+      },
+      {
         path: 'tournament',
         loadComponent: () =>
           import('./tournament-layout/tournament-layout').then((m) => m.TournamentLayout),

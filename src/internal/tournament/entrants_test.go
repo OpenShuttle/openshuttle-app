@@ -13,8 +13,16 @@ func TestCategories(t *testing.T) {
 	g.do(func(s State) (Change, error) { return s.AddCategory(engine.MensDoubles) })
 	g.fails(engine.CodeCategoryExists, func(s State) (Change, error) { return s.AddCategory(engine.MensDoubles) })
 	g.fails(engine.CodeInvalidCategory, func(s State) (Change, error) { return s.AddCategory("DH") })
+	g.fails(engine.CodeCategoriesShareSex, func(s State) (Change, error) { return s.AddCategory(engine.MensSingles) })
+	g.fails(engine.CodeCategoriesShareSex, func(s State) (Change, error) { return s.AddCategory(engine.MixedDoubles) })
+	if got := g.state().AvailableCategories(); !slices.Equal(got, []engine.Category{"WS", "WD"}) {
+		t.Errorf("available with MD = %v", got)
+	}
 	g.do(func(s State) (Change, error) { return s.AddCategory(engine.WomensDoubles) })
-	g.fails(engine.CodeTooManyCategories, func(s State) (Change, error) { return s.AddCategory(engine.MixedDoubles) })
+	g.fails(engine.CodeTooManyCategories, func(s State) (Change, error) { return s.AddCategory(engine.WomensSingles) })
+	if got := g.state().AvailableCategories(); len(got) != 0 {
+		t.Errorf("available when full = %v", got)
+	}
 
 	if got := g.state().Categories; !slices.Equal(got, []engine.Category{"MD", "WD"}) {
 		t.Fatalf("categories = %v", got)
@@ -34,7 +42,7 @@ func TestCategories(t *testing.T) {
 }
 
 func TestRegisterEntrant(t *testing.T) {
-	g := newGame(t, engine.MensSingles, engine.MixedDoubles)
+	g := newGame(t, engine.MensSingles, engine.WomensDoubles)
 
 	tests := []struct {
 		name     string
@@ -44,11 +52,11 @@ func TestRegisterEntrant(t *testing.T) {
 		set      int
 	}{
 		{"singles", engine.MensSingles, []PlayerInput{{"Paul", "Durand", "BC Lyon"}}, "", 0},
-		{"pair", engine.MixedDoubles, []PlayerInput{{"Paul", "Durand", ""}, {"Léa", "Roux", "ASPTT"}}, "", 0},
+		{"pair", engine.WomensDoubles, []PlayerInput{{"Paul", "Durand", ""}, {"Léa", "Roux", "ASPTT"}}, "", 0},
 		{"pair in singles", engine.MensSingles, []PlayerInput{{"A", "B", ""}, {"C", "D", ""}}, engine.CodeWrongPlayerCount, 0},
-		{"one player in doubles", engine.MixedDoubles, []PlayerInput{{"A", "B", ""}}, engine.CodeWrongPlayerCount, 0},
+		{"one player in doubles", engine.WomensDoubles, []PlayerInput{{"A", "B", ""}}, engine.CodeWrongPlayerCount, 0},
 		{"category not played", engine.WomensSingles, []PlayerInput{{"A", "B", ""}}, engine.CodeCategoryNotFound, 0},
-		{"missing last name", engine.MixedDoubles, []PlayerInput{{"A", "B", ""}, {"Léa", "  ", ""}}, engine.CodeInvalidPlayerName, 2},
+		{"missing last name", engine.WomensDoubles, []PlayerInput{{"A", "B", ""}, {"Léa", "  ", ""}}, engine.CodeInvalidPlayerName, 2},
 		{"name too long", engine.MensSingles, []PlayerInput{{strings.Repeat("a", 51), "B", ""}}, engine.CodeInvalidPlayerName, 1},
 		{"club too long", engine.MensSingles, []PlayerInput{{"A", "B", strings.Repeat("c", 81)}}, engine.CodeInvalidClub, 1},
 	}

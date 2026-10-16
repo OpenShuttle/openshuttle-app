@@ -15,6 +15,7 @@ const CLOSED: TournamentView = {
   canUndo: false,
   archived: false,
   categories: [],
+  availableCategories: [],
   courts: 4,
   minRest: 10,
   priority: 'balanced',

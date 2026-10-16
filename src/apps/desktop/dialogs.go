@@ -1,9 +1,6 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
@@ -11,30 +8,24 @@ import (
 
 const tournamentFilter = "*" + store.TournamentExtension
 
-// nativeDialogs shows the OS file dialogs, attached to the main window.
+// nativeDialogs shows the OS file dialogs, attached to the main window and
+// opened in the given folder.
 type nativeDialogs struct{}
 
-func (nativeDialogs) SaveTournament(suggestedName string) (string, error) {
-	app := application.Get()
-	d := app.Dialog.SaveFile().
-		SetFilename(suggestedName).
-		AddFilter("OpenShuttle", tournamentFilter).
-		CanCreateDirectories(true)
-	if dir := documentsDir(); dir != "" {
-		d.SetDirectory(dir)
-	}
-	if w, ok := app.Window.GetByName(MainWindowName); ok {
-		d.AttachToWindow(w)
-	}
-	return d.PromptForSingleSelection()
+func (nativeDialogs) SaveTournament(dir, suggestedName string) (string, error) {
+	return saveFile(dir, suggestedName, "OpenShuttle", tournamentFilter)
 }
 
-func (nativeDialogs) OpenTournament() (string, error) {
+func (nativeDialogs) SaveCSV(dir, suggestedName string) (string, error) {
+	return saveFile(dir, suggestedName, "CSV", "*.csv")
+}
+
+func (nativeDialogs) OpenTournament(dir string) (string, error) {
 	app := application.Get()
 	d := app.Dialog.OpenFile().
 		CanChooseFiles(true).
 		AddFilter("OpenShuttle", tournamentFilter)
-	if dir := documentsDir(); dir != "" {
+	if dir != "" {
 		d.SetDirectory(dir)
 	}
 	if w, ok := app.Window.GetByName(MainWindowName); ok {
@@ -43,25 +34,28 @@ func (nativeDialogs) OpenTournament() (string, error) {
 	return d.PromptForSingleSelection()
 }
 
-func documentsDir() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
+func (nativeDialogs) ChooseFolder(dir string) (string, error) {
+	app := application.Get()
+	d := app.Dialog.OpenFile().
+		CanChooseFiles(false).
+		CanChooseDirectories(true).
+		CanCreateDirectories(true)
+	if dir != "" {
+		d.SetDirectory(dir)
 	}
-	dir := filepath.Join(home, "Documents")
-	if info, err := os.Stat(dir); err == nil && info.IsDir() {
-		return dir
+	if w, ok := app.Window.GetByName(MainWindowName); ok {
+		d.AttachToWindow(w)
 	}
-	return home
+	return d.PromptForSingleSelection()
 }
 
-func (nativeDialogs) SaveCSV(suggestedName string) (string, error) {
+func saveFile(dir, suggestedName, filterName, pattern string) (string, error) {
 	app := application.Get()
 	d := app.Dialog.SaveFile().
 		SetFilename(suggestedName).
-		AddFilter("CSV", "*.csv").
+		AddFilter(filterName, pattern).
 		CanCreateDirectories(true)
-	if dir := documentsDir(); dir != "" {
+	if dir != "" {
 		d.SetDirectory(dir)
 	}
 	if w, ok := app.Window.GetByName(MainWindowName); ok {

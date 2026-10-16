@@ -1,0 +1,155 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 820px;
+  padding: 20px 24px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.back {
+  margin-top: 2px;
+}
+
+.lead {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+}
+
+.error {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-alert-bg);
+  color: var(--color-alert);
+  font-weight: 700;
+}
+
+.card {
+  padding: 4px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  h2 {
+    margin: 0;
+    padding: 14px 0 4px;
+    font-size: 16px;
+    font-weight: 800;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+
+  & + & {
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+
+  &.mono {
+    font-family: var(--font-mono);
+    word-break: break-all;
+  }
+}
+
+.segments {
+  display: flex;
+  flex: none;
+  gap: 3px;
+  padding: 3px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.segment {
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-weight: 700;
+
+  &.active {
+    background: var(--color-text);
+    color: var(--color-surface);
+  }
+}
+
+.stepper {
+  display: flex;
+  flex: none;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  button {
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: var(--color-bg);
+    font-size: 18px;
+    font-weight: 700;
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.4;
+    }
+  }
+
+  .value {
+    min-width: 72px;
+    text-align: center;
+    font: 700 15px var(--font-mono);
+  }
+}
+
+select {
+  flex: none;
+  min-width: 260px;
+}
+
+.operator {
+  width: 260px;
+}
+
+.always {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-free-bg);
+  color: var(--color-free-fg);
+}
+
+.version {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}

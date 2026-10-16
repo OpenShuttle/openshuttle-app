@@ -28,12 +28,13 @@
     "file": "File",
     "close": "Close tournament",
     "categories": "Categories",
-    "categoriesHint": "Up to {max} categories, played at the same time on shared courts. A player can only be in one category.",
+    "categoriesHint": "Up to 2 categories, one for men and one for women, played at the same time on shared courts. Mixed doubles runs alone.",
     "noCategory": "No category yet. Add one to enter players.",
     "removeCategory": "Remove",
     "courts": "Courts",
     "minRest": "Minimum rest between two matches",
-    "minutes": "{n} min"
+    "minutes": "{n} min",
+    "sexHint": "A second category cannot share a sex with the first: men's and women's categories, or mixed doubles alone."
   },
   "history": {
     "TournamentCreated": "Tournament created: {name}",
@@ -174,7 +175,8 @@
     "WRITE_FAILED": "The file could not be written. Check the folder and try again.",
     "ROUND_IN_PROGRESS": "A round is in progress: whistle its end first.",
     "NO_ROUND": "No round in progress.",
-    "NO_MATCH_READY": "No match is ready to play."
+    "NO_MATCH_READY": "No match is ready to play.",
+    "CATEGORIES_SHARE_SEX": "These two categories involve players of the same sex: they cannot run in the same tournament."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -183,7 +185,8 @@
     "monitorAuto": "Automatic",
     "monitorLabel": "{name} ({width} × {height})",
     "isOpen": "Display screen open",
-    "waiting": "Waiting for the first match call"
+    "waiting": "Waiting for the first match call",
+    "standings": "standings"
   },
   "settings": {
     "language": "Language"
@@ -475,5 +478,26 @@
     "scoreHint": "Enter the final score, golden point included (for example 16-15).",
     "courtMatch": "Court {court}: {a} – {b}",
     "courtWaiting": "Waiting for the next round."
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "back": "Back",
+    "lead": "Saved on this PC, for every tournament.",
+    "languageHint": "Labels follow the glossary, in English and French.",
+    "displayScreen": "Display screen",
+    "rotation": "Rotation between pools and brackets",
+    "rotationHint": "How long each standings view stays on screen.",
+    "seconds": "{n} s",
+    "operator": "Operator name",
+    "operatorHint": "Shown in the history, with every action.",
+    "defaults": "Defaults for new tournaments",
+    "poolWin": "Pool win condition",
+    "poolWinHint": "Timed only applies while a single category plays.",
+    "files": "Files",
+    "folder": "Tournaments folder",
+    "change": "Change…",
+    "autosave": "Automatic saving",
+    "autosaveHint": "Every action is written to the tournament file as it happens.",
+    "always": "Always on"
   }
 }

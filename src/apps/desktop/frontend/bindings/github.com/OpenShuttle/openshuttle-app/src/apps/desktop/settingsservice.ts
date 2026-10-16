@@ -15,10 +15,40 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 import * as $models from "./models.js";
 
 /**
- * GetSettings returns the current settings.
+ * ChooseTournamentsDir asks for the folder where file dialogs open. It
+ * returns the folder, or "" when the user cancelled.
+ */
+export function ChooseTournamentsDir(): $CancellablePromise<string> {
+    return $Call.ByID(2763868874);
+}
+
+/**
+ * GetSettings returns the current settings, defaults filled in.
  */
 export function GetSettings(): $CancellablePromise<$models.Settings> {
     return $Call.ByID(3034808949);
+}
+
+/**
+ * SetDefaultCourts sets the number of courts of new tournaments.
+ */
+export function SetDefaultCourts(courts: number): $CancellablePromise<void> {
+    return $Call.ByID(2480119725, courts);
+}
+
+/**
+ * SetDefaultMinRest sets the minimum rest of new tournaments, in minutes.
+ */
+export function SetDefaultMinRest(minutes: number): $CancellablePromise<void> {
+    return $Call.ByID(3994759653, minutes);
+}
+
+/**
+ * SetDefaultPoolWin sets the pool win condition of new tournaments: "sets"
+ * or "timed" (timed applies while a single category plays).
+ */
+export function SetDefaultPoolWin(kind: string): $CancellablePromise<void> {
+    return $Call.ByID(686581943, kind);
 }
 
 /**
@@ -29,8 +59,22 @@ export function SetLanguage(lang: string): $CancellablePromise<void> {
 }
 
 /**
+ * SetMonitor sets the screen of the display window, "" for automatic.
+ */
+export function SetMonitor(id: string): $CancellablePromise<void> {
+    return $Call.ByID(3699833098, id);
+}
+
+/**
  * SetOperator sets the name recorded with each action.
  */
 export function SetOperator(name: string): $CancellablePromise<void> {
     return $Call.ByID(653091204, name);
+}
+
+/**
+ * SetRotationSeconds sets how long each standings view stays on the display screen.
+ */
+export function SetRotationSeconds(seconds: number): $CancellablePromise<void> {
+    return $Call.ByID(462653687, seconds);
 }

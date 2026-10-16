@@ -28,12 +28,13 @@
     "file": "Fichier",
     "close": "Fermer le tournoi",
     "categories": "Catégories",
-    "categoriesHint": "Jusqu'à {max} catégories, jouées en même temps sur des terrains partagés. Un joueur ne peut être inscrit que dans une catégorie.",
+    "categoriesHint": "Jusqu'à 2 catégories, une homme et une dame, jouées en même temps sur des terrains partagés. Le double mixte se joue seul.",
     "noCategory": "Aucune catégorie. Ajoutez-en une pour inscrire des joueurs.",
     "removeCategory": "Retirer",
     "courts": "Terrains",
     "minRest": "Repos minimum entre deux matchs",
-    "minutes": "{n} min"
+    "minutes": "{n} min",
+    "sexHint": "Une seconde catégorie ne peut pas concerner le même sexe : une catégorie homme et une catégorie dame, ou le double mixte seul."
   },
   "history": {
     "TournamentCreated": "Tournoi créé : {name}",
@@ -174,7 +175,8 @@
     "WRITE_FAILED": "Le fichier n'a pas pu être écrit. Vérifiez le dossier et réessayez.",
     "ROUND_IN_PROGRESS": "Une rotation est en cours : sifflez d'abord sa fin.",
     "NO_ROUND": "Aucune rotation en cours.",
-    "NO_MATCH_READY": "Aucun match n'est prêt."
+    "NO_MATCH_READY": "Aucun match n'est prêt.",
+    "CATEGORIES_SHARE_SEX": "Ces deux catégories concernent des joueurs du même sexe : elles ne peuvent pas être dans le même tournoi."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -183,7 +185,8 @@
     "monitorAuto": "Automatique",
     "monitorLabel": "{name} ({width} × {height})",
     "isOpen": "Écran d'appel ouvert",
-    "waiting": "En attente du premier appel"
+    "waiting": "En attente du premier appel",
+    "standings": "classement"
   },
   "settings": {
     "language": "Langue"
@@ -475,5 +478,26 @@
     "scoreHint": "Saisissez le score final, point en or compris (par exemple 16-15).",
     "courtMatch": "Terrain {court} : {a} – {b}",
     "courtWaiting": "En attente de la prochaine rotation."
+  },
+  "settingsPage": {
+    "title": "Paramètres",
+    "back": "Retour",
+    "lead": "Enregistrés sur ce PC, pour tous les tournois.",
+    "languageHint": "Les libellés suivent le glossaire, en français et en anglais.",
+    "displayScreen": "Écran d'appel",
+    "rotation": "Rotation entre poules et tableaux",
+    "rotationHint": "Durée d'affichage de chaque classement.",
+    "seconds": "{n} s",
+    "operator": "Nom de l'opérateur",
+    "operatorHint": "Affiché dans l'historique, à chaque action.",
+    "defaults": "Valeurs par défaut des nouveaux tournois",
+    "poolWin": "Condition de victoire des poules",
+    "poolWinHint": "Le match au temps ne s'applique qu'avec une seule catégorie.",
+    "files": "Fichiers",
+    "folder": "Dossier des tournois",
+    "change": "Changer…",
+    "autosave": "Enregistrement automatique",
+    "autosaveHint": "À chaque action, dans le fichier du tournoi.",
+    "always": "Toujours actif"
   }
 }

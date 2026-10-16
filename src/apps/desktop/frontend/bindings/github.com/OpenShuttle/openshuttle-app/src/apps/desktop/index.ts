@@ -23,6 +23,7 @@ export type {
     CheckInView,
     ControlDeskView,
     CourtView,
+    DisplayBoard,
     DisplayCourt,
     DisplayView,
     DrawCategory,

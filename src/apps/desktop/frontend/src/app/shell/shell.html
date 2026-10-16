@@ -32,15 +32,6 @@
 
     <div class="topbar-actions">
       <label class="field">
-        <span class="field-label">{{ t('settings.language') }}</span>
-        <select (change)="onLanguage($event)">
-          @for (lang of language.languages; track lang) {
-            <option [value]="lang" [selected]="lang === language.active">{{ t('language.' + lang) }}</option>
-          }
-        </select>
-      </label>
-
-      <label class="field">
         <span class="field-label">{{ t('displayScreen.monitor') }}</span>
         <select (change)="onMonitor($event)" (focus)="display.refresh()">
           <option value="" [selected]="monitorId() === ''">{{ t('displayScreen.monitorAuto') }}</option>
@@ -59,6 +50,9 @@
           {{ t('displayScreen.open') }}
         }
       </button>
+      <a class="btn gear" routerLink="/settings" routerLinkActive="btn-active" [attr.title]="t('settingsPage.title')">
+        ⚙ {{ t('settingsPage.title') }}
+      </a>
     </div>
   </header>
 

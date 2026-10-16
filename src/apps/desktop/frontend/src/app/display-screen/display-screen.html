@@ -39,7 +39,8 @@
         }
       </section>
 
-      <section class="courts">
+      <section class="side">
+      <div class="courts">
         @for (c of view().courts; track c.number) {
           <div class="court" [class.busy]="c.match">
             <span class="court-number">{{ c.number }}</span>
@@ -53,6 +54,33 @@
             }
           </div>
         }
+      </div>
+      @if (board(); as b) {
+        <div class="board">
+          <div class="board-title">
+            <app-category-badge [category]="b.category" [slot]="b.slot" />
+            {{ b.pool ? t('desk.pool', { pool: b.pool }) + ' · ' + t('displayScreen.standings') : b.bracketName }}
+          </div>
+          @if (b.pool) {
+            @for (r of b.standings; track r.entrant.entrant) {
+              <div class="board-row">
+                <span class="b-rank">{{ r.rank }}</span>
+                <span class="b-bib">{{ r.entrant.bib }}</span>
+                <span class="b-name">{{ names(r.entrant) }}</span>
+                <span class="b-num">{{ r.wins }}</span>
+                <span class="b-num">{{ diff(r.pointsWon, r.pointsLost) }}</span>
+              </div>
+            }
+          } @else {
+            @for (m of b.matches; track m.id) {
+              <div class="board-row">
+                <span class="b-name"><span class="b-bib">{{ m.a.bib }}</span> – <span class="b-bib">{{ m.b.bib }}</span> <app-match-stage class="b-stage" [match]="m" /></span>
+                <span class="b-score">{{ m.walkover ? 'WO' : score(m) }}</span>
+              </div>
+            }
+          }
+        </div>
+      }
       </section>
     </main>
   }

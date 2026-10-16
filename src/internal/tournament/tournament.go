@@ -29,8 +29,13 @@ type Archived struct{}
 const MaxNameLength = 100
 
 // Created is the payload of TypeCreated, always the first event of a file.
+// Courts, MinRest and TimedPools carry the app's defaults for new
+// tournaments; zero values mean the built-in defaults.
 type Created struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	Courts     int    `json:"courts,omitempty"`
+	MinRest    *int   `json:"minRest,omitempty"`
+	TimedPools bool   `json:"timedPools,omitempty"`
 }
 
 // Renamed is the payload of TypeRenamed.
@@ -77,6 +82,8 @@ type State struct {
 	routing        map[engine.Category][]string
 	places         map[string][]Place // "<category>/<bracket>"
 	rounds         []Round
+	// defaultTimed makes timed pools the default while a single category plays.
+	defaultTimed bool
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -101,7 +108,12 @@ func Project(log []events.Event) (State, error) {
 func (s *State) apply(e events.Event) error {
 	switch e.Type {
 	case TypeCreated:
-		return decodeInto(e, func(p Created) { s.Name = p.Name })
+		return decodeInto(e, func(p Created) {
+			s.Name = p.Name
+			s.courts = p.Courts
+			s.minRest = p.MinRest
+			s.defaultTimed = p.TimedPools
+		})
 	case TypeRenamed:
 		return decodeInto(e, func(p Renamed) { s.Name = p.Name })
 	case TypeArchived:

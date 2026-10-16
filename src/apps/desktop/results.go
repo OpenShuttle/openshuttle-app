@@ -67,7 +67,7 @@ func (s *TournamentService) GetResultsView() ResultsView {
 // builds the content: it holds the translated column names. It returns the
 // path, or "" when the user cancelled.
 func (s *TournamentService) ExportCSV(suggestedName, content string) (string, error) {
-	path, err := s.dialogs.SaveCSV(suggestedName)
+	path, err := s.dialogs.SaveCSV(s.tournamentsDir(context.Background()), suggestedName)
 	if err != nil || path == "" {
 		return "", err
 	}
@@ -94,7 +94,7 @@ func (s *TournamentService) ArchiveTournament(ctx context.Context) (string, erro
 	source := s.file.Path()
 	s.mu.Unlock()
 
-	dest, err := s.dialogs.SaveTournament(suggested)
+	dest, err := s.dialogs.SaveTournament(s.tournamentsDir(ctx), suggested)
 	if err != nil || dest == "" {
 		return "", err
 	}

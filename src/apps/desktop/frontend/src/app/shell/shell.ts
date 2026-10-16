@@ -1,9 +1,11 @@
 import { Component, HostListener, OnInit, computed, effect, inject, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
 import { DisplayScreenService } from '../core/display-screen.service';
-import { Language, LanguageService } from '../core/language.service';
+import { LanguageService } from '../core/language.service';
+import { AppSettings } from '../core/settings.service';
+import { SettingsService } from '@bindings/apps/desktop';
 import { TournamentStore } from '../core/tournament.service';
 import { ActionView } from '@bindings/apps/desktop';
 import { CategoryBadge } from '../shared/category-badge';
@@ -12,7 +14,7 @@ import { ActionLabels } from '../core/action-label';
 /** Main window: top bar, then the home screen or the open tournament. */
 @Component({
   selector: 'app-shell',
-  imports: [TranslocoDirective, RouterOutlet, CategoryBadge],
+  imports: [TranslocoDirective, RouterOutlet, RouterLink, RouterLinkActive, CategoryBadge],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -24,7 +26,9 @@ export class Shell implements OnInit {
   private readonly router = inject(Router);
   private readonly labels = inject(ActionLabels);
 
-  protected readonly monitorId = signal('');
+  private readonly settings = inject(AppSettings);
+  /** Display monitor, saved in the settings. */
+  protected readonly monitorId = computed(() => this.settings.value()?.monitor ?? '');
   protected readonly view = this.tournament.view;
   protected readonly lastAction = computed(() => this.view().lastAction);
 
@@ -32,10 +36,14 @@ export class Shell implements OnInit {
     // Opening a tournament enters it; closing it goes back home.
     effect(() => {
       const open = this.view().open;
-      const inTournament = this.router.url.startsWith('/tournament');
-      if (open && !inTournament) {
+      const url = this.router.url;
+      // Settings stay reachable whether a tournament is open or not.
+      if (url.startsWith('/settings')) {
+        return;
+      }
+      if (open && !url.startsWith('/tournament')) {
         void this.router.navigateByUrl('/tournament');
-      } else if (!open && inTournament) {
+      } else if (!open && url.startsWith('/tournament')) {
         void this.router.navigateByUrl('/');
       }
     });
@@ -83,14 +91,11 @@ export class Shell implements OnInit {
     return this.transloco.translate(key) === key ? 'errors.INTERNAL' : key;
   }
 
-  protected onLanguage(event: Event): void {
-    void this.language.set((event.target as HTMLSelectElement).value as Language);
-  }
-
   protected onMonitor(event: Event): void {
-    this.monitorId.set((event.target as HTMLSelectElement).value);
+    const id = (event.target as HTMLSelectElement).value;
+    void this.settings.run(() => SettingsService.SetMonitor(id));
     if (this.display.isOpen()) {
-      void this.display.open(this.monitorId());
+      void this.display.open(id);
     }
   }
 

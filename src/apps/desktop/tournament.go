@@ -32,9 +32,11 @@ type TournamentView struct {
 	// Categories in slot order: the first gets --color-category-1.
 	Categories []CategoryRef `json:"categories"`
 	Archived   bool          `json:"archived"`
-	Courts     int           `json:"courts"`
-	MinRest    int           `json:"minRest"`
-	Priority   string        `json:"priority"`
+	// AvailableCategories are the categories that can still be added.
+	AvailableCategories []engine.Category `json:"availableCategories"`
+	Courts              int               `json:"courts"`
+	MinRest             int               `json:"minRest"`
+	Priority            string            `json:"priority"`
 }
 
 // CategoryRef is a category with its slot (1 or 2), which sets its color.
@@ -73,9 +75,10 @@ type TournamentService struct {
 
 // fileDialogs shows native file dialogs. An empty path means cancelled.
 type fileDialogs interface {
-	SaveTournament(suggestedName string) (string, error)
-	OpenTournament() (string, error)
-	SaveCSV(suggestedName string) (string, error)
+	SaveTournament(dir, suggestedName string) (string, error)
+	OpenTournament(dir string) (string, error)
+	SaveCSV(dir, suggestedName string) (string, error)
+	ChooseFolder(dir string) (string, error)
 }
 
 func NewTournamentService(app *store.AppDB, emit func(string, any), now func() time.Time, backupDir string, dialogs fileDialogs) *TournamentService {
@@ -89,7 +92,7 @@ func (s *TournamentService) CreateTournament(ctx context.Context, name string) (
 	if err != nil {
 		return "", err
 	}
-	path, err := s.dialogs.SaveTournament(fileNameFor(name))
+	path, err := s.dialogs.SaveTournament(s.tournamentsDir(ctx), fileNameFor(name))
 	if err != nil || path == "" {
 		return "", err
 	}
@@ -109,7 +112,7 @@ func (s *TournamentService) CreateTournamentAt(ctx context.Context, path, name s
 	if err != nil {
 		return err
 	}
-	d, err := events.NewDraft(tournament.TypeCreated, tournament.Created{Name: name}, s.now(), s.operator(ctx))
+	d, err := events.NewDraft(tournament.TypeCreated, s.createdWithDefaults(ctx, name), s.now(), s.operator(ctx))
 	if err == nil {
 		_, err = f.Append(ctx, d)
 	}
@@ -124,7 +127,7 @@ func (s *TournamentService) CreateTournamentAt(ctx context.Context, path, name s
 // OpenTournamentDialog asks for a tournament file and opens it. It returns
 // the path, or "" when the user cancelled.
 func (s *TournamentService) OpenTournamentDialog(ctx context.Context) (string, error) {
-	path, err := s.dialogs.OpenTournament()
+	path, err := s.dialogs.OpenTournament(s.tournamentsDir(ctx))
 	if err != nil || path == "" {
 		return "", err
 	}
@@ -205,18 +208,19 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.file == nil {
-		return TournamentView{Categories: []CategoryRef{}}
+		return TournamentView{Categories: []CategoryRef{}, AvailableCategories: []engine.Category{}}
 	}
 	v := TournamentView{
-		Open:       true,
-		Path:       s.file.Path(),
-		Name:       s.state.Name,
-		Version:    s.state.Version,
-		Categories: categoryRefs(s.state),
-		Archived:   s.state.Archived,
-		Courts:     s.state.Courts(),
-		MinRest:    s.state.MinRest(),
-		Priority:   s.state.CourtPriority(),
+		Open:                true,
+		Path:                s.file.Path(),
+		Name:                s.state.Name,
+		Version:             s.state.Version,
+		Categories:          categoryRefs(s.state),
+		Archived:            s.state.Archived,
+		AvailableCategories: s.state.AvailableCategories(),
+		Courts:              s.state.Courts(),
+		MinRest:             s.state.MinRest(),
+		Priority:            s.state.CourtPriority(),
 	}
 	if len(s.log) > 0 {
 		v.LastAction = s.describe(s.log[len(s.log)-1])
@@ -496,4 +500,26 @@ func (s *TournamentService) bracketNameAt(c engine.Category, id string, seq uint
 		}
 	}
 	return name
+}
+
+// createdWithDefaults is the creation event carrying the app's defaults for
+// new tournaments.
+func (s *TournamentService) createdWithDefaults(ctx context.Context, name string) tournament.Created {
+	c := tournament.Created{Name: name}
+	settings, err := loadSettings(ctx, s.app)
+	if err != nil {
+		return c
+	}
+	rest := settings.DefaultMinRest
+	c.Courts, c.MinRest = settings.DefaultCourts, &rest
+	c.TimedPools = settings.DefaultPoolWin == string(engine.WinByTime)
+	return c
+}
+
+// tournamentsDir is where file dialogs open.
+func (s *TournamentService) tournamentsDir(ctx context.Context) string {
+	if settings, err := loadSettings(ctx, s.app); err == nil {
+		return settings.TournamentsDir
+	}
+	return ""
 }

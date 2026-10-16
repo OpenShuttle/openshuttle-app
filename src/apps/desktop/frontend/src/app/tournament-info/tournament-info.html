@@ -62,6 +62,9 @@
     }
 
     @if (!full()) {
+      @if ((tournament.view().categories ?? []).length === 1) {
+        <p class="hint">{{ t('tournamentInfo.sexHint') }}</p>
+      }
       <div class="add">
         @for (c of available(); track c) {
           <button type="button" class="btn" (click)="tournament.addCategory(c)">

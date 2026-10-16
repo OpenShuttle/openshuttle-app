@@ -39,11 +39,26 @@ func (s State) AddCategory(c engine.Category) (Change, error) {
 		return Change{}, engine.NewError(engine.CodeCategoryExists)
 	case len(s.Categories) >= MaxCategories:
 		return Change{}, engine.NewError(engine.CodeTooManyCategories)
+	case slices.ContainsFunc(s.Categories, c.SharesSex):
+		// Men's or women's players would be split between two categories.
+		return Change{}, engine.NewError(engine.CodeCategoriesShareSex)
 	case s.hasTimedStage():
 		// Timed rounds start and end together on every court: a single category only.
 		return Change{}, engine.NewError(engine.CodeTimedNeedsOneCategory)
 	}
 	return Change{TypeCategoryAdded, CategoryAdded{Category: c}}, nil
+}
+
+// AvailableCategories returns the categories that can still be added, in
+// display order.
+func (s State) AvailableCategories() []engine.Category {
+	out := []engine.Category{}
+	for _, c := range engine.Categories {
+		if _, err := s.AddCategory(c); err == nil {
+			out = append(out, c)
+		}
+	}
+	return out
 }
 
 // RemoveCategory removes a category with no entrant. Removing a category

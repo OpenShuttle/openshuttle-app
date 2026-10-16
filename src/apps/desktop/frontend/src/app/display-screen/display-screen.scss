@@ -124,6 +124,13 @@
   margin-right: 0.6vw;
 }
 
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vw;
+  min-height: 0;
+}
+
 .courts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -193,4 +200,63 @@
 .round-clock {
   font: 800 8vw/1 var(--font-mono);
   color: var(--color-brand);
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4vw;
+  padding: 1vw 1.2vw;
+  background: var(--color-display-surface);
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.board-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  margin-bottom: 0.4vw;
+  font-size: 1.5vw;
+  font-weight: 800;
+}
+
+.board-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8vw;
+  font-size: 1.3vw;
+  font-weight: 700;
+}
+
+.b-rank {
+  width: 2vw;
+  color: var(--color-brand);
+  font-family: var(--font-mono);
+}
+
+.b-bib {
+  font-family: var(--font-mono);
+  color: var(--color-brand);
+}
+
+.b-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b-stage {
+  margin-left: 0.6vw;
+  font-size: 1vw;
+  color: var(--color-display-muted);
+}
+
+.b-num,
+.b-score {
+  font-family: var(--font-mono);
+  min-width: 3vw;
+  text-align: right;
 }

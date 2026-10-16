@@ -92,6 +92,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 
 - **At most two categories** per tournament, e.g. men's doubles + women's doubles.
 - **Categories are disjoint**: a player cannot be entered in both. No cross-category rest or conflict handling.
+- **Two categories never share a sex**: one men's (MS or MD) and one women's (WS or WD); mixed doubles (XD) always runs alone (`CATEGORIES_SHARE_SEX`). Go lists the categories still allowed (`AvailableCategories`).
 - **One independent format per category**: its own stages, win conditions, advancement rules, full standings.
 - **Courts are shared**, with a per-tournament court priority: `Balanced` (the least advanced category goes first, by share of matches played), or one category first. Priority only reorders proposals, it never reserves a court.
 - **Bib numbers are unique across the tournament.** Pool names stay A, B, C… within each category.
