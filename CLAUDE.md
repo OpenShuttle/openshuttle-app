@@ -115,6 +115,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Bracket corrections**: a result whose winner already played the next round cannot be flipped (`BRACKET_NEXT_STARTED`); a bracket cannot be refilled or have its slots swapped once a match started.
 - **Full standings** (Results): brackets in the order of the pool positions they take, each bracket's places end to end (byes compacted), then entrants eliminated in the pools, tied by pool position. Ranks stay 0 ("–") until decided; the category is "final" once every rank is.
 - **Exports**: the frontend builds the CSV (it holds the translated headers; `;` in French, `,` in English) and Go writes it with a UTF-8 BOM through a save dialog. **Archiving** appends `TournamentArchived` (undoable), writes a copy of the file where the user chooses, then closes it.
+- **Rounds** (timed matches): `RoundStarted` stores the composition (match → court) and the minutes; its event time starts the shared countdown. Composition: waiting timed matches in queue order, one per free court, nobody twice, entrants who sat out the previous round first; no minimum rest. `RoundEnded` ends every match of the round still on court. Timed matches are never proposed per court. The frontend renders the countdown from `endsAt`; at 0:00 it shows "time elapsed" and waits for the whistle (F). L starts a round.
 - **Score JSON** is `{sets: [{a, b}], goldenPoint}`, win conditions `{kind, setsToWin, pointsPerSet, cap, minutes}`: these are stored in events, never rename them.
 
 ## Glossary (French spec → code)

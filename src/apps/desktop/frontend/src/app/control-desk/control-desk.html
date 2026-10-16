@@ -29,6 +29,36 @@
       <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
     </div>
   } @else {
+    @if (view().rounds.active) {
+      @let rounds = view().rounds;
+      <section class="round-banner" [class.running]="rounds.current" [class.elapsed]="rounds.current && roundLeft() <= 0">
+        @if (rounds.current; as r) {
+          <div class="round-info">
+            <span class="field-label">{{ t('rounds.current', { n: r.number }) }}</span>
+            <span class="round-sub">{{ t('rounds.playing', { n: (r.matches ?? []).length, minutes: r.minutes }) }}</span>
+          </div>
+          <span class="clock">{{ roundLeft() > 0 ? roundClock() : t('rounds.elapsed') }}</span>
+          <button type="button" class="btn btn-whistle" (click)="endRound()">
+            {{ t('rounds.whistle') }} <span class="kbd">F</span>
+          </button>
+        } @else {
+          <div class="round-info">
+            <span class="field-label">{{ t('rounds.next', { n: rounds.played + 1 }) }}</span>
+            <span class="round-sub">
+              @for (m of rounds.next; track m.id; let last = $last) {
+                {{ t('rounds.courtMatch', { court: m.court, a: m.a.bib, b: m.b.bib }) }}{{ last ? '' : ' · ' }}
+              } @empty {
+                {{ t('rounds.nothingReady') }}
+              }
+            </span>
+          </div>
+          <button type="button" class="btn btn-primary" [disabled]="(rounds.next ?? []).length === 0" (click)="startRound()">
+            {{ t('rounds.start') }} <span class="kbd">L</span>
+          </button>
+        }
+      </section>
+    }
+
     <div class="layout">
       <div class="courts">
         @for (c of view().courts; track c.number) {
@@ -49,9 +79,14 @@
                 <div class="side"><span class="bib">{{ m.b.bib }}</span><span class="names">{{ names(m.b) }}</span></div>
               </div>
               <div class="court-footer">
-                <span class="timer"><span class="field-label">{{ t('desk.playedFor') }}</span> {{ elapsed(m.calledAt) }}</span>
-                <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
-                <button type="button" class="btn btn-primary" (click)="end(c)">{{ t('desk.end') }} <span class="kbd">{{ c.number }}</span></button>
+                @if (inRound(m)) {
+                  <span class="timer"><span class="field-label">{{ t('rounds.inRound') }}</span></span>
+                  <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }} <span class="kbd">{{ c.number }}</span></button>
+                } @else {
+                  <span class="timer"><span class="field-label">{{ t('desk.playedFor') }}</span> {{ elapsed(m.calledAt) }}</span>
+                  <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
+                  <button type="button" class="btn btn-primary" (click)="end(c)">{{ t('desk.end') }} <span class="kbd">{{ c.number }}</span></button>
+                }
               </div>
             } @else if (c.state === 'finished' && c.match; as m) {
               <button type="button" class="finished-match" (click)="scoring.set(m)">
@@ -68,7 +103,9 @@
               }
               <div class="court-footer">
                 <button type="button" class="btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }} <span class="kbd">{{ c.number }}</span></button>
-                <button type="button" class="btn btn-primary" [disabled]="!c.proposal" (click)="call(c)">{{ t('desk.startNext') }}</button>
+                @if (!view().rounds.active) {
+                  <button type="button" class="btn btn-primary" [disabled]="!c.proposal" (click)="call(c)">{{ t('desk.startNext') }}</button>
+                }
               </div>
             } @else {
               @if (c.proposal; as p) {
@@ -82,7 +119,7 @@
                   <button type="button" class="btn btn-primary" (click)="call(c)">{{ t('desk.call') }} <span class="kbd">{{ c.number }}</span></button>
                 </div>
               } @else {
-                <p class="idle">{{ t('desk.noMatchReady') }}</p>
+                <p class="idle">{{ t(view().rounds.active ? 'rounds.courtWaiting' : 'desk.noMatchReady') }}</p>
               }
             }
           </article>

@@ -268,24 +268,26 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
 	var p struct {
-		Bracket  string              `json:"bracket"`
-		A        tournament.MatchID  `json:"a"`
-		B        tournament.MatchID  `json:"b"`
-		Match    tournament.MatchID  `json:"match"`
-		Court    int                 `json:"court"`
-		Courts   int                 `json:"courts"`
-		Minutes  int                 `json:"minutes"`
-		Priority string              `json:"priority"`
-		Score    engine.Score        `json:"score"`
-		Pool     int                 `json:"pool"`
-		Seed     int                 `json:"seed"`
-		Entrant  engine.EntrantID    `json:"entrant"`
-		Name     string              `json:"name"`
-		Category engine.Category     `json:"category"`
-		ID       engine.EntrantID    `json:"id"`
-		Player   tournament.PlayerID `json:"player"`
-		Bib      int                 `json:"bib"`
-		Players  []tournament.Player `json:"players"`
+		Number   int                    `json:"number"`
+		Calls    []tournament.RoundCall `json:"calls"`
+		Bracket  string                 `json:"bracket"`
+		A        tournament.MatchID     `json:"a"`
+		B        tournament.MatchID     `json:"b"`
+		Match    tournament.MatchID     `json:"match"`
+		Court    int                    `json:"court"`
+		Courts   int                    `json:"courts"`
+		Minutes  int                    `json:"minutes"`
+		Priority string                 `json:"priority"`
+		Score    engine.Score           `json:"score"`
+		Pool     int                    `json:"pool"`
+		Seed     int                    `json:"seed"`
+		Entrant  engine.EntrantID       `json:"entrant"`
+		Name     string                 `json:"name"`
+		Category engine.Category        `json:"category"`
+		ID       engine.EntrantID       `json:"id"`
+		Player   tournament.PlayerID    `json:"player"`
+		Bib      int                    `json:"bib"`
+		Players  []tournament.Player    `json:"players"`
 	}
 	if e.Type != events.TypeUndone && e.Decode(&p) != nil {
 		return v
@@ -320,6 +322,11 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	case tournament.TypeLotsDrawn:
 		v.Params["category"] = string(p.Category)
 		v.Params["pool"] = engine.PoolName(p.Pool)
+	case tournament.TypeRoundStarted:
+		v.Params["number"] = itoa(p.Number)
+		v.Params["count"] = itoa(len(p.Calls))
+	case tournament.TypeRoundEnded:
+		v.Params["number"] = itoa(p.Number)
 	case tournament.TypeCourtsSet:
 		v.Params["courts"] = itoa(p.Courts)
 	case tournament.TypeMinRestSet:

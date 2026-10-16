@@ -62,6 +62,10 @@ const (
 
 	CodeWriteFailed Code = "WRITE_FAILED"
 
+	CodeRoundInProgress Code = "ROUND_IN_PROGRESS"
+	CodeNoRound         Code = "NO_ROUND"
+	CodeNoMatchReady    Code = "NO_MATCH_READY"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"

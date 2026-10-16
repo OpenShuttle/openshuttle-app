@@ -113,7 +113,7 @@ func (s State) Queue(now time.Time) []QueueItem {
 				q.Reason, q.Court = ReasonPlaying, playingOn[id]
 			case !e.Complete() && q.Reason == ReasonNone:
 				q.Reason = ReasonAbsent
-			case now.Sub(lastEnd[id]) < rest && q.Reason == ReasonNone:
+			case now.Sub(lastEnd[id]) < rest && q.Reason == ReasonNone && !s.Timed(m):
 				q.Reason, q.RestingSince = ReasonResting, lastEnd[id]
 			}
 			if q.Reason == ReasonPlaying {
@@ -137,7 +137,8 @@ func (s State) Proposals(now time.Time) map[int]Match {
 		}
 		for _, q := range queue {
 			m := q.Match
-			if q.Ready() && !taken[m.A] && !taken[m.B] {
+			// Timed matches are called by rounds, never one court at a time.
+			if q.Ready() && !s.Timed(m) && !taken[m.A] && !taken[m.B] {
 				out[c.Number] = m
 				taken[m.A], taken[m.B] = true, true
 				break

@@ -10,6 +10,17 @@
   } @else {
     <main class="board">
       <section class="calls">
+        @if (view().round; as r) {
+          <div class="round" [class.elapsed]="left() <= 0">
+            <span class="round-label">
+              {{ t('rounds.current', { n: r.number }) }}
+              @if (left() <= 0) {
+                <span class="elapsed-label">{{ t('rounds.elapsed') }}</span>
+              }
+            </span>
+            <span class="round-clock">{{ clock() }}</span>
+          </div>
+        }
         @for (m of view().calls; track trackCall(m); let first = $first) {
           <div class="call" [class.latest]="first">
             <div class="call-court">

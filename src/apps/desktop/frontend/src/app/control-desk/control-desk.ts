@@ -10,6 +10,7 @@ import { TournamentStore } from '../core/tournament.service';
 import { ScorePanel } from '../score-panel/score-panel';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
+import { formatCountdown, secondsLeft } from '../shared/countdown';
 
 /** Pending scores older than this are highlighted. */
 const LATE_SCORE_MINUTES = 10;
@@ -25,6 +26,7 @@ const EMPTY: ControlDeskView = {
   minRest: 10,
   categories: [],
   started: false,
+  rounds: { active: false, current: null, next: [], played: 0 },
 };
 
 /** Control desk: courts, pending scores, queue, alerts. */
@@ -59,6 +61,26 @@ export class ControlDesk {
     const filter = this.queueFilter();
     return (this.view().queue ?? []).filter((q) => filter === 'all' || q.match.category === filter);
   });
+
+  /** Seconds left in the round in progress; negative once elapsed. */
+  protected readonly roundLeft = computed(() => {
+    const current = this.view().rounds.current;
+    return current ? secondsLeft(current.endsAt, this.now()) : 0;
+  });
+  protected readonly roundClock = computed(() => formatCountdown(this.roundLeft()));
+
+  /** Matches of the round in progress: no timer nor End button per court. */
+  protected inRound(m: MatchView): boolean {
+    return (this.view().rounds.current?.matches ?? []).some((r) => r.id === m.id);
+  }
+
+  protected startRound(): void {
+    void this.tournament.startRound();
+  }
+
+  protected endRound(): void {
+    void this.tournament.endRound();
+  }
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), 1000);
@@ -128,6 +150,18 @@ export class ControlDesk {
       }
       return;
     }
+    const key = event.key.toLowerCase();
+    const rounds = this.view().rounds;
+    if (key === 'l' && rounds.active && !rounds.current && (rounds.next ?? []).length > 0) {
+      event.preventDefault();
+      this.startRound();
+      return;
+    }
+    if (key === 'f' && rounds.current) {
+      event.preventDefault();
+      this.endRound();
+      return;
+    }
     if (event.key.toLowerCase() === 's') {
       const oldest = (this.view().pending ?? [])[0];
       if (oldest) {
@@ -138,7 +172,9 @@ export class ControlDesk {
   }
 
   private act(court: CourtView): void {
-    if (court.state === 'playing') {
+    if (court.state === 'playing' && court.match && this.inRound(court.match)) {
+      this.scoring.set(court.match); // a round ends with the whistle, not per court
+    } else if (court.state === 'playing') {
       this.end(court);
     } else if (court.state === 'finished' && court.match) {
       this.scoring.set(court.match);

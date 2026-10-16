@@ -201,6 +201,14 @@ export class TournamentStore {
     return this.command(() => Backend.SwapBracketSlots(category, id, a, b));
   }
 
+  startRound(): Promise<boolean> {
+    return this.command(() => Backend.StartRound());
+  }
+
+  endRound(): Promise<boolean> {
+    return this.command(() => Backend.EndRound());
+  }
+
   /** Runs a command that returns nothing; true when it succeeded. */
   private command(call: () => Promise<void>): Promise<boolean> {
     return this.run(async () => {

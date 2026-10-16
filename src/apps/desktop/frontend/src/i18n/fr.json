@@ -68,7 +68,9 @@
     "RoutingSet": "Routage modifié : {category}",
     "BracketDrawn": "Tableau rempli : {bracket}",
     "BracketSlotsSwapped": "Places inversées : {bracket}",
-    "TournamentArchived": "Tournoi archivé"
+    "TournamentArchived": "Tournoi archivé",
+    "RoundStarted": "Rotation {number} lancée : {count} matchs",
+    "RoundEnded": "Rotation {number} sifflée"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -104,7 +106,9 @@
     "RoutingSet": "modification du routage",
     "BracketDrawn": "remplissage de {bracket}",
     "BracketSlotsSwapped": "inversion dans {bracket}",
-    "TournamentArchived": "archivage"
+    "TournamentArchived": "archivage",
+    "RoundStarted": "lancement de la rotation {number}",
+    "RoundEnded": "fin de la rotation {number}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -166,7 +170,10 @@
     "INVALID_SLOT": "Cette place n'existe pas.",
     "MATCH_NOT_READY": "Les deux participants de ce match ne sont pas encore connus.",
     "BRACKET_NEXT_STARTED": "Le tour suivant a déjà été joué avec ce vainqueur : corrigez-le d'abord.",
-    "WRITE_FAILED": "Le fichier n'a pas pu être écrit. Vérifiez le dossier et réessayez."
+    "WRITE_FAILED": "Le fichier n'a pas pu être écrit. Vérifiez le dossier et réessayez.",
+    "ROUND_IN_PROGRESS": "Une rotation est en cours : sifflez d'abord sa fin.",
+    "NO_ROUND": "Aucune rotation en cours.",
+    "NO_MATCH_READY": "Aucun match n'est prêt."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -454,5 +461,18 @@
       "fileSuffix": "classement"
     },
     "bib": "Dossard"
+  },
+  "rounds": {
+    "current": "Rotation {n}",
+    "next": "Prochaine rotation · rotation {n}",
+    "playing": "{n, plural, one {# match} other {# matchs}} · {minutes} min",
+    "elapsed": "Temps écoulé",
+    "whistle": "Siffler la fin",
+    "start": "Lancer la rotation",
+    "nothingReady": "Aucun match prêt.",
+    "inRound": "Dans la rotation",
+    "scoreHint": "Saisissez le score final, point en or compris (par exemple 16-15).",
+    "courtMatch": "Terrain {court} : {a} – {b}",
+    "courtWaiting": "En attente de la prochaine rotation."
   }
 }

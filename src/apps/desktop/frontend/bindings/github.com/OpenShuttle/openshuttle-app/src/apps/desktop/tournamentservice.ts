@@ -145,6 +145,13 @@ export function EndMatch(id: tournament$0.MatchID): $CancellablePromise<void> {
 }
 
 /**
+ * EndRound whistles the end of the round in progress.
+ */
+export function EndRound(): $CancellablePromise<void> {
+    return $Call.ByID(882032905);
+}
+
+/**
  * ExportCSV asks where to save a CSV file and writes content to it, with a
  * UTF-8 byte order mark so spreadsheets read accents right. The frontend
  * builds the content: it holds the translated column names. It returns the
@@ -342,6 +349,13 @@ export function SetRouting(c: engine$0.Category, routing: string[] | null): $Can
  */
 export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
     return $Call.ByID(932998391, id, seed);
+}
+
+/**
+ * StartRound calls the next round on every free court.
+ */
+export function StartRound(): $CancellablePromise<void> {
+    return $Call.ByID(3269419422);
 }
 
 /**

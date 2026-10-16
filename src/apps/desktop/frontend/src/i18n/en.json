@@ -68,7 +68,9 @@
     "RoutingSet": "Advancement changed: {category}",
     "BracketDrawn": "Bracket filled: {bracket}",
     "BracketSlotsSwapped": "Bracket slots swapped: {bracket}",
-    "TournamentArchived": "Tournament archived"
+    "TournamentArchived": "Tournament archived",
+    "RoundStarted": "Round {number} started: {count} matches",
+    "RoundEnded": "Round {number} ended"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -104,7 +106,9 @@
     "RoutingSet": "advancement change",
     "BracketDrawn": "filling of {bracket}",
     "BracketSlotsSwapped": "slot swap in {bracket}",
-    "TournamentArchived": "archive"
+    "TournamentArchived": "archive",
+    "RoundStarted": "start of round {number}",
+    "RoundEnded": "end of round {number}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -166,7 +170,10 @@
     "INVALID_SLOT": "This slot does not exist.",
     "MATCH_NOT_READY": "Both entrants of this match are not known yet.",
     "BRACKET_NEXT_STARTED": "The next round was already played with this winner: correct it first.",
-    "WRITE_FAILED": "The file could not be written. Check the folder and try again."
+    "WRITE_FAILED": "The file could not be written. Check the folder and try again.",
+    "ROUND_IN_PROGRESS": "A round is in progress: whistle its end first.",
+    "NO_ROUND": "No round in progress.",
+    "NO_MATCH_READY": "No match is ready to play."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -454,5 +461,18 @@
       "fileSuffix": "standings"
     },
     "bib": "Bib"
+  },
+  "rounds": {
+    "current": "Round {n}",
+    "next": "Next round · round {n}",
+    "playing": "{n, plural, one {# match} other {# matches}} · {minutes} min",
+    "elapsed": "Time elapsed",
+    "whistle": "Whistle the end",
+    "start": "Start the round",
+    "nothingReady": "No match ready.",
+    "inRound": "In the round",
+    "scoreHint": "Enter the final score, golden point included (for example 16-15).",
+    "courtMatch": "Court {court}: {a} – {b}",
+    "courtWaiting": "Waiting for the next round."
   }
 }

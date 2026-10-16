@@ -150,6 +150,7 @@ export interface ControlDeskView {
      * Started is false until a draw is confirmed: there is nothing to call yet.
      */
     "started": boolean;
+    "rounds": RoundsView;
 }
 
 /**
@@ -180,6 +181,11 @@ export interface DisplayCourt {
 export interface DisplayView {
     "calls": MatchView[] | null;
     "courts": DisplayCourt[] | null;
+
+    /**
+     * Round is the timed round in progress, for the shared countdown.
+     */
+    "round": TimedRoundView | null;
 }
 
 /**
@@ -524,6 +530,23 @@ export interface RoundView {
 }
 
 /**
+ * RoundsView is the round banner of the control desk.
+ */
+export interface RoundsView {
+    /**
+     * Active is set when timed matches remain: the desk plays by rounds.
+     */
+    "active": boolean;
+    "current": TimedRoundView | null;
+
+    /**
+     * what "start the round" would call
+     */
+    "next": MatchView[] | null;
+    "played": number;
+}
+
+/**
  * Settings are the app settings stored in app.db.
  */
 export interface Settings {
@@ -569,6 +592,18 @@ export interface StandingView {
     "pointsLost": number;
     "withdrawn": boolean;
     "drawNeeded": boolean;
+}
+
+/**
+ * TimedRoundView is the round in progress: the shared countdown runs from
+ * StartedAt to EndsAt. The frontend only renders it.
+ */
+export interface TimedRoundView {
+    "number": number;
+    "minutes": number;
+    "startedAt": string;
+    "endsAt": string;
+    "matches": MatchView[] | null;
 }
 
 /**

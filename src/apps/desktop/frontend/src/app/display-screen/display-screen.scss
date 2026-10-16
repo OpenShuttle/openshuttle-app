@@ -163,3 +163,34 @@
   font-weight: 700;
   color: var(--color-display-muted);
 }
+
+.round {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.8vw 1.4vw;
+  background: var(--color-display-surface);
+  border-radius: 1.2vw;
+
+  &.elapsed .round-clock {
+    color: var(--color-alert-border);
+  }
+}
+
+.round-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4vw;
+  font-size: 2vw;
+  font-weight: 800;
+  color: var(--color-display-muted);
+}
+
+.elapsed-label {
+  color: var(--color-alert-border);
+}
+
+.round-clock {
+  font: 800 8vw/1 var(--font-mono);
+  color: var(--color-brand);
+}

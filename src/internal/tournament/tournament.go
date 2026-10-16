@@ -76,6 +76,7 @@ type State struct {
 	bracketNumbers map[engine.Category]int // highest bracket number ever used
 	routing        map[engine.Category][]string
 	places         map[string][]Place // "<category>/<bracket>"
+	rounds         []Round
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -172,6 +173,10 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyBracketDrawn)
 	case TypeBracketSlotsSwapped:
 		return decodeInto(e, s.applyBracketSlotsSwapped)
+	case TypeRoundStarted:
+		return decodeInto(e, func(p RoundStarted) { s.applyRoundStarted(p, e.At, e.Seq) })
+	case TypeRoundEnded:
+		return decodeInto(e, func(p RoundEnded) { s.applyRoundEnded(p, e.At) })
 	}
 	return nil
 }

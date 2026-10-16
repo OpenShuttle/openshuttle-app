@@ -49,6 +49,7 @@
     </div>
 
     @if (timed()) {
+      <p class="hint-timed">{{ t('rounds.scoreHint') }}</p>
       <label class="golden">
         <input type="checkbox" [checked]="goldenPoint()" (change)="goldenPoint.set($any($event.target).checked)" />
         {{ t('desk.goldenPoint') }}

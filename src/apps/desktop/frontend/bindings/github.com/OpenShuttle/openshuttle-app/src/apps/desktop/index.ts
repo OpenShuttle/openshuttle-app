@@ -46,8 +46,10 @@ export type {
     ResultRow,
     ResultsView,
     RoundView,
+    RoundsView,
     Settings,
     SideView,
     StandingView,
+    TimedRoundView,
     TournamentView
 } from "./models.js";

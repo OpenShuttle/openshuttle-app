@@ -80,7 +80,8 @@ type ControlDeskView struct {
 	MinRest        int           `json:"minRest"`
 	Categories     []CategoryRef `json:"categories"`
 	// Started is false until a draw is confirmed: there is nothing to call yet.
-	Started bool `json:"started"`
+	Started bool       `json:"started"`
+	Rounds  RoundsView `json:"rounds"`
 }
 
 // DisplayCourt is a court on the display screen.
@@ -93,6 +94,8 @@ type DisplayCourt struct {
 type DisplayView struct {
 	Calls  []MatchView    `json:"calls"`
 	Courts []DisplayCourt `json:"courts"`
+	// Round is the timed round in progress, for the shared countdown.
+	Round *TimedRoundView `json:"round"`
 }
 
 // CallMatch calls a match on a court.
@@ -143,6 +146,7 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 		Priority: st.CourtPriority(), MinRest: st.MinRest(), Categories: categoryRefs(st),
 		Started: len(st.Matches()) > 0,
 	}
+	v.Rounds = s.roundsView(st)
 	proposals := st.Proposals(now)
 	for _, c := range st.CourtStates() {
 		cv := CourtView{Number: c.Number, State: c.State}
@@ -213,6 +217,7 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 	for _, m := range playing[:min(len(playing), 3)] {
 		v.Calls = append(v.Calls, mv(m))
 	}
+	v.Round = s.roundsView(st).Current
 	return v
 }
 

@@ -381,3 +381,60 @@
   font-family: var(--font-sans);
   font-weight: 600;
 }
+
+.round-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+
+  &.running {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-surface);
+
+    .field-label,
+    .round-sub {
+      color: var(--color-display-muted);
+    }
+  }
+
+  &.elapsed .clock {
+    color: var(--color-alert-bg);
+    animation: blink 1s steps(2, start) infinite;
+  }
+}
+
+.round-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.round-sub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.clock {
+  font: 800 44px/1 var(--font-mono);
+  color: var(--color-brand);
+}
+
+.btn-whistle {
+  height: 44px;
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-text);
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
