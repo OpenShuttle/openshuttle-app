@@ -1,40 +1,64 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
+
+	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
-// EventTournamentUpdated is emitted after each appended event. Its payload is
-// the new tournament version; every window refetches the views it shows.
+// EventTournamentUpdated is emitted after each appended event, and when a
+// tournament is opened or closed. Its payload is the tournament version (0
+// when none is open); every window refetches the views it shows.
 const EventTournamentUpdated = "tournament.updated"
-
-// EventLanguageChanged is emitted by a window when the user switches language,
-// so the other window follows. Its payload is the language code ("en", "fr").
-const EventLanguageChanged = "language.changed"
 
 func init() {
 	application.RegisterEvent[uint64](EventTournamentUpdated)
 	application.RegisterEvent[bool](EventDisplayScreenChanged)
-	application.RegisterEvent[string](EventLanguageChanged)
+	application.RegisterEvent[Settings](EventSettingsChanged)
 }
 
 func main() {
+	dataDir, err := appDataDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	appDB, err := store.OpenAppDB(context.Background(), filepath.Join(dataDir, "app.db"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer appDB.Close()
+
+	emit := func(name string, data any) {
+		if app := application.Get(); app != nil {
+			app.Event.Emit(name, data)
+		}
+	}
+
 	app := application.New(application.Options{
 		Name:        "OpenShuttle",
 		Description: "Run badminton club tournaments, fully offline",
 		Services: []application.Service{
 			application.NewService(NewDisplayScreenService()),
+			application.NewService(NewSettingsService(appDB, emit)),
+			application.NewService(NewTournamentService(
+				appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{},
+			)),
 		},
 		Assets: application.AssetOptions{
 			Handler: spaHandler(application.AssetFileServerFS(assets)),
 		},
+		MarshalError: marshalError,
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
@@ -59,4 +83,16 @@ func main() {
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// appDataDir is where app.db and backups live: the user config folder
+// (%AppData% on Windows, ~/Library/Application Support on macOS,
+// ~/.config on Linux).
+func appDataDir() (string, error) {
+	base, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	dir := filepath.Join(base, "OpenShuttle")
+	return dir, os.MkdirAll(dir, 0o755)
 }

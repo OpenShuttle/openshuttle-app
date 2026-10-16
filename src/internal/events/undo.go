@@ -34,21 +34,23 @@ func IsActive(log []Event, seq uint64) bool {
 	return !cancelledSet(log)[seq]
 }
 
-// LastUndoable returns the latest action still in effect.
-func LastUndoable(log []Event) (Event, bool) {
+// LastUndoable returns the latest action still in effect whose type the
+// caller accepts as undoable (a tournament creation is not, for instance).
+// A nil undoable accepts every type.
+func LastUndoable(log []Event, undoable func(Type) bool) (Event, bool) {
 	cancelled := cancelledSet(log)
 	for i := len(log) - 1; i >= 0; i-- {
 		e := log[i]
-		if e.Type != TypeUndone && !cancelled[e.Seq] {
+		if e.Type != TypeUndone && !cancelled[e.Seq] && (undoable == nil || undoable(e.Type)) {
 			return e, true
 		}
 	}
 	return Event{}, false
 }
 
-// UndoLast returns the draft that cancels the latest action in effect.
-func UndoLast(log []Event, at time.Time, operator string) (Draft, error) {
-	last, ok := LastUndoable(log)
+// UndoLast returns the draft that cancels the latest undoable action.
+func UndoLast(log []Event, undoable func(Type) bool, at time.Time, operator string) (Draft, error) {
+	last, ok := LastUndoable(log, undoable)
 	if !ok {
 		return Draft{}, engine.NewError(engine.CodeNothingToUndo)
 	}

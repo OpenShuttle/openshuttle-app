@@ -2,11 +2,57 @@
   "app": {
     "name": "OpenShuttle"
   },
+  "common": {
+    "cancel": "Annuler",
+    "dismiss": "Fermer"
+  },
   "home": {
     "recentTournaments": "Tournois récents",
     "noTournament": "Aucun tournoi pour l'instant",
     "newTournament": "Nouveau tournoi",
-    "openFile": "Ouvrir un fichier"
+    "openFile": "Ouvrir un fichier",
+    "tournamentName": "Nom du tournoi",
+    "create": "Créer",
+    "openedAt": "Ouvert le {date}",
+    "fileMissing": "Fichier introuvable"
+  },
+  "topBar": {
+    "lastAction": "Dernière action · {time}",
+    "undo": "Annuler"
+  },
+  "tournamentInfo": {
+    "title": "Infos du tournoi",
+    "name": "Nom",
+    "file": "Fichier",
+    "close": "Fermer le tournoi"
+  },
+  "history": {
+    "TournamentCreated": "Tournoi créé : {name}",
+    "TournamentRenamed": "Tournoi renommé : {name}",
+    "ActionUndone": "Annulé : {action}"
+  },
+  "historyShort": {
+    "TournamentCreated": "création du tournoi",
+    "TournamentRenamed": "renommage en {name}",
+    "ActionUndone": "annulation"
+  },
+  "errors": {
+    "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
+    "INVALID_NAME": "Saisissez un nom de 1 à 100 caractères.",
+    "INVALID_SETTING": "Cette valeur de paramètre n'est pas autorisée.",
+    "NOTHING_TO_UNDO": "Rien à annuler.",
+    "NO_TOURNAMENT": "Aucun tournoi n'est ouvert.",
+    "FILE_EXISTS": "Un fichier de ce nom existe déjà. Choisissez un autre nom.",
+    "FILE_NOT_FOUND": "Fichier introuvable. Il a peut-être été déplacé ou supprimé.",
+    "NOT_A_TOURNAMENT_FILE": "Ce fichier n'est pas un tournoi OpenShuttle.",
+    "FILE_TOO_NEW": "Ce tournoi a été enregistré par une version plus récente d'OpenShuttle. Mettez l'application à jour pour l'ouvrir.",
+    "INVALID_EVENT": "Action invalide.",
+    "INVALID_SCORE": "Score invalide.",
+    "INVALID_SET_SCORE": "Set {set} : ce score ne peut pas terminer un set.",
+    "INVALID_SET_COUNT": "Nombre de sets incorrect pour ce match.",
+    "INVALID_TIMED_SCORE": "Score invalide : une égalité doit être départagée par un point en or.",
+    "INVALID_WIN_CONDITION": "Condition de victoire invalide.",
+    "INVALID_CATEGORY": "Catégorie inconnue."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",

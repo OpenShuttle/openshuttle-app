@@ -1,0 +1,50 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('home.recentTournaments') }}</h1>
+    <div class="actions">
+      <button type="button" class="btn" (click)="tournament.openDialog()">{{ t('home.openFile') }}</button>
+      <button type="button" class="btn btn-primary" (click)="startCreate()">{{ t('home.newTournament') }}</button>
+    </div>
+  </div>
+
+  @if (creating()) {
+    <form class="create" (submit)="$event.preventDefault(); create()">
+      <label class="create-field">
+        <span class="field-label">{{ t('home.tournamentName') }}</span>
+        <input
+          class="input"
+          type="text"
+          maxlength="100"
+          autofocus
+          [value]="name()"
+          (input)="name.set($any($event.target).value)"
+          (keydown.escape)="creating.set(false)"
+        />
+      </label>
+      <button type="submit" class="btn btn-primary" [disabled]="!name().trim()">{{ t('home.create') }}</button>
+      <button type="button" class="btn" (click)="creating.set(false)">{{ t('common.cancel') }}</button>
+    </form>
+  }
+
+  @if (tournament.recent().length === 0) {
+    <div class="empty">{{ t('home.noTournament') }}</div>
+  } @else {
+    <ul class="recent">
+      @for (r of tournament.recent(); track r.path) {
+        <li>
+          <button type="button" class="recent-item" [disabled]="!r.exists" (click)="tournament.open(r.path)">
+            <span class="recent-name">{{ r.name }}</span>
+            <span class="recent-path">{{ r.path }}</span>
+            <span class="recent-date">
+              @if (r.exists) {
+                {{ t('home.openedAt', { date: date(r.openedAt) }) }}
+              } @else {
+                {{ t('home.fileMissing') }}
+              }
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</ng-container>

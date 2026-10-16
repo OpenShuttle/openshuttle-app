@@ -76,3 +76,79 @@ select {
 button {
   cursor: pointer;
 }
+
+// Shared controls.
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-surface);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.btn-primary {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-surface);
+
+  &:hover:not(:disabled) {
+    background: var(--color-link);
+    border-color: var(--color-link);
+  }
+}
+
+.kbd {
+  font: 600 11px var(--font-mono);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  padding: 1px 5px;
+  background: var(--color-bg);
+}
+
+select,
+.input {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.input:focus,
+select:focus {
+  outline: 2px solid var(--color-link);
+  outline-offset: -1px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}

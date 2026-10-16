@@ -77,7 +77,7 @@ func TestUndoLast(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d, err := UndoLast(buildLog(t, tt.steps...), t0, "Julie")
+			d, err := UndoLast(buildLog(t, tt.steps...), nil, t0, "Julie")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -97,11 +97,24 @@ func TestUndoLast(t *testing.T) {
 
 func TestUndoLastNothing(t *testing.T) {
 	for _, steps := range [][]any{nil, {"x", 1}} {
-		_, err := UndoLast(buildLog(t, steps...), t0, "")
+		_, err := UndoLast(buildLog(t, steps...), nil, t0, "")
 		var e *engine.Error
 		if !errors.As(err, &e) || e.Code != engine.CodeNothingToUndo {
 			t.Errorf("UndoLast(%v) error = %v, want %s", steps, err, engine.CodeNothingToUndo)
 		}
+	}
+}
+
+func TestUndoLastSkipsNonUndoable(t *testing.T) {
+	log := buildLog(t, "x", "x")
+	log[1].Type = "TournamentCreated"
+	undoable := func(t Type) bool { return t != "TournamentCreated" }
+	if e, ok := LastUndoable(log, undoable); !ok || e.Seq != 1 {
+		t.Errorf("LastUndoable() = %d, %v, want 1", e.Seq, ok)
+	}
+	log[0].Type = "TournamentCreated"
+	if _, ok := LastUndoable(log, undoable); ok {
+		t.Error("LastUndoable() found an action, want none")
 	}
 }
 

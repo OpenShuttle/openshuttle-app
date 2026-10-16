@@ -2,7 +2,10 @@ module github.com/OpenShuttle/openshuttle-app/src
 
 go 1.26.0
 
-require github.com/wailsapp/wails/v3 v3.0.0-beta.30
+require (
+	github.com/wailsapp/wails/v3 v3.0.0-beta.30
+	modernc.org/sqlite v1.60.1
+)
 
 require (
 	github.com/adrg/xdg v0.5.3 // indirect
@@ -19,5 +22,4 @@ require (
 	modernc.org/libc v1.77.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	modernc.org/sqlite v1.60.1 // indirect
 )

@@ -2,11 +2,57 @@
   "app": {
     "name": "OpenShuttle"
   },
+  "common": {
+    "cancel": "Cancel",
+    "dismiss": "Dismiss"
+  },
   "home": {
     "recentTournaments": "Recent tournaments",
     "noTournament": "No tournament yet",
     "newTournament": "New tournament",
-    "openFile": "Open a file"
+    "openFile": "Open a file",
+    "tournamentName": "Tournament name",
+    "create": "Create",
+    "openedAt": "Opened {date}",
+    "fileMissing": "File not found"
+  },
+  "topBar": {
+    "lastAction": "Last action · {time}",
+    "undo": "Undo"
+  },
+  "tournamentInfo": {
+    "title": "Tournament info",
+    "name": "Name",
+    "file": "File",
+    "close": "Close tournament"
+  },
+  "history": {
+    "TournamentCreated": "Tournament created: {name}",
+    "TournamentRenamed": "Tournament renamed: {name}",
+    "ActionUndone": "Undone: {action}"
+  },
+  "historyShort": {
+    "TournamentCreated": "tournament creation",
+    "TournamentRenamed": "rename to {name}",
+    "ActionUndone": "undo"
+  },
+  "errors": {
+    "INTERNAL": "Something went wrong. The action was not saved.",
+    "INVALID_NAME": "Enter a name of 1 to 100 characters.",
+    "INVALID_SETTING": "This setting value is not allowed.",
+    "NOTHING_TO_UNDO": "Nothing to undo.",
+    "NO_TOURNAMENT": "No tournament is open.",
+    "FILE_EXISTS": "A file with this name already exists. Choose another name.",
+    "FILE_NOT_FOUND": "File not found. It may have been moved or deleted.",
+    "NOT_A_TOURNAMENT_FILE": "This file is not an OpenShuttle tournament.",
+    "FILE_TOO_NEW": "This tournament was saved by a newer version of OpenShuttle. Update the app to open it.",
+    "INVALID_EVENT": "Invalid action.",
+    "INVALID_SCORE": "Invalid score.",
+    "INVALID_SET_SCORE": "Set {set}: this score cannot end a set.",
+    "INVALID_SET_COUNT": "Wrong number of sets for this match.",
+    "INVALID_TIMED_SCORE": "Invalid score: a tie must be decided by a golden point.",
+    "INVALID_WIN_CONDITION": "Invalid win condition.",
+    "INVALID_CATEGORY": "Unknown category."
   },
   "displayScreen": {
     "open": "Open display screen",

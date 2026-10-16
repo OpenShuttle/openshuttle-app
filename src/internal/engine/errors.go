@@ -12,8 +12,12 @@ const (
 	CodeInvalidTimedScore   Code = "INVALID_TIMED_SCORE"
 	CodeInvalidCategory     Code = "INVALID_CATEGORY"
 
-	CodeNothingToUndo Code = "NOTHING_TO_UNDO"
-	CodeInvalidEvent  Code = "INVALID_EVENT"
+	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
+	CodeInvalidName    Code = "INVALID_NAME"
+	CodeNoTournament   Code = "NO_TOURNAMENT"
+	CodeInvalidSetting Code = "INVALID_SETTING"
+	CodeInternal       Code = "INTERNAL"
+	CodeInvalidEvent   Code = "INVALID_EVENT"
 
 	CodeFileExists         Code = "FILE_EXISTS"
 	CodeFileNotFound       Code = "FILE_NOT_FOUND"

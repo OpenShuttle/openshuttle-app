@@ -2,8 +2,33 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark">OS</div>
-      <span class="brand-name">{{ t('app.name') }}</span>
+      <div class="brand-text">
+        <span class="brand-name">{{ view().open ? view().name : t('app.name') }}</span>
+        @if (view().open) {
+          <span class="brand-sub">{{ t('app.name') }}</span>
+        }
+      </div>
     </div>
+
+    @if (view().open) {
+      <div class="last-action">
+        <div class="last-action-text">
+          @if (lastAction(); as action) {
+            <span class="field-label">{{ t('topBar.lastAction', { time: time(action.at) }) }}</span>
+            <span class="last-action-label">
+              @if (action.type === 'ActionUndone') {
+                {{ t('history.ActionUndone', { action: t('historyShort.' + action.params?.['action'], action.params ?? {}) }) }}
+              } @else {
+                {{ t('history.' + action.type, action.params ?? {}) }}
+              }
+            </span>
+          }
+        </div>
+        <button type="button" class="btn" [disabled]="!view().canUndo" (click)="undo()">
+          <span>{{ t('topBar.undo') }}</span><span class="kbd">Ctrl Z</span>
+        </button>
+      </div>
+    }
 
     <div class="topbar-actions">
       <label class="field">
@@ -37,14 +62,18 @@
     </div>
   </header>
 
-  <main class="content">
-    <h1>{{ t('home.recentTournaments') }}</h1>
-    <div class="empty">
-      <p>{{ t('home.noTournament') }}</p>
-      <div class="empty-actions">
-        <button type="button" class="btn btn-primary" disabled>{{ t('home.newTournament') }}</button>
-        <button type="button" class="btn" disabled>{{ t('home.openFile') }}</button>
-      </div>
+  @if (tournament.error(); as error) {
+    <div class="error" role="alert">
+      <span>{{ t(errorKey(error.code), error) }}</span>
+      <button type="button" class="error-close" (click)="tournament.error.set(null)" [attr.aria-label]="t('common.dismiss')">×</button>
     </div>
+  }
+
+  <main class="content">
+    @if (view().open) {
+      <app-tournament-info />
+    } @else {
+      <app-home />
+    }
   </main>
 </ng-container>

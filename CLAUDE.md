@@ -46,6 +46,9 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
     - After each event, Go emits a Wails event `tournament.updated` with a version number. Each window refetches the views it shows.
 - **No optimistic updates** in the frontend. Calls are in-process and fast, wait for the result.
 - **Go never returns human-readable text.** Errors are stable codes (`INVALID_SCORE`, `COURT_BUSY`). The frontend translates them.
+    - Codes are `engine.Code` values wrapped in `*engine.Error`. The app-level `MarshalError` sends them as the call's `cause` (`{code, set?}`); anything else becomes `INTERNAL` and is logged. The frontend reads it with `backendError()` and shows `errors.<CODE>`.
+- **Desktop layering**: `internal/tournament` (pure: event types, projection, command validation) → `apps/desktop` services (load log, validate, append, emit `tournament.updated`). Services take `emit`, `now` and dialogs as dependencies so they are tested without Wails.
+- **Settings** live in app.db and are broadcast with `settings.changed`; both windows apply them (language included).
 - **Timed matches**: Go stores the round start time (`RoundStarted` event) and duration. The frontend only renders the countdown.
 - **Never block the user.** Inconsistencies produce warnings, not refusals, unless the action is impossible.
 

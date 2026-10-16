@@ -1,0 +1,26 @@
+<ng-container *transloco="let t">
+  <div class="header">
+    <h1>{{ t('tournamentInfo.title') }}</h1>
+    <button type="button" class="btn" (click)="tournament.close()">{{ t('tournamentInfo.close') }}</button>
+  </div>
+
+  <section class="card">
+    <label class="field">
+      <span class="field-label">{{ t('tournamentInfo.name') }}</span>
+      <input
+        class="input"
+        type="text"
+        maxlength="100"
+        [value]="name()"
+        (input)="name.set($any($event.target).value)"
+        (blur)="save()"
+        (keydown.enter)="save()"
+        (keydown.escape)="reset()"
+      />
+    </label>
+    <div class="field">
+      <span class="field-label">{{ t('tournamentInfo.file') }}</span>
+      <span class="path">{{ tournament.view().path }}</span>
+    </div>
+  </section>
+</ng-container>

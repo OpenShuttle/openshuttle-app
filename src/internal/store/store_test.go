@@ -94,7 +94,7 @@ func TestTournamentUndoRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	log, _ := f.Events(ctx)
-	undo, err := events.UndoLast(log, t0.Add(time.Minute), "Julie")
+	undo, err := events.UndoLast(log, nil, t0.Add(time.Minute), "Julie")
 	if err != nil {
 		t.Fatal(err)
 	}
