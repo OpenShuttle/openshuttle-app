@@ -78,6 +78,75 @@ export interface CheckInView {
 }
 
 /**
+ * DrawCategory is one category of the draw screen.
+ */
+export interface DrawCategory {
+    "category": engine$0.Category;
+    "slot": number;
+    "status": string;
+    "pools": DrawPoolView[] | null;
+
+    /**
+     * pools in the format
+     */
+    "planned": number;
+    "present": number;
+
+    /**
+     * CanDraw is false when there are fewer than two present entrants per pool.
+     */
+    "canDraw": boolean;
+
+    /**
+     * Unplaced are present entrants missing from the draw.
+     */
+    "unplaced": DrawEntrantView[] | null;
+
+    /**
+     * Seeded lists every present entrant with its seed, to set seeds before drawing.
+     */
+    "seeded": DrawEntrantView[] | null;
+}
+
+/**
+ * DrawEntrantView is a card of the draw screen.
+ */
+export interface DrawEntrantView {
+    "id": engine$0.EntrantID;
+    "bib": number;
+    "seed": number;
+    "players": PlayerView[] | null;
+    "clubs": string[] | null;
+
+    /**
+     * SameClub lists the bibs of pool mates sharing a club.
+     */
+    "sameClub": number[] | null;
+
+    /**
+     * Absent is set when a drawn entrant is no longer checked in.
+     */
+    "absent": boolean;
+}
+
+/**
+ * DrawPoolView is a column of the draw screen.
+ */
+export interface DrawPoolView {
+    "name": string;
+    "entrants": DrawEntrantView[] | null;
+    "unbalanced": boolean;
+    "seeds": number;
+}
+
+/**
+ * DrawView is the draw screen.
+ */
+export interface DrawView {
+    "categories": DrawCategory[] | null;
+}
+
+/**
  * EntrantView is a row of the entrants screen.
  */
 export interface EntrantView {
@@ -92,6 +161,40 @@ export interface EntrantView {
  */
 export interface EntrantsView {
     "categories": CategoryEntrants[] | null;
+}
+
+/**
+ * FormatCategory is one category of the format screen.
+ */
+export interface FormatCategory {
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": tournament$0.PoolStage;
+
+    /**
+     * TimedAllowed is false with two categories: timed rounds need all courts.
+     */
+    "timedAllowed": boolean;
+    "registered": number;
+    "present": number;
+
+    /**
+     * Sizes and Matches preview the pools for the registered entrants.
+     */
+    "sizes": number[] | null;
+    "matches": number;
+
+    /**
+     * PoolsLocked is set once the draw is confirmed.
+     */
+    "poolsLocked": boolean;
+}
+
+/**
+ * FormatView is the format screen.
+ */
+export interface FormatView {
+    "categories": FormatCategory[] | null;
 }
 
 /**

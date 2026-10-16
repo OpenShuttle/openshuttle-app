@@ -3,5 +3,6 @@
 
 export type {
     PlayerID,
-    PlayerInput
+    PlayerInput,
+    PoolStage
 } from "./models.js";

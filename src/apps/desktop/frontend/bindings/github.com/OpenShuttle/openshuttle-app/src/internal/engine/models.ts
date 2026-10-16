@@ -22,3 +22,72 @@ export enum Category {
  * EntrantID identifies an entrant (a player in singles, a pair in doubles).
  */
 export type EntrantID = string;
+
+/**
+ * Tiebreak is a pool ranking criterion. Criteria always use differences,
+ * never ratios, so walkovers stay neutral.
+ */
+export enum Tiebreak {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    TiebreakWins = "wins",
+    TiebreakHeadToHead = "headToHead",
+    TiebreakSetDifference = "setDifference",
+    TiebreakPointDifference = "pointDifference",
+    TiebreakDraw = "draw",
+};
+
+/**
+ * WinCondition is how a match is won in a stage. It is stored in events:
+ * keep the JSON names.
+ */
+export interface WinCondition {
+    "kind": WinConditionKind;
+
+    /**
+     * Set-based stages.
+     * 1 for a single set, 2 for best of three
+     */
+    "setsToWin"?: number;
+
+    /**
+     * usually 21
+     */
+    "pointsPerSet"?: number;
+
+    /**
+     * Cap is the point at which a deuce ends: at Cap-1 all, the next point
+     * wins (30 in standard rules). 0 means no cap: a set always needs a
+     * 2-point lead. Cap == PointsPerSet means no deuce: first to the points wins.
+     */
+    "cap"?: number;
+
+    /**
+     * Timed stages: the duration of a round, in minutes.
+     */
+    "minutes"?: number;
+}
+
+/**
+ * WinConditionKind says how a match of a stage is won.
+ */
+export enum WinConditionKind {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * WinBySets: first to win SetsToWin sets, each set played to PointsPerSet.
+     */
+    WinBySets = "sets",
+
+    /**
+     * WinByTime: a single period of Duration; the leader at the whistle wins,
+     * a tie is decided by a golden point.
+     */
+    WinByTime = "timed",
+};

@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID } from '@bindings/internal/engine';
-import { PlayerID, PlayerInput } from '@bindings/internal/tournament';
+import { PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -103,6 +103,30 @@ export class TournamentStore {
 
   cancelCheckIn(id: PlayerID): Promise<boolean> {
     return this.command(() => Backend.CancelCheckIn(id));
+  }
+
+  configurePoolStage(category: Category, stage: PoolStage): Promise<boolean> {
+    return this.command(() => Backend.ConfigurePoolStage(category, stage));
+  }
+
+  setSeed(id: EntrantID, seed: number): Promise<boolean> {
+    return this.command(() => Backend.SetSeed(id, seed));
+  }
+
+  drawPools(category: Category): Promise<boolean> {
+    return this.command(() => Backend.DrawPools(category));
+  }
+
+  moveEntrant(id: EntrantID, pool: number): Promise<boolean> {
+    return this.command(() => Backend.MoveEntrant(id, pool));
+  }
+
+  confirmDraw(category: Category): Promise<boolean> {
+    return this.command(() => Backend.ConfirmDraw(category));
+  }
+
+  reopenDraw(category: Category): Promise<boolean> {
+    return this.command(() => Backend.ReopenDraw(category));
   }
 
   /** Runs a command that returns nothing; true when it succeeded. */

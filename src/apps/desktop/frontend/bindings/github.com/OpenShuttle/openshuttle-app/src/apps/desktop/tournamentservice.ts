@@ -51,6 +51,20 @@ export function CloseTournament(): $CancellablePromise<void> {
 }
 
 /**
+ * ConfigurePoolStage sets the pool stage of a category.
+ */
+export function ConfigurePoolStage(c: engine$0.Category, stage: tournament$0.PoolStage): $CancellablePromise<void> {
+    return $Call.ByID(3724066730, c, stage);
+}
+
+/**
+ * ConfirmDraw locks the pools of a category.
+ */
+export function ConfirmDraw(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(3346116688, c);
+}
+
+/**
  * CreateTournament asks where to save a new tournament, creates it and opens
  * it. It returns the path, or "" when the user cancelled the dialog.
  */
@@ -66,6 +80,13 @@ export function CreateTournamentAt(path: string, name: string): $CancellableProm
 }
 
 /**
+ * DrawPools draws (or redraws) the pools of a category.
+ */
+export function DrawPools(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(648993479, c);
+}
+
+/**
  * GetCheckInView returns the check-in screen.
  */
 export function GetCheckInView(): $CancellablePromise<$models.CheckInView> {
@@ -73,10 +94,24 @@ export function GetCheckInView(): $CancellablePromise<$models.CheckInView> {
 }
 
 /**
+ * GetDrawView returns the draw screen.
+ */
+export function GetDrawView(): $CancellablePromise<$models.DrawView> {
+    return $Call.ByID(3653645333);
+}
+
+/**
  * GetEntrantsView returns the entrants screen.
  */
 export function GetEntrantsView(): $CancellablePromise<$models.EntrantsView> {
     return $Call.ByID(1542905860);
+}
+
+/**
+ * GetFormatView returns the format screen.
+ */
+export function GetFormatView(): $CancellablePromise<$models.FormatView> {
+    return $Call.ByID(198126620);
 }
 
 /**
@@ -91,6 +126,13 @@ export function GetTournamentView(): $CancellablePromise<$models.TournamentView>
  */
 export function ListRecentTournaments(): $CancellablePromise<$models.RecentTournament[] | null> {
     return $Call.ByID(596346015);
+}
+
+/**
+ * MoveEntrant moves an entrant to another pool (0 is A).
+ */
+export function MoveEntrant(id: engine$0.EntrantID, pool: number): $CancellablePromise<void> {
+    return $Call.ByID(984168351, id, pool);
 }
 
 /**
@@ -134,6 +176,20 @@ export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void>
  */
 export function RenameTournament(name: string): $CancellablePromise<void> {
     return $Call.ByID(803251347, name);
+}
+
+/**
+ * ReopenDraw unlocks a confirmed draw.
+ */
+export function ReopenDraw(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(176542693, c);
+}
+
+/**
+ * SetSeed seeds an entrant, or clears its seed with 0.
+ */
+export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
+    return $Call.ByID(932998391, id, seed);
 }
 
 /**

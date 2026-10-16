@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"log/slog"
+	"math/rand/v2"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -55,6 +57,7 @@ type TournamentService struct {
 	now       func() time.Time
 	backupDir string
 	dialogs   fileDialogs
+	rng       func() *rand.Rand
 
 	mu          sync.Mutex
 	file        *store.TournamentFile
@@ -71,7 +74,7 @@ type fileDialogs interface {
 }
 
 func NewTournamentService(app *store.AppDB, emit func(string, any), now func() time.Time, backupDir string, dialogs fileDialogs) *TournamentService {
-	return &TournamentService{app: app, emit: emit, now: now, backupDir: backupDir, dialogs: dialogs}
+	return &TournamentService{app: app, emit: emit, now: now, backupDir: backupDir, dialogs: dialogs, rng: cryptoRand}
 }
 
 // CreateTournament asks where to save a new tournament, creates it and opens
@@ -256,6 +259,9 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 func (s *TournamentService) describe(e events.Event) *ActionView {
 	v := &ActionView{Seq: e.Seq, Type: string(e.Type), At: e.At, Operator: e.Operator, Params: map[string]string{}}
 	var p struct {
+		Pool     int                 `json:"pool"`
+		Seed     int                 `json:"seed"`
+		Entrant  engine.EntrantID    `json:"entrant"`
 		Name     string              `json:"name"`
 		Category engine.Category     `json:"category"`
 		ID       engine.EntrantID    `json:"id"`
@@ -269,8 +275,15 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	switch e.Type {
 	case tournament.TypeCreated, tournament.TypeRenamed:
 		v.Params["name"] = p.Name
-	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved:
+	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypePoolStageConfigured,
+		tournament.TypePoolsDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
+	case tournament.TypeEntrantSeeded:
+		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq)
+		v.Params["seed"] = strconv.Itoa(p.Seed)
+	case tournament.TypeEntrantMoved:
+		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
+		v.Params["pool"] = engine.PoolName(p.Pool)
 	case tournament.TypeEntrantRegistered, tournament.TypeEntrantUpdated:
 		v.Params["names"] = playerNames(p.Players)
 	case tournament.TypeEntrantRemoved:

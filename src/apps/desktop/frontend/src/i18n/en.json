@@ -40,7 +40,13 @@
     "EntrantUpdated": "Entrant edited: {names}",
     "EntrantRemoved": "Entrant removed: {names}",
     "PlayerCheckedIn": "{name} checked in",
-    "PlayerCheckInCancelled": "{name} marked absent"
+    "PlayerCheckInCancelled": "{name} marked absent",
+    "PoolStageConfigured": "Format changed: {category}",
+    "EntrantSeeded": "Seed {seed}: {names}",
+    "PoolsDrawn": "Pools drawn: {category}",
+    "EntrantMoved": "{names} moved to pool {pool}",
+    "DrawConfirmed": "Draw confirmed: {category}",
+    "DrawReopened": "Draw reopened: {category}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -52,7 +58,13 @@
     "EntrantUpdated": "edit of {names}",
     "EntrantRemoved": "removal of {names}",
     "PlayerCheckedIn": "check-in of {name}",
-    "PlayerCheckInCancelled": "absence of {name}"
+    "PlayerCheckInCancelled": "absence of {name}",
+    "PoolStageConfigured": "format change of {category}",
+    "EntrantSeeded": "seed of {names}",
+    "PoolsDrawn": "draw of {category}",
+    "EntrantMoved": "move of {names}",
+    "DrawConfirmed": "draw confirmation of {category}",
+    "DrawReopened": "reopening of {category}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -79,7 +91,15 @@
     "INVALID_CLUB": "Player {set}: the club name is too long (80 characters max).",
     "WRONG_PLAYER_COUNT": "Enter one player in singles, two in doubles.",
     "ENTRANT_NOT_FOUND": "This entrant no longer exists.",
-    "PLAYER_NOT_FOUND": "This player no longer exists."
+    "PLAYER_NOT_FOUND": "This player no longer exists.",
+    "INVALID_FORMAT": "This format is not valid.",
+    "TIMED_NEEDS_ONE_CATEGORY": "Timed matches need a single category.",
+    "INVALID_SEED": "Invalid seed.",
+    "NOT_ENOUGH_ENTRANTS": "Not enough present entrants: at least two per pool.",
+    "NO_DRAW": "Draw the pools first.",
+    "DRAW_CONFIRMED": "The draw is confirmed. Reopen it first.",
+    "INVALID_POOL": "This pool does not exist.",
+    "ENTRANT_NOT_IN_DRAW": "This entrant is not checked in."
   },
   "displayScreen": {
     "open": "Open display screen",
@@ -155,5 +175,64 @@
     "withPartner": "with {name}",
     "noPlayer": "No player entered yet.",
     "noMatch": "No player matches this search."
+  },
+  "format": {
+    "title": "Format",
+    "lead": "One independent format per category. Changes are saved at once.",
+    "stage": "Stage {n}",
+    "pools": "Pools · round robin",
+    "poolCount": "Number of pools",
+    "fewerPools": "One pool less",
+    "morePools": "One pool more",
+    "preview": "For {registered} entrants: {sizes} per pool · {matches, plural, one {# match} other {# matches}}",
+    "noEntrant": "No entrant yet in this category.",
+    "poolsLocked": "The draw is confirmed: reopen it to change the number of pools.",
+    "winCondition": "Win condition",
+    "bySets": "Sets and points",
+    "byTime": "Timed",
+    "timedNeedsOneCategory": "Timed matches need a single category: all courts start and end together.",
+    "setsToWin": "Sets",
+    "setsToWinValue": "{n, plural, =1 {1 set} other {Best of {n, plural, =2 {3} other {5}}}}",
+    "pointsPerSet": "Points per set",
+    "cap": "Cap",
+    "capHint": "Cap: at cap − 1 all, the next point wins. 0 = no cap, same as points = no deuce.",
+    "minutes": "Minutes",
+    "goldenPoint": "A tie at the whistle is decided by a golden point.",
+    "tiebreaks": "Tiebreaks, in order",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "bracketsSoon": "Brackets and advancement rules come next."
+  },
+  "tiebreak": {
+    "wins": "Wins",
+    "headToHead": "Head-to-head (between two)",
+    "setDifference": "Set difference",
+    "pointDifference": "Point difference",
+    "draw": "Random draw"
+  },
+  "draw": {
+    "title": "Draw",
+    "status": {
+      "none": "Not drawn",
+      "draft": "Draft",
+      "confirmed": "Confirmed"
+    },
+    "draw": "Draw the pools",
+    "redraw": "Draw again",
+    "confirm": "Confirm the draw",
+    "reopen": "Reopen",
+    "summary": "{present, plural, one {# entrant present} other {# entrants present}} · {pools, plural, one {# pool} other {# pools}}.",
+    "changeFormat": "Change the format",
+    "notEnough": "At least {min} present entrants are needed.",
+    "dragHint": "Drag a card to another pool. The app warns, it never blocks.",
+    "pool": "Pool {name}",
+    "unbalanced": "Size differs from the other pools",
+    "seeds": "{count} seeds in this pool",
+    "seedShort": "S{n}",
+    "sameClub": "Same club: #{bibs}",
+    "absent": "No longer checked in",
+    "unplaced": "Checked in after the draw: drag them into a pool",
+    "seedsTitle": "Seeds",
+    "seedsHint": "Seeds are spread first: S1 in pool A, S2 in B… then back."
   }
 }

@@ -39,6 +39,9 @@ func (s State) AddCategory(c engine.Category) (Change, error) {
 		return Change{}, engine.NewError(engine.CodeCategoryExists)
 	case len(s.Categories) >= MaxCategories:
 		return Change{}, engine.NewError(engine.CodeTooManyCategories)
+	case s.hasTimedStage():
+		// Timed rounds start and end together on every court: a single category only.
+		return Change{}, engine.NewError(engine.CodeTimedNeedsOneCategory)
 	}
 	return Change{TypeCategoryAdded, CategoryAdded{Category: c}}, nil
 }
@@ -65,4 +68,6 @@ func (s *State) applyCategoryAdded(p CategoryAdded) {
 
 func (s *State) applyCategoryRemoved(p CategoryRemoved) {
 	s.Categories = slices.DeleteFunc(s.Categories, func(c engine.Category) bool { return c == p.Category })
+	delete(s.stages, p.Category)
+	delete(s.draws, p.Category)
 }

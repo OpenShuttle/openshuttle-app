@@ -18,13 +18,13 @@ export class TournamentLayout {
   protected readonly groups: { key: string; items: NavItem[] }[] = [
     {
       key: 'preparation',
-      items: [{ key: 'info', path: 'info' }, { key: 'entrants', path: 'entrants' }, { key: 'format' }],
+      items: [{ key: 'info', path: 'info' }, { key: 'entrants', path: 'entrants' }, { key: 'format', path: 'format' }],
     },
     {
       key: 'dayOf',
       items: [
         { key: 'checkIn', path: 'check-in' },
-        { key: 'draw' },
+        { key: 'draw', path: 'draw' },
         { key: 'controlDesk' },
         { key: 'stages' },
         { key: 'results' },

@@ -55,6 +55,9 @@ type State struct {
 	// lastBib is the highest bib ever assigned, removed entrants included,
 	// so a number is never handed out twice.
 	lastBib int
+	// stages holds the configured pool stages; missing means the default.
+	stages map[engine.Category]PoolStage
+	draws  map[engine.Category]*Draw
 }
 
 // nextSeq is the seq the next appended event will get. The desktop app is
@@ -95,6 +98,18 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyPlayerCheckedIn)
 	case TypeCheckInCancelled:
 		return decodeInto(e, s.applyCheckInCancelled)
+	case TypePoolStageConfigured:
+		return decodeInto(e, s.applyPoolStageConfigured)
+	case TypeEntrantSeeded:
+		return decodeInto(e, s.applyEntrantSeeded)
+	case TypePoolsDrawn:
+		return decodeInto(e, s.applyPoolsDrawn)
+	case TypeEntrantMoved:
+		return decodeInto(e, s.applyEntrantMoved)
+	case TypeDrawConfirmed:
+		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, true) })
+	case TypeDrawReopened:
+		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, false) })
 	}
 	return nil
 }

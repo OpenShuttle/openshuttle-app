@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
-	"time"
 )
 
 var (
@@ -12,7 +11,7 @@ var (
 	oneSet21      = WinCondition{Kind: WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 30}
 	oneSet15NoCap = WinCondition{Kind: WinBySets, SetsToWin: 1, PointsPerSet: 15}
 	oneSet11Flat  = WinCondition{Kind: WinBySets, SetsToWin: 1, PointsPerSet: 11, Cap: 11}
-	timed12       = WinCondition{Kind: WinByTime, Duration: 12 * time.Minute}
+	timed12       = WinCondition{Kind: WinByTime, Minutes: 12}
 )
 
 func sets(scores ...[2]int) []SetScore {
@@ -37,6 +36,9 @@ func TestWinConditionValidate(t *testing.T) {
 		{"zero points", WinCondition{Kind: WinBySets, SetsToWin: 1}, false},
 		{"cap below points", WinCondition{Kind: WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 20}, false},
 		{"timed without duration", WinCondition{Kind: WinByTime}, false},
+		{"timed too long", WinCondition{Kind: WinByTime, Minutes: 61}, false},
+		{"four sets to win", WinCondition{Kind: WinBySets, SetsToWin: 4, PointsPerSet: 21}, false},
+		{"cap too high", WinCondition{Kind: WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 100}, false},
 		{"unknown kind", WinCondition{Kind: "golf"}, false},
 	}
 	for _, tt := range tests {

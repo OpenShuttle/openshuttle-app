@@ -40,7 +40,13 @@
     "EntrantUpdated": "Inscription modifiée : {names}",
     "EntrantRemoved": "Inscription retirée : {names}",
     "PlayerCheckedIn": "{name} pointé(e)",
-    "PlayerCheckInCancelled": "{name} marqué(e) absent(e)"
+    "PlayerCheckInCancelled": "{name} marqué(e) absent(e)",
+    "PoolStageConfigured": "Format modifié : {category}",
+    "EntrantSeeded": "Tête de série {seed} : {names}",
+    "PoolsDrawn": "Poules tirées : {category}",
+    "EntrantMoved": "{names} déplacé(s) en poule {pool}",
+    "DrawConfirmed": "Tirage validé : {category}",
+    "DrawReopened": "Tirage rouvert : {category}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -52,7 +58,13 @@
     "EntrantUpdated": "modification de {names}",
     "EntrantRemoved": "retrait de {names}",
     "PlayerCheckedIn": "pointage de {name}",
-    "PlayerCheckInCancelled": "absence de {name}"
+    "PlayerCheckInCancelled": "absence de {name}",
+    "PoolStageConfigured": "modification du format {category}",
+    "EntrantSeeded": "tête de série de {names}",
+    "PoolsDrawn": "tirage {category}",
+    "EntrantMoved": "déplacement de {names}",
+    "DrawConfirmed": "validation du tirage {category}",
+    "DrawReopened": "réouverture du tirage {category}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -79,7 +91,15 @@
     "INVALID_CLUB": "Joueur {set} : le nom du club est trop long (80 caractères max).",
     "WRONG_PLAYER_COUNT": "Saisissez un joueur en simple, deux en double.",
     "ENTRANT_NOT_FOUND": "Cette inscription n'existe plus.",
-    "PLAYER_NOT_FOUND": "Ce joueur n'existe plus."
+    "PLAYER_NOT_FOUND": "Ce joueur n'existe plus.",
+    "INVALID_FORMAT": "Ce format n'est pas valide.",
+    "TIMED_NEEDS_ONE_CATEGORY": "Le match au temps demande une seule catégorie.",
+    "INVALID_SEED": "Tête de série invalide.",
+    "NOT_ENOUGH_ENTRANTS": "Pas assez de présents : au moins deux par poule.",
+    "NO_DRAW": "Tirez d'abord les poules.",
+    "DRAW_CONFIRMED": "Le tirage est validé. Rouvrez-le d'abord.",
+    "INVALID_POOL": "Cette poule n'existe pas.",
+    "ENTRANT_NOT_IN_DRAW": "Ce participant n'est pas pointé."
   },
   "displayScreen": {
     "open": "Ouvrir l'écran d'appel",
@@ -155,5 +175,64 @@
     "withPartner": "avec {name}",
     "noPlayer": "Aucun joueur inscrit.",
     "noMatch": "Aucun joueur ne correspond à cette recherche."
+  },
+  "format": {
+    "title": "Format",
+    "lead": "Un format indépendant par catégorie. Chaque modification est enregistrée aussitôt.",
+    "stage": "Phase {n}",
+    "pools": "Poules · tous contre tous",
+    "poolCount": "Nombre de poules",
+    "fewerPools": "Une poule de moins",
+    "morePools": "Une poule de plus",
+    "preview": "Pour {registered} inscrits : {sizes} par poule · {matches, plural, one {# match} other {# matchs}}",
+    "noEntrant": "Aucun inscrit dans cette catégorie.",
+    "poolsLocked": "Le tirage est validé : rouvrez-le pour changer le nombre de poules.",
+    "winCondition": "Condition de victoire",
+    "bySets": "Sets et points",
+    "byTime": "Au temps",
+    "timedNeedsOneCategory": "Le match au temps demande une seule catégorie : tous les terrains commencent et finissent ensemble.",
+    "setsToWin": "Sets",
+    "setsToWinValue": "{n, plural, =1 {1 set} other {{n} sets gagnants}}",
+    "pointsPerSet": "Points par set",
+    "cap": "Plafond",
+    "capHint": "Plafond : à plafond − 1 partout, le point suivant gagne. 0 = sans plafond, égal aux points = sans prolongation.",
+    "minutes": "Minutes",
+    "goldenPoint": "Une égalité au coup de sifflet se joue au point en or.",
+    "tiebreaks": "Départage, dans l'ordre",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "bracketsSoon": "Les tableaux et le routage arrivent ensuite."
+  },
+  "tiebreak": {
+    "wins": "Victoires",
+    "headToHead": "Confrontation directe (entre deux)",
+    "setDifference": "Différence de sets",
+    "pointDifference": "Différence de points",
+    "draw": "Tirage au sort"
+  },
+  "draw": {
+    "title": "Tirage",
+    "status": {
+      "none": "Non tiré",
+      "draft": "Brouillon",
+      "confirmed": "Validé"
+    },
+    "draw": "Tirer les poules",
+    "redraw": "Relancer le tirage",
+    "confirm": "Valider le tirage",
+    "reopen": "Rouvrir",
+    "summary": "{present, plural, one {# présent} other {# présents}} · {pools, plural, one {# poule} other {# poules}}.",
+    "changeFormat": "Modifier le format",
+    "notEnough": "Il faut au moins {min} présents.",
+    "dragHint": "Glissez une carte vers une autre poule. L'outil avertit, il ne bloque pas.",
+    "pool": "Poule {name}",
+    "unbalanced": "Taille différente des autres poules",
+    "seeds": "{count} têtes de série dans cette poule",
+    "seedShort": "TS{n}",
+    "sameClub": "Même club : #{bibs}",
+    "absent": "N'est plus pointé",
+    "unplaced": "Pointés après le tirage : glissez-les dans une poule",
+    "seedsTitle": "Têtes de série",
+    "seedsHint": "Les têtes de série sont réparties d'abord : TS1 en poule A, TS2 en B… puis retour."
   }
 }

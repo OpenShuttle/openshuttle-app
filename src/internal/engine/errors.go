@@ -22,6 +22,15 @@ const (
 	CodeEntrantNotFound   Code = "ENTRANT_NOT_FOUND"
 	CodePlayerNotFound    Code = "PLAYER_NOT_FOUND"
 
+	CodeInvalidFormat         Code = "INVALID_FORMAT"
+	CodeTimedNeedsOneCategory Code = "TIMED_NEEDS_ONE_CATEGORY"
+	CodeInvalidSeed           Code = "INVALID_SEED"
+	CodeNotEnoughEntrants     Code = "NOT_ENOUGH_ENTRANTS"
+	CodeNoDraw                Code = "NO_DRAW"
+	CodeDrawConfirmed         Code = "DRAW_CONFIRMED"
+	CodeInvalidPool           Code = "INVALID_POOL"
+	CodeEntrantNotInDraw      Code = "ENTRANT_NOT_IN_DRAW"
+
 	CodeNothingToUndo  Code = "NOTHING_TO_UNDO"
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"

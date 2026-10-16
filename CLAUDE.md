@@ -103,6 +103,9 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **IDs come from the event seq** (`e12`, `p12.1`): deterministic on replay and never reused, even after an undo of an undo.
 - **Bibs** are recorded in the `PlayerCheckedIn` event and never reused: a removed entrant or a cancelled check-in keeps its number out of circulation. A cancelled check-in keeps the entrant's bib.
 - **Removing a category with entrants is refused** (`CATEGORY_NOT_EMPTY`): it would silently drop them.
+- **Format (v1 so far)**: one pool stage per category (number of pools, win condition, tiebreak order). Brackets and advancement rules come next. Pool sizes are as even as possible, larger pools first.
+- **Draw**: only present entrants (all players checked in). Seeds are placed in a snake (A, B, C, C, B, A…); the others in random order, each into the pool with the fewest same-club players. Go seeds the random generator; the `PoolsDrawn` event stores the resulting pools, never the seed. Drawing is refused only below two present entrants per pool; imbalance, same club and two seeds in a pool are warnings. A confirmed draw locks moves and the number of pools until reopened.
+- **Drag and drop** uses pointer events, not HTML5 drag and drop (unreliable across WebKitGTK, WebView2 and WKWebView).
 
 ## Glossary (French spec → code)
 

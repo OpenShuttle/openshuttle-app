@@ -41,6 +41,8 @@ type Entrant struct {
 	Players  []Player
 	// Bib is 0 until the first player of the entrant checks in.
 	Bib int
+	// Seed is 1 for the top seed, 0 when not seeded.
+	Seed int
 }
 
 // Complete reports whether every player of the entrant is checked in.
@@ -224,4 +226,7 @@ func (s *State) applyEntrantUpdated(p EntrantUpdated) {
 
 func (s *State) applyEntrantRemoved(p EntrantRemoved) {
 	s.Entrants = slices.DeleteFunc(s.Entrants, func(e Entrant) bool { return e.ID == p.ID })
+	for _, d := range s.draws {
+		d.remove(p.ID)
+	}
 }

@@ -27,6 +27,14 @@ export const routes: Routes = [
             loadComponent: () => import('./entrants/entrants').then((m) => m.Entrants),
           },
           {
+            path: 'format',
+            loadComponent: () => import('./format/format').then((m) => m.Format),
+          },
+          {
+            path: 'draw',
+            loadComponent: () => import('./draw/draw').then((m) => m.Draw),
+          },
+          {
             path: 'check-in',
             loadComponent: () => import('./check-in/check-in').then((m) => m.CheckIn),
           },
