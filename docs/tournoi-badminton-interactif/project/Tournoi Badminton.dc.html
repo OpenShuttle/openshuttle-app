@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#F3F4F6;color:#16181D;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#1F5FD1}a:hover{color:#16181D}
+button{font:inherit;cursor:pointer}
+input,select{font:inherit;color:inherit}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+</style>
+</helmet>
+<div style="height:100vh;min-width:1180px;display:flex;flex-direction:column;overflow:hidden;position:relative">
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+  <header style="height:64px;flex:none;background:#fff;border-bottom:1px solid #E3E5E8;display:flex;align-items:center;gap:20px;padding:0 20px">
+    <div style="display:flex;align-items:center;gap:12px;min-width:0;width:216px;flex:none">
+      <div style="width:34px;height:34px;border-radius:8px;background:#16181D;color:#FFD23F;display:flex;align-items:center;justify-content:center;font:700 15px/1 'Atkinson Hyperlegible Mono',monospace">{{ hdMark }}</div>
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+        <span style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ hdTitle }}</span>
+        <span style="font-size:12px;color:#575C66">{{ hdSub }}</span>
+      </div>
+    </div>
+    <sc-if value="{{ isTourn }}" hint-placeholder-val="{{ true }}"><div style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:6px 6px 6px 14px;max-width:560px">
+      <div style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Dernière action · {{ lastActionTime }}</span>
+        <span style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lastAction }}</span>
+      </div>
+      <button onClick="{{ undoLast }}" style="flex:none;display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:6px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:14px;color:#16181D" style-hover="background:#16181D;color:#fff">
+        <span>Annuler</span><span style="font:600 11px 'Atkinson Hyperlegible Mono',monospace;color:#575C66;border:1px solid #CBCFD5;border-radius:4px;padding:1px 5px;background:#F3F4F6">Ctrl Z</span>
+      </button>
+    </div>
+    </sc-if>
+    <sc-if value="{{ isHomeShell }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:4px;flex:1;min-width:0"><sc-for list="{{ homeTabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="height:38px;padding:0 14px;border-radius:8px;border:none;background:{{ t.bg }};color:{{ t.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ t.label }}</button></sc-for></div></sc-if>
+    <div style="flex:none;margin-left:auto;display:flex;align-items:center;gap:16px">
+      <span style="font:700 24px/1 'Atkinson Hyperlegible Mono',monospace;letter-spacing:-.02em">{{ clock }}</span>
+      <sc-if value="{{ isTourn }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:8px;border:1px solid #E3E5E8;border-radius:8px;padding:4px 4px 4px 12px">
+        <span style="width:9px;height:9px;border-radius:50%;background:#17784A"></span>
+        <span style="font-size:13px;font-weight:600;white-space:nowrap">Écran d'appel ouvert</span>
+        <select value="{{ monitor }}" onChange="{{ setMonitor }}" style="height:32px;border:1px solid #E3E5E8;border-radius:6px;background:#F3F4F6;font-size:13px;padding:0 6px">
+          <option value="Moniteur 2 · HDMI">Moniteur 2 · HDMI</option>
+          <option value="Moniteur 1 · intégré">Moniteur 1 · intégré</option>
+        </select>
+        <button onClick="{{ showDisplay }}" style="height:32px;padding:0 12px;border-radius:6px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:13px" style-hover="background:#1F5FD1">Aperçu</button>
+      </div></sc-if><sc-if value="{{ isHomeShell }}" hint-placeholder-val="{{ false }}"><button onClick="{{ resume }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap;height:38px">Reprendre « {{ tName }} »</button></sc-if>
+    </div>
+  </header>
+
+  <div style="flex:1;display:flex;min-height:0">
+    <sc-if value="{{ isTourn }}" hint-placeholder-val="{{ true }}">
+    <nav style="width:236px;flex:none;background:#ECEDF0;border-right:1px solid #E3E5E8;display:flex;flex-direction:column;padding:18px 12px 14px;gap:4px;overflow:auto">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#575C66;padding:0 10px 6px">Préparation</span>
+      <sc-for list="{{ prepItems }}" as="it" hint-placeholder-count="3">
+        <button onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid {{ it.border }};background:{{ it.bg }};border-radius:8px;padding:8px 10px;color:#16181D" style-hover="border-color:#CBCFD5">
+          <span style="width:22px;height:22px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:{{ it.markBg }};color:{{ it.markFg }};border:2px solid {{ it.markBorder }}">{{ it.mark }}</span>
+          <span style="display:flex;flex-direction:column;gap:1px;min-width:0">
+            <span style="font-size:14px;font-weight:{{ it.weight }}">{{ it.label }}</span>
+            <span style="font-size:12px;color:#575C66">{{ it.sub }}</span>
+          </span>
+        </button>
+      </sc-for>
+      <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#575C66;padding:16px 10px 6px">Jour J</span>
+      <sc-for list="{{ dayItems }}" as="it" hint-placeholder-count="5">
+        <button onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid {{ it.border }};background:{{ it.bg }};border-radius:8px;padding:8px 10px;color:#16181D" style-hover="border-color:#CBCFD5">
+          <span style="width:22px;height:22px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:{{ it.markBg }};color:{{ it.markFg }};border:2px solid {{ it.markBorder }}">{{ it.mark }}</span>
+          <span style="display:flex;flex-direction:column;gap:1px;min-width:0">
+            <span style="font-size:14px;font-weight:{{ it.weight }}">{{ it.label }}</span>
+            <span style="font-size:12px;color:#575C66">{{ it.sub }}</span>
+          </span>
+        </button>
+      </sc-for>
+      <div style="margin-top:auto;padding:14px 10px 0;border-top:1px solid #D6D9DE;display:flex;flex-direction:column;gap:4px">
+        <button onClick="{{ goHome }}" style="height:34px;margin-bottom:8px;border-radius:7px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:13px;color:#16181D">← Accueil · tous les tournois</button>
+        <span style="font:500 12px 'Atkinson Hyperlegible Mono',monospace;color:#16181D;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">plume-automne-2026.tournoi</span>
+        <span style="font-size:12px;color:#575C66">Enregistré automatiquement · {{ clock }}</span>
+      </div>
+    </nav>
+    </sc-if>
+
+    <main style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column;min-height:0">
+
+      <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 384px">
+          <section style="padding:20px 24px 24px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Table de marque</h1>
+                <span style="font-size:14px;color:#575C66">Phase 1 · Poules · {{ winLabel }} · {{ modeNote }}</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span style="display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:15px;background:#E9F0FC;color:#17489E;font-size:13px;font-weight:700"><span style="width:10px;height:10px;border-radius:3px;background:#1F5FD1"></span>{{ countPlaying }} en cours</span>
+                <span style="display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:15px;background:#E4F3EA;color:#115C38;font-size:13px;font-weight:700"><span style="width:10px;height:10px;border-radius:3px;background:#17784A"></span>{{ countFree }} libres</span>
+                <span style="display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:15px;background:#FDF1DE;color:#7A4A06;font-size:13px;font-weight:700"><span style="width:10px;height:10px;border-radius:3px;background:#F2A93B"></span>{{ pendingCount }} scores en attente</span>
+              </div>
+            </div>
+
+            <sc-if value="{{ timedMode }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:20px;padding:14px 18px;border-radius:10px;background:{{ rb.bg }};color:{{ rb.fg }};flex-wrap:wrap">
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:{{ rb.subFg }}">{{ rb.kicker }}</span>
+                  <span style="font-size:20px;font-weight:800">{{ rb.title }}</span>
+                </span>
+                <sc-if value="{{ rb.showClock }}" hint-placeholder-val="{{ true }}">
+                  <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:14px;font-weight:600">{{ rb.clockLabel }}</span><span style="font:700 34px/1 'Atkinson Hyperlegible Mono',monospace">{{ rb.clock }}</span></span>
+                </sc-if>
+                <span style="font-size:13px;color:{{ rb.subFg }};text-wrap:pretty">{{ rb.sub }}</span>
+                <button onClick="{{ rb.onClick }}" style="margin-left:auto;height:48px;padding:0 18px;border-radius:8px;border:none;background:{{ rb.btnBg }};color:{{ rb.btnFg }};font-weight:800;font-size:15px;display:flex;align-items:center;gap:10px" style-hover="filter:brightness(.94)">{{ rb.btn }}<sc-if value="{{ showKeys }}" hint-placeholder-val="{{ true }}"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid currentColor;border-radius:4px;padding:1px 6px">{{ rb.key }}</span></sc-if></button>
+              </div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px">
+              <sc-for list="{{ courts }}" as="c" hint-placeholder-count="6">
+                <sc-if value="{{ c.isPlaying }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ c.onOpen }}" style="background:#fff;border:1px solid #D6D9DE;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;min-height:240px" style-hover="border-color:#1F5FD1;box-shadow:0 2px 10px rgba(31,95,209,.15)">
+                    <div style="background:#1F5FD1;color:#fff;display:flex;align-items:center;gap:12px;padding:10px 14px">
+                      <span style="font:700 36px/1 'Atkinson Hyperlegible Mono',monospace">{{ c.n }}</span>
+                      <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+                        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#D6E3FA">Terrain</span>
+                        <span style="font-size:16px;font-weight:800">En cours</span>
+                      </span>
+                      <span style="background:#fff;color:#16181D;border-radius:5px;padding:3px 8px;font-size:12px;font-weight:700">{{ c.pool }}</span>
+                    </div>
+                    <div style="padding:14px;display:flex;flex-direction:column;gap:8px;flex:1">
+                      <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;flex:none;border-radius:6px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 14px 'Atkinson Hyperlegible Mono',monospace">{{ c.a.bib }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.a.names }}</span><span style="font-size:12px;color:#575C66">{{ c.a.club }}</span></span></div>
+                      <span style="font-size:12px;color:#575C66;padding-left:40px">contre</span>
+                      <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;flex:none;border-radius:6px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 14px 'Atkinson Hyperlegible Mono',monospace">{{ c.b.bib }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.b.names }}</span><span style="font-size:12px;color:#575C66">{{ c.b.club }}</span></span></div>
+                    </div>
+                    <sc-if value="{{ c.showTimer }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 14px 14px;display:flex;align-items:center;gap:10px">
+                        <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#575C66">Joué depuis</span><span style="font:700 22px/1 'Atkinson Hyperlegible Mono',monospace;color:#17489E">{{ c.timeBig }}</span></span>
+                        <button onClick="{{ c.onEnd }}" style="margin-left:auto;height:44px;padding:0 16px;border:none;border-radius:8px;background:#16181D;color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px" style-hover="background:#33363D">Terminer<sc-if value="{{ showKeys }}" hint-placeholder-val="{{ true }}"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #575C66;border-radius:4px;padding:1px 6px;color:#E3E5E8">{{ c.n }}</span></sc-if></button>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.timed }}" hint-placeholder-val="{{ true }}">
+                      <div style="padding:10px 14px;border-top:1px solid #ECEDF0;font-size:13px;color:#575C66">{{ c.foot }}</div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.isWaiting }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#fff;border:2px solid #F2A93B;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:240px">
+                    <div style="background:#F2A93B;color:#16181D;display:flex;align-items:center;gap:12px;padding:9px 13px">
+                      <span style="font:700 36px/1 'Atkinson Hyperlegible Mono',monospace">{{ c.n }}</span>
+                      <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+                        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3D2803">Terrain</span>
+                        <span style="font-size:16px;font-weight:800">Terminé à {{ c.endAt }}</span>
+                      </span>
+                      <span style="background:#fff;color:#16181D;border-radius:5px;padding:3px 8px;font-size:12px;font-weight:700">{{ c.pool }}</span>
+                    </div>
+                    <div onClick="{{ c.onScore }}" style="padding:10px 13px;display:flex;flex-direction:column;gap:6px;background:#FDF1DE;cursor:pointer" style-hover="background:#FBE7C6">
+                      <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:26px;height:26px;flex:none;border-radius:5px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ c.a.bib }}</span><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ c.a.names }}</span></div>
+                      <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:26px;height:26px;flex:none;border-radius:5px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ c.b.bib }}</span><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ c.b.names }}</span></div>
+                      <span style="font-size:12px;font-weight:700;color:#7A4A06">Score en attente · cliquer pour saisir</span>
+                    </div>
+                    <sc-if value="{{ c.hasProposal }}" hint-placeholder-val="{{ true }}">
+                      <div style="padding:10px 13px;display:flex;flex-direction:column;gap:6px;flex:1;border-top:1px solid #F2C27A">
+                        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#115C38">Suivant proposé · {{ c.nid }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:26px;height:26px;flex:none;border-radius:5px;border:2px solid #16181D;color:#16181D;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ c.na.bib }}</span><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ c.na.names }}</span></div>
+                        <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:26px;height:26px;flex:none;border-radius:5px;border:2px solid #16181D;color:#16181D;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ c.nb.bib }}</span><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ c.nb.names }}</span></div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.noProposal }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:10px 13px;flex:1;border-top:1px solid #F2C27A;font-size:13px;color:#575C66;text-wrap:pretty">{{ c.nextText }}</div>
+                    </sc-if>
+                    <div style="padding:0 13px 13px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:8px">
+                      <button onClick="{{ c.onScore }}" style="height:46px;border:1px solid #16181D;border-radius:8px;background:#fff;color:#16181D;font-weight:800;font-size:14px" style-hover="background:#F3F4F6">Saisir le score</button>
+                      <button onClick="{{ c.onCall }}" disabled="{{ c.noProposal }}" style="height:46px;border:none;border-radius:8px;background:{{ c.nextBg }};color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="filter:brightness(.9)">Lancer le suivant<sc-if value="{{ showKeys }}" hint-placeholder-val="{{ true }}"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #CDEBD9;border-radius:4px;padding:1px 6px">{{ c.n }}</span></sc-if></button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.isFree }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#fff;border:1px solid #D6D9DE;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:240px">
+                    <div style="background:#17784A;color:#fff;display:flex;align-items:center;gap:12px;padding:10px 14px">
+                      <span style="font:700 36px/1 'Atkinson Hyperlegible Mono',monospace">{{ c.n }}</span>
+                      <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+                        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#CDEBD9">Terrain</span>
+                        <span style="font-size:16px;font-weight:800">Libre</span>
+                      </span>
+                      <sc-if value="{{ c.hasProposal }}" hint-placeholder-val="{{ true }}"><span style="background:#fff;color:#16181D;border-radius:5px;padding:3px 8px;font-size:12px;font-weight:700">{{ c.pool }}</span></sc-if>
+                    </div>
+                    <sc-if value="{{ c.hasProposal }}" hint-placeholder-val="{{ true }}">
+                      <div style="padding:14px;display:flex;flex-direction:column;gap:8px;flex:1">
+                        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#115C38">{{ c.propLabel }}</span>
+                        <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;flex:none;border-radius:6px;border:2px solid #16181D;color:#16181D;display:flex;align-items:center;justify-content:center;font:700 14px 'Atkinson Hyperlegible Mono',monospace">{{ c.a.bib }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.a.names }}</span><span style="font-size:12px;color:#575C66">{{ c.a.club }}</span></span></div>
+                        <div style="display:flex;align-items:center;gap:10px"><span style="width:30px;height:30px;flex:none;border-radius:6px;border:2px solid #16181D;color:#16181D;display:flex;align-items:center;justify-content:center;font:700 14px 'Atkinson Hyperlegible Mono',monospace">{{ c.b.bib }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.b.names }}</span><span style="font-size:12px;color:#575C66">{{ c.b.club }}</span></span></div>
+                      </div>
+                      <sc-if value="{{ c.canCall }}" hint-placeholder-val="{{ false }}"><div style="padding:0 14px 14px">
+                        <button onClick="{{ c.onCall }}" style="width:100%;height:48px;border:none;border-radius:8px;background:#17784A;color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="background:#115C38">Appeler<sc-if value="{{ showKeys }}" hint-placeholder-val="{{ true }}"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #CDEBD9;border-radius:4px;padding:1px 6px">{{ c.n }}</span></sc-if></button>
+                      </div></sc-if>
+                      <sc-if value="{{ c.timed }}" hint-placeholder-val="{{ true }}"><div style="margin:0 14px 14px;padding:10px 12px;border-radius:8px;background:#E4F3EA;color:#115C38;font-size:13px;font-weight:700">{{ c.rotNote }}</div></sc-if>
+                    </sc-if>
+                    <sc-if value="{{ c.noProposal }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:14px;display:flex;flex-direction:column;justify-content:center;gap:6px;flex:1;background:repeating-linear-gradient(135deg,#fff 0 10px,#F5F6F7 10px 20px)">
+                        <span style="font-size:16px;font-weight:700">Aucun match prêt</span>
+                        <span style="font-size:13px;color:#575C66;text-wrap:pretty">{{ c.nextText }}</span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+            <sc-if value="{{ showKeys }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#575C66">
+                <span style="display:flex;align-items:center;gap:6px"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #CBCFD5;background:#fff;border-radius:4px;padding:1px 6px;color:#16181D">1–6</span>{{ keyHint }}</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #CBCFD5;background:#fff;border-radius:4px;padding:1px 6px;color:#16181D">S</span>Saisir le plus ancien score en attente</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="font:600 12px 'Atkinson Hyperlegible Mono',monospace;border:1px solid #CBCFD5;background:#fff;border-radius:4px;padding:1px 6px;color:#16181D">Ctrl Z</span>Annuler la dernière action</span>
+              </div>
+            </sc-if>
+          </section>
+
+          <aside style="border-left:1px solid #E3E5E8;background:#fff;display:flex;flex-direction:column;min-height:0">
+            <div style="flex:none;max-height:40%;overflow:auto;background:#FDF8EE;border-bottom:2px solid #F2A93B">
+              <div style="padding:16px 20px 8px;display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:#FDF8EE;z-index:1">
+                <h2 style="margin:0;font-size:18px;font-weight:800">Scores en attente</h2>
+                <span style="font-size:13px;color:#7A4A06;font-weight:700">{{ pendingCount }}</span>
+              </div>
+              <sc-if value="{{ noPending }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;padding:0 20px 14px;font-size:14px;color:#575C66">Aucun score à saisir.</p>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:6px;padding:0 12px 12px">
+                <sc-for list="{{ pending }}" as="pd" hint-placeholder-count="2">
+                  <div onClick="{{ pd.onClick }}" style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid {{ pd.border }};border-radius:8px;padding:8px 8px 8px 10px;cursor:pointer" style-hover="border-color:#16181D">
+                    <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:38px"><span style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#7A4A06">TER.</span><span style="font:700 22px/1 'Atkinson Hyperlegible Mono',monospace">{{ pd.court }}</span></span>
+                    <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+                      <span style="font-size:12px;color:#575C66">{{ pd.id }} · {{ pd.pool }} · {{ pd.since }}</span>
+                      <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#{{ pd.a.bib }} {{ pd.a.names }}</span>
+                      <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#{{ pd.b.bib }} {{ pd.b.names }}</span>
+                    </span>
+                    <span style="flex:none;height:34px;padding:0 12px;border-radius:6px;background:#16181D;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center">Saisir</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="flex:1;min-height:0;overflow:auto">
+              <div style="padding:20px 20px 12px;display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1">
+                <h2 style="margin:0;font-size:18px;font-weight:800">Prochains matchs</h2>
+                <span style="font-size:13px;color:#575C66">{{ queueCount }} en file</span>
+              </div>
+              <sc-for list="{{ queue }}" as="q" hint-placeholder-count="5">
+                <div style="padding:12px 20px;border-top:1px solid #ECEDF0;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="background:#ECEDF0;border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700">{{ q.pool }}</span>
+                    <span style="font:500 12px 'Atkinson Hyperlegible Mono',monospace;color:#575C66">{{ q.id }}</span>
+                    <span style="margin-left:auto;font-size:12px;font-weight:700;color:{{ q.statusFg }};background:{{ q.statusBg }};border-radius:5px;padding:2px 8px">{{ q.status }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;min-width:0"><span style="font:700 12px 'Atkinson Hyperlegible Mono',monospace;background:#16181D;color:#fff;border-radius:4px;min-width:24px;height:22px;display:flex;align-items:center;justify-content:center">{{ q.a.bib }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.a.names }}</span></span>
+                    <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;min-width:0"><span style="font:700 12px 'Atkinson Hyperlegible Mono',monospace;background:#16181D;color:#fff;border-radius:4px;min-width:24px;height:22px;display:flex;align-items:center;justify-content:center">{{ q.b.bib }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.b.names }}</span></span>
+                  </div>
+                  <sc-if value="{{ q.notReady }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:13px;color:#575C66;display:flex;gap:6px;align-items:flex-start;text-wrap:pretty"><span style="flex:none;width:8px;height:8px;border-radius:50%;background:{{ q.dot }};margin-top:5px"></span>{{ q.reason }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:none;max-height:46%;overflow:auto;border-top:2px solid #16181D;background:#F8F9FA">
+              <div style="padding:14px 20px 8px;display:flex;align-items:baseline;justify-content:space-between">
+                <h2 style="margin:0;font-size:18px;font-weight:800">Alertes</h2>
+                <span style="font-size:13px;color:#575C66">{{ alertCount }} à traiter</span>
+              </div>
+              <sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;padding:0 20px 16px;font-size:14px;color:#575C66">Rien à décider pour l'instant.</p>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:8px;padding:0 14px 14px">
+                <sc-for list="{{ alerts }}" as="al" hint-placeholder-count="1">
+                  <div style="background:{{ al.bg }};border:1px solid {{ al.border }};border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px">
+                    <span style="font-size:15px;font-weight:800;color:{{ al.fg }}">{{ al.title }}</span>
+                    <span style="font-size:13px;color:#16181D;text-wrap:pretty">{{ al.text }}</span>
+                    <button onClick="{{ al.onClick }}" style="align-self:flex-start;height:36px;padding:0 14px;border-radius:6px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px" style-hover="background:#33363D">{{ al.action }}</button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <sc-if value="{{ poolModalOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closePoolModal }}" style="position:absolute;inset:0;background:rgba(22,24,29,.42);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px">
+            <div onClick="{{ stop }}" style="width:620px;max-width:100%;background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden">
+              <div style="padding:18px 22px;border-bottom:1px solid #E3E5E8;display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:20px;font-weight:800">{{ pm.title }} — classement</span>
+                <span style="font-size:13px;color:#575C66">Départage : {{ pm.tb }}</span>
+              </div>
+              <div style="padding:8px 22px 4px">
+                <div style="display:grid;grid-template-columns:40px minmax(0,1fr) 44px 64px 64px 170px;gap:10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66;padding:8px 0"><span>Rang</span><span>Participant</span><span>V</span><span>Sets</span><span>Points</span><span>Routage</span></div>
+                <sc-for list="{{ pm.rows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:40px minmax(0,1fr) 44px 64px 64px 170px;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #ECEDF0;font-size:14px">
+                    <span style="font:700 18px 'Atkinson Hyperlegible Mono',monospace">{{ r.rank }}</span>
+                    <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="font:700 12px 'Atkinson Hyperlegible Mono',monospace;background:#16181D;color:#fff;border-radius:4px;min-width:26px;height:24px;display:flex;align-items:center;justify-content:center">{{ r.bib }}</span><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.names }}</span></span>
+                    <span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ r.w }}</span>
+                    <span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.sd }}</span>
+                    <span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.pd }}</span>
+                    <span style="font-size:13px;font-weight:700">→ {{ r.dest }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="padding:16px 22px;display:flex;gap:10px;justify-content:flex-end;background:#F8F9FA;border-top:1px solid #E3E5E8">
+                <button onClick="{{ closePoolModal }}" style="height:44px;padding:0 16px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:15px">Plus tard</button>
+                <button onClick="{{ ackPool }}" style="height:44px;padding:0 18px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:800;font-size:15px">Valider le classement</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isFormat }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 352px">
+          <div style="display:flex;flex-direction:column;min-height:0;min-width:0;overflow-y:auto">
+            <div style="padding:18px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #E3E5E8;background:#F3F4F6;flex:none">
+              <div style="display:flex;flex-direction:column;gap:3px;margin-right:auto">
+                <h1 style="margin:0;font-size:26px;font-weight:800">Format</h1>
+                <span style="font-size:13px;color:#575C66">Parti du preset « 4 poules + principal + consolante » · modifiable jusqu'à la clôture</span>
+              </div>
+              <button onClick="{{ addBracket }}" style="height:40px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:14px" style-hover="border-color:#16181D">+ Tableau</button>
+              <button onClick="{{ savePreset }}" style="height:40px;padding:0 14px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px" style-hover="background:#33363D">Enregistrer comme preset</button>
+            </div>
+            <div style="flex:1 0 340px;min-height:340px;overflow:auto;background-color:#F3F4F6;background-image:radial-gradient(#D1D5DB 1px,transparent 1px);background-size:18px 18px">
+              <div style="position:relative;width:850px;height:{{ canvasH }}px">
+                <svg width="850" height="{{ canvasH }}" style="position:absolute;inset:0;pointer-events:none">
+                  <sc-for list="{{ edges }}" as="e" hint-placeholder-count="0">
+                    <path d="{{ e.d }}" fill="none" stroke="#16181D" stroke-width="2"></path>
+                  </sc-for>
+                </svg>
+                <sc-for list="{{ edgeLabels }}" as="el" hint-placeholder-count="0">
+                  <span style="position:absolute;left:{{ el.x }}px;top:{{ el.y }}px;transform:translate(-50%,-50%);background:#16181D;color:#fff;border-radius:11px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap">{{ el.text }}</span>
+                </sc-for>
+                <sc-for list="{{ nodes }}" as="nd" hint-placeholder-count="3">
+                  <div onClick="{{ nd.onClick }}" style="position:absolute;left:{{ nd.x }}px;top:{{ nd.y }}px;width:220px;height:140px;background:#fff;border:2px solid {{ nd.border }};box-shadow:{{ nd.shadow }};border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;cursor:pointer;overflow:hidden">
+                    <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#575C66">{{ nd.kicker }}</span>
+                    <span style="font-size:17px;font-weight:800;line-height:1.2">{{ nd.title }}</span>
+                    <sc-for list="{{ nd.lines }}" as="ln" hint-placeholder-count="2"><span style="font-size:13px;color:#33363D;line-height:1.35">{{ ln }}</span></sc-for>
+                    <sc-if value="{{ nd.hasWarn }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:700;color:#B4322A">{{ nd.warn }}</span></sc-if>
+                  </div>
+                </sc-for>
+                <div style="position:absolute;left:650px;top:{{ term.y }}px;width:180px;height:140px;background:#16181D;color:#fff;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#FFD23F">Sortie</span>
+                  <span style="font-size:17px;font-weight:800;line-height:1.2">Classement intégral</span>
+                  <span style="font-size:13px;color:#E3E5E8">{{ term.line }}</span>
+                  <span style="font-size:13px;color:#FFD23F;font-weight:700">{{ term.status }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="flex:none;border-top:1px solid #E3E5E8;background:#fff;padding:14px 24px 16px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                <span style="font-size:15px;font-weight:800">Aperçu pour</span>
+                <input type="range" min="8" max="48" step="1" value="{{ N }}" onInput="{{ setN }}" onChange="{{ setN }}" style="width:220px;accent-color:#16181D"></input>
+                <span style="font:700 18px 'Atkinson Hyperlegible Mono',monospace">{{ N }}</span><span style="font-size:14px;color:#575C66">participants · {{ courtsCount }} terrains</span>
+                <span style="margin-left:auto;font-size:14px"><b>{{ totMatches }}</b> matchs · ≈ <b>{{ totDur }}</b></span>
+              </div>
+              <div style="display:grid;grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(0,1fr));font-size:13px">
+                <span style="color:#575C66;font-weight:700;padding:4px 0">Phase</span><span style="color:#575C66;font-weight:700;padding:4px 0">Participants</span><span style="color:#575C66;font-weight:700;padding:4px 0">Matchs</span><span style="color:#575C66;font-weight:700;padding:4px 0">Tours</span><span style="color:#575C66;font-weight:700;padding:4px 0">Durée estimée</span>
+                <sc-for list="{{ prevRows }}" as="pr" hint-placeholder-count="3">
+                  <span style="padding:5px 0;border-top:1px solid #ECEDF0;font-weight:700">{{ pr.name }}</span><span style="padding:5px 0;border-top:1px solid #ECEDF0;font-family:'Atkinson Hyperlegible Mono',monospace">{{ pr.n }}</span><span style="padding:5px 0;border-top:1px solid #ECEDF0;font-family:'Atkinson Hyperlegible Mono',monospace">{{ pr.matches }}</span><span style="padding:5px 0;border-top:1px solid #ECEDF0;font-family:'Atkinson Hyperlegible Mono',monospace">{{ pr.rounds }}</span><span style="padding:5px 0;border-top:1px solid #ECEDF0;font-family:'Atkinson Hyperlegible Mono',monospace">{{ pr.dur }}</span>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <sc-for list="{{ prevWarn }}" as="pw" hint-placeholder-count="1">
+                  <span style="font-size:13px;color:{{ pw.fg }};display:flex;gap:8px;align-items:flex-start"><span style="flex:none;width:8px;height:8px;border-radius:50%;background:{{ pw.dot }};margin-top:5px"></span>{{ pw.text }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <aside style="border-left:1px solid #E3E5E8;background:#fff;overflow:auto;display:flex;flex-direction:column">
+            <div style="padding:18px 20px;border-bottom:1px solid #E3E5E8;display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#575C66">{{ sp.kicker }}</span>
+              <input value="{{ sp.name }}" onChange="{{ sp.onName }}" style="font-size:20px;font-weight:800;border:1px solid transparent;border-radius:6px;padding:4px 6px;margin-left:-7px;background:transparent" style-hover="border-color:#E3E5E8" style-focus="border-color:#1F5FD1;outline:none"></input>
+            </div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:20px">
+              <sc-if value="{{ sp.isPools }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Taille</span>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                    <span style="font-size:14px">Nombre de poules</span>
+                    <div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden"><button onClick="{{ sp.poolsDec }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:40px;text-align:center;font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ sp.pools }}</span><button onClick="{{ sp.poolsInc }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div>
+                  </div>
+                  <span style="font-size:13px;color:#575C66">{{ sp.sizeNote }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sp.isBracket }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Participants</span>
+                  <span style="font-size:14px">{{ sp.bracketNote }}</span>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Condition de victoire</span>
+                <div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px">
+                  <sc-for list="{{ sp.segWin }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px">{{ o.label }}</button></sc-for>
+                </div>
+                <sc-if value="{{ sp.isTime }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-size:12px;color:#575C66;text-wrap:pretty">Tous les terrains démarrent et finissent ensemble : la phase se joue par rotations, lancées et sifflées par la table.</span>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                    <span style="font-size:14px">Durée du match</span>
+                    <div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden"><button onClick="{{ sp.durDec }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:64px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ sp.minutes }} min</span><button onClick="{{ sp.durInc }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div>
+                  </div>
+                  <button onClick="{{ sp.toggleGold }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:none;background:none;padding:0;text-align:left">
+                    <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Point en or en cas d'égalité</span><span style="font-size:12px;color:#575C66">Le vainqueur est celui qui mène au coup de sifflet</span></span>
+                    <span style="width:42px;height:24px;flex:none;border-radius:12px;background:{{ sp.goldTrack }};position:relative"><span style="position:absolute;top:3px;left:{{ sp.goldKnob }}px;width:18px;height:18px;border-radius:50%;background:#fff"></span></span>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ sp.isSets }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                    <span style="font-size:14px">Sets gagnants</span>
+                    <div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden"><button onClick="{{ sp.setsDec }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:40px;text-align:center;font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ sp.sets }}</span><button onClick="{{ sp.setsInc }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <span style="font-size:14px">Points par set</span>
+                    <div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px">
+                      <sc-for list="{{ sp.segPts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="flex:1;height:32px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px">{{ o.label }}</button></sc-for>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                    <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Plafond de points</span><span style="font-size:12px;color:#575C66">0 = sans plafond</span></span>
+                    <div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden"><button onClick="{{ sp.capDec }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:48px;text-align:center;font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ sp.cap }}</span><button onClick="{{ sp.capInc }}" style="width:36px;height:36px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{ sp.isPools }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Départage, dans l'ordre</span>
+                  <sc-for list="{{ sp.tb }}" as="t" hint-placeholder-count="5">
+                    <div style="display:flex;align-items:center;gap:10px;border:1px solid #E3E5E8;border-radius:8px;padding:6px 6px 6px 10px">
+                      <span style="font:700 13px 'Atkinson Hyperlegible Mono',monospace;color:#575C66;width:14px">{{ t.n }}</span>
+                      <span style="font-size:14px;flex:1">{{ t.label }}</span>
+                      <button onClick="{{ t.up }}" style="width:30px;height:30px;border:1px solid #E3E5E8;border-radius:6px;background:#fff;font-size:13px" style-hover="background:#F3F4F6">↑</button>
+                      <button onClick="{{ t.down }}" style="width:30px;height:30px;border:1px solid #E3E5E8;border-radius:6px;background:#fff;font-size:13px" style-hover="background:#F3F4F6">↓</button>
+                    </div>
+                  </sc-for>
+                  <span style="font-size:12px;color:#575C66">Différences uniquement, jamais de ratios : les WO restent neutres.</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Routage</span>
+                  <sc-for list="{{ sp.routing }}" as="r" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;align-items:center">
+                      <span style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700">{{ r.label }}</span><span style="font-size:11px;color:#575C66">{{ r.count }}</span></span>
+                      <select value="{{ r.value }}" onChange="{{ r.onChange }}" style="height:36px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;font-size:14px;padding:0 8px;min-width:0">
+                        <sc-for list="{{ destOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for>
+                      </select>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ sp.isBracket }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Placement</span>
+                  <div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px">
+                    <sc-for list="{{ sp.segSeed }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:13px">{{ o.label }}</button></sc-for>
+                  </div>
+                  <button onClick="{{ sp.toggleSep }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:none;background:none;padding:4px 0 0;text-align:left">
+                    <span style="font-size:14px">Séparer les participants d'une même poule au 1er tour</span>
+                    <span style="width:42px;height:24px;flex:none;border-radius:12px;background:{{ sp.sepTrack }};position:relative"><span style="position:absolute;top:3px;left:{{ sp.sepKnob }}px;width:18px;height:18px;border-radius:50%;background:#fff"></span></span>
+                  </button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Classement</span>
+                  <div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px">
+                    <sc-for list="{{ sp.segPlace }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:13px">{{ o.label }}</button></sc-for>
+                  </div>
+                  <span style="font-size:12px;color:#575C66">{{ sp.placeNote }}</span>
+                </div>
+                <button onClick="{{ sp.remove }}" style="align-self:flex-start;height:36px;padding:0 12px;border-radius:8px;border:1px solid #E7B3AE;background:#fff;color:#B4322A;font-weight:700;font-size:14px" style-hover="background:#FBEAE8">Supprimer la phase</button>
+              </sc-if>
+            </div>
+          </aside>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px;max-width:1120px;width:100%;margin:0 auto">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Tournois récents</h1><span style="font-size:14px;color:#575C66">Un fichier par tournoi, enregistré sur ce PC.</span></div><button onClick="{{ openFile }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Ouvrir un fichier…</button><button onClick="{{ newTourn }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Nouveau tournoi</button></div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+            <sc-for list="{{ recent }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1.2fr) minmax(0,1.1fr) auto;gap:16px;align-items:center;padding:14px 18px;border-bottom:1px solid #ECEDF0">
+                <span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:16px;font-weight:800">{{ r.name }}</span><span style="font:500 12px 'Atkinson Hyperlegible Mono',monospace;color:#575C66;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.file }}</span></span>
+                <span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:700">{{ r.cat }}</span><span style="font-size:13px;color:#575C66">{{ r.size }}</span></span>
+                <span style="justify-self:start;font-size:12px;font-weight:700;border-radius:5px;padding:3px 8px;background:{{ r.stBg }};color:{{ r.stFg }}">{{ r.status }}</span>
+                <span style="display:flex;gap:8px"><button onClick="{{ r.onDup }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:36px">Dupliquer</button><button onClick="{{ r.onOpen }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap;height:36px">Ouvrir</button></span>
+              </div>
+            </sc-for>
+          </div>
+          <span style="font-size:13px;color:#575C66">Dossier : Documents/Tournois. Dupliquer reprend le format, les terrains et les horaires, sans les inscrits.</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isRegistry }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Registre des joueurs</h1><span style="font-size:14px;color:#575C66">{{ regCount }} joueurs · réutilisés d'un tournoi à l'autre</span></div><button onClick="{{ regImport }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Importer un CSV</button><button onClick="{{ regToggleAdd }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Ajouter un joueur</button></div>
+          <sc-if value="{{ regAdd }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:14px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.3fr) 110px auto auto;gap:10px;align-items:end">
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Prénom et nom</span><input value="{{ regName }}" onChange="{{ onRegName }}" placeholder="ex. Camille Martin" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Club</span><select value="{{ regClubSel }}" onChange="{{ onRegClub }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"><sc-for list="{{ clubOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Niveau</span><select value="{{ regLevel }}" onChange="{{ onRegLevel }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"><sc-for list="{{ levelOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+              <button onClick="{{ regToggleAdd }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Annuler</button>
+              <button onClick="{{ regSave }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Enregistrer</button>
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input value="{{ regQ }}" onInput="{{ onRegQ }}" onChange="{{ onRegQ }}" placeholder="Rechercher un joueur ou un club" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%;max-width:380px;height:44px"></input>
+            <sc-for list="{{ regClubs }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.onClick }}" style="height:36px;padding:0 14px;border-radius:18px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-weight:700;font-size:13px">{{ c.label }}</button></sc-for>
+          </div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) 80px 80px minmax(0,1.3fr) 90px;gap:12px;padding:10px 16px;background:#F3F4F6;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66"><span>Joueur</span><span>Club</span><span>Niveau</span><span>Tournois</span><span>Dernière participation</span><span></span></div>
+            <sc-for list="{{ regRows }}" as="p" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) 80px 80px minmax(0,1.3fr) 90px;gap:12px;padding:9px 16px;border-top:1px solid #ECEDF0;align-items:center;font-size:14px">
+                <span style="font-weight:700">{{ p.name }}</span><span>{{ p.club }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ p.level }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ p.count }}</span><span style="color:#575C66">{{ p.last }}</span>
+                <button onClick="{{ p.onEdit }}" style="height:30px;border-radius:6px;border:1px solid #E3E5E8;background:#fff;font-size:13px;font-weight:700">Modifier</button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ regEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:16px;font-size:14px;color:#575C66">Aucun joueur ne correspond.</p></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPresets }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Presets</h1><span style="font-size:14px;color:#575C66">Formats enregistrés, réutilisables d'un tournoi à l'autre.</span></div><button onClick="{{ newPreset }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Nouveau preset</button></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+            <sc-for list="{{ presetCards }}" as="pr" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><span style="font-size:17px;font-weight:800">{{ pr.name }}</span><sc-if value="{{ pr.active }}" hint-placeholder-val="{{ false }}"><span style="flex:none;background:#E4F3EA;color:#115C38;font-size:12px;font-weight:700;border-radius:5px;padding:3px 8px">Tournoi ouvert</span></sc-if></div>
+                <span style="font-size:13px;color:#575C66;text-wrap:pretty">{{ pr.desc }}</span>
+                <div style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:8px;background-color:#F3F4F6;background-image:radial-gradient(#D1D5DB 1px,transparent 1px);background-size:14px 14px;min-height:110px">
+                  <sc-for list="{{ pr.cols }}" as="col" hint-placeholder-count="2">
+                    <sc-if value="{{ col.arrow }}" hint-placeholder-val="{{ false }}"><span style="font-size:20px;font-weight:800">→</span></sc-if>
+                    <div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ col.items }}" as="it" hint-placeholder-count="1"><span style="background:#fff;border:2px solid #16181D;border-radius:6px;padding:5px 10px;font-size:13px;font-weight:700;white-space:nowrap">{{ it }}</span></sc-for></div>
+                  </sc-for>
+                </div>
+                <span style="font-size:13px;font-weight:600">{{ pr.stat }}</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onClick="{{ pr.apply }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap;height:36px">Appliquer</button>
+                  <button onClick="{{ pr.open }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:36px">Ouvrir dans l'éditeur</button>
+                  <button onClick="{{ pr.dup }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:36px">Dupliquer</button>
+                  <button onClick="{{ pr.del }}" style="height:36px;padding:0 10px;border:none;background:none;color:#B4322A;font-weight:700;font-size:14px;margin-left:auto">Supprimer</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px;max-width:900px;width:100%;margin:0 auto">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Paramètres</h1><span style="font-size:14px;color:#575C66">Enregistrés sur ce PC, pour tous les tournois.</span></div></div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:4px 20px 6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0;border-top:none"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:800">Langue</span><span style="font-size:13px;color:#575C66">Les libellés suivent le glossaire, en français et en anglais.</span></span><div style="width:260px"><div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px"><sc-for list="{{ set.langSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;padding:0 12px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ o.label }}</button></sc-for></div></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:4px 20px 6px">
+            <div style="padding:14px 0 4px;font-size:16px;font-weight:800">Écran d'appel</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="font-size:14px">Moniteur</span><select value="{{ monitor }}" onChange="{{ setMonitor }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%;width:240px"><option value="Moniteur 2 · HDMI">Moniteur 2 · HDMI</option><option value="Moniteur 1 · intégré">Moniteur 1 · intégré</option></select></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Rotation entre poules et tableaux</span><span style="font-size:13px;color:#575C66">Durée d'affichage de chaque classement</span></span><div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden;flex:none"><button onClick="{{ set.rotDec }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:64px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ set.rotLabel }}</span><button onClick="{{ set.rotInc }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:4px 20px 6px">
+            <div style="padding:14px 0 4px;font-size:16px;font-weight:800">Table de marque</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Nom de l'opérateur</span><span style="font-size:13px;color:#575C66">Affiché dans l'historique, à chaque action</span></span><input value="{{ set.operator }}" onChange="{{ set.onOperator }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%;width:240px"></input></div>
+          </div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:4px 20px 6px">
+            <div style="padding:14px 0 4px;font-size:16px;font-weight:800">Valeurs par défaut des nouveaux tournois</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="font-size:14px">Nombre de terrains</span><div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden;flex:none"><button onClick="{{ set.dcDec }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:56px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ set.defCourts }}</span><button onClick="{{ set.dcInc }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="font-size:14px">Temps de repos minimum</span><div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden;flex:none"><button onClick="{{ set.drDec }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:72px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ set.defRestLabel }}</span><button onClick="{{ set.drInc }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="font-size:14px">Condition de victoire des poules</span><div style="width:280px"><div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px"><sc-for list="{{ set.winSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;padding:0 12px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ o.label }}</button></sc-for></div></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:4px 20px 6px">
+            <div style="padding:14px 0 4px;font-size:16px;font-weight:800">Fichiers</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Dossier des tournois</span><span style="font:500 13px 'Atkinson Hyperlegible Mono',monospace;color:#575C66">C:\Users\Table\Documents\Tournois</span></span><button onClick="{{ set.pickFolder }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:38px">Changer…</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid #ECEDF0"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px">Enregistrement automatique</span><span style="font-size:13px;color:#575C66">À chaque action, dans le fichier du tournoi</span></span><button onClick="{{ set.toggleAuto }}" style="width:44px;height:26px;flex:none;border-radius:13px;border:none;padding:0;background:{{ set.autoTrack }};position:relative"><span style="position:absolute;top:4px;left:{{ set.autoKnob }}px;width:18px;height:18px;border-radius:50%;background:#fff"></span></button></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isInfos }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Infos du tournoi</h1><span style="font-size:14px;color:#575C66">Modifiables jusqu'à la clôture.</span></div></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start">
+            <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 20px">
+              <label style="grid-column:1 / -1;display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Nom</span><input value="{{ inf.name }}" onChange="{{ inf.onName }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%;font-size:17px;font-weight:700"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Date</span><input type="date" value="{{ inf.date }}" onChange="{{ inf.onDate }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Lieu</span><input value="{{ inf.place }}" onChange="{{ inf.onPlace }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <div style="grid-column:1 / -1;display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Catégorie</span><div style="display:flex;flex-wrap:wrap;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px"><sc-for list="{{ inf.catSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;padding:0 12px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ o.label }}</button></sc-for></div><span style="font-size:12px;color:#575C66">Une seule catégorie par tournoi.</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Terrains</span><div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden;flex:none"><button onClick="{{ inf.courtsDec }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:56px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ inf.courts }}</span><button onClick="{{ inf.courtsInc }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Repos minimum</span><div style="display:flex;align-items:center;border:1px solid #CBCFD5;border-radius:8px;overflow:hidden;flex:none"><button onClick="{{ inf.restDec }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">−</button><span style="width:72px;text-align:center;font:700 15px 'Atkinson Hyperlegible Mono',monospace">{{ inf.restLabel }}</span><button onClick="{{ inf.restInc }}" style="width:38px;height:38px;border:none;background:#F3F4F6;font-size:18px;font-weight:700">+</button></div></div>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Début des matchs</span><input type="time" value="{{ inf.start }}" onChange="{{ inf.onStart }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Fin souhaitée</span><input type="time" value="{{ inf.end }}" onChange="{{ inf.onEnd }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <div style="grid-column:1 / -1;display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Partir d'un preset</span><div style="display:flex;gap:10px"><select value="{{ inf.preset }}" onChange="{{ inf.onPreset }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"><sc-for list="{{ inf.presetOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><button onClick="{{ inf.applyPreset }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Appliquer</button></div></div>
+            </div>
+            <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Estimation</span>
+              <span style="font-size:30px;font-weight:800;line-height:1">{{ est.matches }} matchs</span>
+              <span style="font-size:14px">≈ {{ est.dur }} de jeu sur {{ est.courts }} terrains, pour {{ est.n }} participants</span>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:{{ est.stBg }};color:{{ est.stFg }}"><span style="font:700 22px 'Atkinson Hyperlegible Mono',monospace">{{ est.end }}</span><span style="font-size:13px;font-weight:700">fin estimée · {{ est.status }}</span></div>
+              <button onClick="{{ goFormat }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;align-self:flex-start">Ouvrir le format</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isEntrants }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Inscrits</h1><span style="font-size:14px;color:#575C66">{{ insCount }} paires inscrites · {{ singlesCount }} joueurs sans partenaire</span></div><button onClick="{{ regImport }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Importer un CSV</button></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start">
+            <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1.2fr) 110px 130px;gap:12px;padding:10px 16px;background:#F3F4F6;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66"><span>Paire</span><span>Club</span><span>Niveau</span><span>Pointage</span></div>
+              <sc-for list="{{ insRows }}" as="r" hint-placeholder-count="8">
+                <div style="display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1.2fr) 110px 130px;gap:12px;padding:10px 16px;border-top:1px solid #ECEDF0;align-items:center;font-size:14px">
+                  <span style="font-weight:700">{{ r.names }}</span><span>{{ r.club }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ r.level }}</span>
+                  <span style="justify-self:start;font-size:12px;font-weight:700;border-radius:5px;padding:3px 8px;background:{{ r.stBg }};color:{{ r.stFg }}">{{ r.st }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:16px;font-weight:800">Former les paires</span>
+                <span style="font-size:13px;color:#575C66">Sélectionnez deux joueurs sans partenaire.</span>
+                <sc-for list="{{ singles }}" as="sg" hint-placeholder-count="3">
+                  <button onClick="{{ sg.onClick }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:1px solid {{ sg.border }};background:#fff;text-align:left">
+                    <span style="width:24px;height:24px;flex:none;border-radius:6px;border:2px solid #16181D;background:{{ sg.boxBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">{{ sg.check }}</span>
+                    <span style="display:flex;flex-direction:column;min-width:0;flex:1"><span style="font-size:14px;font-weight:700">{{ sg.name }}</span><span style="font-size:12px;color:#575C66">{{ sg.club }} · {{ sg.level }}</span></span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{ noSingles }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#575C66">Tous les inscrits ont un partenaire.</span></sc-if>
+                <button onClick="{{ formPair }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap;background:{{ pairBg }}">Former la paire</button>
+              </div>
+              <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:16px;font-weight:800">Ajouter depuis le registre</span>
+                <input value="{{ insQ }}" onInput="{{ onInsQ }}" onChange="{{ onInsQ }}" placeholder="Nom ou club" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input>
+                <sc-for list="{{ insSuggest }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="display:flex;flex-direction:column;min-width:0;flex:1"><span style="font-size:14px;font-weight:700">{{ p.name }}</span><span style="font-size:12px;color:#575C66">{{ p.club }} · {{ p.level }}</span></span><button onClick="{{ p.onAdd }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:13px">Inscrire</button></div>
+                </sc-for>
+                <sc-if value="{{ noSuggest }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#575C66">Aucun joueur disponible.</span></sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCheckin }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Pointage</h1><span style="font-size:14px;color:#575C66">Un clic sur la ligne marque la paire présente et lui attribue un dossard.</span></div>
+            <div style="display:flex;align-items:baseline;gap:8px"><span style="font:700 40px/1 'Atkinson Hyperlegible Mono',monospace">{{ ck.present }}</span><span style="font:700 24px/1 'Atkinson Hyperlegible Mono',monospace;color:#575C66">/ {{ ck.total }}</span><span style="font-size:15px;font-weight:700">présents</span></div>
+          </div>
+          <div style="height:8px;border-radius:4px;background:#E3E5E8;overflow:hidden"><div style="height:100%;background:#17784A;width:{{ ck.pct }}%"></div></div>
+          <div style="background:#FDF1DE;border:1px solid #F2C27A;border-radius:8px;padding:10px 14px;font-size:14px;color:#5C3804;text-wrap:pretty">Tirage validé à 13:52. Pointer ou retirer une paire maintenant ne modifie pas les poules : corrigez-les dans Tirage ou Phases.</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input value="{{ ckQ }}" onInput="{{ onCkQ }}" onChange="{{ onCkQ }}" placeholder="Rechercher un nom, un club ou un dossard" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%;flex:1;min-width:260px;height:52px;font-size:18px"></input>
+            <div style="width:300px"><div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px"><sc-for list="{{ ckSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;padding:0 12px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ o.label }}</button></sc-for></div></div>
+            <button onClick="{{ ckToggleAdd }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap;height:52px">Ajouter sur place</button>
+          </div>
+          <sc-if value="{{ ckAdd }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) auto auto;gap:10px;align-items:end">
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Joueur 1</span><input value="{{ ckA }}" onChange="{{ onCkA }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Joueur 2</span><input value="{{ ckB }}" onChange="{{ onCkB }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"></input></label>
+              <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Club</span><select value="{{ ckClub }}" onChange="{{ onCkClub }}" style="height:42px;border:1px solid #CBCFD5;border-radius:8px;background:#fff;padding:0 12px;font-size:15px;min-width:0;width:100%"><sc-for list="{{ clubOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+              <button onClick="{{ ckToggleAdd }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Annuler</button>
+              <button onClick="{{ ckSave }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Ajouter et marquer présent</button>
+            </div>
+          </sc-if>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+            <sc-for list="{{ ckRows }}" as="r" hint-placeholder-count="10">
+              <div onClick="{{ r.onToggle }}" style="display:grid;grid-template-columns:130px 64px minmax(0,1.6fr) minmax(0,1fr) 120px;gap:14px;align-items:center;padding:9px 16px;border-bottom:1px solid #ECEDF0;cursor:pointer;background:{{ r.bg }}" style-hover="background:#F3F4F6">
+                <span style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;flex:none;border-radius:7px;border:2px solid {{ r.boxBorder }};background:{{ r.boxBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px">{{ r.check }}</span><span style="font-weight:800;font-size:14px;color:{{ r.stFg }}">{{ r.st }}</span></span>
+                <span style="font:700 22px 'Atkinson Hyperlegible Mono',monospace">{{ r.bib }}</span>
+                <span style="font-size:16px;font-weight:700">{{ r.names }}</span>
+                <span style="font-size:14px;color:#575C66">{{ r.club }}</span>
+                <span style="font-size:13px;color:#575C66;text-align:right">{{ r.at }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ ckEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:16px;font-size:14px;color:#575C66">Aucune paire ne correspond.</p></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDraw }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Tirage</h1><span style="font-size:14px;color:#575C66">{{ ck.present }} participants présents · têtes de série #1 à #4 · séparation par club</span></div><span style="font-size:13px;font-weight:700;border-radius:6px;padding:6px 10px;background:{{ dr2.stBg }};color:{{ dr2.stFg }}">{{ dr2.status }}</span><button onClick="{{ redraw }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Relancer le tirage</button><button onClick="{{ validateDraw }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Valider le tirage</button></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:700;border-radius:6px;padding:6px 10px;background:{{ dr2.confBg }};color:{{ dr2.confFg }}">{{ dr2.confText }}</span>
+            <span style="font-size:14px;color:#575C66">Glissez une carte vers une autre poule. L'outil avertit, il ne bloque pas.</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat({{ dr2.n }},minmax(0,1fr));gap:14px">
+            <sc-for list="{{ dr2.cols }}" as="col" hint-placeholder-count="4">
+              <div onDragOver="{{ col.onOver }}" onDrop="{{ col.onDrop }}" style="background:{{ col.bg }};border:2px dashed {{ col.border }};border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:360px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font-size:18px;font-weight:800">{{ col.name }}</span><span style="font-size:13px;color:#575C66">{{ col.count }}</span></div>
+                <sc-if value="{{ col.hasWarn }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:700;color:#B4322A">{{ col.warn }}</span></sc-if>
+                <sc-for list="{{ col.cards }}" as="cd" hint-placeholder-count="4">
+                  <div draggable="true" onDragStart="{{ cd.onDrag }}" onDragEnd="{{ cd.onEnd }}" style="background:#fff;border:2px solid {{ cd.border }};border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;cursor:grab">
+                    <div style="display:flex;gap:8px;align-items:center;min-width:0"><span style="min-width:28px;height:26px;padding:0 5px;flex:none;border-radius:5px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ cd.bib }}</span><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">{{ cd.names }}</span><sc-if value="{{ cd.isSeed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;background:#FFD23F;color:#16181D;border-radius:4px;padding:2px 6px;font:700 11px 'Atkinson Hyperlegible Mono',monospace">TS{{ cd.seed }}</span></sc-if></div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#575C66">{{ cd.club }}</span><sc-if value="{{ cd.conflict }}" hint-placeholder-val="{{ false }}"><span style="background:#FDF1DE;color:#7A4A06;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:700">Même club : {{ cd.conflictWith }}</span></sc-if></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPhases }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:flex">
+          <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px;min-width:0">
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Phases</h1>
+              <div style="min-width:420px"><div style="display:flex;background:#F3F4F6;border:1px solid #E3E5E8;border-radius:8px;padding:3px;gap:3px"><sc-for list="{{ phTabs }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:34px;padding:0 12px;border:none;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:14px;white-space:nowrap">{{ o.label }}</button></sc-for></div></div>
+              <span style="margin-left:auto;display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:700">Mode correction</span><button onClick="{{ toggleCorr }}" style="width:44px;height:26px;flex:none;border-radius:13px;border:none;padding:0;background:{{ corrTrack }};position:relative"><span style="position:absolute;top:4px;left:{{ corrKnob }}px;width:18px;height:18px;border-radius:50%;background:#fff"></span></button></span>
+              <button onClick="{{ toggleHist }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:38px">{{ histBtn }}</button>
+            </div>
+            <sc-if value="{{ corr }}" hint-placeholder-val="{{ false }}"><div style="background:#FBEAE8;border:1px solid #E7B3AE;border-radius:8px;padding:10px 14px;font-size:14px;color:#6E1F18;text-wrap:pretty">Mode correction : modifiez ou effacez un score, déclarez un forfait, inversez deux matchs. Chaque action est journalisée et annulable.</div></sc-if>
+            <sc-if value="{{ phIsPools }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px">
+                <sc-for list="{{ phPools }}" as="pl" hint-placeholder-count="4">
+                  <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ECEDF0"><span style="font-size:17px;font-weight:800">{{ pl.name }}</span><span style="font-size:12px;font-weight:700;border-radius:5px;padding:3px 8px;background:{{ pl.stBg }};color:{{ pl.stFg }}">{{ pl.status }}</span></div>
+                    <div style="padding:6px 14px 10px">
+                      <div style="display:grid;grid-template-columns:28px minmax(0,1fr) 26px 26px 40px 44px;gap:8px;padding:6px 0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66"><span>Rg</span><span>Participant</span><span>J</span><span>V</span><span>Sets</span><span>Pts</span></div>
+                      <sc-for list="{{ pl.rows }}" as="r" hint-placeholder-count="4">
+                        <div style="display:grid;grid-template-columns:28px minmax(0,1fr) 26px 26px 40px 44px;gap:8px;align-items:center;padding:5px 0;border-top:1px solid #ECEDF0;font-size:14px">
+                          <span style="font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ r.rank }}</span>
+                          <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="min-width:28px;height:26px;padding:0 5px;flex:none;border-radius:5px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ r.bib }}</span><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.names }}{{ r.fTag }}</span><sc-if value="{{ corr }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onF }}" style="margin-left:auto;flex:none;height:26px;padding:0 8px;border-radius:5px;border:1px solid #E7B3AE;background:#fff;color:#B4322A;font-size:12px;font-weight:700">{{ r.fLabel }}</button></sc-if></span>
+                          <span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.j }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ r.w }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.sd }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.pd }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="background:#F8F9FA;border-top:1px solid #ECEDF0;padding:6px 14px 10px">
+                      <sc-for list="{{ pl.matches }}" as="mt" hint-placeholder-count="6">
+                        <div style="display:grid;grid-template-columns:32px 84px minmax(0,1fr) auto;gap:8px;align-items:center;padding:4px 0;font-size:13px;min-height:30px">
+                          <span style="font:500 12px 'Atkinson Hyperlegible Mono',monospace;color:#575C66">{{ mt.id }}</span><span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ mt.vs }}</span><span style="color:{{ mt.scFg }};font-weight:{{ mt.scW }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mt.score }}</span>
+                          <sc-if value="{{ corr }}" hint-placeholder-val="{{ false }}"><span style="display:flex;gap:6px"><button onClick="{{ mt.onEdit }}" style="height:26px;padding:0 8px;border-radius:5px;border:1px solid #CBCFD5;background:#fff;font-size:12px;font-weight:700">Modifier</button><sc-if value="{{ mt.canClear }}" hint-placeholder-val="{{ false }}"><button onClick="{{ mt.onClear }}" style="height:26px;padding:0 8px;border-radius:5px;border:1px solid #E7B3AE;background:#fff;color:#B4322A;font-size:12px;font-weight:700">Effacer</button></sc-if></span></sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ phIsBracket }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:14px;color:#575C66">{{ br.note }}</span>
+              <div style="display:flex;gap:28px;overflow:auto;padding-bottom:4px">
+                <sc-for list="{{ br.cols }}" as="col" hint-placeholder-count="3">
+                  <div style="display:flex;flex-direction:column;gap:14px;width:250px;flex:none">
+                    <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">{{ col.title }}</span>
+                    <div style="display:flex;flex-direction:column;justify-content:space-around;gap:14px;flex:1">
+                      <sc-for list="{{ col.matches }}" as="mt" hint-placeholder-count="2"><div style="background:#fff;border:1px solid #D6D9DE;border-radius:8px;overflow:hidden">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:#F3F4F6;font-size:12px;font-weight:700;color:#33363D"><span>{{ mt.label }}</span><sc-if value="{{ mt.canSwap }}" hint-placeholder-val="{{ false }}"><button onClick="{{ mt.onSwap }}" style="height:24px;padding:0 8px;border-radius:5px;border:1px solid #B4322A;background:#fff;color:#B4322A;font-size:12px;font-weight:700">⇅ Inverser avec le suivant</button></sc-if></div>
+                  <sc-for list="{{ mt.slots }}" as="sl" hint-placeholder-count="2"><div style="padding:7px 10px;border-top:1px solid #ECEDF0;display:flex;flex-direction:column;gap:1px;min-height:44px;justify-content:center"><span style="font-size:12px;font-weight:700;color:#575C66">{{ sl.seed }}</span><span style="font-size:14px;font-weight:600;color:{{ sl.fg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</span></div></sc-for>
+                </div></sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ br.hasPlace }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:28px;overflow:auto;padding-top:8px;border-top:1px solid #E3E5E8">
+                  <sc-for list="{{ br.pcols }}" as="col" hint-placeholder-count="2">
+                    <div style="display:flex;flex-direction:column;gap:14px;width:250px;flex:none;padding-top:12px">
+                      <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">{{ col.title }}</span>
+                      <sc-for list="{{ col.matches }}" as="mt" hint-placeholder-count="2"><div style="background:#fff;border:1px solid #D6D9DE;border-radius:8px;overflow:hidden">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:#F3F4F6;font-size:12px;font-weight:700;color:#33363D"><span>{{ mt.label }}</span><sc-if value="{{ mt.canSwap }}" hint-placeholder-val="{{ false }}"><button onClick="{{ mt.onSwap }}" style="height:24px;padding:0 8px;border-radius:5px;border:1px solid #B4322A;background:#fff;color:#B4322A;font-size:12px;font-weight:700">⇅ Inverser avec le suivant</button></sc-if></div>
+                  <sc-for list="{{ mt.slots }}" as="sl" hint-placeholder-count="2"><div style="padding:7px 10px;border-top:1px solid #ECEDF0;display:flex;flex-direction:column;gap:1px;min-height:44px;justify-content:center"><span style="font-size:12px;font-weight:700;color:#575C66">{{ sl.seed }}</span><span style="font-size:14px;font-weight:600;color:{{ sl.fg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</span></div></sc-for>
+                </div></sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+          </div>
+          <sc-if value="{{ hist }}" hint-placeholder-val="{{ true }}">
+            <aside style="width:320px;flex:none;border-left:1px solid #E3E5E8;background:#fff;display:flex;flex-direction:column;min-height:0">
+              <div style="padding:18px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #ECEDF0"><h2 style="margin:0;font-size:18px;font-weight:800">Historique</h2><button onClick="{{ undoLast }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap;height:34px;font-size:13px">Annuler la dernière</button></div>
+              <div style="flex:1;overflow:auto">
+                <sc-for list="{{ histRows }}" as="h" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;padding:10px 18px;border-bottom:1px solid #ECEDF0">
+                    <span style="font:600 13px 'Atkinson Hyperlegible Mono',monospace;color:#575C66">{{ h.t }}</span>
+                    <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;text-wrap:pretty">{{ h.text }}</span><span style="font-size:12px;color:#575C66">{{ h.who }}</span></span>
+                  </div>
+                </sc-for>
+              </div>
+            </aside>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;padding:22px 28px 28px;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:18px">
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:4px;margin-right:auto;min-width:0"><h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">Résultats</h1><span style="font-size:14px;color:#575C66">Classement intégral, de la première à la dernière place.</span></div><button onClick="{{ exportRes }}" style="height:42px;padding:0 14px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;color:#16181D;font-weight:700;font-size:14px;white-space:nowrap">Exporter le classement</button><button onClick="{{ archive }}" style="height:42px;padding:0 16px;border-radius:8px;border:none;background:#16181D;color:#fff;font-weight:700;font-size:14px;white-space:nowrap">Clôturer et archiver</button></div>
+          <div style="background:#E9F0FC;border:1px solid #B7CBF2;border-radius:8px;padding:10px 14px;font-size:14px;color:#17489E;text-wrap:pretty">Tournoi en cours : aperçu du classement à la clôture, simulé à partir des classements de poules actuels.</div>
+          <div style="background:#fff;border:1px solid #E3E5E8;border-radius:10px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:72px minmax(0,1.8fr) minmax(0,1fr) minmax(0,1.4fr);gap:14px;padding:10px 16px;background:#F3F4F6;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66"><span>Place</span><span>Participant</span><span>Club</span><span>Parcours</span></div>
+            <sc-for list="{{ resRows }}" as="r" hint-placeholder-count="10">
+              <div style="display:grid;grid-template-columns:72px minmax(0,1.8fr) minmax(0,1fr) minmax(0,1.4fr);gap:14px;padding:9px 16px;border-top:1px solid #ECEDF0;align-items:center;font-size:14px">
+                <span style="justify-self:start;min-width:44px;height:36px;padding:0 8px;border-radius:8px;background:{{ r.plBg }};display:flex;align-items:center;justify-content:center;font:700 18px 'Atkinson Hyperlegible Mono',monospace">{{ r.place }}</span>
+                <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="min-width:28px;height:26px;padding:0 5px;flex:none;border-radius:5px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Atkinson Hyperlegible Mono',monospace">{{ r.bib }}</span><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.names }}</span></span>
+                <span>{{ r.club }}</span><span style="color:#575C66">{{ r.path }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closePanel }}" style="position:absolute;inset:0;background:rgba(22,24,29,.42);display:flex;justify-content:flex-end;z-index:20">
+            <div onClick="{{ stop }}" style="width:560px;max-width:100%;height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.18)">
+              <div style="padding:18px 22px;border-bottom:1px solid #E3E5E8;display:flex;align-items:center;gap:14px">
+                <span style="width:52px;height:52px;border-radius:10px;background:{{ pn.headBg }};color:{{ pn.headFg }};display:flex;align-items:center;justify-content:center;font:700 28px/1 'Atkinson Hyperlegible Mono',monospace">{{ pn.court }}</span>
+                <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+                  <span style="font-size:20px;font-weight:800">Saisir le score · Terrain {{ pn.court }}</span>
+                  <span style="font-size:13px;color:#575C66">{{ pn.pool }} · {{ pn.id }} · {{ pn.winLabel }}</span>
+                </span>
+                <button onClick="{{ closePanel }}" style="width:40px;height:40px;border-radius:8px;border:1px solid #E3E5E8;background:#fff;font-size:20px;line-height:1" style-hover="background:#F3F4F6">×</button>
+              </div>
+              <div style="flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:22px">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) repeat({{ pn.setCount }},84px);gap:10px;align-items:center">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Camp</span>
+                  <sc-for list="{{ pn.setLabels }}" as="sl" hint-placeholder-count="1"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66;text-align:center">{{ sl }}</span></sc-for>
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border-radius:8px;background:{{ pn.aBg }}">
+                    <span style="width:36px;height:36px;flex:none;border-radius:7px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ pn.a.bib }}</span>
+                    <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pn.a.names }}</span><span style="font-size:12px;color:#575C66">{{ pn.a.club }}{{ pn.aTag }}</span></span>
+                  </div>
+                  <sc-for list="{{ pn.inA }}" as="f" hint-placeholder-count="1">
+                    <input type="number" min="0" data-si="{{ f.key }}" value="{{ f.value }}" onChange="{{ f.onChange }}" disabled="{{ pn.isWo }}" style="width:84px;height:60px;border:2px solid #CBCFD5;border-radius:8px;text-align:center;font:700 28px 'Atkinson Hyperlegible Mono',monospace;background:#fff;outline:none" style-focus="border-color:#1F5FD1;box-shadow:0 0 0 3px #E9F0FC"></input>
+                  </sc-for>
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border-radius:8px;background:{{ pn.bBg }}">
+                    <span style="width:36px;height:36px;flex:none;border-radius:7px;background:#16181D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 16px 'Atkinson Hyperlegible Mono',monospace">{{ pn.b.bib }}</span>
+                    <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pn.b.names }}</span><span style="font-size:12px;color:#575C66">{{ pn.b.club }}{{ pn.bTag }}</span></span>
+                  </div>
+                  <sc-for list="{{ pn.inB }}" as="f" hint-placeholder-count="1">
+                    <input type="number" min="0" data-si="{{ f.key }}" value="{{ f.value }}" onChange="{{ f.onChange }}" disabled="{{ pn.isWo }}" style="width:84px;height:60px;border:2px solid #CBCFD5;border-radius:8px;text-align:center;font:700 28px 'Atkinson Hyperlegible Mono',monospace;background:#fff;outline:none" style-focus="border-color:#1F5FD1;box-shadow:0 0 0 3px #E9F0FC"></input>
+                  </sc-for>
+                </div>
+
+                <sc-if value="{{ pn.showGp }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:2px solid #FFD23F;background:#FFF8DC;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                    <span style="font-size:15px;font-weight:800">Égalité au coup de sifflet — qui gagne le point en or ?</span>
+                    <div style="display:flex;gap:8px">
+                      <sc-for list="{{ pn.gpOpts }}" as="g" hint-placeholder-count="2">
+                        <button onClick="{{ g.onClick }}" style="flex:1;height:44px;border-radius:8px;border:2px solid #16181D;background:{{ g.bg }};color:{{ g.fg }};font-weight:800;font-size:15px">Point en or · #{{ g.bib }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Forfait</span>
+                  <div style="display:flex;gap:8px">
+                    <sc-for list="{{ pn.woOpts }}" as="w" hint-placeholder-count="2">
+                      <button onClick="{{ w.onClick }}" style="flex:1;height:40px;border-radius:8px;border:1px solid {{ w.border }};background:{{ w.bg }};color:{{ w.fg }};font-weight:700;font-size:14px">WO · forfait de #{{ w.bib }}</button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ pn.isWo }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:13px;color:#8A2820;text-wrap:pretty">En poule, un forfait passe tous les matchs de #{{ pn.woBib }} en WO, joués ou non. Ces matchs comptent pour l'adversaire mais sont exclus des sets et des points.</span>
+                  </sc-if>
+                </div>
+
+                <sc-for list="{{ pn.warnings }}" as="wn" hint-placeholder-count="0">
+                  <div style="background:#FDF1DE;border:1px solid #F2C27A;border-radius:8px;padding:10px 12px;font-size:13px;color:#5C3804">{{ wn }} L'outil n'empêche pas la validation.</div>
+                </sc-for>
+              </div>
+              <div style="padding:16px 22px;border-top:1px solid #E3E5E8;display:flex;flex-direction:column;gap:12px;background:#F8F9FA">
+                <div style="display:flex;align-items:center;gap:10px;min-height:28px">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#575C66">Résultat</span>
+                  <span style="font-size:15px;font-weight:700">{{ pn.result }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-size:12px;color:#575C66;display:flex;gap:10px;flex-wrap:wrap"><span><b style="font-family:'Atkinson Hyperlegible Mono',monospace">Tab</b> champ suivant</span><span><b style="font-family:'Atkinson Hyperlegible Mono',monospace">Entrée</b> valider</span><span><b style="font-family:'Atkinson Hyperlegible Mono',monospace">Échap</b> fermer</span></span>
+                  <button onClick="{{ closePanel }}" style="margin-left:auto;height:46px;padding:0 16px;border-radius:8px;border:1px solid #CBCFD5;background:#fff;font-weight:700;font-size:15px" style-hover="background:#F3F4F6">Fermer</button>
+                  <button onClick="{{ submitPanel }}" style="height:46px;padding:0 20px;border-radius:8px;border:none;background:{{ pn.submitBg }};color:#fff;font-weight:800;font-size:15px">Valider le score</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        </main>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isDisplay }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;min-height:0;background:#0B0D12;color:#fff;display:grid;grid-template-rows:auto minmax(0,1fr);padding:2vw 2.4vw;gap:1.6vw">
+    <div style="display:flex;align-items:center;gap:2vw">
+      <span style="display:flex;flex-direction:column;gap:.3vw">
+        <span style="font-size:2vw;font-weight:800">{{ tName }}</span>
+        <span style="font-size:1.2vw;color:#B9BDC6">Double mixte · Phase 1 · Poules</span>
+      </span>
+      <button onClick="{{ goDesk }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:8px;border:1px solid #3A3F4B;background:#151922;color:#B9BDC6;font-size:13px;font-weight:600" style-hover="color:#fff">Aperçu 2e fenêtre · Échap pour revenir</button>
+      <span style="font:700 3.4vw/1 'Atkinson Hyperlegible Mono',monospace">{{ clock }}</span>
+    </div>
+    <sc-if value="{{ dispTimed }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.8vw;min-height:0">
+      <div style="background:#151922;border-radius:1.2vw;padding:1.3vw 1.8vw;display:flex;flex-direction:column;gap:.5vw;min-height:0;border:.3vw solid {{ dr.border }}">
+        <span style="display:flex;align-items:center;gap:1vw;padding-bottom:.3vw"><span style="background:#FFD23F;color:#0B0D12;font-size:1.3vw;font-weight:800;letter-spacing:.1em;padding:.3vw 1vw;border-radius:.4vw">{{ dr.tag }}</span><span style="font-size:1.8vw;font-weight:800">{{ dr.title }}</span></span>
+        <sc-for list="{{ dr.rows }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:1.6vw;border-top:1px solid #262B36;padding-top:.5vw;flex:1;min-height:0">
+            <span style="display:flex;flex-direction:column;align-items:center;width:6vw;flex:none"><span style="font-size:.85vw;font-weight:800;letter-spacing:.14em;color:#FFD23F">TERRAIN</span><span style="font:700 4.2vw/0.95 'Atkinson Hyperlegible Mono',monospace;color:#FFD23F">{{ r.n }}</span></span>
+            <span style="display:flex;flex-direction:column;gap:.3vw;min-width:0;flex:1">
+              <span style="font-size:1.75vw;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="font:700 1.5vw 'Atkinson Hyperlegible Mono',monospace;background:#fff;color:#0B0D12;border-radius:.4vw;padding:0 .5vw;margin-right:.7vw">{{ r.a.bib }}</span>{{ r.a.names }}</span>
+              <span style="font-size:1.75vw;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="font:700 1.5vw 'Atkinson Hyperlegible Mono',monospace;background:#fff;color:#0B0D12;border-radius:.4vw;padding:0 .5vw;margin-right:.7vw">{{ r.b.bib }}</span>{{ r.b.names }}</span>
+            </span>
+            <span style="font-size:1.2vw;color:#B9BDC6;flex:none">{{ r.pool }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.4vw;min-height:0">
+        <div style="background:#151922;border-radius:1.2vw;padding:1.4vw 1.8vw;display:flex;flex-direction:column;align-items:center;gap:.4vw">
+          <span style="font-size:1.4vw;font-weight:800;letter-spacing:.12em;color:#B9BDC6">{{ dr.clockLabel }}</span>
+          <span style="font:700 8.5vw/1 'Atkinson Hyperlegible Mono',monospace;color:{{ dr.clockFg }}">{{ dr.clock }}</span>
+          <span style="font-size:1.3vw;color:#B9BDC6;text-align:center">{{ dr.clockSub }}</span>
+        </div>
+        <div style="flex:1;min-height:0;background:#151922;border-radius:1vw;padding:1.2vw 1.4vw;display:flex;flex-direction:column;gap:.5vw;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:1.9vw;font-weight:800">{{ rot.title }}</span>
+            <span style="display:flex;gap:.5vw"><sc-for list="{{ rot.dots }}" as="d" hint-placeholder-count="4"><span style="width:.8vw;height:.8vw;border-radius:50%;background:{{ d }}"></span></sc-for></span>
+          </div>
+          <sc-for list="{{ rot.rows }}" as="r" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:3vw minmax(0,1fr) 3vw 4.6vw;gap:.8vw;align-items:center;border-top:1px solid #262B36;padding-top:.5vw;font-size:1.4vw">
+              <span style="font:700 1.7vw 'Atkinson Hyperlegible Mono',monospace;color:#FFD23F">{{ r.rank }}</span>
+              <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#{{ r.bib }} {{ r.names }}</span>
+              <span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ r.w }} V</span>
+              <span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.pd }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ dispSets }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.8vw;min-height:0">
+      <div style="display:flex;flex-direction:column;gap:1.4vw;min-height:0">
+        <div style="flex:1;min-height:0;background:#151922;border:.3vw solid #FFD23F;border-radius:1.2vw;padding:1.8vw 2vw;display:flex;flex-direction:column;gap:1vw">
+          <span style="display:flex;align-items:center;gap:1vw"><span style="background:#FFD23F;color:#0B0D12;font-size:1.4vw;font-weight:800;letter-spacing:.1em;padding:.3vw 1vw;border-radius:.4vw">APPEL</span><span style="font-size:1.3vw;color:#B9BDC6">{{ hero.pool }} · appelé à {{ hero.t }}</span></span>
+          <div style="display:flex;align-items:center;gap:2.4vw;flex:1;min-height:0">
+            <span style="display:flex;flex-direction:column;align-items:center;flex:none">
+              <span style="font-size:1.6vw;font-weight:800;letter-spacing:.14em;color:#FFD23F">TERRAIN</span>
+              <span style="font:700 15vw/0.9 'Atkinson Hyperlegible Mono',monospace;color:#FFD23F">{{ hero.court }}</span>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:1.2vw;min-width:0">
+              <span style="display:flex;align-items:center;gap:1vw"><span style="font:700 2.4vw 'Atkinson Hyperlegible Mono',monospace;background:#fff;color:#0B0D12;border-radius:.5vw;min-width:4vw;text-align:center;padding:.2vw .6vw">{{ hero.a.bib }}</span><span style="font-size:2.6vw;font-weight:800;line-height:1.1">{{ hero.a.names }}</span></span>
+              <span style="font-size:1.4vw;color:#B9BDC6;padding-left:5vw">contre</span>
+              <span style="display:flex;align-items:center;gap:1vw"><span style="font:700 2.4vw 'Atkinson Hyperlegible Mono',monospace;background:#fff;color:#0B0D12;border-radius:.5vw;min-width:4vw;text-align:center;padding:.2vw .6vw">{{ hero.b.bib }}</span><span style="font-size:2.6vw;font-weight:800;line-height:1.1">{{ hero.b.names }}</span></span>
+            </span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.6vw">
+          <span style="font-size:1.2vw;font-weight:700;letter-spacing:.1em;color:#B9BDC6">APPELS PRÉCÉDENTS</span>
+          <sc-for list="{{ prevCalls }}" as="pc" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:1.4vw;background:#151922;border-radius:.8vw;padding:.8vw 1.2vw">
+              <span style="font:700 2.6vw/1 'Atkinson Hyperlegible Mono',monospace;color:#FFD23F;width:3.4vw;text-align:center">{{ pc.court }}</span>
+              <span style="flex:1;min-width:0;font-size:1.45vw;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#{{ pc.a.bib }} {{ pc.a.names }} — #{{ pc.b.bib }} {{ pc.b.names }}</span>
+              <span style="font:500 1.3vw 'Atkinson Hyperlegible Mono',monospace;color:#B9BDC6">{{ pc.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.4vw;min-height:0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8vw">
+          <sc-for list="{{ tiles }}" as="tl" hint-placeholder-count="6">
+            <div style="background:{{ tl.bg }};border-radius:.8vw;padding:.8vw 1vw;display:flex;gap:1vw;align-items:center;min-height:6.4vw">
+              <span style="font:700 3.6vw/1 'Atkinson Hyperlegible Mono',monospace;width:3.6vw;text-align:center">{{ tl.n }}</span>
+              <span style="display:flex;flex-direction:column;gap:.25vw;min-width:0;flex:1">
+                <span style="display:flex;justify-content:space-between;gap:.6vw"><span style="font-size:1.05vw;font-weight:800;letter-spacing:.08em;color:{{ tl.labelFg }}">{{ tl.label }}</span><span style="font:700 1.3vw 'Atkinson Hyperlegible Mono',monospace">{{ tl.time }}</span></span>
+                <span style="font-size:1.1vw;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tl.l1 }}</span>
+                <span style="font-size:1.1vw;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tl.l2 }}</span>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:1;min-height:0;background:#151922;border-radius:1vw;padding:1.2vw 1.4vw;display:flex;flex-direction:column;gap:.5vw;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:1.9vw;font-weight:800">{{ rot.title }}</span>
+            <span style="display:flex;gap:.5vw"><sc-for list="{{ rot.dots }}" as="d" hint-placeholder-count="4"><span style="width:.8vw;height:.8vw;border-radius:50%;background:{{ d }}"></span></sc-for></span>
+          </div>
+          <div style="display:grid;grid-template-columns:3vw minmax(0,1fr) 3.4vw 5vw;gap:.8vw;font-size:1vw;font-weight:700;letter-spacing:.08em;color:#B9BDC6"><span>RANG</span><span>PARTICIPANT</span><span>V</span><span>POINTS</span></div>
+          <sc-for list="{{ rot.rows }}" as="r" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:3vw minmax(0,1fr) 3.4vw 5vw;gap:.8vw;align-items:center;border-top:1px solid #262B36;padding-top:.5vw;font-size:1.45vw">
+              <span style="font:700 1.8vw 'Atkinson Hyperlegible Mono',monospace;color:#FFD23F">{{ r.rank }}</span>
+              <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#{{ r.bib }} {{ r.names }}</span>
+              <span style="font-family:'Atkinson Hyperlegible Mono',monospace;font-weight:700">{{ r.w }}</span>
+              <span style="font-family:'Atkinson Hyperlegible Mono',monospace">{{ r.pd }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:#16181D;color:#fff;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50;display:flex;gap:10px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#FFD23F"></span>{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;poolWin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;time&quot;,&quot;sets15&quot;],&quot;default&quot;:&quot;time&quot;,&quot;tsType&quot;:&quot;'time'|'sets15'&quot;,&quot;section&quot;:&quot;Démo&quot;,&quot;label&quot;:&quot;Poules : au temps 12 min (time) ou 2 sets gagnants de 15 (sets15)&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desk&quot;,&quot;format&quot;,&quot;display&quot;],&quot;default&quot;:&quot;desk&quot;,&quot;tsType&quot;:&quot;'desk'|'format'|'display'&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;restMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:10,&quot;min&quot;:0,&quot;max&quot;:30,&quot;unit&quot;:&quot;min&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Règles&quot;},&quot;showShortcuts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+const ENT={1:['C. Moreau','T. Lefèvre','BC Lyon 8'],2:['A. Garnier','L. Roux','AS Bron'],3:['M. Fontaine','J. Chevalier','US Meyzieu'],4:['E. Lambert','N. Bonnet','BC Lyon 8'],5:['H. Faure','S. Mercier','AS Bron'],6:['P. Blanc','I. Guérin','Volant Caluire'],7:['R. Muller','C. Henry','US Meyzieu'],8:['B. Rousseau','A. Nicolas','Volant Caluire'],9:['L. Perrin','M. Morin','BC Lyon 8'],10:['T. Mathieu','E. Clément','US Meyzieu'],11:['V. Gauthier','O. Dumont','AS Bron'],12:['N. Lopez','J. Fournier','Volant Caluire'],13:['G. Girard','L. André','US Meyzieu'],14:['F. Simon','A. Laurent','BC Lyon 8'],15:['D. Michel','M. Leroy','AS Bron'],16:['Y. David','C. Bertrand','Volant Caluire']};
+const FULL={1:['Camille Moreau','Thomas Lefèvre'],2:['Antoine Garnier','Léa Roux'],3:['Mathis Fontaine','Julie Chevalier'],4:['Emma Lambert','Nicolas Bonnet'],5:['Hugo Faure','Sarah Mercier'],6:['Paul Blanc','Inès Guérin'],7:['Romain Muller','Chloé Henry'],8:['Baptiste Rousseau','Anaïs Nicolas'],9:['Lucas Perrin','Manon Morin'],10:['Théo Mathieu','Élise Clément'],11:['Victor Gauthier','Océane Dumont'],12:['Noah Lopez','Jade Fournier'],13:['Gabriel Girard','Lou André'],14:['Félix Simon','Alice Laurent'],15:['David Michel','Margaux Leroy'],16:['Yanis David','Clara Bertrand']};
+const LV={};for(let b=1;b<=16;b++)LV[b]=b<=4?'P10 · P10':b<=8?'P10 · P11':b<=12?'P11 · P11':'P11 · P12';
+const CAT={sh:'Simple homme',sd:'Simple dame',dh:'Double homme',dd:'Double dame',mx:'Double mixte'};
+const LEVELS=['D9','P10','P11','P12','NC'];const CLUBS=['AS Bron','BC Lyon 8','US Meyzieu','Volant Caluire'];
+const EXTRA_PAIRS={17:['Maxime Roche','Laura Vidal','AS Bron'],18:['Julien Masson','Eva Picard','US Meyzieu']};
+const EXTRA_P=[['Arthur Robin','BC Lyon 8','P12'],['Zoé Marchand','Volant Caluire','P11'],['Louis Caron','AS Bron','NC'],['Sophie Dupuis','US Meyzieu','P12'],['Kevin Brun','BC Lyon 8','D9'],['Nina Lemaire','AS Bron','P11']];
+function buildReg(){const out=[];for(let b=1;b<=18;b++){const n=b<=16?FULL[b]:EXTRA_PAIRS[b];const club=b<=16?ENT[b][2]:EXTRA_PAIRS[b][2];const lv=(b<=16?LV[b]:'P11 · P12').split(' · ');[0,1].forEach(k=>out.push({name:n[k],club,level:lv[k],count:(b*3+k)%6+1,last:['Printemps 2026','Nuit du volant 2026',"Plume d'automne 2025"][(b+k)%3]}));}EXTRA_P.forEach(([name,club,level],i)=>out.push({name,club,level,count:i%3,last:i%3?'Printemps 2026':'—'}));const ln=x=>x.name.split(' ').slice(1).join(' ');return out.sort((a,b)=>ln(a).localeCompare(ln(b),'fr'));}
+const REG_PLAYERS=buildReg();
+const RECENT=[{name:"Plume d'automne 2026",file:'plume-automne-2026.tournoi',cat:'Double mixte',size:'18 paires · 6 terrains',status:'Jour J · en cours',st:'live'},{name:'Interclubs de décembre',file:'interclubs-decembre-2026.tournoi',cat:'Double dame',size:'10 paires inscrites',status:'Préparation',st:'prep'},{name:'Tournoi de printemps 2026',file:'printemps-2026.tournoi',cat:'Double homme',size:'24 paires · 7 terrains',status:'Clôturé · 12 avril',st:'closed'},{name:'Nuit du volant 2026',file:'nuit-du-volant-2026.tournoi',cat:'Simple dame',size:'18 joueuses · 5 terrains',status:'Clôturé · 7 février',st:'closed'},{name:"Plume d'automne 2025",file:'plume-automne-2025.tournoi',cat:'Double mixte',size:'16 paires · 6 terrains',status:'Clôturé · 18 octobre 2025',st:'closed'}];
+const PRESETS=[{id:'pr1',name:'4 poules + principal + consolante',desc:'Chaque participant joue au moins 5 matchs, classement intégral sans ex aequo.',stages:[['Poules 4 × 4'],['Principal 8','Consolante 8']],stat:'16 participants · 48 matchs · ≈ 4 h',active:true},{id:'pr2',name:'Poules de 3 + tableau unique',desc:'Format court : un seul tableau à placement complet pour les qualifiés.',stages:[['Poules 6 × 3'],['Principal 12']],stat:'18 participants · 30 matchs · ≈ 2 h 50'},{id:'pr3',name:'Tableau à placement complet',desc:'Élimination directe, toutes les places jouées.',stages:[['Tableau 16']],stat:'16 participants · 32 matchs · ≈ 3 h'},{id:'pr4',name:'Poules au temps uniquement',desc:'Une seule phase en rotations de 10 min, idéale pour une soirée découverte.',stages:[['Poules 4 × 6']],stat:'24 participants · 60 matchs · ≈ 2 h 10'}];
+const SEED_LOG=[{t:870,text:'Score saisi · Terrain 3 · B3 · 14–14 · point en or #2'},{t:864,text:'Rotation 3 lancée · 6 matchs'},{t:862,text:'Fin de la rotation 2 · 6 scores en attente'},{t:859,text:'Score saisi · Terrain 1 · A3 · 20–17'},{t:850,text:'Rotation 2 lancée · 6 matchs'},{t:835,text:'Rotation 1 lancée · 6 matchs'},{t:832,text:'Tirage validé',who:'Marc'},{t:829,text:'#6 déplacé de la poule B à la poule C',who:'Marc'},{t:821,text:'Pointage clos · 16 / 18 présents',who:'Marc'}];
+function initCheckin(){const CK=[];for(let b=1;b<=16;b++)CK.push({pid:'P'+b,names:FULL[b][0]+' / '+FULL[b][1],club:ENT[b][2],level:LV[b],bib:b,at:hm(785+b*2.3)});[17,18].forEach(b=>CK.push({pid:'P'+b,names:EXTRA_PAIRS[b][0]+' / '+EXTRA_PAIRS[b][1],club:EXTRA_PAIRS[b][2],level:'P11 · P12',bib:null,at:null}));return CK;}
+const POOLS={A:[1,8,9,16],B:[2,7,10,15],C:[3,6,11,14],D:[4,5,12,13]};
+const RR=[[0,3],[1,2],[0,2],[1,3],[0,1],[2,3]];
+const COURTS=6;
+const BASE=14*60+33+10/60;
+const ROTS=[[['A',0],['B',0],['C',0]],[['A',1],['B',1],['D',0]],[['A',2],['C',1],['D',1]]];
+const ROT_T=[835,850,864];
+const SC={A1:[[21,15]],A2:[[18,18]],B1:[[19,12]],B2:[[16,20]],C1:[[22,11]],C2:[[17,15]],A3:[[20,17]],A4:[[16,19]],B3:[[14,14]],D1:[[21,18]]};
+const GP={A2:'b',B3:'a'};
+const INIT_CALLS=[['A5',1],['A6',2],['C3',3],['C4',4],['D3',5],['D4',6]].map(([id,court])=>({id,court,t:864}));
+const TB={wins:'Nombre de victoires',h2h:'Confrontation directe',sets:'Différence de sets',points:'Différence de points',draw:'Tirage au sort'};
+const pad=n=>String(n).padStart(2,'0');
+const hm=t=>{const m=Math.floor(t+1e-6);return pad(Math.floor(m/60)%24)+':'+pad(m%60)};
+const msf=x=>{const s=Math.max(0,Math.round(x*60));return Math.floor(s/60)+':'+pad(s%60)};
+const ent=b=>b?({bib:b,names:ENT[b][0]+' / '+ENT[b][1],club:ENT[b][2]}):{bib:'',names:'',club:''};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const durTxt=m=>{m=Math.round(m);const h=Math.floor(m/60);return h?h+' h '+pad(m%60):m+' min'};
+const SC15={A1:[[15,9],[15,12]],A2:[[13,15],[15,11],[12,15]],B1:[[15,8],[15,10]],B2:[[11,15],[15,13],[9,15]],C1:[[15,6],[15,9]],C2:[[15,13],[16,14]],A3:[[15,12],[13,15],[15,11]],A4:[[10,15],[12,15]],B3:[[15,13],[15,13]],D1:[[15,12],[15,14]]};
+const SETS_COURT={A5:{court:1,start:858},A6:{court:2,start:852,ended:871},C3:{court:3,start:866},D3:{court:5,start:862},D4:{court:6,start:869}};
+function initMatches(mode){const M={};Object.keys(POOLS).forEach(P=>RR.forEach((r,i)=>{const id=P+(i+1);M[id]={id,pool:P,round:Math.floor(i/2),a:POOLS[P][r[0]],b:POOLS[P][r[1]],st:'queue'};}));
+  const sets=mode==='sets15';
+  ROTS.forEach((rot,ri)=>{let court=1;rot.forEach(([P,r])=>[1,2].forEach(k=>{const m=M[P+(r*2+k)];m.rot=ri+1;m.start=ROT_T[ri];
+    if(ri===2){if(sets){if(m.id==='C4'){m.st='done';m.s=[[15,11],[15,7]];m.end=870;}else{Object.assign(m,{st:'court'},SETS_COURT[m.id]);}}else{m.st='court';m.court=court;}}
+    else{m.end=ROT_T[ri]+12;const sc=(sets?SC15:SC)[m.id];if(sc){m.st='done';m.s=sc;m.gp=sets?null:(GP[m.id]||null);}else{m.st='pending';m.pcourt=court;}}court++;}));});return M;}
+function initState(mode){const sets=mode==='sets15';const m=initMatches(mode);const prev=clone(m);let label,calls;
+  if(sets){prev.C4={...prev.C4,st:'court',court:4,ended:870};delete prev.C4.s;delete prev.C4.end;label='Score saisi · Terrain 4 · C4 · 15–11 · 15–7';calls=[['D4',6,869],['C3',3,866],['D3',5,862],['A5',1,858],['A6',2,852]].map(([id,court,t])=>({id,court,t}));}
+  else{prev.B3={...prev.B3,st:'pending',pcourt:3};delete prev.B3.s;delete prev.B3.gp;label='Score saisi · Terrain 3 · B3 · 14–14 · point en or #2';calls=INIT_CALLS;}
+  const rot={n:3,start:864,live:!sets};const phases=clone(INIT_PHASES);if(sets)phases[0].win={type:'sets',sets:2,points:15,cap:21,minutes:12,golden:true};
+  return{matches:m,calls,forfeited:[],ack:[],rot,phases,undo:[{label,t:870,snap:{matches:prev,calls,forfeited:[],ack:[],rot}}],log:[],panel:null,poolModal:null};}
+function winLabel(w){return w.type==='time'?`Au temps · ${w.minutes} min${w.golden?' · point en or':''}`:`${w.sets===1?'1 set':w.sets+' sets gagnants'} de ${w.points}${w.cap?' · plafond '+w.cap:''}`;}
+function matchDur(w){if(w.type==='time')return w.minutes+3;const per=w.points>=21?14:w.points>=15?10:7;const exp=w.sets===1?1:w.sets===2?2.4:3.6;return per*exp+3;}
+const INIT_PHASES=[
+ {id:'p1',kind:'pools',name:'Poules',pools:4,win:{type:'time',minutes:12,golden:true,sets:1,points:21,cap:30},tb:['wins','h2h','sets','points','draw'],routing:['b1','b1','b2','b2','out','out','out','out']},
+ {id:'b1',kind:'bracket',name:'Tableau principal',win:{type:'sets',sets:2,points:21,cap:30,minutes:12,golden:true},seed:'cross',separate:true,placement:'full'},
+ {id:'b2',kind:'bracket',name:'Tableau consolante',win:{type:'sets',sets:1,points:21,cap:30,minutes:12,golden:true},seed:'cross',separate:true,placement:'full'}];
+
+class Component extends DCLogic {
+  t0=Date.now();
+  constructor(p){super(p);this.state={...initState(p.poolWin),log:SEED_LOG,screen:p.startScreen??'desk',sel:'p1',N:16,toast:null,monitor:'Moniteur 2 · HDMI',otherLabel:'',
+      infos:{name:"Plume d'automne 2026",date:'2026-10-17',place:'Gymnase Jean-Moulin, Lyon 8e',cat:'mx',start:'13:30',end:'19:00',courts:6,rest:null},
+      checkin:initCheckin(),ckQ:'',ckF:'all',ckAdd:false,ckA:'',ckB:'',ckClub:'BC Lyon 8',
+      draw:clone(POOLS),drawValidated:'13:52',dragOver:null,phTab:'pools',corr:false,hist:true,swaps:[],
+      regQ:'',regClub:'Tous',regAdd:false,regName:'',regClubSel:'BC Lyon 8',regLevel:'P11',extraPlayers:[],
+      singles:EXTRA_P.slice(0,3).map(([name,club,level])=>({name,club,level})),sel2:[],insQ:'',infPreset:null,
+      settings:{lang:'fr',rotSec:8,operator:'Julie',defCourts:6,defRest:10,defWin:'time',autosave:true},recent:RECENT,presets:PRESETS};}
+  componentDidMount(){this.iv=setInterval(()=>this.forceUpdate(),1000);this.kd=e=>this.onKey(e);window.addEventListener('keydown',this.kd);}
+  componentWillUnmount(){clearInterval(this.iv);window.removeEventListener('keydown',this.kd);clearTimeout(this.tt);}
+  componentDidUpdate(pp,ps){if(pp.poolWin!==this.props.poolWin){this.setState(initState(this.props.poolWin));return;}const p=this.state.panel;if(p&&(!ps.panel||ps.panel.id!==p.id))setTimeout(()=>{const el=document.querySelector('[data-si="a0"]');if(el){el.focus();el.select&&el.select();}},40);}
+  rest(){return this.state.infos.rest??this.props.restMinutes??10;}
+  now(){return BASE+(Date.now()-this.t0)/60000;}
+  toast(t){this.setState({toast:t});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2800);}
+  snap(){const s=this.state;return clone({matches:s.matches,calls:s.calls,forfeited:s.forfeited,ack:s.ack,rot:s.rot});}
+  act(label,fn){const now=this.now();const who=this.state.settings.operator;const before=this.snap();const next=clone(before);fn(next,now);this.setState(s=>({...next,undo:[...s.undo,{label,t:now,snap:before}].slice(-50),log:[{t:now,text:label,who},...s.log]}));}
+  undoLast(){const u=this.state.undo;if(!u.length){this.toast('Rien à annuler');return;}const last=u[u.length-1];this.setState(s=>({...clone(last.snap),undo:s.undo.slice(0,-1),log:[{t:this.now(),text:'Annulé : '+last.label},...s.log],panel:null}));this.toast('Annulé : '+last.label);}
+  pools(){return this.state.phases.find(p=>p.kind==='pools');}
+  isF(b){return this.state.forfeited.includes(b);}
+  outcome(m){if(m.wo)return{w:m.wo==='a'?'b':'a',wo:true};const sw=[0,0],pt=[0,0];(m.s||[]).forEach(([x,y])=>{if(x==null||y==null)return;pt[0]+=x;pt[1]+=y;if(x>y)sw[0]++;else if(y>x)sw[1]++;});let w=sw[0]>sw[1]?'a':sw[1]>sw[0]?'b':(m.gp||null);if(!w)return null;return{w,sw,pt};}
+  scoreTxt(m){if(m.wo)return'WO';return(m.s||[]).map(s=>s[0]+'–'+s[1]).join(' · ')+(m.gp?' · point en or #'+(m.gp==='a'?m.a:m.b):'');}
+  standings(P){const ms=Object.values(this.state.matches).filter(m=>m.pool===P);const R={};POOLS[P].forEach(b=>R[b]={b,w:0,sd:0,pd:0});
+    ms.forEach(m=>{const fa=this.isF(m.a),fb=this.isF(m.b);if(fa||fb){if(fa&&fb)return;R[fa?m.b:m.a].w++;return;}if(m.st!=='done')return;const o=this.outcome(m);if(!o)return;const W=o.w==='a'?m.a:m.b,L=o.w==='a'?m.b:m.a;R[W].w++;if(o.sw){const i=o.w==='a'?0:1;R[W].sd+=o.sw[i]-o.sw[1-i];R[L].sd-=o.sw[i]-o.sw[1-i];R[W].pd+=o.pt[i]-o.pt[1-i];R[L].pd-=o.pt[i]-o.pt[1-i];}});
+    const tb=this.pools().tb;const h2h=(x,y)=>{const m=ms.find(m=>(m.a===x.b&&m.b===y.b)||(m.a===y.b&&m.b===x.b));if(!m||m.st!=='done')return 0;const o=this.outcome(m);if(!o)return 0;const W=o.w==='a'?m.a:m.b;return W===x.b?-1:1;};
+    return Object.values(R).sort((x,y)=>{const f=(this.isF(x.b)?1:0)-(this.isF(y.b)?1:0);if(f)return f;for(const k of tb){const d=k==='wins'?y.w-x.w:k==='h2h'?h2h(x,y):k==='sets'?y.sd-x.sd:k==='points'?y.pd-x.pd:x.b-y.b;if(d)return d;}return 0;});}
+  poolDone(P){return Object.values(this.state.matches).filter(m=>m.pool===P).every(m=>m.st==='done'||this.isF(m.a)||this.isF(m.b));}
+  routeName(d){const p=this.state.phases.find(p=>p.id===d);return p?p.name:'Éliminé';}
+  routingSummary(){const r=this.pools().routing.slice(0,4);const g=[];r.forEach((d,i)=>{const L=g[g.length-1];if(L&&L.d===d)L.to=i+1;else g.push({d,from:i+1,to:i+1});});return g.map(x=>(x.from===x.to?'Rang '+x.from:'Rangs '+x.from+'–'+x.to)+' → '+this.routeName(x.d)).join(' · ');}
+
+  desk(now){
+    const {matches,rot}=this.state;const rest=this.rest();const win=this.pools().win;const timed=win.type==='time';const dur=win.minutes;
+    const all=Object.values(matches);const onCourt={};all.filter(m=>m.st==='court').forEach(m=>onCourt[m.court]=m);
+    const cst=n=>{const m=onCourt[n];if(!m)return'free';if(timed)return'playing';return m.ended!=null?'waiting':'playing';};
+    const queued=all.filter(m=>m.st==='queue'&&!this.isF(m.a)&&!this.isF(m.b)).sort((x,y)=>x.round-y.round||x.pool.localeCompare(y.pool)||x.id.localeCompare(y.id));
+    const prop={},propFor={};let why,restQ=null;const nextN=rot.n+1;
+    if(timed){
+      const lastRot={};all.forEach(m=>{if(m.rot&&m.st!=='queue')[m.a,m.b].forEach(b=>lastRot[b]=Math.max(lastRot[b]||0,m.rot));});
+      const sc=q=>[q.a,q.b].filter(b=>lastRot[b]===rot.n).length;const cand=[...queued].sort((x,y)=>sc(x)-sc(y));
+      const used=new Set();const free=[];for(let n=1;n<=this.state.infos.courts;n++)if(rot.live||!onCourt[n])free.push(n);
+      for(const q of cand){if(!free.length)break;if(used.has(q.a)||used.has(q.b))continue;const c=free.shift();prop[c]=q;propFor[q.id]=c;used.add(q.a);used.add(q.b);}
+      why=q=>{if(propFor[q.id])return null;const b=[q.a,q.b].find(b=>used.has(b));return{kind:'busy',text:b?`#${b} joue déjà dans la rotation ${nextN}`:`Plus de terrain dans la rotation ${nextN}`};};
+    }else{
+      const busy={};all.filter(m=>m.st==='court'&&m.ended==null).forEach(m=>[m.a,m.b].forEach(b=>busy[b]={court:m.court}));
+      const lastEnd={};const setEnd=(b,t)=>{lastEnd[b]=Math.max(lastEnd[b]||0,t);};
+      all.forEach(m=>{if(m.st==='done'||m.st==='pending')[m.a,m.b].forEach(b=>setEnd(b,m.end));else if(m.st==='court'&&m.ended!=null)[m.a,m.b].forEach(b=>setEnd(b,m.ended));});
+      why=m=>{for(const b of[m.a,m.b])if(busy[b])return{kind:'busy',text:`#${b} joue sur le terrain ${busy[b].court}`};let wr=null;for(const b of[m.a,m.b]){const le=lastEnd[b];if(le!=null&&now-le<rest){const r=le+rest;if(!wr||r>wr.ready)wr={b,ready:r,since:now-le};}}if(wr)return{kind:'rest',ready:wr.ready,text:`#${wr.b} en repos depuis ${Math.floor(wr.since)} min · prêt à ${hm(wr.ready+.999)}`};return null;};
+      const usedB=new Set();
+      for(let n=1;n<=this.state.infos.courts;n++)if(cst(n)!=='playing'){const m=queued.find(q=>!propFor[q.id]&&!why(q)&&!usedB.has(q.a)&&!usedB.has(q.b));if(m){prop[n]=m;propFor[m.id]=n;usedB.add(m.a);usedB.add(m.b);}}
+      restQ=queued.filter(q=>!propFor[q.id]).map(q=>({q,r:why(q)})).filter(x=>x.r&&x.r.kind==='rest').sort((x,y)=>x.r.ready-y.r.ready)[0]||null;
+    }
+    const courts=[];for(let n=1;n<=this.state.infos.courts;n++){const st=cst(n);const cur=onCourt[n],nx=prop[n];const m=st==='free'?nx:cur;
+      const c={n,timed,showTimer:!timed&&st==='playing',isPlaying:st==='playing',isWaiting:st==='waiting',isFree:st==='free',pool:m?'Poule '+m.pool:'',mid:m?m.id:'',a:ent(m&&m.a),b:ent(m&&m.b),hasProposal:!!nx,noProposal:!nx,canCall:!timed,
+        propLabel:nx?(timed?`Rotation ${nextN} · ${nx.id}`:`Match proposé · ${nx.id}`):'',rotNote:`Sera lancé avec la rotation ${nextN}`,
+        na:ent(nx&&nx.a),nb:ent(nx&&nx.b),nid:nx?nx.id+' · Poule '+nx.pool:'',nextBg:nx?'#17784A':'#9CA3AF',
+        onOpen:()=>cur&&st==='playing'&&this.openPanel(cur.id),onScore:e=>{e&&e.stopPropagation();cur&&this.openPanel(cur.id);},onCall:e=>{e&&e.stopPropagation();nx&&this.call(n,nx.id);},onEnd:e=>{e&&e.stopPropagation();cur&&this.endMatch(n);}};
+      if(st==='playing'){if(timed)c.foot=`Rotation ${cur.rot} · lancée à ${hm(cur.start)} · cliquer pour saisir le score`;else c.timeBig=msf(now-cur.start);}
+      if(st==='waiting')c.endAt=hm(cur.ended);
+      if(!nx)c.nextText=timed?`Pas de match prévu ici dans la rotation ${nextN}.`:(restQ?`Prochain prêt à ${hm(restQ.r.ready+.999)} : #${restQ.q.a} contre #${restQ.q.b} (${restQ.q.id}).`:'Aucun match prêt : les participants restants jouent ou se reposent.');
+      courts.push(c);}
+    const queue=queued.map(q=>{const r=why(q);const pc=propFor[q.id];return{id:q.id,pool:'Poule '+q.pool,a:ent(q.a),b:ent(q.b),notReady:!pc&&!!r,reason:r?r.text:'',dot:r&&r.kind==='rest'?'#F2A93B':'#1F5FD1',
+      status:pc?(timed?`Rotation ${nextN} · terrain ${pc}`:'Proposé · terrain '+pc):r?(r.kind==='rest'?'En repos':timed?'Plus tard':'Occupé'):'Prêt',statusBg:pc?'#E4F3EA':r?'#F3F4F6':'#E4F3EA',statusFg:pc?'#115C38':r?'#575C66':'#115C38'};});
+    const pending=all.filter(m=>m.st==='pending').sort((x,y)=>x.end-y.end).map(m=>{const ago=Math.floor(now-m.end);return{id:m.id,court:m.pcourt,pool:'Poule '+m.pool,a:ent(m.a),b:ent(m.b),since:'fini à '+hm(m.end)+' · il y a '+ago+' min',border:ago>=10?'#E7B3AE':'#F2C27A',onClick:()=>this.openPanel(m.id)};});
+    const alerts=[];
+    Object.keys(POOLS).forEach(P=>{if(this.poolDone(P)&&!this.state.ack.includes(P))alerts.push({title:`Poule ${P} terminée`,text:this.routingSummary()+'. Vérifiez le classement avant le passage de phase.',action:'Vérifier le classement',onClick:()=>this.setState({poolModal:P}),bg:'#E9F0FC',border:'#B7CBF2',fg:'#17489E'});});
+    return{courts,queue,alerts,prop,onCourt,cst,timed,win,pending,nextN,dur};
+  }
+  endMatch(n){const m=Object.values(this.state.matches).find(m=>m.st==='court'&&m.court===n);if(!m)return;this.act(`Terrain ${n} : fin du match ${m.id}`,(s,now)=>{s.matches[m.id].ended=now;});}
+  endRotation(){const R=this.state.rot;if(!R.live)return;const dur=this.pools().win.minutes;const k=Object.values(this.state.matches).filter(m=>m.st==='court').length;
+    this.act(`Fin de la rotation ${R.n} · ${k} scores en attente`,(s,now)=>{Object.values(s.matches).filter(m=>m.st==='court').forEach(m=>{m.st='pending';m.pcourt=m.court;m.end=Math.min(now,m.start+dur);delete m.court;});s.rot.live=false;});this.toast(`Rotation ${R.n} terminée · ${k} scores à saisir`);}
+  launchRotation(){const R=this.state.rot;if(R.live)return;const D=this.desk(this.now());const ent_=Object.entries(D.prop);if(!ent_.length){this.toast('Aucun match à lancer');return;}const n=R.n+1;
+    this.act(`Rotation ${n} lancée · ${ent_.length} matchs`,(s,now)=>{ent_.forEach(([c,q])=>{const m=s.matches[q.id];m.st='court';m.court=+c;m.start=now;m.rot=n;s.calls.unshift({id:q.id,court:+c,t:now});});s.rot={n,start:now,live:true};});this.toast(`Rotation ${n} affichée sur l'écran d'appel`);}
+  call(n,id){const prev=Object.values(this.state.matches).find(m=>m.st==='court'&&m.court===n);this.act(prev?`Terrain ${n} : ${id} appelé · ${prev.id} en attente de score`:`Match appelé · Terrain ${n} · ${id}`,(s,now)=>{if(prev){const p=s.matches[prev.id];p.st='pending';p.pcourt=n;p.end=p.ended!=null?p.ended:now;delete p.ended;delete p.court;}const m=s.matches[id];m.st='court';m.court=n;m.start=now;s.calls.unshift({id,court:n,t:now});});this.toast(`Terrain ${n} affiché sur l'écran d'appel`);}
+  courtAction(n){const d=this.desk(this.now());const c=d.courts[n-1];if(!c)return;const cur=d.onCourt[n];if(d.timed){if(cur)this.openPanel(cur.id);return;}if(c.isPlaying)this.endMatch(n);else if(d.prop[n])this.call(n,d.prop[n].id);else if(c.isWaiting)this.openPanel(cur.id);}
+  setCount(){const w=this.pools().win;return w.type==='time'?1:w.sets*2-1;}
+  openPanel(id){const m=this.state.matches[id];const k=this.setCount();const sets=Array.from({length:k},(_,i)=>m.s&&m.s[i]?[String(m.s[i][0]),String(m.s[i][1])]:['','']);this.setState({panel:{id,sets,gp:m.gp||null,wo:m.wo||null}});}
+  panelCalc(){const p=this.state.panel;if(!p)return null;const m=this.state.matches[p.id];const w=this.pools().win;const timed=w.type==='time';
+    const num=v=>v===''?null:parseInt(v,10);const sets=p.sets.map(s=>[num(s[0]),num(s[1])]);const warnings=[];let winner=null,showGp=false;
+    if(p.wo)winner=p.wo==='a'?'b':'a';
+    else if(timed){const[x,y]=sets[0];if(x!=null&&y!=null){if(x===y){showGp=true;winner=p.gp;}else winner=x>y?'a':'b';if(Math.max(x,y)>Math.round(w.minutes*2.6))warnings.push(`Score inhabituel pour un match de ${w.minutes} min.`);}}
+    else{const sw=[0,0];sets.forEach(([x,y],i)=>{if(x==null||y==null)return;if(w.cap&&Math.max(x,y)>w.cap)warnings.push(`Set ${i+1} au-dessus du plafond (${w.cap}).`);else if(Math.max(x,y)<w.points)warnings.push(`Set ${i+1} : ${w.points} points non atteints.`);if(x>y)sw[0]++;else if(y>x)sw[1]++;});if(sw[0]>=w.sets)winner='a';else if(sw[1]>=w.sets)winner='b';}
+    return{m,sets,timed,winner,showGp,warnings,can:!!winner};}
+  submitPanel(){const pc=this.panelCalc();if(!pc||!pc.can)return;const p=this.state.panel;const m=pc.m;const court=m.court||m.pcourt||'—';const pw=this.pools().win;
+    const s=p.wo?null:pc.sets.filter(x=>x[0]!=null&&x[1]!=null);const fb=p.wo?(p.wo==='a'?m.a:m.b):null;
+    const txt=p.wo?'WO':s.map(x=>x[0]+'–'+x[1]).join(' · ')+(pc.showGp?' · point en or #'+(p.gp==='a'?m.a:m.b):'');
+    const label=p.wo?`Forfait déclaré · #${fb} · Poule ${m.pool}`:`Score saisi · Terrain ${court} · ${m.id} · ${txt}`;
+    this.act(label,(n,now)=>{const x=n.matches[m.id];const wasP=x.st==='pending';x.s=s;x.gp=pc.showGp?p.gp:null;x.wo=p.wo;x.end=wasP?x.end:(x.ended!=null?x.ended:(pw.type==='time'&&x.start?Math.min(now,x.start+pw.minutes):now));delete x.ended;x.st='done';delete x.court;delete x.pcourt;if(fb&&!n.forfeited.includes(fb))n.forfeited.push(fb);});
+    this.setState({panel:null});this.toast(label);}
+  onKey(e){const s=this.state;const tag=(e.target&&e.target.tagName)||'';
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&tag!=='INPUT'){e.preventDefault();this.undoLast();return;}
+    if(s.screen==='display'&&e.key==='Escape'){this.setState({screen:'desk'});return;}
+    if(s.panel){if(e.key==='Enter'){e.preventDefault();this.submitPanel();}else if(e.key==='Escape')this.setState({panel:null});return;}
+    if(s.poolModal&&e.key==='Escape'){this.setState({poolModal:null});return;}
+    if(s.screen!=='desk'||['INPUT','SELECT','TEXTAREA'].includes(tag)||e.ctrlKey||e.metaKey||e.altKey)return;const dm=/^(Digit|Numpad)([1-9])$/.exec(e.code||'');if(dm){e.preventDefault();this.courtAction(+dm[2]);return;}if(e.code==='KeyL'&&this.pools().win.type==='time'){e.preventDefault();this.launchRotation();return;}if(e.code==='KeyF'&&this.pools().win.type==='time'){e.preventDefault();this.endRotation();return;}if(e.code==='KeyS'){const p=this.desk(this.now()).pending[0];if(p){e.preventDefault();p.onClick();}}}
+
+  fcalc(){const{phases,N}=this.state;const pp=phases.find(p=>p.kind==='pools');const brs=phases.filter(p=>p.kind==='bracket');const P=pp.pools;
+    const base=Math.floor(N/P),extra=N%P,maxSize=base+(extra?1:0);const sizes=Array.from({length:P},(_,i)=>base+(i<extra?1:0));
+    const poolMatches=sizes.reduce((a,k)=>a+k*(k-1)/2,0);const poolRounds=maxSize%2===0?maxSize-1:maxSize;const cnt=r=>sizes.filter(k=>k>=r).length;
+    const br={};brs.forEach(b=>br[b.id]={ranks:[],n:0});let outN=0;const outRanks=[];
+    for(let r=1;r<=maxSize;r++){const d=pp.routing[r-1]||'out';if(br[d]){br[d].ranks.push(r);br[d].n+=cnt(r);}else{outN+=cnt(r);outRanks.push(r);}}
+    const ordered=brs.filter(b=>br[b.id].n>0).sort((x,y)=>Math.min(...br[x.id].ranks)-Math.min(...br[y.id].ranks));let place=1;const info={};
+    ordered.forEach(b=>{const n=br[b.id].n;const size=n<2?n:Math.pow(2,Math.ceil(Math.log2(n)));const rounds=n<2?0:Math.log2(size);const byes=size-n;const matches=n<2?0:Math.max(0,(b.placement==='full'?size/2*rounds:size-1)-byes);info[b.id]={n,size,rounds,byes,matches,from:place,to:place+n-1,ranks:br[b.id].ranks};place+=n;});
+    brs.forEach(b=>{if(!info[b.id])info[b.id]={n:0,size:0,rounds:0,byes:0,matches:0,ranks:[]};});
+    return{pp,brs,sizes,base,maxSize,poolMatches,poolRounds,cnt,info,outN,outRanks,outFrom:place};}
+  upd(fn){this.setState(s=>({phases:s.phases.map(p=>p.id===s.sel?fn(clone(p)):p)}));}
+  seg(opts,cur,pick){return opts.map(([v,l])=>({label:l,onClick:()=>pick(v),bg:v===cur?'#16181D':'transparent',fg:v===cur?'#fff':'#16181D'}));}
+  rangeTxt(r){const g=[];r.forEach(x=>{const L=g[g.length-1];if(L&&L[1]===x-1)L[1]=x;else g.push([x,x]);});const t=g.map(([a,b])=>a===b?a:a+'–'+b).join(', ');return(r.length>1?'Rangs ':'Rang ')+t;}
+
+  renderVals(){
+    const s=this.state;const now=this.now();const scr=s.screen;
+    const D=this.desk(now);const pp=this.pools();
+    const last=s.undo[s.undo.length-1];
+    const navItem=(key,label,sub,done,screen)=>{const active=scr===screen;const current=key==='desk';return{label,sub,onClick:()=>this.setState({screen,otherLabel:label}),bg:active?'#fff':'transparent',border:active?'#CBCFD5':'transparent',weight:active||current?800:600,mark:done?'✓':'',markBg:done?'#16181D':current?'#1F5FD1':'transparent',markFg:'#fff',markBorder:done?'#16181D':current?'#1F5FD1':'#9CA3AF'};};
+    const played=Object.values(s.matches).filter(m=>m.st==='done').length;
+    const ckP=s.checkin.filter(c=>c.at).length;
+    const prepItems=[navItem('infos','Infos',s.infos.courts+' terrains · repos '+this.rest()+' min',true,'infos'),navItem('ins','Inscrits',s.checkin.length+' paires',true,'entrants'),navItem('format','Format','Poules → 2 tableaux',true,'format')];
+    const dayItems=[navItem('check','Pointage',ckP+' / '+s.checkin.length+' présents',true,'checkin'),navItem('draw','Tirage',s.drawValidated?'Validé à '+s.drawValidated:'À valider',!!s.drawValidated,'draw'),navItem('desk','Table de marque','En cours',false,'desk'),navItem('phases','Phases',`Poules · ${played} / 24 matchs`,false,'phases'),navItem('res','Résultats','Après la clôture',false,'results')];
+    const base={isApp:scr!=='display',isDisplay:scr==='display',isDesk:scr==='desk',isFormat:scr==='format',isOther:scr==='other',otherLabel:s.otherLabel,
+      clock:hm(now),lastAction:last?last.label:'Aucune action à annuler',lastActionTime:last?hm(last.t):'—',undoLast:()=>this.undoLast(),
+      monitor:s.monitor,setMonitor:e=>this.setState({monitor:e.target.value}),showDisplay:()=>this.setState({screen:'display'}),goDesk:()=>this.setState({screen:'desk'}),
+      prepItems,dayItems,stop:e=>e.stopPropagation(),hasToast:!!s.toast,toast:s.toast||'',showKeys:this.props.showShortcuts??true,
+      restMin:this.rest(),winLabel:winLabel(pp.win)};
+    Object.assign(base,{courts:D.courts,queue:D.queue,queueCount:D.queue.length,alerts:D.alerts,alertCount:D.alerts.length,noAlerts:!D.alerts.length,
+      countPlaying:D.courts.filter(c=>c.isPlaying).length,countFree:D.courts.filter(c=>c.isFree).length,countWaiting:D.courts.filter(c=>c.isWaiting).length,
+      pending:D.pending,pendingCount:D.pending.length,noPending:!D.pending.length,closePanel:()=>this.setState({panel:null}),submitPanel:()=>this.submitPanel()});
+    const pc=this.panelCalc();base.panelOpen=!!pc;
+    if(pc){const p=s.panel,m=pc.m;const setP=fn=>this.setState(st=>({panel:fn(clone(st.panel))}));
+      const inp=side=>p.sets.map((v,i)=>({key:side+i,value:v[side==='a'?0:1],onChange:e=>{const val=e.target.value;setP(q=>{q.sets[i][side==='a'?0:1]=val;return q;});}}));
+      const cs=(m.st==='pending'||m.ended!=null)?'waiting':D.cst(m.court);
+      base.pn={id:m.id,court:m.court||m.pcourt||'—',pool:'Poule '+m.pool,winLabel:winLabel(pp.win),a:ent(m.a),b:ent(m.b),setCount:p.sets.length,setLabels:pc.timed?['Score']:p.sets.map((_,i)=>'Set '+(i+1)),
+        inA:inp('a'),inB:inp('b'),isWo:!!p.wo,woBib:p.wo?(p.wo==='a'?m.a:m.b):'',showGp:pc.showGp&&!p.wo,warnings:p.wo?[]:pc.warnings,
+        headBg:cs==='waiting'?'#F2A93B':'#1F5FD1',headFg:cs==='waiting'?'#16181D':'#fff',
+        aBg:pc.winner==='a'?'#E4F3EA':'#F3F4F6',bBg:pc.winner==='b'?'#E4F3EA':'#F3F4F6',aTag:pc.winner==='a'?' · vainqueur':p.wo==='a'?' · forfait':'',bTag:pc.winner==='b'?' · vainqueur':p.wo==='b'?' · forfait':'',
+        gpOpts:['a','b'].map(k=>({bib:m[k],onClick:()=>setP(q=>{q.gp=q.gp===k?null:k;return q;}),bg:p.gp===k?'#16181D':'#fff',fg:p.gp===k?'#fff':'#16181D'})),
+        woOpts:['a','b'].map(k=>({bib:m[k],onClick:()=>setP(q=>{q.wo=q.wo===k?null:k;return q;}),bg:p.wo===k?'#B4322A':'#fff',fg:p.wo===k?'#fff':'#B4322A',border:p.wo===k?'#B4322A':'#E7B3AE'})),
+        result:pc.winner?(p.wo?'WO — ':'')+'Vainqueur #'+m[pc.winner]+' '+ent(m[pc.winner]).names:pc.showGp?'Égalité : choisissez le point en or':'Saisissez le score',
+        submitBg:pc.can?'#16181D':'#9CA3AF'};}
+    base.poolModalOpen=!!s.poolModal;
+    if(s.poolModal){const P=s.poolModal;const rows=this.standings(P);base.pm={title:'Poule '+P,tb:pp.tb.map(k=>TB[k]).join(' › '),rows:rows.map((r,i)=>({rank:i+1,bib:r.b,names:ent(r.b).names+(this.isF(r.b)?' (forfait)':''),w:r.w,sd:(r.sd>0?'+':'')+r.sd,pd:(r.pd>0?'+':'')+r.pd,dest:this.routeName(pp.routing[i]||'out')}))};
+      base.closePoolModal=()=>this.setState({poolModal:null});base.ackPool=()=>{this.act(`Classement Poule ${P} validé`,n=>{n.ack.push(P);});this.setState({poolModal:null});this.toast(`Poule ${P} validée · tableaux mis à jour`);};}
+    else{base.pm={rows:[]};base.closePoolModal=()=>{};base.ackPool=()=>{};}
+
+    const R=s.rot;const pwin=pp.win;const left=R.start+pwin.minutes-now;const nProp=Object.keys(D.prop).length;const nOn=Object.keys(D.onCourt).length;
+    base.timedMode=D.timed;base.modeNote=D.timed?'par rotations, tous les terrains ensemble':'repos minimum '+this.rest()+' min';
+    base.keyHint=D.timed?"Saisir le score d'un terrain · L lancer la rotation · F siffler la fin":'Terminer le match en cours, puis lancer le suivant';
+    if(R.live&&left>0)base.rb={bg:'#1F5FD1',fg:'#fff',subFg:'#D6E3FA',kicker:`Rotation ${R.n} · en cours`,title:`${nOn} matchs en jeu`,showClock:true,clockLabel:'Fin dans',clock:msf(left),sub:'coup de sifflet à '+hm(R.start+pwin.minutes),btn:'Siffler la fin',key:'F',btnBg:'#fff',btnFg:'#16181D',onClick:()=>this.endRotation()};
+    else if(R.live)base.rb={bg:'#F2A93B',fg:'#16181D',subFg:'#3D2803',kicker:`Rotation ${R.n} · temps écoulé`,title:'Sifflez la fin des matchs',showClock:true,clockLabel:'Écoulé depuis',clock:msf(-left),sub:'les scores passeront en attente',btn:`Fin de la rotation ${R.n}`,key:'F',btnBg:'#16181D',btnFg:'#fff',onClick:()=>this.endRotation()};
+    else base.rb={bg:'#17784A',fg:'#fff',subFg:'#CDEBD9',kicker:`Rotation ${R.n+1} · prête`,title:nProp?`${nProp} matchs proposés sur ${this.state.infos.courts} terrains`:'Aucun match à lancer',showClock:false,clockLabel:'',clock:'',sub:D.pending.length?`${D.pending.length} scores restent à saisir, possible pendant la rotation`:'Vérifiez les terrains puis lancez',btn:`Lancer la rotation ${R.n+1}`,key:'L',btnBg:'#fff',btnFg:'#115C38',onClick:()=>this.launchRotation()};
+    base.dispTimed=D.timed;base.dispSets=!D.timed;
+    const rowsOf=src=>Object.keys(src).sort((a,b)=>a-b).map(n=>{const m=src[n];return{n,pool:'Poule '+m.pool,a:ent(m.a),b:ent(m.b)};});const fresh=R.live&&now-R.start<1.5;
+    base.dr=R.live?{tag:fresh?'APPEL':'EN COURS',title:`Rotation ${R.n}`,rows:rowsOf(D.onCourt),border:fresh?'#FFD23F':'#262B36',clockLabel:left>0?'FIN DANS':'TEMPS ÉCOULÉ',clock:left>0?msf(left):'0:00',clockFg:left>0?'#FFD23F':'#FF8A7A',clockSub:left>0?'Coup de sifflet à '+hm(R.start+pwin.minutes):'Fin des matchs'}
+      :{tag:'À SUIVRE',title:`Rotation ${R.n+1} · en préparation`,rows:rowsOf(D.prop),border:'#262B36',clockLabel:'ROTATION SUIVANTE',clock:'Bientôt',clockFg:'#fff',clockSub:"Rejoignez votre terrain dès l'appel"};
+    // display
+    const c0=s.calls[0];const mc=c0&&s.matches[c0.id];
+    base.hero=mc?{court:c0.court,t:hm(c0.t),pool:'Poule '+mc.pool,a:ent(mc.a),b:ent(mc.b)}:{court:'–',t:'',pool:'',a:ent(),b:ent()};
+    base.prevCalls=s.calls.slice(1,4).map(c=>{const m=s.matches[c.id];return{court:c.court,t:hm(c.t),a:ent(m.a),b:ent(m.b)};});
+    base.tiles=D.courts.map(c=>({n:c.n,bg:c.isPlaying?'#16306B':c.isWaiting?'#4A3206':'#0F3A25',labelFg:c.isPlaying?'#AFC8F7':c.isWaiting?'#FFD38A':'#9FE0BC',label:c.isPlaying?'EN COURS':c.isWaiting?'FIN DU MATCH':'LIBRE',time:c.isPlaying?c.timeBig:'',l1:c.isFree?(c.hasProposal?'Bientôt : #'+c.a.bib+' '+c.a.names:''):'#'+c.a.bib+' '+c.a.names,l2:c.isFree?(c.hasProposal?'contre #'+c.b.bib+' '+c.b.names:''):'#'+c.b.bib+' '+c.b.names}));
+    const keys=Object.keys(POOLS);const ri=Math.floor((Date.now()-this.t0)/(this.state.settings.rotSec*1000))%keys.length;const RP=keys[ri];
+    base.rot={title:'Poule '+RP+' · classement',dots:keys.map((_,i)=>i===ri?'#FFD23F':'#3A3F4B'),rows:this.standings(RP).map((r,i)=>({rank:i+1,bib:r.b,names:ent(r.b).names,w:r.w,pd:(r.pd>0?'+':'')+r.pd}))};
+
+    // format
+    const F=this.fcalc();const sel=s.phases.find(p=>p.id===s.sel)||pp;
+    const W=220,H=140,PX=20,BX=350;const nb=F.brs.length;const by=i=>30+i*170;const midY=nb?(by(0)+by(nb-1))/2:30;
+    const nodes=[],edges=[],edgeLabels=[];
+    const outWarn=F.outN?`${this.rangeTxt(F.outRanks)} : ${F.outN} éliminés`:'';
+    nodes.push({id:pp.id,x:PX,y:midY,kicker:'Phase 1 · Poules',title:`${pp.pools} poules de ${F.sizes.every(k=>k===F.base)?F.base:F.base+' à '+(F.base+1)}`,lines:[winLabel(pp.win),`${F.poolMatches} matchs · ${F.poolRounds} tours`],hasWarn:!!outWarn,warn:outWarn});
+    F.brs.forEach((b,i)=>{const I=F.info[b.id];const y=by(i);
+      nodes.push({id:b.id,x:BX,y,kicker:`Phase ${i+2} · Tableau`,title:b.name,lines:I.n?[`${I.n} participants${I.byes?' · '+I.byes+' exempts':''}`,winLabel(b.win)]:['Aucun participant routé'],hasWarn:!!I.n,warn:I.n?(b.placement==='full'?`Places ${I.from}–${I.to}`:`Places ${I.from}–${I.to} · ex aequo par tour`):''});
+      if(I.n){const y1=midY+H/2,y2=y+H/2;edges.push({d:`M${PX+W} ${y1} C ${PX+W+60} ${y1}, ${BX-60} ${y2}, ${BX} ${y2}`});edgeLabels.push({x:(PX+W+BX)/2,y:(y1+y2)/2,text:this.rangeTxt(I.ranks)});
+        const ty=midY+H/2;edges.push({d:`M${BX+W} ${y2} C ${BX+W+40} ${y2}, 610 ${ty}, 650 ${ty}`});edgeLabels.push({x:(BX+W+650)/2,y:(y2+ty)/2,text:I.from+'–'+I.to});}});
+    nodes.forEach(n=>{const on=n.id===s.sel;n.border=on?'#1F5FD1':'#16181D';n.shadow=on?'0 0 0 4px #D6E3FA':'0 1px 2px rgba(0,0,0,.06)';n.onClick=()=>this.setState({sel:n.id});n.warn=n.warn||'';});
+    const allFull=F.brs.every(b=>!F.info[b.id].n||b.placement==='full');
+    Object.assign(base,{nodes,edges,edgeLabels,canvasH:Math.max(by(Math.max(nb-1,0))+H+40,midY+H+40,260),term:{y:midY,line:`Places 1–${s.N}`,status:F.outN?`${F.outN} ex aequo dès la ${F.outFrom}e`:allFull?'Sans ex aequo':'Avec ex aequo'},
+      N:s.N,setN:e=>this.setState({N:+e.target.value}),courtsCount:this.state.infos.courts,
+      addBracket:()=>{const id='b'+Date.now();this.setState(st=>({phases:[...st.phases,{id,kind:'bracket',name:'Tableau '+(st.phases.length),win:{type:'sets',sets:1,points:21,cap:30,minutes:12,golden:true},seed:'cross',separate:true,placement:'full'}],sel:id}));this.toast('Tableau ajouté · reliez-le depuis le routage des poules');},
+      savePreset:()=>this.toast('Preset « 4 poules + principal + consolante » enregistré'),
+      destOpts:[...F.brs.map(b=>({v:b.id,l:b.name})),{v:'out',l:'Éliminé (ex aequo)'}]});
+    const rows=[{name:pp.name,n:s.N,matches:F.poolMatches,rounds:F.poolRounds,dm:Math.ceil(F.poolMatches/this.state.infos.courts)*matchDur(pp.win)}];
+    F.brs.forEach(b=>{const I=F.info[b.id];rows.push({name:b.name,n:I.n,matches:I.matches,rounds:I.rounds,dm:I.matches?Math.max(I.rounds,Math.ceil(I.matches/this.state.infos.courts))*matchDur(b.win):0});});
+    base.prevRows=rows.map(r=>({...r,dur:r.dm?'≈ '+durTxt(r.dm):'—'}));base.totMatches=rows.reduce((a,r)=>a+r.matches,0);base.totDurMin=rows.reduce((a,r)=>a+r.dm,0);base.totDur=durTxt(base.totDurMin);
+    const pw=[];if(F.outN)pw.push(`${F.outN} participants (${this.rangeTxt(F.outRanks).toLowerCase()}) ne vont dans aucun tableau : classés ex aequo à partir de la ${F.outFrom}e place.`);
+    F.brs.forEach(b=>{const I=F.info[b.id];if(!I.n)pw.push(`${b.name} ne reçoit aucun participant.`);else if(I.byes)pw.push(`${b.name} : ${I.byes} exempts au 1er tour (${I.n} participants pour un tableau de ${I.size}).`);if(I.n&&b.placement!=='full')pw.push(`${b.name} sans placement complet : les perdants d'un même tour seront ex aequo.`);});
+    if(F.base<3)pw.push('Des poules comptent moins de 3 participants.');
+    base.prevWarn=pw.length?pw.map(t=>({text:t,fg:'#7A4A06',dot:'#F2A93B'})):[{text:`Classement intégral sans ex aequo, places 1 à ${s.N}.`,fg:'#115C38',dot:'#17784A'}];
+    const w=sel.win;const step=(k,d,lo,hi)=>()=>this.upd(p=>{p.win[k]=Math.min(hi,Math.max(lo,p.win[k]+d));return p;});
+    const isP=sel.kind==='pools';const I=F.info[sel.id]||{};
+    base.sp={kicker:isP?'Phase 1 · Poules (tous contre tous)':'Phase '+(F.brs.indexOf(sel)+2)+' · Tableau à élimination directe',name:sel.name,onName:e=>{const v=e.target.value;this.upd(p=>{p.name=v;return p;});},
+      isPools:isP,isBracket:!isP,pools:sel.pools,poolsDec:()=>this.upd(p=>{p.pools=Math.max(1,p.pools-1);return p;}),poolsInc:()=>this.upd(p=>{p.pools=Math.min(12,p.pools+1);return p;}),
+      sizeNote:isP?`Pour ${s.N} participants : ${F.sizes.join(', ')} par poule.`:'',
+      bracketNote:!isP?(I.n?`${I.n} participants (${this.rangeTxt(I.ranks).toLowerCase()} de chaque poule) · tableau de ${I.size}`:'Aucun rang ne pointe vers ce tableau. Choisissez-le dans le routage des poules.'):'',
+      segWin:this.seg([['sets','Sets et points'],['time','Au temps']],w.type,v=>this.upd(p=>{p.win.type=v;return p;})),isTime:w.type==='time',isSets:w.type==='sets',
+      minutes:w.minutes,durDec:step('minutes',-1,3,40),durInc:step('minutes',1,3,40),toggleGold:()=>this.upd(p=>{p.win.golden=!p.win.golden;return p;}),goldTrack:w.golden?'#17784A':'#CBCFD5',goldKnob:w.golden?21:3,
+      sets:w.sets,setsDec:step('sets',-1,1,3),setsInc:step('sets',1,1,3),segPts:this.seg([[11,'11'],[15,'15'],[21,'21']],w.points,v=>this.upd(p=>{p.win.points=v;p.win.cap=p.win.cap?(v===21?30:v===15?21:15):0;return p;})),
+      cap:w.cap||'Aucun',capDec:()=>this.upd(p=>{p.win.cap=p.win.cap<=p.win.points+1?0:p.win.cap-1;return p;}),capInc:()=>this.upd(p=>{p.win.cap=p.win.cap?Math.min(50,p.win.cap+1):p.win.points+2;return p;}),
+      tb:isP?sel.tb.map((k,i)=>({n:i+1,label:TB[k],up:()=>this.upd(p=>{if(i>0)[p.tb[i-1],p.tb[i]]=[p.tb[i],p.tb[i-1]];return p;}),down:()=>this.upd(p=>{if(i<p.tb.length-1)[p.tb[i+1],p.tb[i]]=[p.tb[i],p.tb[i+1]];return p;})})):[],
+      routing:isP?Array.from({length:F.maxSize},(_,i)=>({label:'Rang '+(i+1),count:F.cnt(i+1)+' part.',value:sel.routing[i]||'out',onChange:e=>{const v=e.target.value;this.upd(p=>{p.routing[i]=v;return p;});}})):[],
+      segSeed:this.seg([['snake','Serpentin'],['cross','Croisement des poules']],sel.seed,v=>this.upd(p=>{p.seed=v;return p;})),
+      toggleSep:()=>this.upd(p=>{p.separate=!p.separate;return p;}),sepTrack:sel.separate?'#17784A':'#CBCFD5',sepKnob:sel.separate?21:3,
+      segPlace:this.seg([['full','Placement complet'],['tie','Ex aequo par tour']],sel.placement,v=>this.upd(p=>{p.placement=v;return p;})),
+      placeNote:sel.placement==='full'?'Chaque place est jouée : les perdants des quarts jouent les places 5 à 8, etc.':'Les perdants d\'un même tour sont classés ex aequo.',
+      remove:()=>{const id=sel.id;this.setState(st=>({phases:st.phases.filter(p=>p.id!==id).map(p=>p.kind==='pools'?{...p,routing:p.routing.map(r=>r===id?'out':r)}:p),sel:'p1'}));this.toast('Phase supprimée');}};
+    this.extraVals(base,now,D,pp);
+    return base;
+  }
+  logAdd(text){this.setState(st=>({log:[{t:this.now(),text,who:st.settings.operator},...st.log]}));}
+  toggleCheck(pid){const c=this.state.checkin.find(x=>x.pid===pid);if(!c)return;if(c.at){this.setState(st=>({checkin:st.checkin.map(x=>x.pid===pid?{...x,at:null}:x)}));this.logAdd(`Pointage retiré · ${c.names}`);this.toast(`${c.names} : absent`);}
+    else{const bib=c.bib||this.nextBib();this.setState(st=>({checkin:st.checkin.map(x=>x.pid===pid?{...x,at:hm(this.now()),bib}:x)}));this.logAdd(`Pointé présent · #${bib} ${c.names}`);this.toast(`#${bib} ${c.names} : présent`);}}
+  nextBib(){return Math.max(0,...this.state.checkin.map(c=>c.bib||0))+1;}
+  moveDraw(b,P){if(!b)return;const from=Object.keys(this.state.draw).find(k=>this.state.draw[k].includes(b));if(from===P){this.setState({dragOver:null});return;}this.setState(st=>{const d=clone(st.draw);Object.keys(d).forEach(k=>d[k]=d[k].filter(x=>x!==b));d[P].push(b);return{draw:d,drawValidated:null,dragOver:null};});this.logAdd(`Tirage : #${b} déplacé de la poule ${from} à la poule ${P}`);this.toast(`#${b} déplacé en poule ${P}`);}
+  redraw(){const keys=Object.keys(POOLS);const d={};keys.forEach(k=>d[k]=[]);[1,2,3,4].forEach((b,i)=>d[keys[i%keys.length]].push(b));const rest=[];for(let b=5;b<=16;b++)rest.push(b);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+    rest.forEach(b=>{const open=keys.filter(k=>d[k].length<4);const ok=open.filter(k=>!d[k].some(x=>ENT[x][2]===ENT[b][2]));const pick=(ok.length?ok:open).sort((x,y)=>d[x].length-d[y].length)[0];d[pick].push(b);});
+    let conf=0;keys.forEach(k=>d[k].forEach(b=>{if(d[k].some(x=>x!==b&&ENT[x][2]===ENT[b][2]))conf++;}));this.setState({draw:d,drawValidated:null});this.logAdd('Tirage relancé');this.toast(conf?`Tirage relancé · ${conf} conflits de club restants`:'Tirage relancé · aucun conflit de club');}
+  clearMatch(id){this.act(`Score effacé · ${id}`,s=>{const x=s.matches[id];x.st='queue';delete x.s;delete x.gp;delete x.wo;delete x.end;delete x.pcourt;});this.toast(`Score de ${id} effacé`);}
+  toggleForfeit(b){const f=this.isF(b);this.act(f?`Forfait annulé · #${b}`:`Forfait déclaré · #${b}`,s=>{s.forfeited=f?s.forfeited.filter(x=>x!==b):[...s.forfeited,b];});}
+  swapQ(id,k){const key=id+':'+k;this.setState(st=>({swaps:st.swaps.includes(key)?st.swaps.filter(x=>x!==key):[...st.swaps,key]}));this.logAdd(`Tableau : Q${k*2+1} et Q${k*2+2} inversés`);this.toast(`Q${k*2+1} et Q${k*2+2} inversés`);}
+  extraVals(base,now,D,pp){const s=this.state;const scr=s.screen;const M_=s.matches;
+    const homeS=['home','registry','presets','settings'];const isHome=homeS.includes(scr);const ck=s.checkin;const present=ck.filter(c=>c.at).length;
+    Object.assign(base,{isApp:scr!=='display',isDisplay:scr==='display',isTourn:scr!=='display'&&!isHome,isHomeShell:isHome,isHome:scr==='home',isRegistry:scr==='registry',isPresets:scr==='presets',isSettings:scr==='settings',isInfos:scr==='infos',isEntrants:scr==='entrants',isCheckin:scr==='checkin',isDraw:scr==='draw',isPhases:scr==='phases',isResults:scr==='results',
+      tName:s.infos.name,hdTitle:isHome?'Tournois de badminton':s.infos.name,hdSub:isHome?'Table de marque · hors ligne':CAT[s.infos.cat]+' · '+present+' paires',hdMark:isHome?'TB':s.infos.name.split(/\s+/).filter(w=>/^[A-Za-zÀ-ÿ]/.test(w)&&w.length>2).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'T',
+      goHome:()=>this.setState({screen:'home'}),resume:()=>this.setState({screen:'desk'}),
+      homeTabs:[['home','Accueil'],['registry','Registre des joueurs'],['presets','Presets'],['settings','Paramètres']].map(([k,l])=>({label:l,onClick:()=>this.setState({screen:k}),bg:scr===k?'#16181D':'transparent',fg:scr===k?'#fff':'#16181D'}))});
+    base.recent=s.recent.map((r,i)=>({...r,stBg:r.st==='live'?'#E9F0FC':r.st==='prep'?'#FDF1DE':'#ECEDF0',stFg:r.st==='live'?'#17489E':r.st==='prep'?'#7A4A06':'#33363D',
+      onOpen:()=>{if(r.st==='live')this.setState({screen:'desk'});else this.toast('Ouverture de '+r.file);},
+      onDup:()=>{this.setState(st=>({recent:[{name:r.name+' (copie)',file:r.file.replace('.tournoi','-copie.tournoi'),cat:r.cat,size:'Format, terrains et horaires repris',status:'Préparation',st:'prep'},...st.recent]}));this.toast('Tournoi dupliqué, sans les inscrits');}}));
+    base.openFile=()=>this.toast('Choisissez un fichier .tournoi sur ce PC');base.newTourn=()=>{this.setState({screen:'infos'});this.toast('Prototype : le formulaire Infos du tournoi ouvert sert d\'exemple');};
+    const players=[...s.extraPlayers,...REG_PLAYERS];const q=s.regQ.trim().toLowerCase();
+    base.regClubs=['Tous',...CLUBS].map(c=>({label:c,onClick:()=>this.setState({regClub:c}),bg:s.regClub===c?'#16181D':'#fff',fg:s.regClub===c?'#fff':'#16181D',border:s.regClub===c?'#16181D':'#CBCFD5'}));
+    const rr=players.filter(p=>(s.regClub==='Tous'||p.club===s.regClub)&&(!q||(p.name+' '+p.club).toLowerCase().includes(q)));
+    Object.assign(base,{regRows:rr.map(p=>({...p,onEdit:()=>this.toast('Modifier '+p.name)})),regCount:players.length,regEmpty:!rr.length,regQ:s.regQ,onRegQ:e=>this.setState({regQ:e.target.value}),
+      regAdd:s.regAdd,regToggleAdd:()=>this.setState({regAdd:!s.regAdd,regName:''}),regName:s.regName,onRegName:e=>this.setState({regName:e.target.value}),regClubSel:s.regClubSel,onRegClub:e=>this.setState({regClubSel:e.target.value}),regLevel:s.regLevel,onRegLevel:e=>this.setState({regLevel:e.target.value}),
+      clubOpts:CLUBS,levelOpts:LEVELS,regImport:()=>this.toast('Import CSV : colonnes nom, prénom, club, niveau'),
+      regSave:()=>{const n=s.regName.trim();if(!n){this.toast('Saisissez un nom');return;}this.setState(st=>({extraPlayers:[{name:n,club:st.regClubSel,level:st.regLevel,count:0,last:'—'},...st.extraPlayers],regAdd:false,regName:''}));this.toast(n+' ajouté au registre');}});
+    const I=s.infos;const setI=(k,v)=>this.setState(st=>({infos:{...st.infos,[k]:v}}));const presetName=s.infPreset||s.presets[0]?.name||'';
+    base.inf={name:I.name,date:I.date,place:I.place,start:I.start,end:I.end,courts:I.courts,restLabel:this.rest()+' min',
+      onName:e=>setI('name',e.target.value),onDate:e=>setI('date',e.target.value),onPlace:e=>setI('place',e.target.value),onStart:e=>setI('start',e.target.value),onEnd:e=>setI('end',e.target.value),
+      courtsDec:()=>setI('courts',Math.max(1,I.courts-1)),courtsInc:()=>setI('courts',Math.min(12,I.courts+1)),restDec:()=>setI('rest',Math.max(0,this.rest()-1)),restInc:()=>setI('rest',Math.min(40,this.rest()+1)),
+      catSeg:Object.entries(CAT).map(([k,l])=>({label:l,onClick:()=>setI('cat',k),bg:I.cat===k?'#16181D':'transparent',fg:I.cat===k?'#fff':'#16181D'})),
+      presetOpts:s.presets.map(p=>p.name),preset:presetName,onPreset:e=>this.setState({infPreset:e.target.value}),applyPreset:()=>this.toast('« '+presetName+' » appliqué au format')};
+    const pm=t=>{const [h,m]=(t||'0:0').split(':').map(Number);return h*60+(m||0);};const endEst=pm(I.start)+base.totDurMin;const ok=endEst<=pm(I.end);
+    base.est={matches:base.totMatches,dur:base.totDur,courts:I.courts,n:s.N,end:hm(endEst),status:ok?"dans l'horaire":'dépasse la fin souhaitée',stBg:ok?'#E4F3EA':'#FDF1DE',stFg:ok?'#115C38':'#7A4A06'};
+    base.goFormat=()=>this.setState({screen:'format'});
+    base.insRows=ck.map(c=>({names:c.names,club:c.club,level:c.level,st:c.at?'Présent · #'+c.bib:c.isNew?'Inscrit · à pointer':'Absent',stBg:c.at?'#E4F3EA':c.isNew?'#F3F4F6':'#FBEAE8',stFg:c.at?'#115C38':c.isNew?'#33363D':'#8A2820'}));
+    base.insCount=ck.length;base.singlesCount=s.singles.length;base.noSingles=!s.singles.length;base.pairBg=s.sel2.length===2?'#16181D':'#9CA3AF';
+    base.singles=s.singles.map((p,i)=>{const on=s.sel2.includes(i);return{...p,onClick:()=>this.setState(st=>({sel2:on?st.sel2.filter(x=>x!==i):[...st.sel2,i].slice(-2)})),boxBg:on?'#16181D':'#fff',check:on?'✓':'',border:on?'#16181D':'#E3E5E8'};});
+    base.formPair=()=>{if(s.sel2.length!==2){this.toast('Sélectionnez deux joueurs');return;}const [a,b]=s.sel2.map(i=>s.singles[i]);this.setState(st=>({singles:st.singles.filter((_,i)=>!st.sel2.includes(i)),sel2:[],checkin:[...st.checkin,{pid:'N'+Date.now(),names:a.name+' / '+b.name,club:a.club===b.club?a.club:a.club+' · '+b.club,level:a.level+' · '+b.level,bib:null,at:null,isNew:true}]}));this.logAdd('Paire formée · '+a.name+' / '+b.name);this.toast('Paire formée : '+a.name+' / '+b.name);};
+    const entered=new Set();ck.forEach(c=>c.names.split(' / ').forEach(n=>entered.add(n)));s.singles.forEach(p=>entered.add(p.name));const iq=s.insQ.trim().toLowerCase();
+    base.insQ=s.insQ;base.onInsQ=e=>this.setState({insQ:e.target.value});
+    base.insSuggest=players.filter(p=>!entered.has(p.name)&&(!iq||(p.name+' '+p.club).toLowerCase().includes(iq))).slice(0,5).map(p=>({...p,onAdd:()=>{this.setState(st=>({singles:[...st.singles,{name:p.name,club:p.club,level:p.level}]}));this.toast(p.name+' inscrit, à associer');}}));base.noSuggest=!base.insSuggest.length;
+    const cq=s.ckQ.trim().toLowerCase();const crow=ck.filter(c=>(s.ckF==='all'||(s.ckF==='in'?!!c.at:!c.at))&&(!cq||(c.names+' '+c.club+' '+(c.at?c.bib:'')).toLowerCase().includes(cq)));
+    base.ck={present,total:ck.length,pct:(present/ck.length*100).toFixed(1)};
+    base.ckRows=crow.map(c=>({names:c.names,club:c.club,bib:c.at?c.bib:'—',at:c.at?'pointé à '+c.at:'',st:c.at?'Présent':'Absent',stFg:c.at?'#115C38':'#575C66',boxBg:c.at?'#17784A':'#fff',boxBorder:c.at?'#17784A':'#9CA3AF',check:c.at?'✓':'',bg:c.at?'#fff':'#FAFAFB',onToggle:()=>this.toggleCheck(c.pid)}));
+    Object.assign(base,{ckEmpty:!crow.length,ckQ:s.ckQ,onCkQ:e=>this.setState({ckQ:e.target.value}),ckSeg:this.seg([['all','Tous'],['in','Présents'],['out','Absents']],s.ckF,v=>this.setState({ckF:v})),
+      ckAdd:s.ckAdd,ckToggleAdd:()=>this.setState({ckAdd:!s.ckAdd,ckA:'',ckB:''}),ckA:s.ckA,ckB:s.ckB,onCkA:e=>this.setState({ckA:e.target.value}),onCkB:e=>this.setState({ckB:e.target.value}),ckClub:s.ckClub,onCkClub:e=>this.setState({ckClub:e.target.value}),
+      ckSave:()=>{const a=s.ckA.trim(),b=s.ckB.trim();if(!a||!b){this.toast('Saisissez les deux joueurs');return;}const bib=this.nextBib();this.setState(st=>({checkin:[...st.checkin,{pid:'S'+Date.now(),names:a+' / '+b,club:st.ckClub,level:'NC',bib,at:hm(this.now()),isNew:true}],ckAdd:false,ckA:'',ckB:''}));this.logAdd(`Ajout sur place · #${bib} ${a} / ${b}`);this.toast(`Paire ajoutée · dossard #${bib}`);}});
+    const seeds={1:1,2:2,3:3,4:4};
+    const cols=Object.keys(s.draw).map(P=>{const list=s.draw[P];const cards=list.map(b=>{const mates=list.filter(x=>x!==b&&ENT[x][2]===ENT[b][2]);return{bib:b,names:ent(b).names,club:ENT[b][2],isSeed:!!seeds[b],seed:seeds[b]||'',conflict:mates.length>0,conflictWith:mates.map(x=>'#'+x).join(', '),border:mates.length?'#F2A93B':'#E3E5E8',
+        onDrag:e=>{try{e.dataTransfer.setData('text/plain',String(b));e.dataTransfer.effectAllowed='move';}catch(_){}this.dragBib=b;},onEnd:()=>this.setState({dragOver:null})};});
+      const warns=[];if(list.length!==4)warns.push(list.length+' participants');const si=list.filter(b=>seeds[b]).length;if(si>1)warns.push(si+' têtes de série');const over=s.dragOver===P;
+      return{name:'Poule '+P,count:list.length+' participants',cards,hasWarn:!!warns.length,warn:warns.join(' · '),bg:over?'#E9F0FC':'#ECEDF0',border:over?'#1F5FD1':'transparent',
+        onOver:e=>{e.preventDefault();if(this.state.dragOver!==P)this.setState({dragOver:P});},onDrop:e=>{e.preventDefault();let b=0;try{b=+e.dataTransfer.getData('text/plain');}catch(_){}this.moveDraw(b||this.dragBib,P);}};});
+    const conf=cols.reduce((a,c)=>a+c.cards.filter(x=>x.conflict).length,0);
+    base.dr2={cols,n:cols.length,confBg:conf?'#FDF1DE':'#E4F3EA',confFg:conf?'#7A4A06':'#115C38',confText:conf?conf+' participants partagent leur poule avec leur club':'Aucun conflit de club',status:s.drawValidated?'Validé à '+s.drawValidated:'Modifié · à valider',stBg:s.drawValidated?'#E4F3EA':'#FDF1DE',stFg:s.drawValidated?'#115C38':'#7A4A06'};
+    base.redraw=()=>this.redraw();base.validateDraw=()=>{this.setState({drawValidated:hm(this.now())});this.logAdd('Tirage validé');this.toast('Tirage validé');};
+    const corr=s.corr;const brs=s.phases.filter(p=>p.kind==='bracket');const tab=s.phTab==='pools'||brs.some(b=>b.id===s.phTab)?s.phTab:'pools';
+    Object.assign(base,{phTabs:this.seg([['pools',pp.name],...brs.map(b=>[b.id,b.name])],tab,v=>this.setState({phTab:v})),phIsPools:tab==='pools',phIsBracket:tab!=='pools',corr,toggleCorr:()=>this.setState({corr:!corr}),corrTrack:corr?'#B4322A':'#CBCFD5',corrKnob:corr?22:4,
+      hist:s.hist,toggleHist:()=>this.setState({hist:!s.hist}),histBtn:s.hist?"Masquer l'historique":'Historique',histRows:s.log.map(l=>({t:hm(l.t),text:l.text,who:l.who||s.settings.operator}))});
+    base.phPools=Object.keys(POOLS).map(P=>{const st=this.standings(P);const ms=Object.values(M_).filter(m=>m.pool===P).sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));const done=this.poolDone(P);
+      const played=b=>ms.filter(m=>(m.a===b||m.b===b)&&(m.st==='done'||this.isF(m.a)||this.isF(m.b))).length;
+      return{name:'Poule '+P,status:done?'Terminée':ms.filter(m=>m.st==='done').length+' / '+ms.length+' joués',stBg:done?'#E4F3EA':'#F3F4F6',stFg:done?'#115C38':'#33363D',
+        rows:st.map((r,i)=>{const f=this.isF(r.b);return{rank:i+1,bib:r.b,names:ent(r.b).names,j:played(r.b),w:r.w,sd:(r.sd>0?'+':'')+r.sd,pd:(r.pd>0?'+':'')+r.pd,fTag:f?' · forfait':'',fLabel:f?'Annuler forfait':'Forfait',onF:()=>this.toggleForfeit(r.b)};}),
+        matches:ms.map(m=>{const f=this.isF(m.a)||this.isF(m.b);const sc=f?'WO':m.st==='done'?this.scoreTxt(m):m.st==='court'?'Terrain '+m.court+' · en jeu':m.st==='pending'?'Score en attente':'À jouer';
+          return{id:m.id,vs:'#'+m.a+' – #'+m.b,score:sc,scFg:m.st==='done'||f?'#16181D':m.st==='pending'?'#7A4A06':'#575C66',scW:m.st==='done'||f?700:500,onEdit:()=>this.openPanel(m.id),onClear:()=>this.clearMatch(m.id),canClear:m.st==='done'&&!f};})};});
+    base.br={cols:[],pcols:[],hasPlace:false,note:''};
+    if(tab!=='pools'){const b=brs.find(x=>x.id===tab);const F=this.fcalc();const I2=F.info[b.id]||{ranks:[]};const PK=Object.keys(POOLS);
+      const lab=(r,P)=>(r===1?'1er':r+'e')+' poule '+P;const W=t=>({seed:t,name:'',fg:'#575C66'});
+      const slot=([r,P])=>{const st=this.standings(P)[r-1];const fixed=this.poolDone(P)&&s.ack.includes(P);return{seed:lab(r,P)+(fixed?'':' · provisoire'),name:st?'#'+st.b+' '+ent(st.b).names:'—',fg:fixed?'#16181D':'#575C66'};};
+      let qs=[];if(I2.ranks.length===2&&PK.length===4){const [r1,r2]=I2.ranks;qs=[['A','B'],['C','D'],['B','A'],['D','C']].map(([x,y])=>[[r1,x],[r2,y]]);[0,1].forEach(k=>{if(s.swaps.includes(b.id+':'+k)){const t=qs[2*k][1];qs[2*k][1]=qs[2*k+1][1];qs[2*k+1][1]=t;}});}
+      const from=I2.from||1;const mk=(label,slots,extra)=>({label,slots,canSwap:false,onSwap:()=>{},...(extra||{})});
+      if(qs.length){base.br.cols=[{title:'Quarts de finale',matches:qs.map((q,i)=>mk('Q'+(i+1),q.map(slot),{canSwap:corr&&i%2===0,onSwap:()=>this.swapQ(b.id,i/2)}))},
+          {title:'Demi-finales',matches:[mk('D1',[W('Vainqueur Q1'),W('Vainqueur Q2')]),mk('D2',[W('Vainqueur Q3'),W('Vainqueur Q4')])]},
+          {title:'Finale',matches:[mk('Finale · places '+from+'–'+(from+1),[W('Vainqueur D1'),W('Vainqueur D2')]),mk('Places '+(from+2)+'–'+(from+3),[W('Perdant D1'),W('Perdant D2')])]}];
+        if(b.placement==='full'){base.br.pcols=[{title:'Places '+(from+4)+' à '+(from+7)+' · demies',matches:[mk('P1',[W('Perdant Q1'),W('Perdant Q2')]),mk('P2',[W('Perdant Q3'),W('Perdant Q4')])]},{title:'Matchs de classement',matches:[mk('Places '+(from+4)+'–'+(from+5),[W('Vainqueur P1'),W('Vainqueur P2')]),mk('Places '+(from+6)+'–'+(from+7),[W('Perdant P1'),W('Perdant P2')])]}];base.br.hasPlace=true;}
+        base.br.note=I2.n+' participants · '+winLabel(b.win)+' · '+(b.seed==='cross'?'croisement des poules':'serpentin')+'. Les noms restent provisoires tant que les poules ne sont pas validées.';}
+      else base.br.note='Aperçu disponible quand le tableau reçoit 2 rangs de 4 poules (voir Format).';}
+    const F3=this.fcalc();const rows=[];const ordered=brs.filter(b=>F3.info[b.id]&&F3.info[b.id].n).sort((x,y)=>F3.info[x.id].from-F3.info[y.id].from);
+    ordered.forEach(b=>{const I3=F3.info[b.id];const es=Object.keys(POOLS).flatMap(P=>I3.ranks.map(r=>{const st=this.standings(P)[r-1];return st?{...st,r}:null;})).filter(Boolean).sort((x,y)=>x.r-y.r||y.w-x.w||y.pd-x.pd||x.b-y.b);
+      es.forEach((e,i)=>{const pl=I3.from+i;rows.push({place:pl,bib:e.b,names:ent(e.b).names,club:ENT[e.b][2],path:b.name+' · '+(i===0?'vainqueur':i===1?'finaliste':b.placement==='full'?'place '+pl+' jouée':'ex aequo'),plBg:pl<=3?'#FFD23F':'#F3F4F6'});});});
+    base.resRows=rows;base.exportRes=()=>this.toast('Exporté : plume-automne-2026-classement.csv');base.archive=()=>this.toast('Clôture possible à la fin des tableaux · le fichier sera archivé sur ce PC');
+    const S=s.settings;const setS=(k,v)=>this.setState(st=>({settings:{...st.settings,[k]:v}}));
+    base.set={langSeg:this.seg([['fr','Français'],['en','English']],S.lang,v=>{setS('lang',v);this.toast(v==='en'?'English selected':'Interface en français');}),
+      rotLabel:S.rotSec+' s',rotDec:()=>setS('rotSec',Math.max(4,S.rotSec-1)),rotInc:()=>setS('rotSec',Math.min(30,S.rotSec+1)),operator:S.operator,onOperator:e=>setS('operator',e.target.value),
+      defCourts:S.defCourts,dcDec:()=>setS('defCourts',Math.max(1,S.defCourts-1)),dcInc:()=>setS('defCourts',Math.min(12,S.defCourts+1)),defRestLabel:S.defRest+' min',drDec:()=>setS('defRest',Math.max(0,S.defRest-1)),drInc:()=>setS('defRest',Math.min(40,S.defRest+1)),
+      winSeg:this.seg([['time','Au temps'],['sets','Sets et points']],S.defWin,v=>setS('defWin',v)),autoTrack:S.autosave?'#17784A':'#CBCFD5',autoKnob:S.autosave?22:4,toggleAuto:()=>setS('autosave',!S.autosave),pickFolder:()=>this.toast('Choix du dossier des tournois')};
+    base.presetCards=s.presets.map(p=>({...p,active:!!p.active,cols:p.stages.map((items,i)=>({arrow:i>0,items})),open:()=>this.setState({screen:'format'}),apply:()=>this.toast('« '+p.name+' » appliqué à '+s.infos.name),
+      dup:()=>{this.setState(st=>({presets:[...st.presets,{...p,id:'pr'+Date.now(),name:p.name+' (copie)',active:false}]}));this.toast('Preset dupliqué');},
+      del:()=>{this.setState(st=>({presets:st.presets.filter(x=>x.id!==p.id)}));this.toast(p.active?'Preset retiré de la liste · le tournoi ouvert garde son format':'Preset supprimé');}}));
+    base.newPreset=()=>{this.setState({screen:'format'});this.toast('Composez le format puis « Enregistrer comme preset »');};
+  }
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+// Fonts are bundled via angular.json "styles": the app must work without any network.
+
+// Design tokens, taken from the Claude Design mockup (docs/tournoi-badminton-interactif).
+// Neutrals are cool greys and white; color is reserved for states and categories.
+:root {
+  --font-sans: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
+
+  --color-bg: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ecedf0;
+  --color-border: #e3e5e8;
+  --color-border-strong: #cbcfd5;
+  --color-text: #16181d;
+  --color-text-muted: #575c66;
+  --color-link: #1f5fd1;
+  --color-brand: #ffd23f;
+
+  // Court and match states.
+  --color-free: #17784a;
+  --color-free-bg: #e4f3ea;
+  --color-free-fg: #115c38;
+  --color-playing: #1f5fd1;
+  --color-playing-bg: #e9f0fc;
+  --color-playing-fg: #17489e;
+  --color-finished: #f2a93b;
+  --color-finished-bg: #fdf1de;
+  --color-finished-fg: #7a4a06;
+  --color-alert: #b4322a;
+  --color-alert-bg: #fbeae8;
+  --color-alert-border: #e7b3ae;
+
+  // Categories, by their slot in the tournament (at most two).
+  --color-category-1: #5a3db5;
+  --color-category-2: #a3246b;
+
+  // Display screen (dark, read from 10 m away).
+  --color-display-bg: #0b0d12;
+  --color-display-surface: #151922;
+  --color-display-border: #3a3f4b;
+  --color-display-text: #ffffff;
+  --color-display-muted: #b9bdc6;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-link);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}

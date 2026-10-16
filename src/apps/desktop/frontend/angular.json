@@ -1,0 +1,98 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "openshuttle": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              },
+              {
+                "glob": "*.json",
+                "input": "src/i18n",
+                "output": "i18n"
+              }
+            ],
+            "styles": [
+              "@fontsource/atkinson-hyperlegible-next/400.css",
+              "@fontsource/atkinson-hyperlegible-next/500.css",
+              "@fontsource/atkinson-hyperlegible-next/600.css",
+              "@fontsource/atkinson-hyperlegible-next/700.css",
+              "@fontsource/atkinson-hyperlegible-next/800.css",
+              "@fontsource/atkinson-hyperlegible-mono/400.css",
+              "@fontsource/atkinson-hyperlegible-mono/600.css",
+              "@fontsource/atkinson-hyperlegible-mono/700.css",
+              "src/styles.scss"
+            ],
+            "outputPath": {
+              "base": "dist",
+              "browser": ""
+            },
+            "allowedCommonJsDependencies": [
+              "@messageformat/core"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "openshuttle:build:production"
+            },
+            "development": {
+              "buildTarget": "openshuttle:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        }
+      }
+    }
+  }
+}

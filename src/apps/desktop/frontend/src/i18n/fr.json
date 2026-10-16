@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "OpenShuttle"
+  },
+  "home": {
+    "recentTournaments": "Tournois récents",
+    "noTournament": "Aucun tournoi pour l'instant",
+    "newTournament": "Nouveau tournoi",
+    "openFile": "Ouvrir un fichier"
+  },
+  "displayScreen": {
+    "open": "Ouvrir l'écran d'appel",
+    "close": "Fermer l'écran d'appel",
+    "monitor": "Moniteur",
+    "monitorAuto": "Automatique",
+    "monitorLabel": "{name} ({width} × {height})",
+    "isOpen": "Écran d'appel ouvert",
+    "waiting": "En attente du premier appel"
+  },
+  "settings": {
+    "language": "Langue"
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français"
+  }
+}

@@ -1,0 +1,50 @@
+<ng-container *transloco="let t">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">OS</div>
+      <span class="brand-name">{{ t('app.name') }}</span>
+    </div>
+
+    <div class="topbar-actions">
+      <label class="field">
+        <span class="field-label">{{ t('settings.language') }}</span>
+        <select (change)="onLanguage($event)">
+          @for (lang of language.languages; track lang) {
+            <option [value]="lang" [selected]="lang === language.active">{{ t('language.' + lang) }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field-label">{{ t('displayScreen.monitor') }}</span>
+        <select (change)="onMonitor($event)" (focus)="display.refresh()">
+          <option value="" [selected]="monitorId() === ''">{{ t('displayScreen.monitorAuto') }}</option>
+          @for (m of display.monitors(); track m.id) {
+            <option [value]="m.id" [selected]="m.id === monitorId()">
+              {{ t('displayScreen.monitorLabel', { name: m.name, width: m.width, height: m.height }) }}
+            </option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn" [class.btn-active]="display.isOpen()" (click)="toggleDisplay()">
+        @if (display.isOpen()) {
+          <span class="dot"></span>{{ t('displayScreen.close') }}
+        } @else {
+          {{ t('displayScreen.open') }}
+        }
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    <h1>{{ t('home.recentTournaments') }}</h1>
+    <div class="empty">
+      <p>{{ t('home.noTournament') }}</p>
+      <div class="empty-actions">
+        <button type="button" class="btn btn-primary" disabled>{{ t('home.newTournament') }}</button>
+        <button type="button" class="btn" disabled>{{ t('home.openFile') }}</button>
+      </div>
+    </div>
+  </main>
+</ng-container>

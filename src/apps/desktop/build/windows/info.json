@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.0.1"
+	},
+	"info": {
+		"0409": {
+			"ProductVersion": "0.0.1",
+			"CompanyName": "OpenShuttle",
+			"FileDescription": "Run badminton club tournaments, fully offline",
+			"LegalCopyright": "(c) 2026, OpenShuttle contributors",
+			"ProductName": "OpenShuttle",
+			"Comments": "https://openshuttle.app"
+		}
+	}
+}

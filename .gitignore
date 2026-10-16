@@ -1,0 +1,17 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Desktop app build output
+src/apps/desktop/bin/
+src/apps/desktop/.task/
+src/apps/desktop/frontend/dist/
+src/apps/desktop/frontend/node_modules/
+src/apps/desktop/frontend/.angular/
+src/apps/desktop/build/linux/appimage/build/
+src/apps/desktop/build/windows/nsis/MicrosoftEdgeWebview2Setup.exe

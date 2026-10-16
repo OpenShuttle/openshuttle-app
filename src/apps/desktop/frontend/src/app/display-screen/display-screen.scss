@@ -1,0 +1,41 @@
+// Sizes use vw so the screen scales with the projector resolution.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-display-bg);
+  color: var(--color-display-text);
+}
+
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 1.2vw 2vw;
+  border-bottom: 1px solid var(--color-display-border);
+}
+
+.brand {
+  background: var(--color-brand);
+  color: var(--color-display-bg);
+  font-size: 1.3vw;
+  font-weight: 800;
+  padding: 0.3vw 0.8vw;
+  border-radius: 0.4vw;
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.waiting {
+  margin: 0;
+  font-size: 3.2vw;
+  font-weight: 700;
+  color: var(--color-display-muted);
+}

@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "OpenShuttle"
+  },
+  "home": {
+    "recentTournaments": "Recent tournaments",
+    "noTournament": "No tournament yet",
+    "newTournament": "New tournament",
+    "openFile": "Open a file"
+  },
+  "displayScreen": {
+    "open": "Open display screen",
+    "close": "Close display screen",
+    "monitor": "Monitor",
+    "monitorAuto": "Automatic",
+    "monitorLabel": "{name} ({width} × {height})",
+    "isOpen": "Display screen open",
+    "waiting": "Waiting for the first match call"
+  },
+  "settings": {
+    "language": "Language"
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français"
+  }
+}

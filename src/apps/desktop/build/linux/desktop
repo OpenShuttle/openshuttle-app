@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=OpenShuttle
+Comment=Run badminton club tournaments, fully offline
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/openshuttle %u
+Terminal=false
+Type=Application
+Icon=openshuttle
+Categories=Utility;
+StartupWMClass=openshuttle
+
+ 
