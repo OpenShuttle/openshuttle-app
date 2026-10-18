@@ -11,7 +11,7 @@ import (
 
 const (
 	TypeEntrantSeeded events.Type = "EntrantSeeded"
-	TypePoolsDrawn    events.Type = "PoolsDrawn"
+	TypeEntryDrawn    events.Type = "EntryDrawn"
 	TypeEntrantMoved  events.Type = "EntrantMoved"
 	TypeDrawConfirmed events.Type = "DrawConfirmed"
 	TypeDrawReopened  events.Type = "DrawReopened"
@@ -20,8 +20,11 @@ const (
 // MaxSeed is the highest seed number.
 const MaxSeed = 32
 
-// Draw is the pools of a category, draft until confirmed.
+// Draw is the entry stage of a category once drawn: its pools, or a single
+// group of bracket slots. A draft until confirmed.
 type Draw struct {
+	Stage     string
+	Kind      StageKind
 	Pools     [][]engine.EntrantID
 	Confirmed bool
 	// ConfirmedAt is when the draw was last confirmed.
@@ -36,11 +39,12 @@ type EntrantSeeded struct {
 	Seed int              `json:"seed"`
 }
 
-// PoolsDrawn is the payload of TypePoolsDrawn: the resulting pools, so replay
-// does not depend on randomness.
-type PoolsDrawn struct {
+// EntryDrawn is the payload of TypeEntryDrawn: the entry stage as drawn,
+// pools or a single group of bracket slots, so replay does not depend on
+// randomness.
+type EntryDrawn struct {
 	Category engine.Category      `json:"category"`
-	Pools    [][]engine.EntrantID `json:"pools"`
+	Groups   [][]engine.EntrantID `json:"groups"`
 }
 
 // EntrantMoved is the payload of TypeEntrantMoved: the entrant goes to the
@@ -58,11 +62,11 @@ type DrawConfirmed struct {
 
 // Draw returns the draw of a category, if any.
 func (s State) Draw(c engine.Category) (Draw, bool) {
-	d := s.draws[c]
-	if d == nil {
+	e := s.entry(c)
+	if e == nil || !e.Filled() {
 		return Draw{}, false
 	}
-	return *d, true
+	return Draw{Stage: e.ID, Kind: e.Kind, Pools: cloneGroups(e.Groups), Confirmed: e.Confirmed, ConfirmedAt: e.ConfirmedAt}, true
 }
 
 // Present returns the entrants of a category whose players are all checked
@@ -92,26 +96,33 @@ func (s State) SetSeed(id engine.EntrantID, seed int) (Change, error) {
 	return Change{TypeEntrantSeeded, EntrantSeeded{ID: id, Seed: seed}}, nil
 }
 
-// DrawPools draws the pools of a category among present entrants. rng is
-// seeded by the caller; the event stores the result.
-func (s State) DrawPools(c engine.Category, rng *rand.Rand) (Change, error) {
+// DrawEntry draws the entry stage of a category among present entrants:
+// pools, or the slots of a bracket. rng is seeded by the caller; the event
+// stores the result.
+func (s State) DrawEntry(c engine.Category, rng *rand.Rand) (Change, error) {
 	if !s.HasCategory(c) {
 		return Change{}, engine.NewError(engine.CodeCategoryNotFound)
 	}
-	if d := s.draws[c]; d != nil && d.Confirmed {
+	e := s.entry(c)
+	if e.Confirmed {
 		return Change{}, engine.NewError(engine.CodeDrawConfirmed)
 	}
-	pools := s.PoolStage(c).Pools
 	present := s.Present(c)
-	if len(present) < 2*pools {
+	in := make([]engine.DrawEntrant, len(present))
+	for i, p := range present {
+		in[i] = engine.DrawEntrant{ID: p.ID, Seed: p.Seed, Clubs: p.Clubs()}
+	}
+	if e.Kind == StageBracket {
+		if len(present) < 2 {
+			return Change{}, engine.NewError(engine.CodeNotEnoughEntrants)
+		}
+		return Change{TypeEntryDrawn, EntryDrawn{Category: c, Groups: [][]engine.EntrantID{engine.DrawBracket(in, rng)}}}, nil
+	}
+	if len(present) < 2*e.Pools {
 		// A pool of one entrant has no match to play.
 		return Change{}, engine.NewError(engine.CodeNotEnoughEntrants)
 	}
-	in := make([]engine.DrawEntrant, len(present))
-	for i, e := range present {
-		in[i] = engine.DrawEntrant{ID: e.ID, Seed: e.Seed, Clubs: e.Clubs()}
-	}
-	return Change{TypePoolsDrawn, PoolsDrawn{Category: c, Pools: engine.DrawPools(in, pools, rng)}}, nil
+	return Change{TypeEntryDrawn, EntryDrawn{Category: c, Groups: engine.DrawPools(in, e.Pools, rng)}}, nil
 }
 
 // MoveEntrant moves an entrant to another pool of the draft draw. An entrant
@@ -121,10 +132,12 @@ func (s State) MoveEntrant(id engine.EntrantID, pool int) (Change, error) {
 	if !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
 	}
-	d := s.draws[e.Category]
+	d, ok := s.Draw(e.Category)
 	switch {
-	case d == nil:
+	case !ok:
 		return Change{}, engine.NewError(engine.CodeNoDraw)
+	case d.Kind != StagePools:
+		return Change{}, engine.NewError(engine.CodeInvalidPool)
 	case d.Confirmed:
 		return Change{}, engine.NewError(engine.CodeDrawConfirmed)
 	case pool < 0 || pool >= len(d.Pools):
@@ -140,10 +153,10 @@ func (s State) MoveEntrant(id engine.EntrantID, pool int) (Change, error) {
 	return Change{TypeEntrantMoved, EntrantMoved{Category: e.Category, Entrant: id, Pool: pool}}, nil
 }
 
-// ConfirmDraw locks the pools of a category.
+// ConfirmDraw locks the draw of a category: the entry stage starts.
 func (s State) ConfirmDraw(c engine.Category) (Change, error) {
-	d := s.draws[c]
-	if d == nil {
+	d, ok := s.Draw(c)
+	if !ok {
 		return Change{}, engine.NewError(engine.CodeNoDraw)
 	}
 	if d.Confirmed {
@@ -154,8 +167,8 @@ func (s State) ConfirmDraw(c engine.Category) (Change, error) {
 
 // ReopenDraw unlocks a confirmed draw.
 func (s State) ReopenDraw(c engine.Category) (Change, error) {
-	d := s.draws[c]
-	if d == nil {
+	d, ok := s.Draw(c)
+	if !ok {
 		return Change{}, engine.NewError(engine.CodeNoDraw)
 	}
 	if !d.Confirmed {
@@ -178,19 +191,13 @@ func (e Entrant) Clubs() []string {
 	return clubs
 }
 
-func (d *Draw) poolOf(id engine.EntrantID) int {
+func (d Draw) poolOf(id engine.EntrantID) int {
 	for i, pool := range d.Pools {
 		if slices.Contains(pool, id) {
 			return i
 		}
 	}
 	return -1
-}
-
-func (d *Draw) remove(id engine.EntrantID) {
-	for i := range d.Pools {
-		d.Pools[i] = slices.DeleteFunc(d.Pools[i], func(x engine.EntrantID) bool { return x == id })
-	}
 }
 
 func (s *State) applyEntrantSeeded(p EntrantSeeded) {
@@ -208,30 +215,34 @@ func (s *State) applyEntrantSeeded(p EntrantSeeded) {
 	s.Entrants[i].Seed = p.Seed
 }
 
-func (s *State) applyPoolsDrawn(p PoolsDrawn) {
-	if s.draws == nil {
-		s.draws = map[engine.Category]*Draw{}
+func (s *State) applyEntryDrawn(p EntryDrawn) {
+	if e := s.entry(p.Category); e != nil {
+		e.Groups, e.Confirmed = cloneGroups(p.Groups), false
 	}
-	pools := make([][]engine.EntrantID, len(p.Pools))
-	for i, pool := range p.Pools {
-		pools[i] = slices.Clone(pool)
-	}
-	s.draws[p.Category] = &Draw{Pools: pools}
 }
 
 func (s *State) applyEntrantMoved(p EntrantMoved) {
-	d := s.draws[p.Category]
-	if d == nil || p.Pool < 0 || p.Pool >= len(d.Pools) {
+	e := s.entry(p.Category)
+	if e == nil || p.Pool < 0 || p.Pool >= len(e.Groups) {
 		return
 	}
-	d.remove(p.Entrant)
-	d.Pools[p.Pool] = append(d.Pools[p.Pool], p.Entrant)
+	for i := range e.Groups {
+		e.Groups[i] = slices.DeleteFunc(e.Groups[i], func(x engine.EntrantID) bool { return x == p.Entrant })
+	}
+	e.Groups[p.Pool] = append(e.Groups[p.Pool], p.Entrant)
 }
 
+// setConfirmed starts or stops the entry stage: its matches follow.
 func (s *State) setConfirmed(c engine.Category, confirmed bool, at time.Time) {
-	if d := s.draws[c]; d != nil {
-		d.Confirmed = confirmed
-		d.ConfirmedAt = at
+	e := s.entry(c)
+	if e == nil || !e.Filled() {
+		return
+	}
+	e.Confirmed, e.ConfirmedAt = confirmed, at
+	if confirmed {
+		s.generateStageMatches(c, e)
+	} else {
+		s.dropStageMatches(c, e.ID)
 	}
 }
 
@@ -257,9 +268,12 @@ type DrawCheck struct {
 
 // CheckDraw reviews the draw of a category.
 func (s State) CheckDraw(c engine.Category) DrawCheck {
-	d := s.draws[c]
-	if d == nil {
+	d, ok := s.Draw(c)
+	if !ok {
 		return DrawCheck{}
+	}
+	if d.Kind == StageBracket {
+		return s.checkBracketDraw(c, d)
 	}
 	placed := 0
 	for _, pool := range d.Pools {
@@ -312,4 +326,32 @@ func shareClub(a, b Entrant) bool {
 		}
 	}
 	return false
+}
+
+// checkBracketDraw reviews a bracket entry stage: club mates meeting in the
+// first round, absent and unplaced entrants. The single "pool" is the bracket.
+func (s State) checkBracketDraw(c engine.Category, d Draw) DrawCheck {
+	slots := d.Pools[0]
+	pc := PoolCheck{SameClub: map[engine.EntrantID][]engine.EntrantID{}}
+	for i, id := range slots {
+		e, ok := s.Entrant(id)
+		if id == "" || !ok {
+			continue
+		}
+		if o, ok := s.Entrant(slots[i^1]); ok && slots[i^1] != "" && shareClub(e, o) {
+			pc.SameClub[id] = []engine.EntrantID{o.ID}
+		}
+	}
+	check := DrawCheck{Pools: []PoolCheck{pc}}
+	for _, id := range slots {
+		if e, ok := s.Entrant(id); ok && id != "" && !e.Complete() {
+			check.Absent = append(check.Absent, id)
+		}
+	}
+	for _, e := range s.Present(c) {
+		if !slices.Contains(slots, e.ID) {
+			check.Unplaced = append(check.Unplaced, e.ID)
+		}
+	}
+	return check
 }

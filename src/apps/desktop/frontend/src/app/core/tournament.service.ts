@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { BracketConfig, MatchID, PlayerID, PlayerInput, PoolStage } from '@bindings/internal/tournament';
+import { MatchID, PlayerID, PlayerInput, StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -130,16 +130,40 @@ export class TournamentStore {
     return this.command(() => Backend.CancelCheckIn(id));
   }
 
-  configurePoolStage(category: Category, stage: PoolStage): Promise<boolean> {
-    return this.command(() => Backend.ConfigurePoolStage(category, stage));
+  setFormat(category: Category, stages: StageConfig[]): Promise<boolean> {
+    return this.command(() => Backend.SetFormat(category, stages));
+  }
+
+  addStage(category: Category, kind: StageKind): Promise<boolean> {
+    return this.command(() => Backend.AddStage(category, kind));
+  }
+
+  removeStage(category: Category, id: string): Promise<boolean> {
+    return this.command(() => Backend.RemoveStage(category, id));
+  }
+
+  fillStage(category: Category, id: string): Promise<boolean> {
+    return this.command(() => Backend.FillStage(category, id));
+  }
+
+  swapSlots(category: Category, id: string, a: number, b: number): Promise<boolean> {
+    return this.command(() => Backend.SwapSlots(category, id, a, b));
+  }
+
+  applyFormatPreset(category: Category, id: string): Promise<boolean> {
+    return this.command(() => Backend.ApplyFormatPreset(category, id));
+  }
+
+  saveFormatPreset(category: Category, name: string, description: string): Promise<boolean> {
+    return this.command(() => Backend.SaveFormatPreset(category, name, description));
   }
 
   setSeed(id: EntrantID, seed: number): Promise<boolean> {
     return this.command(() => Backend.SetSeed(id, seed));
   }
 
-  drawPools(category: Category): Promise<boolean> {
-    return this.command(() => Backend.DrawPools(category));
+  drawEntry(category: Category): Promise<boolean> {
+    return this.command(() => Backend.DrawEntry(category));
   }
 
   moveEntrant(id: EntrantID, pool: number): Promise<boolean> {
@@ -194,32 +218,8 @@ export class TournamentStore {
     return this.command(() => Backend.SwapMatches(a, b));
   }
 
-  drawLots(category: Category, pool: number): Promise<boolean> {
-    return this.command(() => Backend.DrawLots(category, pool));
-  }
-
-  addBracket(category: Category, cfg: BracketConfig): Promise<boolean> {
-    return this.command(() => Backend.AddBracket(category, cfg));
-  }
-
-  configureBracket(category: Category, id: string, cfg: BracketConfig): Promise<boolean> {
-    return this.command(() => Backend.ConfigureBracket(category, id, cfg));
-  }
-
-  removeBracket(category: Category, id: string): Promise<boolean> {
-    return this.command(() => Backend.RemoveBracket(category, id));
-  }
-
-  setRouting(category: Category, routing: string[]): Promise<boolean> {
-    return this.command(() => Backend.SetRouting(category, routing));
-  }
-
-  drawBracket(category: Category, id: string): Promise<boolean> {
-    return this.command(() => Backend.DrawBracket(category, id));
-  }
-
-  swapBracketSlots(category: Category, id: string, a: number, b: number): Promise<boolean> {
-    return this.command(() => Backend.SwapBracketSlots(category, id, a, b));
+  drawLots(category: Category, stage: string, pool: number): Promise<boolean> {
+    return this.command(() => Backend.DrawLots(category, stage, pool));
   }
 
   startRound(): Promise<boolean> {

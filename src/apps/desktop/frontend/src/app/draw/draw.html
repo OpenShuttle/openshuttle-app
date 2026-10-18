@@ -20,14 +20,17 @@
             </span>
           }
           <span class="cat-hint">
-            @if (c.status === 'draft') {
+            @if (c.status === 'draft' && c.kind === 'pools') {
               {{ t('draw.dragHint') }}
+            } @else if (c.kind === 'bracket') {
+              {{ t('draw.summaryBracket', { present: c.present }) }}
+              <a routerLink="../format">{{ t('draw.changeFormat') }}</a>
             } @else {
               {{ t('draw.summary', { present: c.present, pools: c.planned }) }}
               <a routerLink="../format">{{ t('draw.changeFormat') }}</a>
             }
             @if (!c.canDraw && c.status !== 'confirmed') {
-              <span class="warn">{{ t('draw.notEnough', { min: c.planned * 2 }) }}</span>
+              <span class="warn">{{ t('draw.notEnough', { min: c.kind === 'bracket' ? 2 : c.planned * 2 }) }}</span>
             }
           </span>
           <span class="cat-actions">
@@ -45,7 +48,57 @@
           </span>
         </div>
 
-        @if (c.status !== 'none') {
+        @if (c.status !== 'none' && c.kind === 'bracket') {
+          <div class="bracket-draw">
+            @for (pair of pairs(c); track $index) {
+              <div class="pair">
+                @for (p of pair; track p.slot) {
+                  @if (p.entrant.id) {
+                    <button
+                      type="button"
+                      class="entrant slot"
+                      [class.conflict]="(p.entrant.sameClub ?? []).length > 0"
+                      [class.picked]="swapping() === c.category + ':' + p.slot"
+                      [disabled]="c.status === 'confirmed'"
+                      [attr.title]="fullNames(p.entrant)"
+                      (click)="pickSlot(c, p.slot)"
+                    >
+                      <span class="entrant-top">
+                        <span class="bib">{{ p.entrant.bib || '–' }}</span>
+                        <span class="names">{{ names(p.entrant) }}</span>
+                        @if (p.entrant.seed) {
+                          <span class="seed">{{ t('draw.seedShort', { n: p.entrant.seed }) }}</span>
+                        }
+                      </span>
+                      <span class="entrant-meta">
+                        <span class="club">{{ (p.entrant.clubs ?? []).join(' · ') }}</span>
+                        @if ((p.entrant.sameClub ?? []).length > 0) {
+                          <span class="tag">{{ t('draw.sameClubRound', { bibs: (p.entrant.sameClub ?? []).join(', ') }) }}</span>
+                        }
+                      </span>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="entrant slot bye"
+                      [class.picked]="swapping() === c.category + ':' + p.slot"
+                      [disabled]="c.status === 'confirmed'"
+                      (click)="pickSlot(c, p.slot)"
+                    >
+                      {{ t('phases.bye') }}
+                    </button>
+                  }
+                }
+              </div>
+            }
+          </div>
+          @if (c.status === 'draft') {
+            <p class="cat-hint">{{ t('draw.slotsHint') }}</p>
+          }
+          @if ((c.unplaced ?? []).length > 0) {
+            <p class="cat-hint warn">{{ t('draw.unplacedBracket', { n: (c.unplaced ?? []).length }) }}</p>
+          }
+        } @else if (c.status !== 'none') {
           <div class="pools">
             @for (pool of c.pools; track pool.name; let i = $index) {
               <div

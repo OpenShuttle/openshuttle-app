@@ -69,9 +69,7 @@
     "EntrantRemoved": "Entrant removed: {names}",
     "PlayerCheckedIn": "{name} checked in",
     "PlayerCheckInCancelled": "{name} marked absent",
-    "PoolStageConfigured": "Format changed: {category}",
     "EntrantSeeded": "Seed {seed}: {names}",
-    "PoolsDrawn": "Pools drawn: {category}",
     "EntrantMoved": "{names} moved to pool {pool}",
     "DrawConfirmed": "Draw confirmed: {category}",
     "DrawReopened": "Draw reopened: {category}",
@@ -86,15 +84,13 @@
     "EntrantReinstated": "Forfeit cancelled: {names}",
     "MatchesSwapped": "Matches swapped: {first} and {second}",
     "LotsDrawn": "Lots drawn: {category} pool {pool}",
-    "BracketAdded": "Bracket added: {bracket}",
-    "BracketConfigured": "Bracket changed: {bracket}",
-    "BracketRemoved": "Bracket removed: {bracket}",
-    "RoutingSet": "Advancement changed: {category}",
-    "BracketDrawn": "Bracket filled: {bracket}",
-    "BracketSlotsSwapped": "Bracket slots swapped: {bracket}",
     "TournamentArchived": "Tournament archived",
     "RoundStarted": "Round {number} started: {count} matches",
-    "RoundEnded": "Round {number} ended"
+    "RoundEnded": "Round {number} ended",
+    "FormatSet": "Format changed: {category}",
+    "EntryDrawn": "Draw: {category}",
+    "StageFilled": "{stage} filled: {category}",
+    "SlotsSwapped": "Places swapped: {stage}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -107,9 +103,7 @@
     "EntrantRemoved": "removal of {names}",
     "PlayerCheckedIn": "check-in of {name}",
     "PlayerCheckInCancelled": "absence of {name}",
-    "PoolStageConfigured": "format change of {category}",
     "EntrantSeeded": "seed of {names}",
-    "PoolsDrawn": "draw of {category}",
     "EntrantMoved": "move of {names}",
     "DrawConfirmed": "draw confirmation of {category}",
     "DrawReopened": "reopening of {category}",
@@ -124,15 +118,13 @@
     "EntrantReinstated": "forfeit cancellation of {names}",
     "MatchesSwapped": "swap of {first} and {second}",
     "LotsDrawn": "lots of {category} pool {pool}",
-    "BracketAdded": "adding {bracket}",
-    "BracketConfigured": "change of {bracket}",
-    "BracketRemoved": "removal of {bracket}",
-    "RoutingSet": "advancement change",
-    "BracketDrawn": "filling of {bracket}",
-    "BracketSlotsSwapped": "slot swap in {bracket}",
     "TournamentArchived": "archive",
     "RoundStarted": "start of round {number}",
-    "RoundEnded": "end of round {number}"
+    "RoundEnded": "end of round {number}",
+    "FormatSet": "format change {category}",
+    "EntryDrawn": "draw {category}",
+    "StageFilled": "filling of {stage}",
+    "SlotsSwapped": "swap in {stage}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -184,8 +176,6 @@
     "NO_SCORE": "This match has no score.",
     "ENTRANT_NOT_WITHDRAWN": "This entrant has not forfeited.",
     "NO_TIE": "No tie to break in this pool.",
-    "BRACKET_NOT_FOUND": "This bracket no longer exists.",
-    "TOO_MANY_BRACKETS": "At most 8 brackets per category.",
     "INVALID_ROUTING": "This advancement points to a bracket that does not exist.",
     "POOLS_NOT_COMPLETE": "Every pool must be complete first.",
     "TIE_UNRESOLVED": "A pool still has a tie: draw lots on the Stages screen first.",
@@ -198,7 +188,13 @@
     "ROUND_IN_PROGRESS": "A round is in progress: whistle its end first.",
     "NO_ROUND": "No round in progress.",
     "NO_MATCH_READY": "No match is ready to play.",
-    "CATEGORIES_SHARE_SEX": "These two categories involve players of the same sex: they cannot run in the same tournament."
+    "CATEGORIES_SHARE_SEX": "These two categories involve players of the same sex: they cannot run in the same tournament.",
+    "STAGE_NOT_FOUND": "This phase no longer exists.",
+    "TOO_MANY_STAGES": "A format has 8 phases at most.",
+    "STAGE_FILLED": "This phase already has its entrants: its type and the ranks feeding it can no longer change.",
+    "PRESET_NOT_FOUND": "This preset no longer exists.",
+    "PRESET_READ_ONLY": "Built-in presets cannot be deleted.",
+    "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -332,7 +328,6 @@
   "format": {
     "title": "Format",
     "lead": "One format per category · can be changed until the tournament is archived",
-    "stage": "Stage {n}",
     "poolCount": "Number of pools",
     "fewerPools": "One pool less",
     "morePools": "One pool more",
@@ -348,32 +343,23 @@
     "tiebreaks": "Tiebreaks, in order",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "removeBracket": "Remove the stage",
     "addBracket": "Bracket",
-    "mainBracket": "Main bracket",
-    "bracketN": "Bracket {n}",
     "placement": "Placement",
     "fullPlacement": "Every place played",
     "tiedByRound": "Tied by round lost",
     "fullPlacementHint": "Losers play for the lower places: a full ranking with no tie.",
     "tiedByRoundHint": "Entrants losing in the same round share their places.",
     "routing": "Advancement",
-    "eliminated": "Eliminated",
-    "routingHint": "Each pool position goes to a bracket. Brackets are filled once every pool is complete.",
+    "routingHint": "Each rank goes on to a later phase, or stops here with its final rank.",
     "ranks": "Ranks {ranks}",
     "poolsN": "{n, plural, one {# pool} other {# pools}}",
     "poolsOf": "{n, plural, one {# pool} other {# pools}} of {size}",
     "poolsSizes": "{n} pools ({sizes})",
     "timedSummary": "{minutes} min · golden point",
     "setsSummary": "{sets, plural, one {1 set} other {# sets to win}} of {points}{cap, plural, =0 {} other { · cap #}}",
-    "bracketKicker": "Bracket",
-    "poolsKicker": "Pools",
-    "poolsKickerLong": "Pools (round robin)",
-    "poolsTitle": "Pools",
     "bracketEntrants": "{n, plural, one {# entrant} other {# entrants}}{byes, plural, =0 {} one { · # bye} other { · # byes}}",
     "places": "Places {from}–{to}",
-    "notRouted": "No pool rank goes here",
-    "notRoutedHint": "No pool rank goes to this bracket yet: choose it in the routing of the pools.",
+    "notRouted": "No rank goes here yet",
     "matchesRounds": "{matches, plural, one {# match} other {# matches}} · {rounds, plural, one {# round} other {# rounds}}",
     "output": "Output",
     "fullStandings": "Full standings",
@@ -386,7 +372,6 @@
     "colEntrants": "Entrants",
     "colMatches": "Matches",
     "colRounds": "Rounds",
-    "poolsShort": "Pools",
     "byesWarning": "{name}: {byes, plural, one {# bye} other {# byes}} in the first round ({n} entrants for a bracket of {size}).",
     "size": "Size",
     "setsToWinLabel": "Sets to win",
@@ -395,9 +380,22 @@
     "timedHint": "All courts start and end together: the stage is played in rounds, started and whistled by the desk.",
     "matchDuration": "Match duration",
     "tiebreaksHint": "Differences only, never ratios: walkovers stay neutral.",
-    "routingEmpty": "Add a bracket to send pool ranks to it.",
+    "routingEmpty": "Add a phase to send ranks to it.",
     "rank": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
-    "entrantsShort": "{n, plural, one {# entrant} other {# entrants}}"
+    "entrantsShort": "{n, plural, one {# entrant} other {# entrants}}",
+    "addPools": "Pools",
+    "applyPreset": "Start from a preset…",
+    "saveAsPreset": "Save as preset",
+    "phaseKind": "Phase {n} · {kind}",
+    "phaseShort": "Phase {n}",
+    "colPlaces": "Places",
+    "kind": "Type",
+    "entryPoolsHint": "Entry stage: the draw spreads the present entrants into the pools.",
+    "entryBracketHint": "Entry stage: the draw places the present entrants in the bracket, seeds first.",
+    "laterHint": "{n, plural, =0 {No entrant reaches it yet: route ranks of an earlier phase here.} one {# entrant reaches it through the routing.} other {# entrants reach it through the routing.}}",
+    "kept": "Final rank here",
+    "noRanksYet": "Ranks show up once entrants are registered.",
+    "removeStage": "Remove the phase"
   },
   "tiebreak": {
     "wins": "Wins",
@@ -434,7 +432,11 @@
     "presentCount": "{n, plural, one {# entrant present} other {# entrants present}}",
     "entrantsCount": "{n, plural, one {# entrant} other {# entrants}}",
     "conflicts": "{n, plural, one {# entrant shares its pool with its club} other {# entrants share their pool with their club}}",
-    "noConflict": "No club conflict"
+    "noConflict": "No club conflict",
+    "sameClubRound": "Same club in round 1: #{bibs}",
+    "slotsHint": "Click two places to swap them.",
+    "unplacedBracket": "{n, plural, one {# entrant} other {# entrants}} checked in after the draw: redraw to place them.",
+    "summaryBracket": "{present, plural, one {# present} other {# present}} · straight bracket."
   },
   "desk": {
     "title": "Control desk",
@@ -483,7 +485,6 @@
     "goldenPoint": "Decided by a golden point",
     "scoreKeys": "Enter to save · Esc to close",
     "saveScore": "Save score",
-    "fillBrackets": "Every pool is complete: fill the brackets to go on.",
     "sub": "{courts, plural, one {# court} other {# courts}} · rest {rest} min between two matches",
     "noMatchReadyTitle": "No match ready",
     "keyCourt": "Call, end or score on that court",
@@ -501,7 +502,6 @@
     },
     "toHandle": "{n} to handle",
     "noAlert": "Nothing to decide for now.",
-    "fillBracketsTitle": "Pools over",
     "openStages": "Open the stages",
     "poolCompleteText": "Check the standings before the next stage.",
     "checkStandings": "Check the standings",
@@ -516,7 +516,9 @@
     "forceOn": "Force on court:",
     "noOpenCourt": "No court available",
     "launchHint": "Choose the court",
-    "forceHint": "Call anyway: the rest or presence is only a warning"
+    "forceHint": "Call anyway: the rest or presence is only a warning",
+    "fillStageTitle": "{stage}: ready to fill",
+    "fillStage": "The phases feeding it are over: fill it to go on."
   },
   "priority": {
     "balanced": "Balanced",
@@ -532,8 +534,6 @@
     "correctionHint": "Correction mode: edit or clear a score, declare or cancel a forfeit, swap two matches. Every action is logged and can be undone.",
     "swapPick": "Pick the match to swap with {id}.",
     "notStarted": "The pools appear once the draw is confirmed.",
-    "winSets": "{sets, plural, =1 {1 set} other {best of {sets, plural, =2 {3} other {5}}}} of {points}{cap, plural, =0 {} other { · cap {cap}}}",
-    "winTimed": "Timed · {minutes} min · golden point",
     "drawLots": "Draw lots",
     "tiebreaks": "tiebreaks:",
     "entrant": "Entrant",
@@ -592,7 +592,6 @@
     "notStarted": "No standings yet: confirm the draw first.",
     "origin": "Path",
     "tiedRank": "{rank}=",
-    "eliminatedInPools": "Pools ({n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}})",
     "csv": {
       "category": "Category",
       "rank": "Rank",
@@ -604,7 +603,9 @@
     },
     "lead": "Full standings, from the first to the last place.",
     "place": "Place",
-    "provisionalHint": "Tournament in progress: preview of the standings, from the current pool standings and brackets."
+    "provisionalHint": "Tournament in progress: preview of the standings, from the current pool standings and brackets.",
+    "bracketPlace": "place {n}",
+    "poolRank": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of pool"
   },
   "rounds": {
     "elapsed": "Time elapsed",
@@ -649,6 +650,55 @@
   },
   "homeTabs": {
     "home": "Home",
-    "settings": "Settings"
+    "settings": "Settings",
+    "presets": "Presets"
+  },
+  "stage": {
+    "kind": {
+      "pools": "Pools",
+      "bracket": "Bracket"
+    }
+  },
+  "presets": {
+    "title": "Presets",
+    "lead": "Formats, win conditions and tiebreak orders saved on this PC, for every tournament.",
+    "formats": "Formats",
+    "winConditions": "Win conditions",
+    "tiebreakOrders": "Tiebreak orders",
+    "builtIn": "Built in",
+    "delete": "Delete",
+    "applyTo": "Apply to {category}",
+    "saveFromFormat": "Save your own from the Format screen of a tournament.",
+    "name": "Preset name",
+    "description": "Description (optional)",
+    "save": "Save",
+    "saveShort": "Save…",
+    "choose": "Apply a preset…",
+    "format": {
+      "pools": {
+        "name": "Pools only",
+        "description": "4 pools, everyone ranked by pool position."
+      },
+      "poolsMain": {
+        "name": "Pools + main bracket",
+        "description": "4 pools, the top two of each pool in a bracket with every place played."
+      },
+      "poolsMainConsolation": {
+        "name": "Pools + main + consolation",
+        "description": "4 pools; ranks 1-2 in the main bracket, ranks 3-4 in a consolation bracket."
+      },
+      "bracket": {
+        "name": "Bracket with every place",
+        "description": "Straight knockout from the draw, every place played."
+      },
+      "twoPoolRounds": {
+        "name": "Two pool rounds + final",
+        "description": "4 pools, the top two in 2 new pools, then a final bracket for their top two."
+      }
+    },
+    "tiebreaks": {
+      "standard": "Standard",
+      "pointsFirst": "Points before head-to-head"
+    }
   }
 }

@@ -231,7 +231,14 @@
 }
 
 .court-number {
+  flex: none;
   font: 700 36px/1 var(--font-mono);
+}
+
+// A long stage name never hides the court state: the badge gives way.
+.court-head app-category-badge {
+  flex: 0 1 auto;
+  max-width: 58%;
 }
 
 .court-state {
@@ -239,7 +246,7 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  min-width: 0;
+  min-width: 72px;
 }
 
 .court-label {
@@ -707,6 +714,7 @@
 .pending-meta {
   font-size: 12px;
   color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .pending-side {
@@ -765,14 +773,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+
+  app-category-badge {
+    flex: 0 1 auto;
+  }
 }
 
 .queue-id {
+  flex: none;
   font: 500 12px var(--font-mono);
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .queue-status {
+  flex: none;
   margin-left: auto;
 }
 
@@ -876,6 +892,7 @@
 
 // Calling a queued match by hand, resting or not.
 .launch-btn {
+  flex: none;
   height: 26px;
   padding: 0 10px;
   border-radius: var(--radius-sm);

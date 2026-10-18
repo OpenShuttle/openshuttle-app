@@ -17,10 +17,8 @@ func (g *game) confirmedPools(c engine.Category, pools, entrants int) {
 		clubs[i] = string(rune('a' + i))
 	}
 	g.presentSingles(c, clubs, entrants)
-	st := DefaultPoolStage()
-	st.Pools = pools
-	g.do(func(s State) (Change, error) { return s.ConfigurePoolStage(c, st) })
-	g.do(func(s State) (Change, error) { return s.DrawPools(c, rng()) })
+	g.editStage(c, "S1", func(st *StageConfig) { st.Pools = pools })
+	g.do(func(s State) (Change, error) { return s.DrawEntry(c, rng()) })
 	g.do(func(s State) (Change, error) { return s.ConfirmDraw(c) })
 }
 
@@ -216,7 +214,7 @@ func TestWithdrawal(t *testing.T) {
 	}
 	g.fails(engine.CodeMatchWalkover, func(s State) (Change, error) { return s.RecordScore("MS-A1", straight) })
 
-	rows := st.PoolStandings(engine.MensSingles, 0).Rows
+	rows := st.PoolStandings(engine.MensSingles, "S1", 0).Rows
 	if last := rows[len(rows)-1]; last.Entrant != a1.A || !last.Withdrawn {
 		t.Errorf("withdrawn should rank last: %+v", rows)
 	}
@@ -234,7 +232,7 @@ func TestCompletePools(t *testing.T) {
 			g.do(func(s State) (Change, error) { return s.RecordScore(m.ID, straight) })
 		}
 	}
-	if got := g.state().CompletePools(); len(got) != 1 || got[0] != (PoolRef{engine.MensSingles, 0}) {
+	if got := g.state().CompletePools(); len(got) != 1 || got[0] != (PoolRef{engine.MensSingles, "S1", 0}) {
 		t.Errorf("complete = %v", got)
 	}
 }

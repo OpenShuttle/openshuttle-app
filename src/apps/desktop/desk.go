@@ -33,15 +33,19 @@ type MatchView struct {
 	Score    *engine.Score       `json:"score"`
 	Walkover bool                `json:"walkover"`
 	Win      engine.WinCondition `json:"win"`
+	// Stage of the match: its name ("" shows the kind's label), its kind,
+	// and whether it is the entry stage (its name is then left out).
+	Stage      string               `json:"stage"`
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
 	// Bracket matches: Pool is empty, the round plays for places
 	// PlaceFrom..PlaceTo with RoundSize entrants (2 for a final).
-	Bracket     string `json:"bracket"`
-	BracketName string `json:"bracketName"`
-	PlaceFrom   int    `json:"placeFrom"`
-	PlaceTo     int    `json:"placeTo"`
-	RoundSize   int    `json:"roundSize"`
-	ByeA        bool   `json:"byeA"`
-	ByeB        bool   `json:"byeB"`
+	PlaceFrom int  `json:"placeFrom"`
+	PlaceTo   int  `json:"placeTo"`
+	RoundSize int  `json:"roundSize"`
+	ByeA      bool `json:"byeA"`
+	ByeB      bool `json:"byeB"`
 }
 
 // CourtView is a court card: its match and the next match proposed.
@@ -60,10 +64,21 @@ type QueueView struct {
 	RestingSince *time.Time          `json:"restingSince"`
 }
 
-// PoolRefView names a pool.
+// PoolRefView names a pool of a stage.
 type PoolRefView struct {
 	CategoryRef
-	Pool string `json:"pool"`
+	Stage      string `json:"stage"`
+	StageName  string `json:"stageName"`
+	EntryStage bool   `json:"entryStage"`
+	Pool       string `json:"pool"`
+}
+
+// StageRefView names a stage.
+type StageRefView struct {
+	CategoryRef
+	Stage string               `json:"stage"`
+	Name  string               `json:"name"`
+	Kind  tournament.StageKind `json:"kind"`
 }
 
 // ControlDeskView is the control desk: courts, pending scores, queue, alerts.
@@ -73,12 +88,11 @@ type ControlDeskView struct {
 	Pending  []MatchView   `json:"pending"`
 	Queue    []QueueView   `json:"queue"`
 	Complete []PoolRefView `json:"complete"`
-	// BracketsToFill lists categories whose pools are over with brackets
-	// still to fill from them.
-	BracketsToFill []CategoryRef `json:"bracketsToFill"`
-	Priority       string        `json:"priority"`
-	MinRest        int           `json:"minRest"`
-	Categories     []CategoryRef `json:"categories"`
+	// StagesToFill lists the later stages ready to be filled.
+	StagesToFill []StageRefView `json:"stagesToFill"`
+	Priority     string         `json:"priority"`
+	MinRest      int            `json:"minRest"`
+	Categories   []CategoryRef  `json:"categories"`
 	// Started is false until a draw is confirmed: there is nothing to call yet.
 	Started bool       `json:"started"`
 	Rounds  RoundsView `json:"rounds"`
@@ -110,10 +124,13 @@ type DisplayView struct {
 // ranking, or the matches of a bracket.
 type DisplayBoard struct {
 	CategoryRef
-	Pool        string         `json:"pool"`        // pool boards
-	BracketName string         `json:"bracketName"` // bracket boards
-	Standings   []StandingView `json:"standings"`
-	Matches     []MatchView    `json:"matches"`
+	Stage      string               `json:"stage"`
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
+	Pool       string               `json:"pool"` // pool boards
+	Standings  []StandingView       `json:"standings"`
+	Matches    []MatchView          `json:"matches"`
 }
 
 // CallMatch calls a match on a court.
@@ -193,21 +210,22 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 	for _, ref := range v.Categories {
 		slots[ref.Category] = ref.Slot
 	}
-	v.BracketsToFill = []CategoryRef{}
-	hasBrackets := map[engine.Category]bool{}
+	v.StagesToFill = []StageRefView{}
 	for _, ref := range v.Categories {
-		brackets := st.Brackets(ref.Category)
-		hasBrackets[ref.Category] = len(brackets) > 0
-		if poolsSettled(st, ref.Category) && slices.ContainsFunc(brackets, func(b tournament.Bracket) bool {
-			return !b.Drawn() && len(st.Routed(ref.Category, b.ID)) >= 2
-		}) {
-			v.BracketsToFill = append(v.BracketsToFill, ref)
+		for i, stage := range st.Stages(ref.Category) {
+			if i > 0 && !stage.Filled() && st.CanFill(ref.Category, stage.ID) {
+				v.StagesToFill = append(v.StagesToFill, StageRefView{ref, stage.ID, stage.Name, stage.Kind})
+			}
 		}
 	}
 	for _, p := range st.CompletePools() {
-		// Once brackets exist, the "fill the brackets" alert replaces these.
-		if !hasBrackets[p.Category] {
-			v.Complete = append(v.Complete, PoolRefView{CategoryRef{p.Category, slots[p.Category]}, engine.PoolName(p.Pool)})
+		// Pools feeding a later stage lead to the "fill" alert instead.
+		stage, _ := st.Stage(p.Category, p.Stage)
+		if len(stage.Routing) == 0 {
+			v.Complete = append(v.Complete, PoolRefView{
+				CategoryRef: CategoryRef{p.Category, slots[p.Category]}, Stage: p.Stage, StageName: stage.Name,
+				EntryStage: st.Stages(p.Category)[0].ID == p.Stage, Pool: engine.PoolName(p.Pool),
+			})
 		}
 	}
 	return v
@@ -275,10 +293,11 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 			A: side(m.A), B: side(m.B), Court: m.Court, Score: m.Score,
 			Walkover: st.Walkover(m), Win: st.WinCondition(m),
 		}
-		if m.Bracket != "" {
-			b, _ := st.Bracket(m.Category, m.Bracket)
+		stage, _ := st.Stage(m.Category, m.Stage)
+		v.Stage, v.StageName, v.StageKind = m.Stage, stage.Name, stage.Kind
+		v.EntryStage = st.Stages(m.Category)[0].ID == m.Stage
+		if m.IsBracket() {
 			v.Pool, v.Round = "", 0
-			v.Bracket, v.BracketName = m.Bracket, b.Name
 			v.PlaceFrom, v.PlaceTo, v.RoundSize = m.Start, m.Start+m.Size-1, m.Size
 			v.ByeA, v.ByeB = m.ByeA, m.ByeB
 		}
@@ -324,38 +343,36 @@ func scoreLabel(sc engine.Score) string {
 	return strings.Join(parts, " ")
 }
 
-// displayBoards lists, per category, each pool ranking then each filled
-// bracket with its matches whose entrants are known.
+// displayBoards lists, per category and stage, each pool ranking and each
+// filled bracket with its matches whose entrants are known.
 func displayBoards(st tournament.State, mv func(tournament.Match) MatchView) []DisplayBoard {
 	side := sideViewer(st)
 	boards := []DisplayBoard{}
+	matches := st.Matches()
 	for _, ref := range categoryRefs(st) {
-		d, ok := st.Draw(ref.Category)
-		if !ok || !d.Confirmed {
-			continue
-		}
-		for p := range d.Pools {
-			b := DisplayBoard{CategoryRef: ref, Pool: engine.PoolName(p), Standings: []StandingView{}, Matches: []MatchView{}}
-			for _, row := range st.PoolStandings(ref.Category, p).Rows {
-				b.Standings = append(b.Standings, StandingView{
-					Rank: row.Rank, Entrant: side(row.Entrant), Played: row.Played, Wins: row.Wins, Losses: row.Losses,
-					SetsWon: row.SetsWon, SetsLost: row.SetsLost, PointsWon: row.PointsWon, PointsLost: row.PointsLost,
-					Withdrawn: row.Withdrawn, DrawNeeded: row.DrawNeeded,
-				})
-			}
-			boards = append(boards, b)
-		}
-		for _, br := range st.Brackets(ref.Category) {
-			if !br.Drawn() {
+		for i, stage := range st.Stages(ref.Category) {
+			if !stage.Confirmed {
 				continue
 			}
-			b := DisplayBoard{CategoryRef: ref, BracketName: br.Name, Standings: []StandingView{}, Matches: []MatchView{}}
-			for _, m := range st.Matches() {
-				if m.Category == ref.Category && m.Bracket == br.ID && st.Playable(m) {
-					b.Matches = append(b.Matches, mv(m))
+			base := DisplayBoard{CategoryRef: ref, Stage: stage.ID, StageName: stage.Name, StageKind: stage.Kind,
+				EntryStage: i == 0, Standings: []StandingView{}, Matches: []MatchView{}}
+			if stage.Kind == tournament.StagePools {
+				for p := range stage.Groups {
+					b := base
+					b.Pool, b.Standings = engine.PoolName(p), []StandingView{}
+					for _, row := range st.PoolStandings(ref.Category, stage.ID, p).Rows {
+						b.Standings = append(b.Standings, standingView(row, side))
+					}
+					boards = append(boards, b)
+				}
+				continue
+			}
+			for _, m := range matches {
+				if m.Category == ref.Category && m.Stage == stage.ID && st.Playable(m) {
+					base.Matches = append(base.Matches, mv(m))
 				}
 			}
-			boards = append(boards, b)
+			boards = append(boards, base)
 		}
 	}
 	return boards

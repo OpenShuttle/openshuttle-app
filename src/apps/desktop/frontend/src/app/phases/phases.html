@@ -13,11 +13,12 @@
               }
             </div>
           }
-          @if ((c.brackets ?? []).length > 0) {
+          @if ((c.stages ?? []).length > 1) {
             <div class="seg stages">
-              <button type="button" class="seg-option" [class.active]="!bracket()" (click)="selectStage('pools')">{{ t('format.poolsShort') }}</button>
-              @for (b of c.brackets; track b.id) {
-                <button type="button" class="seg-option" [class.active]="bracket()?.id === b.id" (click)="selectStage(b.id)">{{ b.name }}</button>
+              @for (st of c.stages; track st.id) {
+                <button type="button" class="seg-option" [class.active]="stage()?.id === st.id" (click)="selectStage(st.id)">
+                  {{ label(st) }}
+                </button>
               }
             </div>
           }
@@ -49,23 +50,38 @@
           <a class="btn btn-sm" routerLink="../info">{{ t('entrants.goToInfo') }}</a>
         </div>
       } @else if (current(); as c) {
-        @if (bracket(); as b) {
+        @if (stage(); as b) {
           <div class="bracket-head">
-            <span class="pill" [class.pill-free]="bracketStatus(b) === 'finished'" [class.pill-playing]="bracketStatus(b) === 'inProgress'" [class.pill-muted]="bracketStatus(b) === 'notDrawn' || bracketStatus(b) === 'ready'">
-              {{ t('phases.bracketStatus.' + bracketStatus(b)) }}
+            <span class="pill" [class.pill-free]="status(b) === 'finished'" [class.pill-playing]="status(b) === 'inProgress'" [class.pill-muted]="status(b) === 'notDrawn' || status(b) === 'ready'">
+              {{ t('phases.bracketStatus.' + status(b)) }}
             </span>
-            <span class="note">{{ t('phases.routedCount', { n: b.routed }) }} · {{ t(b.fullPlacement ? 'format.fullPlacement' : 'format.tiedByRound') }}</span>
-            @if (!b.canDraw && !b.drawn) {
+            <span class="note">
+              {{ t('format.phaseKind', { n: b.phase, kind: t('stage.kind.' + b.kind) }) }} · {{ win(b) }}
+              @if (!b.entry) {
+                · {{ t('phases.routedCount', { n: b.routed }) }}
+              }
+              @if (b.kind === 'bracket') {
+                · {{ t(b.fullPlacement ? 'format.fullPlacement' : 'format.tiedByRound') }}
+              }
+            </span>
+            @if (!b.entry && !b.confirmed && !b.canFill) {
               <span class="note">{{ t('phases.waitPools') }}</span>
             }
-            @if (!b.started) {
-              <button type="button" class="btn btn-sm draw-bracket" [disabled]="!b.canDraw" (click)="tournament.drawBracket(c.category, b.id)">
-                {{ t(b.drawn ? 'phases.redrawBracket' : 'phases.drawBracket') }}
+            @if (!b.entry && !b.started) {
+              <button type="button" class="btn btn-sm draw-bracket" [disabled]="!b.canFill && !b.confirmed" (click)="tournament.fillStage(c.category, b.id)">
+                {{ t(b.confirmed ? 'phases.redrawBracket' : 'phases.drawBracket') }}
               </button>
             }
           </div>
 
-          @if (b.drawn) {
+          @if (b.entry && !c.started) {
+            <div class="card empty">
+              <span>{{ t('phases.notStarted') }}</span>
+              <a class="btn btn-sm" routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+            </div>
+          } @else if (b.kind === 'pools' && b.confirmed) {
+            <ng-container *ngTemplateOutlet="poolsView; context: { $implicit: b, c: c }" />
+          } @else if (b.kind === 'bracket' && b.confirmed) {
             @if (correction() && !b.started) {
               <div class="card slots">
                 <span class="field-label">{{ t('phases.firstRoundSlots') }}</span>
@@ -131,27 +147,29 @@
               </div>
             }
           }
-        } @else if (!c.started) {
-          <div class="card empty">
-            <span>{{ t('phases.notStarted') }}</span>
-            <a class="btn btn-sm" routerLink="../draw">{{ t('desk.goToDraw') }}</a>
-          </div>
-        } @else {
+        }
+      }
+    </div>
+
+    @if (showHistory()) {
+      <app-history-panel />
+    }
+  </div>
+
+  <ng-template #poolsView let-b let-c="c">
           <p class="stage-line">
-            {{ t('format.stage', { n: 1 }) }} · {{ t('format.poolsShort') }} ·
-            {{ t(winKey(c), { sets: c.stage.win.setsToWin, points: c.stage.win.pointsPerSet, cap: c.stage.win.cap || 0, minutes: c.stage.win.minutes }) }} ·
             {{ t('phases.tiebreaks') }}
-            @for (tb of c.stage.tiebreaks; track tb; let last = $last) {
+            @for (tb of b.tiebreaks; track tb; let last = $last) {
               {{ t('tiebreak.' + tb) }}{{ last ? '' : ' › ' }}
             }
           </p>
           <div class="pools">
-            @for (pool of c.pools; track pool.index) {
+            @for (pool of b.pools; track pool.index) {
               <section class="card pool">
                 <header class="pool-head">
                   <span class="pool-name">{{ t('category.short.' + c.category) }} · {{ t('desk.pool', { pool: pool.name }) }}</span>
                   @if (pool.drawNeeded) {
-                    <button type="button" class="btn btn-xs" (click)="tournament.drawLots(c.category, pool.index)">{{ t('phases.drawLots') }}</button>
+                    <button type="button" class="btn btn-xs" (click)="tournament.drawLots(c.category, b.id, pool.index)">{{ t('phases.drawLots') }}</button>
                   }
                   <span class="pill" [class.pill-free]="pool.complete" [class.pill-muted]="!pool.complete">
                     {{ t('phases.playedOf', { n: played(pool), total: (pool.matches ?? []).length }) }}
@@ -232,14 +250,7 @@
               </section>
             }
           </div>
-        }
-      }
-    </div>
-
-    @if (showHistory()) {
-      <app-history-panel />
-    }
-  </div>
+  </ng-template>
 
   @if (scoring(); as m) {
     <app-score-panel [match]="m" (closed)="scoring.set(null)" />

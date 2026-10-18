@@ -1,7 +1,6 @@
 package tournament
 
 import (
-	"fmt"
 	"slices"
 	"time"
 
@@ -16,21 +15,22 @@ const (
 	TypeEntrantWithdrawn events.Type = "EntrantWithdrawn"
 )
 
-// MatchID identifies a match: category, pool and number, like "MD-A3".
+// MatchID identifies a match: category, stage (but the entry stage's),
+// then pool and number, or the bracket match number: "MD-A3", "MD-S2-5".
 type MatchID string
 
-// Match is a pool match. Matches are not events: they are derived from the
-// confirmed draw. Events record what happens to them.
+// Match is a match of a stage. Matches are not events: they are derived from
+// the filled stages. Events record what happens to them.
 type Match struct {
 	ID       MatchID
 	Category engine.Category
+	Stage    string
 	Pool     int // 0 is A; -1 for a bracket match
 	Round    int // 0-based round within the pool
 	A, B     engine.EntrantID
 
-	// Bracket matches: the bracket and the sub-bracket whose first round
-	// this match is. A and B are "" until known; ByeA/ByeB mark byes.
-	Bracket     string
+	// Bracket matches: the sub-bracket whose first round this match is. A and
+	// B are "" until known; ByeA/ByeB mark byes.
 	Start, Size int
 	Index       int
 	ByeA, ByeB  bool
@@ -71,16 +71,20 @@ type ScoreRecorded struct {
 	Score engine.Score `json:"score"`
 }
 
-// EntrantWithdrawn is the payload of TypeEntrantWithdrawn: a forfeit. In a
-// pool, all the entrant's matches become walkovers, played or not.
+// EntrantWithdrawn is the payload of TypeEntrantWithdrawn: a forfeit,
+// declared during Stage. Every match of the entrant in that stage and the
+// later ones becomes a walkover, played or not; earlier stages keep their
+// results.
 type EntrantWithdrawn struct {
 	Entrant engine.EntrantID `json:"entrant"`
-	// Scope is ScopePools or ScopeBrackets; empty in pools for older files.
-	Scope string `json:"scope,omitempty"`
+	Stage   string           `json:"stage"`
 }
 
-// Matches returns every pool match, in schedule order: round by round,
-// pools interleaved, categories in confirmation order.
+// IsBracket reports whether a match belongs to a bracket stage.
+func (m Match) IsBracket() bool { return m.Pool < 0 }
+
+// Matches returns every match, in schedule order: stage by stage, round by
+// round with pools interleaved, categories in confirmation order.
 func (s State) Matches() []Match {
 	return slices.Clone(s.matches)
 }
@@ -98,23 +102,25 @@ func (s State) matchIndex(id MatchID) int {
 	return slices.IndexFunc(s.matches, func(m Match) bool { return m.ID == id })
 }
 
-// Forfeit scopes: a forfeit in the pools turns every pool match of the
-// entrant into a walkover; a forfeit once the brackets are drawn only loses
-// the bracket matches, pool results stay.
-const (
-	ScopePools    = "pools"
-	ScopeBrackets = "brackets"
-)
-
 // Withdrawn reports whether an entrant forfeited.
 func (s State) Withdrawn(id engine.EntrantID) bool { return s.withdrawn[id] != "" }
 
-// Walkover reports whether a match is a walkover: one side withdrew.
+// withdrawnBy reports whether an entrant forfeited in the stage at position
+// si of its category, or before.
+func (s State) withdrawnBy(id engine.EntrantID, c engine.Category, si int) bool {
+	w := s.withdrawn[id]
+	return w != "" && s.stageIndex(c, w) <= si
+}
+
+// withdrawnFrom reports whether a forfeit applies to a match of the entrant.
+func (s State) withdrawnFrom(id engine.EntrantID, m Match) bool {
+	return id != "" && s.withdrawnBy(id, m.Category, s.stageIndex(m.Category, m.Stage))
+}
+
+// Walkover reports whether a match is a walkover: one side forfeited in this
+// stage or an earlier one.
 func (s State) Walkover(m Match) bool {
-	if m.Bracket == "" {
-		return s.withdrawn[m.A] == ScopePools || s.withdrawn[m.B] == ScopePools
-	}
-	return s.Playable(m) && (s.withdrawn[m.A] != "" || s.withdrawn[m.B] != "")
+	return s.Playable(m) && (s.withdrawnFrom(m.A, m) || s.withdrawnFrom(m.B, m))
 }
 
 // Decided reports whether a match has a result: a score or a walkover.
@@ -127,12 +133,10 @@ func (s State) Playing(m Match) bool {
 
 // WinCondition returns the win condition of a match.
 func (s State) WinCondition(m Match) engine.WinCondition {
-	if m.Bracket != "" {
-		if b := s.bracket(m.Category, m.Bracket); b != nil {
-			return b.Win
-		}
+	if st := s.stage(m.Category, m.Stage); st != nil {
+		return st.Win
 	}
-	return s.PoolStage(m.Category).Win
+	return DefaultPoolsStage("").Win
 }
 
 // CallMatch calls a match on a court. The court must not have a match in
@@ -194,7 +198,7 @@ func (s State) RecordScore(id MatchID, score engine.Score) (Change, error) {
 	if err != nil {
 		return Change{}, err
 	}
-	if m.Bracket != "" && s.nextStarted(m) {
+	if m.IsBracket() && s.nextStarted(m) {
 		was := s.winnerOf(m)
 		now := m.A
 		if winner == engine.SideB {
@@ -209,22 +213,28 @@ func (s State) RecordScore(id MatchID, score engine.Score) (Change, error) {
 	return Change{TypeScoreRecorded, ScoreRecorded{Match: id, Score: score}}, nil
 }
 
-// WithdrawEntrant declares a forfeit for an entrant of the pools.
+// WithdrawEntrant declares a forfeit for an entrant, in the latest stage it
+// plays.
 func (s State) WithdrawEntrant(id engine.EntrantID) (Change, error) {
-	if _, ok := s.Entrant(id); !ok {
+	e, ok := s.Entrant(id)
+	if !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
 	}
-	if !slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) }) {
+	stage, latest := "", -1
+	for _, m := range s.matches {
+		if m.Has(id) {
+			if i := s.stageIndex(e.Category, m.Stage); i > latest {
+				stage, latest = m.Stage, i
+			}
+		}
+	}
+	if stage == "" {
 		return Change{}, engine.NewError(engine.CodeEntrantNotInPools)
 	}
 	if s.withdrawn[id] != "" {
 		return Change{}, nil
 	}
-	scope := ScopePools
-	if slices.ContainsFunc(s.matches, func(m Match) bool { return m.Bracket != "" && m.Has(id) }) {
-		scope = ScopeBrackets
-	}
-	return Change{TypeEntrantWithdrawn, EntrantWithdrawn{Entrant: id, Scope: scope}}, nil
+	return Change{TypeEntrantWithdrawn, EntrantWithdrawn{Entrant: id, Stage: stage}}, nil
 }
 
 // MatchesStarted reports whether a category has a match called, scored or
@@ -233,43 +243,6 @@ func (s State) MatchesStarted(c engine.Category) bool {
 	return slices.ContainsFunc(s.matches, func(m Match) bool {
 		return m.Category == c && (m.Called() || s.Decided(m))
 	})
-}
-
-// generateMatches builds the round-robin matches of a confirmed draw.
-func (s *State) generateMatches(c engine.Category) {
-	d := s.draws[c]
-	if d == nil {
-		return
-	}
-	schedules := make([][][][2]int, len(d.Pools))
-	maxRounds := 0
-	for p, pool := range d.Pools {
-		schedules[p] = engine.RoundRobinSchedule(len(pool))
-		maxRounds = max(maxRounds, len(schedules[p]))
-	}
-	counts := make([]int, len(d.Pools))
-	for r := range maxRounds {
-		for p, pool := range d.Pools {
-			if r >= len(schedules[p]) {
-				continue
-			}
-			for _, pair := range schedules[p][r] {
-				counts[p]++
-				s.matches = append(s.matches, Match{
-					ID:       MatchID(fmt.Sprintf("%s-%s%d", c, engine.PoolName(p), counts[p])),
-					Category: c,
-					Pool:     p,
-					Round:    r,
-					A:        pool[pair[0]],
-					B:        pool[pair[1]],
-				})
-			}
-		}
-	}
-}
-
-func (s *State) dropMatches(c engine.Category) {
-	s.matches = slices.DeleteFunc(s.matches, func(m Match) bool { return m.Category == c && m.Bracket == "" })
 }
 
 func (s *State) applyMatchCalled(p MatchCalled, at time.Time, seq uint64) {
@@ -300,11 +273,7 @@ func (s *State) applyEntrantWithdrawn(p EntrantWithdrawn, at time.Time) {
 	if s.withdrawn == nil {
 		s.withdrawn = map[engine.EntrantID]string{}
 	}
-	scope := p.Scope
-	if scope == "" {
-		scope = ScopePools
-	}
-	s.withdrawn[p.Entrant] = scope
+	s.withdrawn[p.Entrant] = p.Stage
 	// A match in progress stops: the court is free again.
 	for i, m := range s.matches {
 		if m.Has(p.Entrant) && m.Called() && m.EndedAt.IsZero() {

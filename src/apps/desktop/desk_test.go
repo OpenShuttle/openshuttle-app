@@ -35,10 +35,10 @@ func TestControlDesk(t *testing.T) {
 	for _, row := range f.svc.GetCheckInView().Rows {
 		must(f.svc.CheckInPlayer(ctx, row.ID))
 	}
-	stage := tournament.DefaultPoolStage()
-	stage.Pools = 1
-	must(f.svc.ConfigurePoolStage(ctx, engine.MensSingles, stage))
-	must(f.svc.DrawPools(ctx, engine.MensSingles))
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) {
+		stage.Pools = 1
+	}))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
 	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
 
 	v := f.svc.GetControlDeskView()

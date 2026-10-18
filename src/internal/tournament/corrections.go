@@ -38,6 +38,7 @@ type MatchesSwapped struct {
 // a pool. Lower lots rank first.
 type LotsDrawn struct {
 	Category engine.Category          `json:"category"`
+	Stage    string                   `json:"stage"`
 	Pool     int                      `json:"pool"`
 	Lots     map[engine.EntrantID]int `json:"lots"`
 }
@@ -86,9 +87,9 @@ func (s State) SwapMatches(a, b MatchID) (Change, error) {
 
 // DrawLots draws lots among the entrants of a complete pool still tied after
 // every other criterion. rng is seeded by the caller; the event stores the lots.
-func (s State) DrawLots(c engine.Category, pool int, rng *rand.Rand) (Change, error) {
+func (s State) DrawLots(c engine.Category, stage string, pool int, rng *rand.Rand) (Change, error) {
 	var tied []engine.EntrantID
-	for _, row := range s.PoolStandings(c, pool).Rows {
+	for _, row := range s.PoolStandings(c, stage, pool).Rows {
 		if row.DrawNeeded {
 			tied = append(tied, row.Entrant)
 		}
@@ -101,7 +102,7 @@ func (s State) DrawLots(c engine.Category, pool int, rng *rand.Rand) (Change, er
 	for i, id := range tied {
 		lots[id] = order[i] + 1
 	}
-	return Change{TypeLotsDrawn, LotsDrawn{Category: c, Pool: pool, Lots: lots}}, nil
+	return Change{TypeLotsDrawn, LotsDrawn{Category: c, Stage: stage, Pool: pool, Lots: lots}}, nil
 }
 
 func (s *State) applyScoreCleared(p ScoreCleared) {
@@ -129,7 +130,7 @@ func (s *State) applyLotsDrawn(p LotsDrawn) {
 	if s.lots == nil {
 		s.lots = map[PoolRef]map[engine.EntrantID]int{}
 	}
-	ref := PoolRef{p.Category, p.Pool}
+	ref := PoolRef{p.Category, p.Stage, p.Pool}
 	lots := map[engine.EntrantID]int{}
 	for id, lot := range s.lots[ref] {
 		lots[id] = lot

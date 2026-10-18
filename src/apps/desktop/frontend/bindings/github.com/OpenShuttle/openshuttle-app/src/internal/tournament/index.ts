@@ -3,13 +3,13 @@
 
 export {
     CourtState,
-    NotReady
+    NotReady,
+    StageKind
 } from "./models.js";
 
 export type {
-    BracketConfig,
     MatchID,
     PlayerID,
     PlayerInput,
-    PoolStage
+    StageConfig
 } from "./models.js";

@@ -302,16 +302,16 @@
           <p class="aside-empty">{{ t('desk.noAlert') }}</p>
         }
         <div class="alert-list">
-          @for (c of view().bracketsToFill; track c.category) {
+          @for (st of view().stagesToFill; track st.category + st.stage) {
             <div class="alert">
-              <span class="alert-title"><app-category-badge [category]="c.category" [slot]="c.slot" /> {{ t('desk.fillBracketsTitle') }}</span>
-              <span class="alert-text">{{ t('desk.fillBrackets') }}</span>
+              <span class="alert-title"><app-category-badge [category]="st.category" [slot]="st.slot" /> {{ t('desk.fillStageTitle', { stage: stageName(st) }) }}</span>
+              <span class="alert-text">{{ t('desk.fillStage') }}</span>
               <a class="alert-btn" routerLink="../stages">{{ t('desk.openStages') }}</a>
             </div>
           }
-          @for (p of view().complete; track p.category + p.pool) {
+          @for (p of view().complete; track p.category + p.stage + p.pool) {
             <div class="alert">
-              <span class="alert-title"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.poolComplete', { pool: p.pool }) }}</span>
+              <span class="alert-title"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ p.entryStage ? '' : stageName({ name: p.stageName, kind: 'pools' }) + ' · ' }}{{ t('desk.poolComplete', { pool: p.pool }) }}</span>
               <span class="alert-text">{{ t('desk.poolCompleteText') }}</span>
               <a class="alert-btn" routerLink="../stages">{{ t('desk.checkStandings') }}</a>
             </div>

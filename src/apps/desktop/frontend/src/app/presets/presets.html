@@ -1,0 +1,94 @@
+<ng-container *transloco="let t">
+  <div class="page-body">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('presets.title') }}</h1>
+        <span class="page-sub">{{ t('presets.lead') }}</span>
+      </div>
+    </div>
+
+    @if (presets.error(); as error) {
+      <div class="error" role="alert">{{ t('errors.' + error.code) }}</div>
+    }
+
+    <h2 class="section-title">{{ t('presets.formats') }}</h2>
+    <div class="cards">
+      @for (p of presets.value().formats ?? []; track p.id) {
+        <div class="card preset">
+          <div class="preset-head">
+            <span class="preset-name">{{ formatName(p) }}</span>
+            @if (builtIn(p.id)) {
+              <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
+            }
+          </div>
+          @if (formatDescription(p)) {
+            <span class="preset-desc">{{ formatDescription(p) }}</span>
+          }
+          <div class="diagram">
+            @for (col of columns(p); track $index; let first = $first) {
+              @if (!first) {
+                <span class="arrow">→</span>
+              }
+              <div class="col">
+                @for (st of col; track st.id) {
+                  <span class="chip">{{ chip(st) }}</span>
+                }
+              </div>
+            }
+          </div>
+          <div class="preset-actions">
+            @if (tournament.view().open) {
+              @for (c of tournament.view().categories ?? []; track c.category) {
+                <button type="button" class="btn btn-sm btn-primary" (click)="apply(p, c.category)">
+                  {{ t('presets.applyTo', { category: t('category.short.' + c.category) }) }}
+                </button>
+              }
+            }
+            @if (!builtIn(p.id)) {
+              <button type="button" class="btn-link delete" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="lists">
+      <section class="card list">
+        <h2 class="list-title">{{ t('presets.winConditions') }}</h2>
+        @for (p of presets.value().win ?? []; track p.id) {
+          <div class="row">
+            <span class="row-text">
+              @if (p.name) {
+                <strong>{{ p.name }}</strong> ·
+              }
+              {{ win(p.win) }}
+            </span>
+            @if (!builtIn(p.id)) {
+              <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
+            }
+          </div>
+        }
+        <span class="hint">{{ t('presets.saveFromFormat') }}</span>
+      </section>
+      <section class="card list">
+        <h2 class="list-title">{{ t('presets.tiebreakOrders') }}</h2>
+        @for (p of presets.value().tiebreaks ?? []; track p.id) {
+          <div class="row">
+            <span class="row-text">
+              <strong>{{ tiebreakName(p) }}</strong>
+              <span class="order">
+                @for (tb of p.tiebreaks ?? []; track tb; let last = $last) {
+                  {{ t('tiebreak.' + tb) }}{{ last ? '' : ' › ' }}
+                }
+              </span>
+            </span>
+            @if (!builtIn(p.id)) {
+              <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
+            }
+          </div>
+        }
+        <span class="hint">{{ t('presets.saveFromFormat') }}</span>
+      </section>
+    </div>
+  </div>
+</ng-container>

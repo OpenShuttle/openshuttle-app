@@ -41,8 +41,67 @@
   width: 340px;
 }
 
-.add-bracket {
-  height: 40px;
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.preset-select {
+  height: 36px;
+  font-size: 14px;
+  max-width: 260px;
+
+  &.full {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+.save-form {
+  flex-basis: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .input {
+    height: 36px;
+    width: 220px;
+
+    &.wide {
+      flex: 1;
+    }
+  }
+}
+
+.save-inline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
+  .input {
+    flex: 1;
+    height: 30px;
+    font-size: 14px;
+  }
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link {
+  flex: none;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-link);
 }
 
 // Stage graph on a dotted canvas.
@@ -123,12 +182,20 @@
   font-size: 17px;
   font-weight: 800;
   line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .node-line {
   font-size: 13px;
   color: #33363d;
   line-height: 1.35;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .node-places {
@@ -183,7 +250,7 @@
 
 .preview-table {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
   font-size: 13px;
 }
 
@@ -365,7 +432,7 @@
 
 .route {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 86px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 

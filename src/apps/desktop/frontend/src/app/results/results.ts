@@ -8,6 +8,8 @@ import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { shortNames } from '../shared/names';
+import { stageLabel } from '../shared/stage-label';
+import { StageKind } from '@bindings/internal/tournament';
 import { toCsv } from './csv';
 
 /** Results: full standings per category, CSV export, archive. */
@@ -60,10 +62,17 @@ export class Results {
     return row.tied ? this.transloco.translate('results.tiedRank', { rank: row.rank }) : String(row.rank);
   }
 
+  /** Where the rank was earned: "Main bracket · place 3", "Pools · 2nd of pool". */
   protected origin(row: ResultRow): string {
-    return row.bracket
-      ? row.bracketName
-      : this.transloco.translate('results.eliminatedInPools', { n: row.poolPosition });
+    const stage = stageLabel(this.transloco, { name: row.stageName, kind: row.stageKind });
+    if (!row.stageRank) {
+      return stage;
+    }
+    const rank = this.transloco.translate(
+      row.stageKind === StageKind.StageBracket ? 'results.bracketPlace' : 'results.poolRank',
+      { n: row.stageRank },
+    );
+    return `${stage} · ${rank}`;
   }
 
   /** One CSV for every category; ";" in French so spreadsheets split columns. */

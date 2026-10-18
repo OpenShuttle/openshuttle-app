@@ -1,6 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { DisplayBoard, DisplayCourt, DisplayView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
 
 import { liveView } from '../core/live-view';
@@ -9,6 +9,7 @@ import { formatCountdown, secondsLeft } from '../shared/countdown';
 import { AppSettings } from '../core/settings.service';
 import { LanguageService } from '../core/language.service';
 import { shortNames } from '../shared/names';
+import { stageLabel } from '../shared/stage-label';
 
 /** Display screen: second window on the hall monitor. Read-only, read from 10 m. */
 @Component({
@@ -61,6 +62,12 @@ export class DisplayScreen {
 
   protected names(side: SideView): string {
     return (side.names ?? []).join(' / ');
+  }
+
+  private readonly transloco = inject(TranslocoService);
+
+  protected stageName(b: DisplayBoard): string {
+    return stageLabel(this.transloco, { name: b.stageName, kind: b.stageKind });
   }
 
   protected short(side: SideView): string {

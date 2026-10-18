@@ -33,10 +33,10 @@ func TestPhasesAndHistory(t *testing.T) {
 	for _, row := range f.svc.GetCheckInView().Rows {
 		must(f.svc.CheckInPlayer(ctx, row.ID))
 	}
-	stage := tournament.DefaultPoolStage()
-	stage.Pools = 1
-	must(f.svc.ConfigurePoolStage(ctx, engine.MensSingles, stage))
-	must(f.svc.DrawPools(ctx, engine.MensSingles))
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) {
+		stage.Pools = 1
+	}))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
 	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
 
 	// A perfect three-way tie, then lots.
@@ -46,12 +46,12 @@ func TestPhasesAndHistory(t *testing.T) {
 	must(f.svc.RecordScore(ctx, "MS-A2", loss))
 	must(f.svc.RecordScore(ctx, "MS-A3", win))
 
-	pool := f.svc.GetPhasesView().Categories[0].Pools[0]
+	pool := f.svc.GetPhasesView().Categories[0].Stages[0].Pools[0]
 	if !pool.Complete || !pool.DrawNeeded || len(pool.Standings) != 3 || len(pool.Matches) != 3 {
 		t.Fatalf("pool = %+v", pool)
 	}
-	must(f.svc.DrawLots(ctx, engine.MensSingles, 0))
-	pool = f.svc.GetPhasesView().Categories[0].Pools[0]
+	must(f.svc.DrawLots(ctx, engine.MensSingles, "S1", 0))
+	pool = f.svc.GetPhasesView().Categories[0].Stages[0].Pools[0]
 	if pool.DrawNeeded || pool.Standings[2].Rank != 3 || pool.Standings[0].Entrant.Bib == 0 {
 		t.Errorf("after lots = %+v", pool.Standings)
 	}

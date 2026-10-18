@@ -234,7 +234,21 @@ func (s *State) applyEntrantUpdated(p EntrantUpdated) {
 
 func (s *State) applyEntrantRemoved(p EntrantRemoved) {
 	s.Entrants = slices.DeleteFunc(s.Entrants, func(e Entrant) bool { return e.ID == p.ID })
-	for _, d := range s.draws {
-		d.remove(p.ID)
+	for _, stages := range s.formats {
+		if len(stages) == 0 {
+			continue
+		}
+		e := stages[0]
+		for i := range e.Groups {
+			if e.Kind == StageBracket {
+				for j, id := range e.Groups[i] {
+					if id == p.ID {
+						e.Groups[i][j] = "" // a bye
+					}
+				}
+			} else {
+				e.Groups[i] = slices.DeleteFunc(e.Groups[i], func(id engine.EntrantID) bool { return id == p.ID })
+			}
+		}
 	}
 }

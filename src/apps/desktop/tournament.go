@@ -357,7 +357,7 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	var p struct {
 		Number   int                    `json:"number"`
 		Calls    []tournament.RoundCall `json:"calls"`
-		Bracket  string                 `json:"bracket"`
+		Stage    string                 `json:"stage"`
 		A        tournament.MatchID     `json:"a"`
 		B        tournament.MatchID     `json:"b"`
 		Match    tournament.MatchID     `json:"match"`
@@ -382,8 +382,8 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	switch e.Type {
 	case tournament.TypeCreated, tournament.TypeRenamed:
 		v.Params["name"] = p.Name
-	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypePoolStageConfigured,
-		tournament.TypePoolsDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
+	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypeFormatSet,
+		tournament.TypeEntryDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
 	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded, tournament.TypeScoreCleared:
 		v.Params["a"], v.Params["b"] = matchLabel(s.state, p.Match)
@@ -398,12 +398,9 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		}
 	case tournament.TypeEntrantWithdrawn, tournament.TypeEntrantReinstated:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
-	case tournament.TypeBracketAdded, tournament.TypeBracketConfigured, tournament.TypeBracketRemoved,
-		tournament.TypeBracketDrawn, tournament.TypeBracketSlotsSwapped:
+	case tournament.TypeStageFilled, tournament.TypeSlotsSwapped:
 		v.Params["category"] = string(p.Category)
-		v.Params["bracket"] = s.bracketNameAt(p.Category, string(p.ID), e.Seq)
-	case tournament.TypeRoutingSet:
-		v.Params["category"] = string(p.Category)
+		v.Params["stage"] = s.stageNameAt(p.Category, p.Stage, e.Seq)
 	case tournament.TypeMatchesSwapped:
 		v.Params["first"], v.Params["second"] = string(p.A), string(p.B)
 	case tournament.TypeLotsDrawn:
@@ -573,17 +570,22 @@ func fileNameFor(name string) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// bracketName returns the name of a bracket as last set before seq, so that
-// history keeps naming removed brackets.
-func (s *TournamentService) bracketNameAt(c engine.Category, id string, seq uint64) string {
+// stageNameAt returns the name of a stage as set before seq, or its ID when
+// it has none, so that history keeps naming removed or renamed stages.
+func (s *TournamentService) stageNameAt(c engine.Category, id string, seq uint64) string {
 	name := id
 	for _, e := range s.log[:min(int(seq), len(s.log))] {
-		if e.Type != tournament.TypeBracketAdded && e.Type != tournament.TypeBracketConfigured {
+		if e.Type != tournament.TypeFormatSet {
 			continue
 		}
-		var p tournament.BracketAdded
-		if e.Decode(&p) == nil && p.Category == c && p.ID == id {
-			name = p.Name
+		var p tournament.FormatSet
+		if e.Decode(&p) != nil || p.Category != c {
+			continue
+		}
+		for _, st := range p.Stages {
+			if st.ID == id && st.Name != "" {
+				name = st.Name
+			}
 		}
 	}
 	return name

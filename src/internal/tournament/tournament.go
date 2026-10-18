@@ -67,22 +67,21 @@ type State struct {
 	// lastBib is the highest bib ever assigned, removed entrants included,
 	// so a number is never handed out twice.
 	lastBib int
-	// stages holds the configured pool stages; missing means the default.
-	stages map[engine.Category]PoolStage
-	draws  map[engine.Category]*Draw
+	// formats holds the stages of each category, entry stage first.
+	formats map[engine.Category][]*Stage
+	// formatSet is false while a category keeps its default format.
+	formatSet    map[engine.Category]bool
+	stageNumbers map[engine.Category]int // highest stage number ever used
 
 	courts    int  // 0: DefaultCourts
 	minRest   *int // nil: DefaultMinRest
 	priority  string
 	matches   []Match
-	withdrawn map[engine.EntrantID]string // forfeit scope
+	withdrawn map[engine.EntrantID]string // stage of the forfeit
 	lots      map[PoolRef]map[engine.EntrantID]int
 
-	brackets       map[engine.Category][]*Bracket
-	bracketNumbers map[engine.Category]int // highest bracket number ever used
-	routing        map[engine.Category][]string
-	places         map[string][]Place // "<category>/<bracket>"
-	rounds         []Round
+	places map[string][]Place // "<category>/<stage>"
+	rounds []Round
 	// defaultTimed makes timed pools the default while a single category plays.
 	defaultTimed bool
 }
@@ -133,25 +132,18 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p PlayerCheckedIn) { s.applyPlayerCheckedIn(p, e.At) })
 	case TypeCheckInCancelled:
 		return decodeInto(e, s.applyCheckInCancelled)
-	case TypePoolStageConfigured:
-		return decodeInto(e, s.applyPoolStageConfigured)
+	case TypeFormatSet:
+		return decodeInto(e, s.applyFormatSet)
 	case TypeEntrantSeeded:
 		return decodeInto(e, s.applyEntrantSeeded)
-	case TypePoolsDrawn:
-		return decodeInto(e, s.applyPoolsDrawn)
+	case TypeEntryDrawn:
+		return decodeInto(e, s.applyEntryDrawn)
 	case TypeEntrantMoved:
 		return decodeInto(e, s.applyEntrantMoved)
 	case TypeDrawConfirmed:
-		return decodeInto(e, func(p DrawConfirmed) {
-			s.setConfirmed(p.Category, true, e.At)
-			s.dropMatches(p.Category)
-			s.generateMatches(p.Category)
-		})
+		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, true, e.At) })
 	case TypeDrawReopened:
-		return decodeInto(e, func(p DrawConfirmed) {
-			s.setConfirmed(p.Category, false, time.Time{})
-			s.dropMatches(p.Category)
-		})
+		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, false, time.Time{}) })
 	case TypeCourtsSet:
 		return decodeInto(e, func(p CourtsSet) { s.courts = p.Courts })
 	case TypeMinRestSet:
@@ -174,18 +166,10 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyMatchesSwapped)
 	case TypeLotsDrawn:
 		return decodeInto(e, s.applyLotsDrawn)
-	case TypeBracketAdded:
-		return decodeInto(e, s.applyBracketAdded)
-	case TypeBracketConfigured:
-		return decodeInto(e, s.applyBracketConfigured)
-	case TypeBracketRemoved:
-		return decodeInto(e, s.applyBracketRemoved)
-	case TypeRoutingSet:
-		return decodeInto(e, s.applyRoutingSet)
-	case TypeBracketDrawn:
-		return decodeInto(e, s.applyBracketDrawn)
-	case TypeBracketSlotsSwapped:
-		return decodeInto(e, s.applyBracketSlotsSwapped)
+	case TypeStageFilled:
+		return decodeInto(e, func(p StageFilled) { s.applyStageFilled(p, e.At) })
+	case TypeSlotsSwapped:
+		return decodeInto(e, s.applySlotsSwapped)
 	case TypeRoundStarted:
 		return decodeInto(e, func(p RoundStarted) { s.applyRoundStarted(p, e.At, e.Seq) })
 	case TypeRoundEnded:

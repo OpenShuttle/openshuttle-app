@@ -22,6 +22,22 @@ var tournamentMigrations = []migration{
 		at       TEXT NOT NULL,
 		operator TEXT NOT NULL DEFAULT ''
 	) STRICT`),
+	// Version 2: the flexible format (ADR 4) changed the event types. Files
+	// written before it are refused rather than read wrong.
+	refuseOldEvents,
+}
+
+// refuseOldEvents fails on a file that already holds events: they were
+// written by the first format.
+func refuseOldEvents(ctx context.Context, tx *sql.Tx) error {
+	var n int
+	if err := tx.QueryRowContext(ctx, "SELECT count(*) FROM events").Scan(&n); err != nil {
+		return err
+	}
+	if n > 0 {
+		return engine.NewError(engine.CodeFileTooOld)
+	}
+	return nil
 }
 
 // TournamentFile is an open tournament file: a self-contained SQLite

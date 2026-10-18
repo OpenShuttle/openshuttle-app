@@ -35,12 +35,12 @@ func TestResultsExportAndArchive(t *testing.T) {
 	for _, row := range f.svc.GetCheckInView().Rows {
 		must(f.svc.CheckInPlayer(ctx, row.ID))
 	}
-	stage := tournament.DefaultPoolStage()
-	stage.Pools = 1
-	must(f.svc.ConfigurePoolStage(ctx, engine.MensSingles, stage))
-	must(f.svc.DrawPools(ctx, engine.MensSingles))
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) {
+		stage.Pools = 1
+	}))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
 	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
-	for _, m := range f.svc.GetPhasesView().Categories[0].Pools[0].Matches {
+	for _, m := range f.svc.GetPhasesView().Categories[0].Stages[0].Pools[0].Matches {
 		score := engine.Score{Sets: []engine.SetScore{{A: 21, B: 10}, {A: 21, B: 10}}}
 		if m.A.Entrant > m.B.Entrant {
 			score = engine.Score{Sets: []engine.SetScore{{A: 10, B: 21}, {A: 10, B: 21}}}
@@ -48,7 +48,7 @@ func TestResultsExportAndArchive(t *testing.T) {
 		must(f.svc.RecordScore(ctx, m.ID, score))
 	}
 	r := f.svc.GetResultsView().Categories[0]
-	if !r.Complete || len(r.Rows) != 3 || r.Rows[0].Rank != 1 || r.Rows[2].Rank != 3 || r.Rows[0].PoolPosition != 1 {
+	if !r.Complete || len(r.Rows) != 3 || r.Rows[0].Rank != 1 || r.Rows[2].Rank != 3 || r.Rows[0].StageRank != 1 || r.Rows[0].Stage != "S1" {
 		t.Fatalf("results = %+v", r)
 	}
 

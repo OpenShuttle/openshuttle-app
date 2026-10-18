@@ -42,17 +42,13 @@ func TestFinalStandingsPoolsOnly(t *testing.T) {
 func TestFinalStandingsWithBrackets(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	g.confirmedPools(engine.MensSingles, 3, 12) // 3 pools of 4
-	// Consolation added first: order follows the routing, not creation.
-	g.do(func(s State) (Change, error) {
-		return s.AddBracket(engine.MensSingles, BracketConfig{Name: "Consolation", Win: sets21})
-	})
-	g.do(func(s State) (Change, error) {
-		return s.AddBracket(engine.MensSingles, BracketConfig{Name: "Main", Win: sets21, FullPlacement: true})
-	})
-	g.do(func(s State) (Change, error) { return s.SetRouting(engine.MensSingles, []string{"T2", "T2", "T1"}) })
+	// Consolation added first: order follows the routing, not the list.
+	cons := g.addStage(engine.MensSingles, StageBracket, "Consolation", false)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.route(engine.MensSingles, "S1", main, main, cons)
 	g.finishPools(engine.MensSingles)
-	g.do(func(s State) (Change, error) { return s.DrawBracket(engine.MensSingles, "T2") }) // 6 entrants, size 8
-	g.do(func(s State) (Change, error) { return s.DrawBracket(engine.MensSingles, "T1") }) // 3 entrants, size 4
+	g.fill(engine.MensSingles, main) // 6 entrants, size 8
+	g.fill(engine.MensSingles, cons) // 3 entrants, size 4
 
 	rows, complete := g.state().FinalStandings(engine.MensSingles)
 	if complete || len(rows) != 12 {
@@ -60,7 +56,7 @@ func TestFinalStandingsWithBrackets(t *testing.T) {
 	}
 	// The 4th of each pool are already ranked: 10th, tied.
 	for _, r := range rows[:3] {
-		if r.Rank != 10 || !r.Tied || r.Bracket != "" || r.PoolPosition != 4 {
+		if r.Rank != 10 || !r.Tied || r.Stage != "S1" || r.StageRank != 4 {
 			t.Errorf("eliminated = %+v", r)
 		}
 	}
@@ -68,7 +64,7 @@ func TestFinalStandingsWithBrackets(t *testing.T) {
 	// Play every bracket match, side A wins.
 	for range 10 {
 		for _, m := range g.state().Matches() {
-			if m.Bracket != "" && g.state().Playable(m) && !g.state().Decided(m) {
+			if m.IsBracket() && g.state().Playable(m) && !g.state().Decided(m) {
 				g.win(m.ID, engine.SideA)
 			}
 		}
@@ -78,8 +74,7 @@ func TestFinalStandingsWithBrackets(t *testing.T) {
 		t.Fatalf("not complete: %+v", rows)
 	}
 	got := ranksOf(rows)
-	main := got[:6]
-	for i, r := range main {
+	for i, r := range got[:6] {
 		if r.rank != i+1 || r.tied {
 			t.Errorf("main place %d = %+v", i, r)
 		}
@@ -95,8 +90,8 @@ func TestFinalStandingsWithBrackets(t *testing.T) {
 		}
 	}
 	for _, r := range rows[:6] {
-		if r.Bracket != "T2" {
-			t.Errorf("top six should come from T2: %+v", r)
+		if r.Stage != main {
+			t.Errorf("top six should come from the main bracket: %+v", r)
 		}
 	}
 }

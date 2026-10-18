@@ -18,8 +18,17 @@ import { Category } from '@bindings/internal/engine';
     >{{ t('category.short.' + category()) }}<ng-content /></span
   >`,
   styles: `
+    :host {
+      display: inline-flex;
+      min-width: 0;
+      max-width: 100%;
+    }
+
     .badge {
       display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
       color: #fff;
       border-radius: 5px;
       padding: 3px 8px;

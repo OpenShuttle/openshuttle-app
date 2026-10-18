@@ -23,17 +23,24 @@ import * as tournament$0 from "../../internal/tournament/models.js";
 import * as $models from "./models.js";
 
 /**
- * AddBracket adds a bracket stage.
- */
-export function AddBracket(c: engine$0.Category, cfg: tournament$0.BracketConfig): $CancellablePromise<void> {
-    return $Call.ByID(1268967619, c, cfg);
-}
-
-/**
  * AddCategory adds a category (MS, WS, MD, WD, XD) to the tournament.
  */
 export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
     return $Call.ByID(3097701569, c);
+}
+
+/**
+ * AddStage adds a stage at the end of a category's format.
+ */
+export function AddStage(c: engine$0.Category, kind: tournament$0.StageKind): $CancellablePromise<void> {
+    return $Call.ByID(621541501, c, kind);
+}
+
+/**
+ * ApplyFormatPreset replaces the format of a category with a preset.
+ */
+export function ApplyFormatPreset(c: engine$0.Category, id: string): $CancellablePromise<void> {
+    return $Call.ByID(236980102, c, id);
 }
 
 /**
@@ -81,20 +88,6 @@ export function CloseTournament(): $CancellablePromise<void> {
 }
 
 /**
- * ConfigureBracket changes a bracket.
- */
-export function ConfigureBracket(c: engine$0.Category, id: string, cfg: tournament$0.BracketConfig): $CancellablePromise<void> {
-    return $Call.ByID(905097286, c, id, cfg);
-}
-
-/**
- * ConfigurePoolStage sets the pool stage of a category.
- */
-export function ConfigurePoolStage(c: engine$0.Category, stage: tournament$0.PoolStage): $CancellablePromise<void> {
-    return $Call.ByID(3724066730, c, stage);
-}
-
-/**
  * ConfirmDraw locks the pools of a category.
  */
 export function ConfirmDraw(c: engine$0.Category): $CancellablePromise<void> {
@@ -117,24 +110,18 @@ export function CreateTournamentAt(path: string, name: string): $CancellableProm
 }
 
 /**
- * DrawBracket fills a bracket from the final pool standings.
+ * DrawEntry draws (or redraws) the entry stage of a category: its pools, or
+ * the slots of its bracket.
  */
-export function DrawBracket(c: engine$0.Category, id: string): $CancellablePromise<void> {
-    return $Call.ByID(4066182796, c, id);
+export function DrawEntry(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(2573417732, c);
 }
 
 /**
  * DrawLots breaks the remaining ties of a complete pool by lot.
  */
-export function DrawLots(c: engine$0.Category, pool: number): $CancellablePromise<void> {
-    return $Call.ByID(1395438836, c, pool);
-}
-
-/**
- * DrawPools draws (or redraws) the pools of a category.
- */
-export function DrawPools(c: engine$0.Category): $CancellablePromise<void> {
-    return $Call.ByID(648993479, c);
+export function DrawLots(c: engine$0.Category, stage: string, pool: number): $CancellablePromise<void> {
+    return $Call.ByID(1395438836, c, stage, pool);
 }
 
 /**
@@ -169,6 +156,13 @@ export function EndRound(): $CancellablePromise<void> {
  */
 export function ExportCSV(suggestedName: string, content: string): $CancellablePromise<string> {
     return $Call.ByID(2192239444, suggestedName, content);
+}
+
+/**
+ * FillStage fills a later stage from the ranks routed to it.
+ */
+export function FillStage(c: engine$0.Category, id: string): $CancellablePromise<void> {
+    return $Call.ByID(1877621991, c, id);
 }
 
 /**
@@ -293,13 +287,6 @@ export function ReinstateEntrant(id: engine$0.EntrantID): $CancellablePromise<vo
 }
 
 /**
- * RemoveBracket removes a bracket.
- */
-export function RemoveBracket(c: engine$0.Category, id: string): $CancellablePromise<void> {
-    return $Call.ByID(273713370, c, id);
-}
-
-/**
  * RemoveCategory removes a category that has no entrant.
  */
 export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> {
@@ -311,6 +298,13 @@ export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> 
  */
 export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
     return $Call.ByID(120374032, id);
+}
+
+/**
+ * RemoveStage removes a stage with no entrants yet.
+ */
+export function RemoveStage(c: engine$0.Category, id: string): $CancellablePromise<void> {
+    return $Call.ByID(468546508, c, id);
 }
 
 /**
@@ -328,6 +322,13 @@ export function ReopenDraw(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * SaveFormatPreset saves the format of a category as a preset.
+ */
+export function SaveFormatPreset(c: engine$0.Category, name: string, description: string): $CancellablePromise<void> {
+    return $Call.ByID(3355808563, c, name, description);
+}
+
+/**
  * SetCourtPriority sets "balanced" or the category played first.
  */
 export function SetCourtPriority(priority: string): $CancellablePromise<void> {
@@ -342,17 +343,17 @@ export function SetCourts(n: number): $CancellablePromise<void> {
 }
 
 /**
+ * SetFormat changes the stages of a category (same stages, same order).
+ */
+export function SetFormat(c: engine$0.Category, stages: tournament$0.StageConfig[] | null): $CancellablePromise<void> {
+    return $Call.ByID(2646950989, c, stages);
+}
+
+/**
  * SetMinRest sets the minimum rest between two matches, in minutes.
  */
 export function SetMinRest(minutes: number): $CancellablePromise<void> {
     return $Call.ByID(3469076232, minutes);
-}
-
-/**
- * SetRouting sets the bracket of each pool position ("" for eliminated).
- */
-export function SetRouting(c: engine$0.Category, routing: string[] | null): $CancellablePromise<void> {
-    return $Call.ByID(98262176, c, routing);
 }
 
 /**
@@ -370,17 +371,17 @@ export function StartRound(): $CancellablePromise<void> {
 }
 
 /**
- * SwapBracketSlots swaps two first-round slots before the bracket starts.
- */
-export function SwapBracketSlots(c: engine$0.Category, id: string, a: number, b: number): $CancellablePromise<void> {
-    return $Call.ByID(1220495432, c, id, a, b);
-}
-
-/**
  * SwapMatches swaps two waiting matches in the call order.
  */
 export function SwapMatches(a: tournament$0.MatchID, b: tournament$0.MatchID): $CancellablePromise<void> {
     return $Call.ByID(2755653850, a, b);
+}
+
+/**
+ * SwapSlots swaps two first-round slots of a bracket stage before it starts.
+ */
+export function SwapSlots(c: engine$0.Category, id: string, a: number, b: number): $CancellablePromise<void> {
+    return $Call.ByID(200850338, c, id, a, b);
 }
 
 /**

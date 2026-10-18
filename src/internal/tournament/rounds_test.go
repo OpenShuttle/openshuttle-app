@@ -16,11 +16,10 @@ func timedPool(t *testing.T, n, courts int) *game {
 		clubs[i] = string(rune('a' + i))
 	}
 	g.presentSingles(engine.MensSingles, clubs, n)
-	st := DefaultPoolStage()
-	st.Pools = 1
-	st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: 12}
-	g.do(func(s State) (Change, error) { return s.ConfigurePoolStage(engine.MensSingles, st) })
-	g.do(func(s State) (Change, error) { return s.DrawPools(engine.MensSingles, rng()) })
+	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) {
+		st.Pools, st.Win = 1, engine.WinCondition{Kind: engine.WinByTime, Minutes: 12}
+	})
+	g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
 	g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
 	return g
 }

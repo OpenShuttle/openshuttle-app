@@ -16,12 +16,12 @@ func TestCreationDefaults(t *testing.T) {
 	}
 
 	g.do(func(s State) (Change, error) { return s.AddCategory(engine.MensSingles) })
-	if w := g.state().PoolStage(engine.MensSingles).Win; w.Kind != engine.WinByTime || w.Minutes != DefaultTimedMinutes {
+	if w := g.state().StageConfigs(engine.MensSingles)[0].Win; w.Kind != engine.WinByTime || w.Minutes != DefaultTimedMinutes {
 		t.Errorf("single category default = %+v", w)
 	}
 	// A timed default does not block a second category: it gives way to sets.
 	g.do(func(s State) (Change, error) { return s.AddCategory(engine.WomensSingles) })
-	if w := g.state().PoolStage(engine.MensSingles).Win; w.Kind != engine.WinBySets {
+	if w := g.state().StageConfigs(engine.MensSingles)[0].Win; w.Kind != engine.WinBySets {
 		t.Errorf("two categories default = %+v", w)
 	}
 }
@@ -37,8 +37,7 @@ func TestZeroRestDefault(t *testing.T) {
 
 func TestTimedBracketBlocksSecondCategory(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
-	g.do(func(s State) (Change, error) {
-		return s.AddBracket(engine.MensSingles, BracketConfig{Name: "T", Win: engine.WinCondition{Kind: engine.WinByTime, Minutes: 10}})
-	})
+	id := g.addStage(engine.MensSingles, StageBracket, "T", false)
+	g.editStage(engine.MensSingles, id, func(st *StageConfig) { st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: 10} })
 	g.fails(engine.CodeTimedNeedsOneCategory, func(s State) (Change, error) { return s.AddCategory(engine.WomensSingles) })
 }

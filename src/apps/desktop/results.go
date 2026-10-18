@@ -17,12 +17,16 @@ const utf8BOM = "\xef\xbb\xbf"
 
 // ResultRow is a line of the full standings.
 type ResultRow struct {
-	Rank         int      `json:"rank"` // 0 while not decided
-	Tied         bool     `json:"tied"`
-	Entrant      SideView `json:"entrant"`
-	Bracket      string   `json:"bracket"`
-	BracketName  string   `json:"bracketName"`
-	PoolPosition int      `json:"poolPosition"`
+	Rank    int      `json:"rank"` // 0 while not decided
+	Tied    bool     `json:"tied"`
+	Entrant SideView `json:"entrant"`
+	// Where the rank was earned: the stage, and the rank there (pool
+	// position or bracket place), 0 while the stage is not filled.
+	Stage      string               `json:"stage"`
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
+	StageRank  int                  `json:"stageRank"`
 }
 
 // ResultCategory is the full standings of a category.
@@ -51,10 +55,11 @@ func (s *TournamentService) GetResultsView() ResultsView {
 		rows, complete := st.FinalStandings(ref.Category)
 		rc := ResultCategory{CategoryRef: ref, Started: rows != nil, Complete: complete, Rows: []ResultRow{}}
 		for _, r := range rows {
-			b, _ := st.Bracket(ref.Category, r.Bracket)
+			stage, _ := st.Stage(ref.Category, r.Stage)
 			rc.Rows = append(rc.Rows, ResultRow{
 				Rank: r.Rank, Tied: r.Tied, Entrant: side(r.Entrant),
-				Bracket: r.Bracket, BracketName: b.Name, PoolPosition: r.PoolPosition,
+				Stage: r.Stage, StageName: stage.Name, StageKind: stage.Kind,
+				EntryStage: st.Stages(ref.Category)[0].ID == r.Stage, StageRank: r.StageRank,
 			})
 		}
 		v.Categories = append(v.Categories, rc)

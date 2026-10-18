@@ -3,11 +3,13 @@
 
 import * as AppService from "./appservice.js";
 import * as DisplayScreenService from "./displayscreenservice.js";
+import * as PresetService from "./presetservice.js";
 import * as SettingsService from "./settingsservice.js";
 import * as TournamentService from "./tournamentservice.js";
 export {
     AppService,
     DisplayScreenService,
+    PresetService,
     SettingsService,
     TournamentService
 };
@@ -15,8 +17,6 @@ export {
 export type {
     ActionView,
     AppInfo,
-    BracketPhase,
-    BracketView,
     CategoryEntrants,
     CategoryRef,
     CheckInRow,
@@ -33,6 +33,7 @@ export type {
     EntrantView,
     EntrantsView,
     FormatCategory,
+    FormatPreset,
     FormatView,
     HistoryEntry,
     HistoryView,
@@ -44,8 +45,10 @@ export type {
     PlayerView,
     PoolPhase,
     PoolRefView,
+    Presets,
     ProgressView,
     QueueView,
+    RankPreview,
     RecentTournament,
     ResultCategory,
     ResultRow,
@@ -54,8 +57,13 @@ export type {
     RoundsView,
     Settings,
     SideView,
+    StagePhase,
+    StageRefView,
+    StageView,
     StandingView,
+    TiebreakPreset,
     TimedRoundView,
     TournamentSummary,
-    TournamentView
+    TournamentView,
+    WinPreset
 } from "./models.js";

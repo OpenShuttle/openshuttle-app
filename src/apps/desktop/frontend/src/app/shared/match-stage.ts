@@ -1,6 +1,9 @@
-import { Component, computed, input } from '@angular/core';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { Component, computed, inject, input } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { MatchView } from '@bindings/apps/desktop';
+import { StageKind } from '@bindings/internal/tournament';
+
+import { stageLabel } from './stage-label';
 
 /** Translation key and params naming the round of a bracket match. */
 export function roundLabel(m: Pick<MatchView, 'placeFrom' | 'placeTo' | 'roundSize'>): {
@@ -24,17 +27,28 @@ export function roundLabel(m: Pick<MatchView, 'placeFrom' | 'placeTo' | 'roundSi
   }
 }
 
-/** "Pool A", or "Main bracket · Semi-final" for a bracket match. */
+/**
+ * Where a match is played: "Pool A", "Pools 2 · Pool A" in a later stage, or
+ * "Main bracket · Semi-final".
+ */
 @Component({
   selector: 'app-match-stage',
   imports: [TranslocoDirective],
-  template: `<ng-container *transloco="let t">{{
-    match().bracket
-      ? match().bracketName + ' · ' + t(round().key, round().params)
-      : t('desk.pool', { pool: match().pool })
-  }}</ng-container>`,
+  template: `<ng-container *transloco="let t">{{ label() }}</ng-container>`,
 })
 export class MatchStage {
   readonly match = input.required<MatchView>();
-  protected readonly round = computed(() => roundLabel(this.match()));
+  private readonly transloco = inject(TranslocoService);
+
+  protected readonly label = computed(() => {
+    const m = this.match();
+    const t = this.transloco;
+    const stage = stageLabel(t, { name: m.stageName, kind: m.stageKind });
+    if (m.stageKind === StageKind.StageBracket) {
+      const r = roundLabel(m);
+      return `${stage} · ${t.translate(r.key, r.params)}`;
+    }
+    const pool = t.translate('desk.pool', { pool: m.pool });
+    return m.entryStage ? pool : `${stage} · ${pool}`;
+  });
 }

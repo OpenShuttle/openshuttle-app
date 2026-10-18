@@ -50,8 +50,11 @@ const (
 	CodeEntrantNotWithdrawn Code = "ENTRANT_NOT_WITHDRAWN"
 	CodeNoTie               Code = "NO_TIE"
 
-	CodeBracketNotFound    Code = "BRACKET_NOT_FOUND"
-	CodeTooManyBrackets    Code = "TOO_MANY_BRACKETS"
+	CodeStageNotFound      Code = "STAGE_NOT_FOUND"
+	CodeTooManyStages      Code = "TOO_MANY_STAGES"
+	CodeStageFilled        Code = "STAGE_FILLED"
+	CodePresetNotFound     Code = "PRESET_NOT_FOUND"
+	CodePresetReadOnly     Code = "PRESET_READ_ONLY"
 	CodeInvalidRouting     Code = "INVALID_ROUTING"
 	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
 	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
@@ -78,6 +81,7 @@ const (
 	CodeFileNotFound       Code = "FILE_NOT_FOUND"
 	CodeNotATournamentFile Code = "NOT_A_TOURNAMENT_FILE"
 	CodeFileTooNew         Code = "FILE_TOO_NEW"
+	CodeFileTooOld         Code = "FILE_TOO_OLD"
 )
 
 // Error is a domain error carrying a stable code. Set is the 1-based index of

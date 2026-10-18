@@ -201,9 +201,10 @@ func (s State) orderedWaiting() []Match {
 	}
 }
 
-// PoolRef names a pool of a category.
+// PoolRef names a pool of a stage.
 type PoolRef struct {
 	Category engine.Category
+	Stage    string
 	Pool     int
 }
 
@@ -212,10 +213,10 @@ func (s State) CompletePools() []PoolRef {
 	open := map[PoolRef]bool{}
 	var order []PoolRef
 	for _, m := range s.matches {
-		if m.Bracket != "" {
+		if m.IsBracket() {
 			continue
 		}
-		ref := PoolRef{m.Category, m.Pool}
+		ref := PoolRef{m.Category, m.Stage, m.Pool}
 		if _, seen := open[ref]; !seen {
 			order = append(order, ref)
 			open[ref] = false
@@ -233,23 +234,24 @@ func (s State) CompletePools() []PoolRef {
 	return out
 }
 
-// PoolStandings ranks a pool with the stage's tiebreaks.
-func (s State) PoolStandings(c engine.Category, pool int) engine.PoolStandings {
-	d, ok := s.Draw(c)
-	if !ok || pool < 0 || pool >= len(d.Pools) {
+// PoolStandings ranks a pool of a stage with the stage's tiebreaks.
+func (s State) PoolStandings(c engine.Category, stage string, pool int) engine.PoolStandings {
+	st := s.stage(c, stage)
+	if st == nil || st.Kind != StagePools || pool < 0 || pool >= len(st.Groups) {
 		return engine.PoolStandings{}
 	}
+	si := s.stageIndex(c, stage)
 	p := engine.Pool{
-		Entrants:  d.Pools[pool],
+		Entrants:  st.Groups[pool],
 		Withdrawn: map[engine.EntrantID]bool{},
-		Tiebreaks: s.PoolStage(c).Tiebreaks,
-		DrawLots:  s.lots[PoolRef{c, pool}],
+		Tiebreaks: st.Tiebreaks,
+		DrawLots:  s.lots[PoolRef{c, stage, pool}],
 	}
-	for _, id := range d.Pools[pool] {
-		p.Withdrawn[id] = s.withdrawn[id] == ScopePools
+	for _, id := range st.Groups[pool] {
+		p.Withdrawn[id] = s.withdrawnBy(id, c, si)
 	}
 	for _, m := range s.matches {
-		if m.Category == c && m.Bracket == "" && m.Pool == pool {
+		if m.Category == c && m.Stage == stage && m.Pool == pool {
 			p.Matches = append(p.Matches, engine.PoolMatch{A: m.A, B: m.B, Score: m.Score})
 		}
 	}

@@ -26,6 +26,7 @@ func init() {
 	application.RegisterEvent[uint64](EventTournamentUpdated)
 	application.RegisterEvent[bool](EventDisplayScreenChanged)
 	application.RegisterEvent[Settings](EventSettingsChanged)
+	application.RegisterEvent[Presets](EventPresetsChanged)
 }
 
 func main() {
@@ -52,6 +53,7 @@ func main() {
 			service(&AppService{}),
 			service(NewDisplayScreenService()),
 			service(NewSettingsService(appDB, emit, nativeDialogs{})),
+			service(NewPresetService(appDB, emit, time.Now)),
 			service(NewTournamentService(
 				appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{},
 			)),

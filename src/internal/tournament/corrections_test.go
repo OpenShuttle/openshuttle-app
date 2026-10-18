@@ -63,16 +63,16 @@ func TestDrawLots(t *testing.T) {
 		}
 		g.do(func(s State) (Change, error) { return s.RecordScore(m.ID, score) })
 	}
-	rows := g.state().PoolStandings(engine.MensSingles, 0).Rows
+	rows := g.state().PoolStandings(engine.MensSingles, "S1", 0).Rows
 	if !rows[0].DrawNeeded || rows[0].Rank != rows[2].Rank {
 		t.Fatalf("expected a full tie: %+v", rows)
 	}
-	g.do(func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, 0, rng()) })
-	rows = g.state().PoolStandings(engine.MensSingles, 0).Rows
+	g.do(func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, "S1", 0, rng()) })
+	rows = g.state().PoolStandings(engine.MensSingles, "S1", 0).Rows
 	for i, r := range rows {
 		if r.DrawNeeded || r.Rank != i+1 {
 			t.Errorf("after lots row %d = %+v", i, r)
 		}
 	}
-	g.fails(engine.CodeNoTie, func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, 0, rng()) })
+	g.fails(engine.CodeNoTie, func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, "S1", 0, rng()) })
 }

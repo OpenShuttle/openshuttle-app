@@ -6,20 +6,6 @@
 import * as engine$0 from "../engine/models.js";
 
 /**
- * BracketConfig is what the format editor sets on a bracket.
- */
-export interface BracketConfig {
-    "name": string;
-    "win": engine$0.WinCondition;
-
-    /**
-     * FullPlacement plays every place (losers play for the lower places).
-     * Otherwise entrants losing in the same round are tied.
-     */
-    "fullPlacement": boolean;
-}
-
-/**
  * CourtState is the state of a court.
  */
 export enum CourtState {
@@ -38,7 +24,8 @@ export enum CourtState {
 };
 
 /**
- * MatchID identifies a match: category, pool and number, like "MD-A3".
+ * MatchID identifies a match: category, stage (but the entry stage's),
+ * then pool and number, or the bracket match number: "MD-A3", "MD-S2-5".
  */
 export type MatchID = string;
 
@@ -84,10 +71,54 @@ export interface PlayerInput {
 }
 
 /**
- * PoolStage is the first stage of a category: round-robin pools.
+ * StageConfig is a stage as the format editor sets it. It is stored in
+ * FormatSet events and in presets: keep the JSON names.
  */
-export interface PoolStage {
-    "pools": number;
+export interface StageConfig {
+    "id": string;
+
+    /**
+     * Name is typed by the desk; empty shows the kind's label.
+     */
+    "name": string;
+    "kind": StageKind;
     "win": engine$0.WinCondition;
-    "tiebreaks": engine$0.Tiebreak[] | null;
+
+    /**
+     * Pools stages.
+     */
+    "pools"?: number;
+    "tiebreaks"?: engine$0.Tiebreak[] | null;
+
+    /**
+     * Bracket stages: every place is played (losers play for the lower
+     * places). Otherwise entrants losing in the same round are tied.
+     */
+    "fullPlacement"?: boolean;
+
+    /**
+     * Routing[i] is the stage of the entrants at rank i+1 (pool position, or
+     * bracket place), "" to keep them: their final rank is earned here.
+     */
+    "routing"?: string[] | null;
 }
+
+/**
+ * StageKind is how a stage is played.
+ */
+export enum StageKind {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * round-robin pools
+     */
+    StagePools = "pools",
+
+    /**
+     * single elimination
+     */
+    StageBracket = "bracket",
+};

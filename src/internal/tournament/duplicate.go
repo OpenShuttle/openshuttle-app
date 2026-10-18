@@ -7,8 +7,8 @@ import (
 )
 
 // Duplicate returns the changes that start a new tournament named name with
-// the setup of src: courts, rest, court priority, categories, pool stages,
-// brackets and routing. Entrants, draws and results are not copied.
+// the setup of src: courts, rest, court priority, categories and formats.
+// Entrants, draws and results are not copied.
 func Duplicate(src State, name string) ([]Change, error) {
 	name, err := NormalizeName(name)
 	if err != nil {
@@ -44,26 +44,10 @@ func Duplicate(src State, name string) ([]Change, error) {
 		if err := apply(st.AddCategory(c)); err != nil {
 			return nil, err
 		}
-		if stage, ok := src.stages[c]; ok {
-			if err := apply(st.ConfigurePoolStage(c, stage)); err != nil {
+		if src.formatSet[c] {
+			if err := apply(st.ApplyFormat(c, src.StageConfigs(c))); err != nil {
 				return nil, err
 			}
-		}
-		// Bracket IDs restart from T1: map the old ones for the routing.
-		ids := map[string]string{"": ""}
-		for _, b := range src.Brackets(c) {
-			if err := apply(st.AddBracket(c, b.BracketConfig)); err != nil {
-				return nil, err
-			}
-			added := st.Brackets(c)
-			ids[b.ID] = added[len(added)-1].ID
-		}
-		routing := src.Routing(c)
-		for i, id := range routing {
-			routing[i] = ids[id]
-		}
-		if err := apply(st.SetRouting(c, routing)); err != nil {
-			return nil, err
 		}
 	}
 	if err := apply(st.SetCourtPriority(src.CourtPriority())); err != nil {

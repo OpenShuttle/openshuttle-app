@@ -1,6 +1,6 @@
 import { Component, DestroyRef, HostListener, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ControlDeskView, CourtView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
@@ -12,6 +12,7 @@ import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
 import { clubs, shortNames } from '../shared/names';
+import { stageLabel } from '../shared/stage-label';
 
 /** Pending scores older than this are highlighted. */
 const LATE_SCORE_MINUTES = 10;
@@ -22,7 +23,7 @@ const EMPTY: ControlDeskView = {
   pending: [],
   queue: [],
   complete: [],
-  bracketsToFill: [],
+  stagesToFill: [],
   priority: 'balanced',
   minRest: 10,
   categories: [],
@@ -95,6 +96,12 @@ export class ControlDesk {
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
+  private readonly transloco = inject(TranslocoService);
+
+  protected stageName(stage: { name: string; kind: string }): string {
+    return stageLabel(this.transloco, stage);
+  }
+
   protected short(side: SideView): string {
     return shortNames(side);
   }
@@ -109,7 +116,7 @@ export class ControlDesk {
   }
 
   protected readonly alertCount = computed(
-    () => (this.view().complete ?? []).length + (this.view().bracketsToFill ?? []).length,
+    () => (this.view().complete ?? []).length + (this.view().stagesToFill ?? []).length,
   );
 
   /** "mm:ss" since an ISO time. */

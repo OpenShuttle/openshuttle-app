@@ -62,7 +62,36 @@ export class Draw {
   }
 
   protected draw(c: DrawCategory): void {
-    void this.tournament.drawPools(c.category);
+    void this.tournament.drawEntry(c.category);
+  }
+
+  /** First slot picked for a swap in a bracket draw: "<category>:<slot>". */
+  protected readonly swapping = signal<string | null>(null);
+
+  protected async pickSlot(c: DrawCategory, slot: number): Promise<void> {
+    const key = `${c.category}:${slot}`;
+    const first = this.swapping();
+    if (!first || !first.startsWith(c.category + ':')) {
+      this.swapping.set(key);
+      return;
+    }
+    const a = Number(first.split(':')[1]);
+    if (a === slot || (await this.tournament.swapSlots(c.category, c.stage, a, slot))) {
+      this.swapping.set(null);
+    }
+  }
+
+  /** First-round pairs of a bracket draw: slots 0-1, 2-3… */
+  protected pairs(c: DrawCategory): { slot: number; entrant: DrawEntrantView }[][] {
+    const slots = c.pools?.[0]?.entrants ?? [];
+    const out: { slot: number; entrant: DrawEntrantView }[][] = [];
+    for (let i = 0; i < slots.length; i += 2) {
+      out.push([
+        { slot: i, entrant: slots[i] },
+        { slot: i + 1, entrant: slots[i + 1] },
+      ]);
+    }
+    return out;
   }
 
   protected setSeed(e: DrawEntrantView, event: Event): void {

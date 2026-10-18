@@ -69,9 +69,7 @@
     "EntrantRemoved": "Inscription retirée : {names}",
     "PlayerCheckedIn": "{name} pointé(e)",
     "PlayerCheckInCancelled": "{name} marqué(e) absent(e)",
-    "PoolStageConfigured": "Format modifié : {category}",
     "EntrantSeeded": "Tête de série {seed} : {names}",
-    "PoolsDrawn": "Poules tirées : {category}",
     "EntrantMoved": "{names} déplacé(s) en poule {pool}",
     "DrawConfirmed": "Tirage validé : {category}",
     "DrawReopened": "Tirage rouvert : {category}",
@@ -86,15 +84,13 @@
     "EntrantReinstated": "Forfait annulé : {names}",
     "MatchesSwapped": "Matchs inversés : {first} et {second}",
     "LotsDrawn": "Tirage au sort : {category} poule {pool}",
-    "BracketAdded": "Tableau ajouté : {bracket}",
-    "BracketConfigured": "Tableau modifié : {bracket}",
-    "BracketRemoved": "Tableau retiré : {bracket}",
-    "RoutingSet": "Routage modifié : {category}",
-    "BracketDrawn": "Tableau rempli : {bracket}",
-    "BracketSlotsSwapped": "Places inversées : {bracket}",
     "TournamentArchived": "Tournoi archivé",
     "RoundStarted": "Rotation {number} lancée : {count} matchs",
-    "RoundEnded": "Rotation {number} sifflée"
+    "RoundEnded": "Rotation {number} sifflée",
+    "FormatSet": "Format modifié : {category}",
+    "EntryDrawn": "Tirage : {category}",
+    "StageFilled": "{stage} rempli : {category}",
+    "SlotsSwapped": "Places échangées : {stage}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -107,9 +103,7 @@
     "EntrantRemoved": "retrait de {names}",
     "PlayerCheckedIn": "pointage de {name}",
     "PlayerCheckInCancelled": "absence de {name}",
-    "PoolStageConfigured": "modification du format {category}",
     "EntrantSeeded": "tête de série de {names}",
-    "PoolsDrawn": "tirage {category}",
     "EntrantMoved": "déplacement de {names}",
     "DrawConfirmed": "validation du tirage {category}",
     "DrawReopened": "réouverture du tirage {category}",
@@ -124,15 +118,13 @@
     "EntrantReinstated": "annulation du forfait de {names}",
     "MatchesSwapped": "inversion de {first} et {second}",
     "LotsDrawn": "tirage au sort {category} poule {pool}",
-    "BracketAdded": "ajout de {bracket}",
-    "BracketConfigured": "modification de {bracket}",
-    "BracketRemoved": "retrait de {bracket}",
-    "RoutingSet": "modification du routage",
-    "BracketDrawn": "remplissage de {bracket}",
-    "BracketSlotsSwapped": "inversion dans {bracket}",
     "TournamentArchived": "archivage",
     "RoundStarted": "lancement de la rotation {number}",
-    "RoundEnded": "fin de la rotation {number}"
+    "RoundEnded": "fin de la rotation {number}",
+    "FormatSet": "modification du format {category}",
+    "EntryDrawn": "tirage {category}",
+    "StageFilled": "remplissage de {stage}",
+    "SlotsSwapped": "échange dans {stage}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -184,8 +176,6 @@
     "NO_SCORE": "Ce match n'a pas de score.",
     "ENTRANT_NOT_WITHDRAWN": "Ce participant n'a pas déclaré forfait.",
     "NO_TIE": "Aucune égalité à départager dans cette poule.",
-    "BRACKET_NOT_FOUND": "Ce tableau n'existe plus.",
-    "TOO_MANY_BRACKETS": "Au plus 8 tableaux par catégorie.",
     "INVALID_ROUTING": "Ce routage pointe vers un tableau qui n'existe pas.",
     "POOLS_NOT_COMPLETE": "Toutes les poules doivent d'abord être terminées.",
     "TIE_UNRESOLVED": "Une poule a encore une égalité : faites le tirage au sort dans Phases.",
@@ -198,7 +188,13 @@
     "ROUND_IN_PROGRESS": "Une rotation est en cours : sifflez d'abord sa fin.",
     "NO_ROUND": "Aucune rotation en cours.",
     "NO_MATCH_READY": "Aucun match n'est prêt.",
-    "CATEGORIES_SHARE_SEX": "Ces deux catégories concernent des joueurs du même sexe : elles ne peuvent pas être dans le même tournoi."
+    "CATEGORIES_SHARE_SEX": "Ces deux catégories concernent des joueurs du même sexe : elles ne peuvent pas être dans le même tournoi.",
+    "STAGE_NOT_FOUND": "Cette phase n'existe plus.",
+    "TOO_MANY_STAGES": "Un format compte 8 phases au plus.",
+    "STAGE_FILLED": "Cette phase a déjà ses participants : son type et les rangs qui l'alimentent ne peuvent plus changer.",
+    "PRESET_NOT_FOUND": "Ce preset n'existe plus.",
+    "PRESET_READ_ONLY": "Les presets intégrés ne peuvent pas être supprimés.",
+    "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -332,7 +328,6 @@
   "format": {
     "title": "Format",
     "lead": "Un format indépendant par catégorie · modifiable jusqu'à la clôture",
-    "stage": "Phase {n}",
     "poolCount": "Nombre de poules",
     "fewerPools": "Une poule de moins",
     "morePools": "Une poule de plus",
@@ -348,32 +343,23 @@
     "tiebreaks": "Départage, dans l'ordre",
     "moveUp": "Monter",
     "moveDown": "Descendre",
-    "removeBracket": "Supprimer la phase",
     "addBracket": "Tableau",
-    "mainBracket": "Tableau principal",
-    "bracketN": "Tableau {n}",
     "placement": "Classement",
     "fullPlacement": "Toutes les places jouées",
     "tiedByRound": "Ex aequo par tour perdu",
     "fullPlacementHint": "Les perdants jouent les places suivantes : classement complet, sans ex aequo.",
     "tiedByRoundHint": "Les perdants d'un même tour partagent leurs places.",
     "routing": "Routage",
-    "eliminated": "Éliminé",
-    "routingHint": "Chaque rang de poule va dans un tableau. Les tableaux se remplissent quand toutes les poules sont terminées.",
+    "routingHint": "Chaque rang passe dans une phase suivante, ou s'arrête ici avec son classement final.",
     "ranks": "Rangs {ranks}",
     "poolsN": "{n, plural, one {# poule} other {# poules}}",
     "poolsOf": "{n, plural, one {# poule} other {# poules}} de {size}",
     "poolsSizes": "{n} poules ({sizes})",
     "timedSummary": "{minutes} min · point en or",
     "setsSummary": "{sets, plural, one {1 set} other {# sets gagnants}} de {points}{cap, plural, =0 {} other { · plafond #}}",
-    "bracketKicker": "Tableau",
-    "poolsKicker": "Poules",
-    "poolsKickerLong": "Poules (tous contre tous)",
-    "poolsTitle": "Poules",
     "bracketEntrants": "{n, plural, one {# participant} other {# participants}}{byes, plural, =0 {} one { · # exempt} other { · # exempts}}",
     "places": "Places {from}–{to}",
-    "notRouted": "Aucun rang de poule n'y va",
-    "notRoutedHint": "Aucun rang de poule ne va encore dans ce tableau : choisissez-le dans le routage des poules.",
+    "notRouted": "Aucun rang n'y va encore",
     "matchesRounds": "{matches, plural, one {# match} other {# matchs}} · {rounds, plural, one {# tour} other {# tours}}",
     "output": "Sortie",
     "fullStandings": "Classement intégral",
@@ -386,7 +372,6 @@
     "colEntrants": "Participants",
     "colMatches": "Matchs",
     "colRounds": "Tours",
-    "poolsShort": "Poules",
     "byesWarning": "{name} : {byes, plural, one {# exempt} other {# exempts}} au 1er tour ({n} participants pour un tableau de {size}).",
     "size": "Taille",
     "setsToWinLabel": "Sets gagnants",
@@ -395,9 +380,22 @@
     "timedHint": "Tous les terrains démarrent et finissent ensemble : la phase se joue par rotations, lancées et sifflées par la table.",
     "matchDuration": "Durée du match",
     "tiebreaksHint": "Différences uniquement, jamais de ratios : les WO restent neutres.",
-    "routingEmpty": "Ajoutez un tableau pour y envoyer des rangs de poule.",
+    "routingEmpty": "Ajoutez une phase pour y envoyer des rangs.",
     "rank": "{n, plural, =1 {1er} other {#e}}",
-    "entrantsShort": "{n, plural, one {# participant} other {# participants}}"
+    "entrantsShort": "{n, plural, one {# participant} other {# participants}}",
+    "addPools": "Poules",
+    "applyPreset": "Partir d'un preset…",
+    "saveAsPreset": "Enregistrer comme preset",
+    "phaseKind": "Phase {n} · {kind}",
+    "phaseShort": "Phase {n}",
+    "colPlaces": "Places",
+    "kind": "Type",
+    "entryPoolsHint": "Phase d'entrée : le tirage répartit les présents dans les poules.",
+    "entryBracketHint": "Phase d'entrée : le tirage place les présents dans le tableau, têtes de série d'abord.",
+    "laterHint": "{n, plural, =0 {Personne n'y arrive encore : routez ici des rangs d'une phase précédente.} one {# participant y arrive par le routage.} other {# participants y arrivent par le routage.}}",
+    "kept": "Classement final ici",
+    "noRanksYet": "Les rangs apparaissent avec les inscrits.",
+    "removeStage": "Supprimer la phase"
   },
   "tiebreak": {
     "wins": "Victoires",
@@ -434,7 +432,11 @@
     "presentCount": "{n, plural, one {# participant présent} other {# participants présents}}",
     "entrantsCount": "{n, plural, one {# participant} other {# participants}}",
     "conflicts": "{n, plural, one {# participant partage sa poule avec son club} other {# participants partagent leur poule avec leur club}}",
-    "noConflict": "Aucun conflit de club"
+    "noConflict": "Aucun conflit de club",
+    "sameClubRound": "Même club au 1er tour : #{bibs}",
+    "slotsHint": "Cliquez deux places pour les échanger.",
+    "unplacedBracket": "{n, plural, one {# présent pointé} other {# présents pointés}} après le tirage : relancez le tirage pour les placer.",
+    "summaryBracket": "{present, plural, one {# présent} other {# présents}} · tableau direct."
   },
   "desk": {
     "title": "Table de marque",
@@ -483,7 +485,6 @@
     "goldenPoint": "Décidé au point en or",
     "scoreKeys": "Entrée pour valider · Échap pour fermer",
     "saveScore": "Valider le score",
-    "fillBrackets": "Toutes les poules sont terminées : remplissez les tableaux pour continuer.",
     "sub": "{courts, plural, one {# terrain} other {# terrains}} · repos {rest} min entre deux matchs",
     "noMatchReadyTitle": "Aucun match prêt",
     "keyCourt": "Appeler, terminer ou saisir sur ce terrain",
@@ -501,7 +502,6 @@
     },
     "toHandle": "{n} à traiter",
     "noAlert": "Rien à décider pour l'instant.",
-    "fillBracketsTitle": "Poules terminées",
     "openStages": "Ouvrir les phases",
     "poolCompleteText": "Vérifiez le classement avant le passage de phase.",
     "checkStandings": "Vérifier le classement",
@@ -516,7 +516,9 @@
     "forceOn": "Forcer sur le terrain :",
     "noOpenCourt": "Aucun terrain disponible",
     "launchHint": "Choisir le terrain",
-    "forceHint": "Lancer quand même : le repos ou l'absence n'est qu'un avertissement"
+    "forceHint": "Lancer quand même : le repos ou l'absence n'est qu'un avertissement",
+    "fillStageTitle": "{stage} : prêt à remplir",
+    "fillStage": "Les phases qui l'alimentent sont terminées : remplissez-la pour continuer."
   },
   "priority": {
     "balanced": "Équilibrée",
@@ -532,8 +534,6 @@
     "correctionHint": "Mode correction : modifiez ou effacez un score, déclarez ou annulez un forfait, inversez deux matchs. Chaque action est journalisée et annulable.",
     "swapPick": "Choisissez le match à inverser avec {id}.",
     "notStarted": "Les poules apparaissent une fois le tirage validé.",
-    "winSets": "{sets, plural, =1 {1 set} other {{sets} sets gagnants}} de {points}{cap, plural, =0 {} other { · plafond {cap}}}",
-    "winTimed": "Au temps · {minutes} min · point en or",
     "drawLots": "Tirer au sort",
     "tiebreaks": "départage :",
     "entrant": "Participant",
@@ -592,7 +592,6 @@
     "notStarted": "Pas encore de classement : validez d'abord le tirage.",
     "origin": "Parcours",
     "tiedRank": "{rank} ex.",
-    "eliminatedInPools": "Poules ({n}{n, plural, =1 {er} other {e}})",
     "csv": {
       "category": "Catégorie",
       "rank": "Rang",
@@ -604,7 +603,9 @@
     },
     "lead": "Classement intégral, de la première à la dernière place.",
     "place": "Place",
-    "provisionalHint": "Tournoi en cours : aperçu du classement à la clôture, à partir des classements de poules et des tableaux actuels."
+    "provisionalHint": "Tournoi en cours : aperçu du classement à la clôture, à partir des classements de poules et des tableaux actuels.",
+    "bracketPlace": "place {n}",
+    "poolRank": "{n, plural, =1 {1er} other {#e}} de poule"
   },
   "rounds": {
     "elapsed": "Temps écoulé",
@@ -649,6 +650,55 @@
   },
   "homeTabs": {
     "home": "Accueil",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "presets": "Presets"
+  },
+  "stage": {
+    "kind": {
+      "pools": "Poules",
+      "bracket": "Tableau"
+    }
+  },
+  "presets": {
+    "title": "Presets",
+    "lead": "Formats, conditions de victoire et ordres de départage enregistrés sur ce PC, pour tous les tournois.",
+    "formats": "Formats",
+    "winConditions": "Conditions de victoire",
+    "tiebreakOrders": "Ordres de départage",
+    "builtIn": "Intégré",
+    "delete": "Supprimer",
+    "applyTo": "Appliquer à {category}",
+    "saveFromFormat": "Enregistrez les vôtres depuis l'écran Format d'un tournoi.",
+    "name": "Nom du preset",
+    "description": "Description (facultative)",
+    "save": "Enregistrer",
+    "saveShort": "Enregistrer…",
+    "choose": "Appliquer un preset…",
+    "format": {
+      "pools": {
+        "name": "Poules uniquement",
+        "description": "4 poules, classement par position dans la poule."
+      },
+      "poolsMain": {
+        "name": "Poules + tableau principal",
+        "description": "4 poules, les deux premiers de chaque poule dans un tableau à placement complet."
+      },
+      "poolsMainConsolation": {
+        "name": "Poules + principal + consolante",
+        "description": "4 poules ; rangs 1-2 en tableau principal, rangs 3-4 en consolante."
+      },
+      "bracket": {
+        "name": "Tableau à placement complet",
+        "description": "Élimination directe dès le tirage, toutes les places jouées."
+      },
+      "twoPoolRounds": {
+        "name": "Deux tours de poules + finale",
+        "description": "4 poules, les deux premiers en 2 nouvelles poules, puis un tableau final pour leurs deux premiers."
+      }
+    },
+    "tiebreaks": {
+      "standard": "Standard",
+      "pointsFirst": "Points avant confrontation directe"
+    }
   }
 }

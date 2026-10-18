@@ -14,17 +14,13 @@ func TestDuplicate(t *testing.T) {
 	g.do(func(s State) (Change, error) { return s.SetCourts(7) })
 	g.do(func(s State) (Change, error) { return s.SetMinRest(12) })
 	g.do(func(s State) (Change, error) { return s.SetCourtPriority("WD") })
-	stage := DefaultPoolStage()
-	stage.Pools = 3
-	g.do(func(s State) (Change, error) { return s.ConfigurePoolStage(engine.MensDoubles, stage) })
-	// T1 is removed: the copy renumbers T2 and T3 to T1 and T2.
+	g.editStage(engine.MensDoubles, "S1", func(st *StageConfig) { st.Pools = 3 })
+	// S2 is removed: the copy renumbers S1, S3 and S4 to S1, S2 and S3.
 	for _, name := range []string{"Old", "Principal", "Consolante"} {
-		g.do(func(s State) (Change, error) {
-			return s.AddBracket(engine.MensDoubles, BracketConfig{Name: name, Win: sets21})
-		})
+		g.addStage(engine.MensDoubles, StageBracket, name, false)
 	}
-	g.do(func(s State) (Change, error) { return s.RemoveBracket(engine.MensDoubles, "T1") })
-	g.do(func(s State) (Change, error) { return s.SetRouting(engine.MensDoubles, []string{"T2", "T2", "T3", ""}) })
+	g.do(func(s State) (Change, error) { return s.RemoveStage(engine.MensDoubles, "S2") })
+	g.route(engine.MensDoubles, "S1", "S3", "S3", "S4", "")
 
 	changes, err := Duplicate(g.state(), "  Plume 2027 ")
 	if err != nil {
@@ -51,17 +47,15 @@ func TestDuplicate(t *testing.T) {
 	if len(got.Entrants) != 0 {
 		t.Errorf("entrants copied: %v", got.Entrants)
 	}
-	if got.PoolStage(engine.MensDoubles).Pools != 3 {
-		t.Errorf("pools = %d", got.PoolStage(engine.MensDoubles).Pools)
-	}
+	stages := got.StageConfigs(engine.MensDoubles)
 	var names []string
-	for _, b := range got.Brackets(engine.MensDoubles) {
-		names = append(names, b.ID+" "+b.Name)
+	for _, st := range stages {
+		names = append(names, st.ID+" "+st.Name)
 	}
-	if !slices.Equal(names, []string{"T1 Principal", "T2 Consolante"}) {
-		t.Errorf("brackets = %v", names)
+	if !slices.Equal(names, []string{"S1 ", "S2 Principal", "S3 Consolante"}) || stages[0].Pools != 3 {
+		t.Errorf("stages = %v", names)
 	}
-	if r := got.Routing(engine.MensDoubles); !slices.Equal(r, []string{"T1", "T1", "T2"}) {
+	if r := stages[0].Routing; !slices.Equal(r, []string{"S2", "S2", "S3"}) {
 		t.Errorf("routing = %v", r)
 	}
 

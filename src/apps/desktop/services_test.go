@@ -88,6 +88,22 @@ func newFixture(t *testing.T) *fixture {
 	return f
 }
 
+// editEntry changes the entry stage of a category.
+func (f *fixture) editEntry(c engine.Category, edit func(*tournament.StageConfig)) error {
+	for _, fc := range f.svc.GetFormatView().Categories {
+		if fc.Category != c {
+			continue
+		}
+		stages := make([]tournament.StageConfig, len(fc.Stages))
+		for i, st := range fc.Stages {
+			stages[i] = st.StageConfig
+		}
+		edit(&stages[0])
+		return f.svc.SetFormat(f.ctx, c, stages)
+	}
+	return nil
+}
+
 func wantCode(t *testing.T, err error, code engine.Code) {
 	t.Helper()
 	var e *engine.Error
@@ -155,8 +171,8 @@ func TestSettings(t *testing.T) {
 		t.Errorf("tournament = %d courts, %d min rest", v.Courts, v.MinRest)
 	}
 	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
-	if fc := f.svc.GetFormatView().Categories[0]; fc.Stage.Win.Kind != engine.WinByTime {
-		t.Errorf("default pool win = %+v", fc.Stage.Win)
+	if fc := f.svc.GetFormatView().Categories[0]; fc.Stages[0].Win.Kind != engine.WinByTime {
+		t.Errorf("default pool win = %+v", fc.Stages[0].Win)
 	}
 }
 

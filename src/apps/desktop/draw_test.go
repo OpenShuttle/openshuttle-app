@@ -32,32 +32,29 @@ func TestFormatAndDraw(t *testing.T) {
 
 	fv := f.svc.GetFormatView()
 	fc := fv.Categories[0]
-	if !fc.TimedAllowed || fc.Registered != 7 || fc.Present != 0 || fc.Matches != 6+3 || len(fc.Sizes) != 2 {
+	if !fc.TimedAllowed || fc.Registered != 7 || fc.Present != 0 || fc.Stages[0].Matches != 6+3 || len(fc.Stages[0].Sizes) != 2 {
 		t.Fatalf("format = %+v", fc)
 	}
 
-	stage := fc.Stage
-	stage.Pools = 3
-	must(f.svc.ConfigurePoolStage(ctx, engine.MensSingles, stage))
-	if fc = f.svc.GetFormatView().Categories[0]; fc.Stage.Pools != 3 || fc.Matches != 3+1+1 {
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools = 3 }))
+	if fc = f.svc.GetFormatView().Categories[0]; fc.Stages[0].Pools != 3 || fc.Stages[0].Matches != 3+1+1 {
 		t.Errorf("after 3 pools = %+v", fc)
 	}
-	stage.Pools = 2
-	must(f.svc.ConfigurePoolStage(ctx, engine.MensSingles, stage))
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools = 2 }))
 
 	// Nobody present: cannot draw.
 	dv := f.svc.GetDrawView().Categories[0]
 	if dv.Status != DrawNone || dv.CanDraw {
 		t.Fatalf("draw before check-in = %+v", dv)
 	}
-	wantCode(t, f.svc.DrawPools(ctx, engine.MensSingles), engine.CodeNotEnoughEntrants)
+	wantCode(t, f.svc.DrawEntry(ctx, engine.MensSingles), engine.CodeNotEnoughEntrants)
 
 	for _, row := range f.svc.GetCheckInView().Rows {
 		must(f.svc.CheckInPlayer(ctx, row.ID))
 	}
 	first := f.svc.GetDrawView().Categories[0].Seeded[0].ID
 	must(f.svc.SetSeed(ctx, first, 1))
-	must(f.svc.DrawPools(ctx, engine.MensSingles))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
 
 	dv = f.svc.GetDrawView().Categories[0]
 	if dv.Status != DrawDraft || len(dv.Pools) != 2 || dv.Pools[0].Name != "A" || len(dv.Pools[0].Entrants)+len(dv.Pools[1].Entrants) != 7 {
@@ -86,7 +83,7 @@ func TestFormatAndDraw(t *testing.T) {
 	if dv = f.svc.GetDrawView().Categories[0]; dv.Status != DrawConfirmed {
 		t.Errorf("status = %s", dv.Status)
 	}
-	if fc = f.svc.GetFormatView().Categories[0]; !fc.PoolsLocked {
+	if fc = f.svc.GetFormatView().Categories[0]; !fc.Stages[0].Confirmed {
 		t.Error("pools should be locked")
 	}
 	must(f.svc.Undo(ctx))

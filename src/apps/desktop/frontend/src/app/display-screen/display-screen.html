@@ -123,7 +123,10 @@
         <div class="board-head">
           <span class="board-title">
             {{ t('category.short.' + b.category) }} ·
-            {{ b.pool ? t('desk.pool', { pool: b.pool }) + ' · ' + t('displayScreen.standings') : b.bracketName }}
+            @if (!b.entryStage || b.stageKind === 'bracket') {
+              {{ stageName(b) }}{{ b.pool ? ' · ' : '' }}
+            }
+            {{ b.pool ? t('desk.pool', { pool: b.pool }) + ' · ' + t('displayScreen.standings') : '' }}
           </span>
           <span class="dots">
             @for (x of view().boards; track $index; let i = $index) {

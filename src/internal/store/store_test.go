@@ -187,6 +187,19 @@ func TestTournamentOpenErrors(t *testing.T) {
 		_, err := OpenTournament(ctx, path)
 		wantCode(t, err, engine.CodeFileTooNew)
 	})
+
+	t.Run("open a file from the first format", func(t *testing.T) {
+		f, path := newTournament(t)
+		if _, err := f.Append(ctx, events.Draft{Type: "TournamentCreated", Data: []byte(`{}`), At: time.Now()}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := f.db.Exec("PRAGMA user_version = 1"); err != nil {
+			t.Fatal(err)
+		}
+		f.Close()
+		_, err := OpenTournament(ctx, path)
+		wantCode(t, err, engine.CodeFileTooOld)
+	})
 }
 
 func TestBackup(t *testing.T) {

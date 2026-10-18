@@ -1,17 +1,18 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import {
-  BracketPhase,
   MatchView,
   PhaseCategory,
   PhasesView,
   PoolPhase,
   RoundView,
   SideView,
+  StagePhase,
   TournamentService,
 } from '@bindings/apps/desktop';
-import { Category, WinConditionKind } from '@bindings/internal/engine';
+import { Category } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
@@ -19,11 +20,12 @@ import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
 import { roundLabel } from '../shared/match-stage';
 import { shortNames } from '../shared/names';
+import { stageLabel, winSummary } from '../shared/stage-label';
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, ScorePanel, HistoryPanel],
+  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })
@@ -39,11 +41,13 @@ export class Phases {
 
   protected readonly correction = signal(false);
   protected readonly showHistory = signal(true);
-  /** Stage shown: 'pools' or a bracket id. */
-  private readonly stageKey = signal('pools');
-  protected readonly bracket = computed(
-    () => (this.current()?.brackets ?? []).find((b) => b.id === this.stageKey()) ?? null,
-  );
+  private readonly transloco = inject(TranslocoService);
+  /** Stage shown; the first one by default. */
+  private readonly stageKey = signal('');
+  protected readonly stage = computed(() => {
+    const stages = this.current()?.stages ?? [];
+    return stages.find((s) => s.id === this.stageKey()) ?? stages[0] ?? null;
+  });
   protected readonly scoring = signal<MatchView | null>(null);
   /** First match picked for a swap. */
   protected readonly swapping = signal<MatchView | null>(null);
@@ -52,7 +56,15 @@ export class Phases {
 
   protected select(category: Category): void {
     this.selected.set(category);
-    this.stageKey.set('pools');
+    this.stageKey.set('');
+  }
+
+  protected label(stage: { name: string; kind: string }): string {
+    return stageLabel(this.transloco, stage);
+  }
+
+  protected win(stage: StagePhase): string {
+    return winSummary(this.transloco, stage.win);
   }
 
   protected selectStage(key: string): void {
@@ -77,16 +89,11 @@ export class Phases {
     return roundLabel({ placeFrom: r.from, placeTo: r.to, roundSize: r.size });
   }
 
-  protected bracketStatus(b: BracketPhase): string {
-    if (!b.drawn) {
+  protected status(s: StagePhase): string {
+    if (!s.confirmed) {
       return 'notDrawn';
     }
-    const total = b.rounds?.reduce((n, r) => n + (r.matches ?? []).filter((m) => !m.byeA && !m.byeB).length, 0) ?? 0;
-    return (b.places ?? []).length > 0 && b.started && total > 0 && this.allPlayed(b) ? 'finished' : b.started ? 'inProgress' : 'ready';
-  }
-
-  private allPlayed(b: BracketPhase): boolean {
-    return (b.rounds ?? []).every((r) => (r.matches ?? []).every((m) => m.byeA || m.byeB || m.score || m.walkover));
+    return s.complete ? 'finished' : s.started ? 'inProgress' : 'ready';
   }
 
   /** Side label inside a bracket: names, "bye", or "to be decided". */
@@ -104,7 +111,7 @@ export class Phases {
     return from === to ? String(from) : `${from}–${to}`;
   }
 
-  protected async swapSlot(c: PhaseCategory, b: BracketPhase, slot: number): Promise<void> {
+  protected async swapSlot(c: PhaseCategory, b: StagePhase, slot: number): Promise<void> {
     const key = `${b.id}:${slot}`;
     const first = this.swappingSlot();
     if (!first || !first.startsWith(b.id + ':')) {
@@ -112,7 +119,7 @@ export class Phases {
       return;
     }
     const a = Number(first.split(':')[1]);
-    if (a === slot || (await this.tournament.swapBracketSlots(c.category, b.id, a, slot))) {
+    if (a === slot || (await this.tournament.swapSlots(c.category, b.id, a, slot))) {
       this.swappingSlot.set(null);
     }
   }
@@ -146,9 +153,6 @@ export class Phases {
     return !m.court && !m.score && !m.walkover;
   }
 
-  protected winKey(c: PhaseCategory): string {
-    return c.stage.win.kind === WinConditionKind.WinByTime ? 'phases.winTimed' : 'phases.winSets';
-  }
 
   protected async swap(m: MatchView): Promise<void> {
     const first = this.swapping();

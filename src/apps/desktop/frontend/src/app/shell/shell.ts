@@ -51,6 +51,7 @@ export class Shell implements OnInit {
 
   protected readonly homeTabs = [
     { key: 'home', path: '/' },
+    { key: 'presets', path: '/presets' },
     { key: 'settings', path: '/settings' },
   ];
 

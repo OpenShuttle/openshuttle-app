@@ -78,11 +78,13 @@ func (s State) RemoveCategory(c engine.Category) (Change, error) {
 func (s *State) applyCategoryAdded(p CategoryAdded) {
 	if !s.HasCategory(p.Category) {
 		s.Categories = append(s.Categories, p.Category)
+		s.newFormat(p.Category)
 	}
 }
 
 func (s *State) applyCategoryRemoved(p CategoryRemoved) {
 	s.Categories = slices.DeleteFunc(s.Categories, func(c engine.Category) bool { return c == p.Category })
-	delete(s.stages, p.Category)
-	delete(s.draws, p.Category)
+	delete(s.formats, p.Category)
+	delete(s.formatSet, p.Category)
+	s.refreshDefaultFormats()
 }

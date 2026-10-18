@@ -231,3 +231,41 @@
   gap: 16px;
   color: var(--color-text-muted);
 }
+
+// Bracket entry stage: first-round pairs.
+.bracket-draw {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.pair {
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slot {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    color: inherit;
+  }
+
+  &.bye {
+    color: var(--color-text-muted);
+    font-weight: 700;
+    border-style: dashed;
+  }
+
+  &.picked {
+    border-color: var(--color-link);
+    box-shadow: 0 0 0 3px var(--color-playing-bg);
+  }
+}

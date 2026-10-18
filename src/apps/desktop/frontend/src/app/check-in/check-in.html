@@ -67,7 +67,7 @@
             <app-category-badge [category]="r.category" [slot]="r.slot" />
             <span class="bib-number">{{ r.bib || '–' }}</span>
             <span class="name">
-              {{ r.firstName }} {{ r.lastName }}
+              <span class="name-text" [attr.title]="r.firstName + ' ' + r.lastName">{{ r.firstName }} {{ r.lastName }}</span>
               @if (r.duplicate) {
                 <span class="pill pill-finished" [attr.title]="t('entrants.duplicate')">{{ t('entrants.homonym') }}</span>
               }
