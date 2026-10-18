@@ -709,15 +709,15 @@
     "format": {
       "pools": {
         "name": "Pools only",
-        "description": "Pools of 4 (else 3, else 5), everyone ranked by pool position."
+        "description": "Pools of 4 (else 5), everyone ranked by pool position."
       },
       "poolsMain": {
         "name": "Pools + main bracket",
-        "description": "Pools of 4 (else 3, else 5); the top two of each pool in a bracket with every place played."
+        "description": "Pools of 4 (else 5); the top two of each pool in a bracket with every place played."
       },
       "poolsMainConsolation": {
         "name": "Pools + main + consolation",
-        "description": "Pools of 4 (else 3, else 5); ranks 1-2 in the main bracket, everyone else in a consolation bracket."
+        "description": "Pools of 4 (else 5); ranks 1-2 in the main bracket, everyone else in a consolation bracket."
       },
       "bracket": {
         "name": "Bracket with every place",
@@ -725,11 +725,11 @@
       },
       "twoPoolRounds": {
         "name": "Two pool rounds + final",
-        "description": "Pools of 4 (else 3, else 5), the top two in new pools, then a final bracket for their top two."
+        "description": "Pools of 4 (else 5), the top two in new pools, then a final bracket for their top two."
       },
       "poolsBest16": {
         "name": "Pools + best 16 + consolation",
-        "description": "Pools of 4 (else 3, else 5); the 16 best in the main bracket, compared across pools, the rest in a consolation bracket."
+        "description": "Pools of 4 (else 5); the 16 best in the main bracket, compared across pools, the rest in a consolation bracket."
       }
     },
     "tiebreaks": {

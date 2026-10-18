@@ -66,10 +66,10 @@ func builtInPresets() Presets {
 	}
 	timed := func(m int) engine.WinCondition { return engine.WinCondition{Kind: engine.WinByTime, Minutes: m} }
 	std := sets(2, 21, 30)
-	// Pools of 4 when possible, else of 3, of 5 as a last resort: the
-	// number of pools follows the number of entrants.
+	// Pools of 4 when possible, else of 5: the number of pools follows the
+	// number of entrants.
 	pools := func(id string, routing ...tournament.RouteRule) tournament.StageConfig {
-		return tournament.StageConfig{ID: id, Kind: tournament.StagePools, Win: std, PoolSizes: []int{4, 3, 5},
+		return tournament.StageConfig{ID: id, Kind: tournament.StagePools, Win: std, PoolSizes: []int{4, 5},
 			Tiebreaks: slices.Clone(engine.DefaultTiebreaks), CrossPool: engine.CrossPoolSameMatches, Routing: routing}
 	}
 	ranks := func(to string, ranks ...int) tournament.RouteRule {

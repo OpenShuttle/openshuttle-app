@@ -709,15 +709,15 @@
     "format": {
       "pools": {
         "name": "Poules uniquement",
-        "description": "Poules de 4 (sinon 3, sinon 5), classement par position dans la poule."
+        "description": "Poules de 4 (sinon 5), classement par position dans la poule."
       },
       "poolsMain": {
         "name": "Poules + tableau principal",
-        "description": "Poules de 4 (sinon 3, sinon 5) ; les deux premiers de chaque poule dans un tableau à placement complet."
+        "description": "Poules de 4 (sinon 5) ; les deux premiers de chaque poule dans un tableau à placement complet."
       },
       "poolsMainConsolation": {
         "name": "Poules + principal + consolante",
-        "description": "Poules de 4 (sinon 3, sinon 5) ; rangs 1-2 en tableau principal, tous les autres en consolante."
+        "description": "Poules de 4 (sinon 5) ; rangs 1-2 en tableau principal, tous les autres en consolante."
       },
       "bracket": {
         "name": "Tableau à placement complet",
@@ -725,11 +725,11 @@
       },
       "twoPoolRounds": {
         "name": "Deux tours de poules + finale",
-        "description": "Poules de 4 (sinon 3, sinon 5), les deux premiers en nouvelles poules, puis un tableau final pour leurs deux premiers."
+        "description": "Poules de 4 (sinon 5), les deux premiers en nouvelles poules, puis un tableau final pour leurs deux premiers."
       },
       "poolsBest16": {
         "name": "Poules + 16 meilleurs + consolante",
-        "description": "Poules de 4 (sinon 3, sinon 5) ; les 16 meilleurs en tableau principal, comparés entre poules, le reste en consolante."
+        "description": "Poules de 4 (sinon 5) ; les 16 meilleurs en tableau principal, comparés entre poules, le reste en consolante."
       }
     },
     "tiebreaks": {

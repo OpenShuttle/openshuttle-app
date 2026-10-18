@@ -11,7 +11,7 @@ import { FormatEditor, LAST_STAGE, canAddStage } from '../format-editor/format-e
 
 const DEFAULT_TIEBREAKS = ['wins', 'headToHead', 'setDifference', 'pointDifference', 'draw'] as Tiebreak[];
 
-/** A new format: pools of 4 (else 3, else 5) and nothing after. */
+/** A new format: pools of 4 (else 5) and nothing after. */
 function newFormat(): StageConfig[] {
   return [
     {
@@ -20,7 +20,7 @@ function newFormat(): StageConfig[] {
       kind: StageKind.StagePools,
       win: { kind: WinConditionKind.WinBySets, setsToWin: 2, pointsPerSet: 21, cap: 30 },
       pools: 0,
-      poolSizes: [4, 3, 5],
+      poolSizes: [4, 5],
       tiebreaks: [...DEFAULT_TIEBREAKS],
       crossPool: CrossPool.CrossPoolSameMatches,
       fullPlacement: false,

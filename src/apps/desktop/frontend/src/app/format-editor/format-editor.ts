@@ -228,7 +228,7 @@ export class FormatEditor {
         ? {
             kind,
             pools: 0,
-            poolSizes: [4, 3, 5],
+            poolSizes: [4, 5],
             tiebreaks: [...(this.presets.value().tiebreaks?.[0]?.tiebreaks ?? [])],
             crossPool: CrossPool.CrossPoolSameMatches,
             fullPlacement: false,
@@ -242,7 +242,7 @@ export class FormatEditor {
     if (bySizes === (stage.poolSizes ?? []).length > 0) {
       return;
     }
-    this.edit(stage, bySizes ? { pools: 0, poolSizes: [4, 3, 5] } : { pools: Math.max(1, (stage.sizes ?? []).length || 2), poolSizes: [] });
+    this.edit(stage, bySizes ? { pools: 0, poolSizes: [4, 5] } : { pools: Math.max(1, (stage.sizes ?? []).length || 2), poolSizes: [] });
   }
 
   protected movePoolSize(stage: StageView, index: number, step: -1 | 1): void {
