@@ -455,3 +455,13 @@ fieldset.panel-body {
 .remove {
   align-self: flex-start;
 }
+
+// The side panel is narrow: long options wrap rather than overflow.
+.panel .seg-option {
+  min-width: 0;
+  height: auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  line-height: 1.2;
+  white-space: normal;
+}

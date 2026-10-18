@@ -195,7 +195,8 @@
     "PRESET_NOT_FOUND": "Ce preset n'existe plus.",
     "PRESET_READ_ONLY": "Les presets intégrés ne peuvent pas être supprimés.",
     "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert.",
-    "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format."
+    "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format.",
+    "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -425,7 +426,9 @@
     "ruleCount": "{n, plural, =0 {Personne} one {# participant} other {# participants}} avec cette simulation",
     "addRule": "Ajouter une règle",
     "keptCount": "{n, plural, =0 {Personne ne garde ici son classement final.} one {# participant garde ici son classement final.} other {# participants gardent ici leur classement final.}}",
-    "nobodyHere": "Personne avec cette simulation"
+    "nobodyHere": "Personne avec cette simulation",
+    "bracketIsFinal": "Un tableau classe tous ses participants : personne ne passe à une autre phase.",
+    "addNeedsPools": "Seules des poules peuvent envoyer des participants vers une nouvelle phase : un tableau est toujours la dernière."
   },
   "tiebreak": {
     "wins": "Victoires",

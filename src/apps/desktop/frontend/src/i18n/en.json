@@ -195,7 +195,8 @@
     "PRESET_NOT_FOUND": "This preset no longer exists.",
     "PRESET_READ_ONLY": "Built-in presets cannot be deleted.",
     "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened.",
-    "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format."
+    "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format.",
+    "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -425,7 +426,9 @@
     "ruleCount": "{n, plural, =0 {Nobody} one {# entrant} other {# entrants}} with this simulation",
     "addRule": "Add a rule",
     "keptCount": "{n, plural, =0 {Nobody keeps a final rank here.} one {# entrant keeps a final rank here.} other {# entrants keep a final rank here.}}",
-    "nobodyHere": "Nobody with this simulation"
+    "nobodyHere": "Nobody with this simulation",
+    "bracketIsFinal": "A bracket ranks every entrant it receives: nobody goes on to another phase.",
+    "addNeedsPools": "Only pools can send entrants to a new phase: a bracket is always the last one."
   },
   "tiebreak": {
     "wins": "Wins",

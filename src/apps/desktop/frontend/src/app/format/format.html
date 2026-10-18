@@ -39,8 +39,8 @@
           </div>
         }
         <div class="toolbar-actions">
-          <button type="button" class="btn btn-sm" (click)="add(stageKinds.StagePools)">+ {{ t('format.addPools') }}</button>
-          <button type="button" class="btn btn-sm" (click)="add(stageKinds.StageBracket)">+ {{ t('format.addBracket') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StagePools)">+ {{ t('format.addPools') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StageBracket)">+ {{ t('format.addBracket') }}</button>
           <select class="preset-select" [attr.aria-label]="t('format.applyPreset')" (change)="applyFormatPreset($event)">
             <option value="">{{ t('format.applyPreset') }}</option>
             @for (p of presets.value().formats ?? []; track p.id) {

@@ -50,13 +50,16 @@ const (
 	CodeEntrantNotWithdrawn Code = "ENTRANT_NOT_WITHDRAWN"
 	CodeNoTie               Code = "NO_TIE"
 
-	CodeStageNotFound      Code = "STAGE_NOT_FOUND"
-	CodeTooManyStages      Code = "TOO_MANY_STAGES"
-	CodeStageFilled        Code = "STAGE_FILLED"
-	CodeNoPoolSplit        Code = "NO_POOL_SPLIT"
-	CodePresetNotFound     Code = "PRESET_NOT_FOUND"
-	CodePresetReadOnly     Code = "PRESET_READ_ONLY"
-	CodeInvalidRouting     Code = "INVALID_ROUTING"
+	CodeStageNotFound  Code = "STAGE_NOT_FOUND"
+	CodeTooManyStages  Code = "TOO_MANY_STAGES"
+	CodeStageFilled    Code = "STAGE_FILLED"
+	CodeNoPoolSplit    Code = "NO_POOL_SPLIT"
+	CodePresetNotFound Code = "PRESET_NOT_FOUND"
+	CodePresetReadOnly Code = "PRESET_READ_ONLY"
+	CodeInvalidRouting Code = "INVALID_ROUTING"
+	// CodeBracketIsFinal: a bracket routes nobody on, and a new stage needs a
+	// pools stage to feed it.
+	CodeBracketIsFinal     Code = "BRACKET_IS_FINAL"
 	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
 	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
 	CodeBracketStarted     Code = "BRACKET_STARTED"

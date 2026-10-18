@@ -23,6 +23,11 @@ const OUTPUT_W = 170;
 /** Height of the lane under the stages that early exits run along. */
 const LANE_H = 44;
 
+/** A new stage needs a pools stage to feed it: a bracket routes nobody on. */
+export function canAddStage(stages: readonly { kind: StageKind }[]): boolean {
+  return stages.some((s) => s.kind === StageKind.StagePools);
+}
+
 /** Selects the last stage, whatever its id: the one just added. */
 export const LAST_STAGE = '__last';
 
@@ -228,7 +233,7 @@ export class FormatEditor {
             crossPool: CrossPool.CrossPoolSameMatches,
             fullPlacement: false,
           }
-        : { kind, pools: 0, poolSizes: [], tiebreaks: [], fullPlacement: true },
+        : { kind, pools: 0, poolSizes: [], tiebreaks: [], fullPlacement: true, routing: [] },
     );
   }
 

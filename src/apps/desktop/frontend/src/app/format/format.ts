@@ -8,7 +8,7 @@ import { StageConfig, StageKind } from '@bindings/internal/tournament';
 import { liveView } from '../core/live-view';
 import { AppPresets } from '../core/presets.service';
 import { TournamentStore } from '../core/tournament.service';
-import { FormatEditor, LAST_STAGE } from '../format-editor/format-editor';
+import { FormatEditor, LAST_STAGE, canAddStage } from '../format-editor/format-editor';
 
 /** Format of the open tournament, per category: the shared editor, applied through Go. */
 @Component({
@@ -23,6 +23,7 @@ export class Format {
   private readonly transloco = inject(TranslocoService);
   protected readonly view = liveView<FormatView>(() => TournamentService.GetFormatView(), { categories: [] });
   protected readonly stageKinds = StageKind;
+  protected readonly canAdd = computed(() => canAddStage(this.current()?.stages ?? []));
   private readonly editor = viewChild(FormatEditor);
 
   private readonly selectedCategory = signal<Category | null>(null);

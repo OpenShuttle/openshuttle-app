@@ -30,8 +30,8 @@
           <span class="pill pill-muted">{{ t('presets.readOnly') }}</span>
           <button type="button" class="btn btn-sm btn-primary" (click)="duplicate()">{{ t('presets.duplicateToEdit') }}</button>
         } @else {
-          <button type="button" class="btn btn-sm" (click)="add(stageKinds.StagePools, editor)">+ {{ t('format.addPools') }}</button>
-          <button type="button" class="btn btn-sm" (click)="add(stageKinds.StageBracket, editor)">+ {{ t('format.addBracket') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StagePools, editor)">+ {{ t('format.addPools') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StageBracket, editor)">+ {{ t('format.addBracket') }}</button>
           <button type="button" class="btn btn-sm btn-primary" [disabled]="!name().trim()" (click)="save()">{{ t('presets.save') }}</button>
         }
       </div>

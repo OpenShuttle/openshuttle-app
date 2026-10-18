@@ -113,7 +113,7 @@ func TestStageFormat(t *testing.T) {
 	// Routing only points forward, to known stages.
 	g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
-		stages[2].Routing = RanksRules(main)
+		stages[0].Routing = RanksRules("S1")
 		return s.SetFormat(engine.MensSingles, stages)
 	})
 	g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
@@ -453,8 +453,8 @@ func TestPhases(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	main := g.addStage(engine.MensSingles, StageBracket, "Main", false)
 	cons := g.addStage(engine.MensSingles, StageBracket, "Cons", false)
-	// Nothing routed yet: each stage comes after the one before it.
-	for id, want := range map[string]int{"S1": 1, main: 2, cons: 3} {
+	// Nothing routed yet: both come after the pools, never after a bracket.
+	for id, want := range map[string]int{"S1": 1, main: 2, cons: 2} {
 		if got := g.state().Phase(engine.MensSingles, id); got != want {
 			t.Errorf("phase of %s = %d, want %d", id, got, want)
 		}
@@ -464,6 +464,32 @@ func TestPhases(t *testing.T) {
 	if got := g.state().Phase(engine.MensSingles, cons); got != 2 {
 		t.Errorf("phase of the consolation = %d, want 2", got)
 	}
+}
+
+func TestBracketIsFinal(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.route(engine.MensSingles, "S1", main, main)
+
+	// A bracket routes nobody on.
+	g.fails(engine.CodeBracketIsFinal, func(s State) (Change, error) {
+		stages := s.StageConfigs(engine.MensSingles)
+		stages[0].Routing = nil
+		stages[1].Routing = RanksRules("", "", "S1")
+		return s.SetFormat(engine.MensSingles, stages)
+	})
+	if _, err := ValidateFormat([]StageConfig{
+		{ID: "S1", Kind: StageBracket, Win: sets21, Routing: RanksRules("", "S2")},
+		{ID: "S2", Kind: StageBracket, Win: sets21},
+	}); err == nil || err.(*engine.Error).Code != engine.CodeBracketIsFinal {
+		t.Errorf("preset with a bracket routing on: %v", err)
+	}
+
+	// With only a bracket left, no stage can be added: nothing would feed it.
+	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.Routing = nil })
+	g.do(func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, "S1") })
+	g.fails(engine.CodeBracketIsFinal, func(s State) (Change, error) { return s.AddStage(engine.MensSingles, StagePools) })
+	g.fails(engine.CodeBracketIsFinal, func(s State) (Change, error) { return s.AddStage(engine.MensSingles, StageBracket) })
 }
 
 func TestRoutingRules(t *testing.T) {

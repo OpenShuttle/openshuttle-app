@@ -315,7 +315,9 @@
 
           <div class="section">
             <span class="field-label">{{ t('format.routing') }}</span>
-            @if (laterStages(s).length === 0) {
+            @if (s.kind === stageKinds.StageBracket) {
+              <span class="note">{{ t('format.bracketIsFinal') }}</span>
+            } @else if (laterStages(s).length === 0) {
               <span class="note">{{ t('format.routingEmpty') }}</span>
             } @else {
               <span class="note">{{ t('format.routingHint') }}</span>

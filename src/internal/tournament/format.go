@@ -155,14 +155,19 @@ func (s State) Phase(c engine.Category, id string) int {
 
 // Phases returns the phase of every stage: 1 for the entry stage, one more
 // than the latest stage feeding it, or, for a later stage nothing feeds yet,
-// one more than the stage before it in the list.
+// one more than the last pools stage before it (a bracket feeds nobody).
 func Phases(stages []StageConfig) map[string]int {
 	phases := map[string]int{}
 	for i, st := range stages {
 		if phases[st.ID] == 0 {
+			// Nothing feeds it yet: it comes after the last pools stage before
+			// it, the only kind that can feed it.
 			phases[st.ID] = 1
-			if i > 0 {
-				phases[st.ID] = phases[stages[i-1].ID] + 1
+			for _, prev := range slices.Backward(stages[:i]) {
+				if prev.Kind == StagePools {
+					phases[st.ID] = phases[prev.ID] + 1
+					break
+				}
 			}
 		}
 		for _, to := range st.Targets() {
@@ -210,6 +215,10 @@ func (s State) AddStage(c engine.Category, kind StageKind) (Change, error) {
 	stages := s.StageConfigs(c)
 	if len(stages) >= MaxStages {
 		return Change{}, engine.NewError(engine.CodeTooManyStages)
+	}
+	// Only a pools stage can feed the new one: brackets route nobody on.
+	if !slices.ContainsFunc(stages, func(st StageConfig) bool { return st.Kind == StagePools }) {
+		return Change{}, engine.NewError(engine.CodeBracketIsFinal)
 	}
 	st := DefaultPoolsStage(fmt.Sprintf("S%d", s.stageNumbers[c]+1))
 	if n := len(stages); n > 0 {
@@ -406,6 +415,10 @@ func validStage(st StageConfig, categories int) (StageConfig, error) {
 		}
 		st.FullPlacement = false
 	case StageBracket:
+		// A bracket is the last phase of its entrants: it ranks them all.
+		if len(st.Routing) > 0 {
+			return st, engine.NewError(engine.CodeBracketIsFinal)
+		}
 		st.Pools, st.PoolSizes, st.Tiebreaks, st.CrossPool = 0, nil, nil, ""
 	default:
 		return st, engine.NewError(engine.CodeInvalidFormat)

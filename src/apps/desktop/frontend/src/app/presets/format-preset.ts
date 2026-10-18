@@ -7,7 +7,7 @@ import { FormatPreview, StageConfig, StageKind } from '@bindings/internal/tourna
 
 import { backendError, BackendError } from '../core/backend-error';
 import { AppPresets } from '../core/presets.service';
-import { FormatEditor, LAST_STAGE } from '../format-editor/format-editor';
+import { FormatEditor, LAST_STAGE, canAddStage } from '../format-editor/format-editor';
 
 const DEFAULT_TIEBREAKS = ['wins', 'headToHead', 'setDifference', 'pointDifference', 'draw'] as Tiebreak[];
 
@@ -56,6 +56,7 @@ export class FormatPresetPage {
   protected readonly error = signal<BackendError | null>(null);
   protected readonly loaded = signal(false);
   protected readonly stageKinds = StageKind;
+  protected readonly canAdd = computed(() => canAddStage(this.stages()));
 
   protected readonly preset = computed<FormatPreset | null>(
     () => (this.presets.value().formats ?? []).find((p) => p.id === this.id()) ?? null,
