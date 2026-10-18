@@ -250,9 +250,33 @@
               } @else {
                 <span class="pill pill-free queue-status">{{ t('desk.reason.ready') }}</span>
               }
+              @if (q.reason !== 'playing' && !view().rounds.active && launching() !== q.match.id) {
+                <button
+                  type="button"
+                  class="launch-btn"
+                  [class.force]="q.reason"
+                  [attr.title]="t(q.reason ? 'desk.forceHint' : 'desk.launchHint')"
+                  (click)="launching.set(q.match.id)"
+                >
+                  {{ t(q.reason ? 'desk.force' : 'desk.launch') }}
+                </button>
+              }
             </div>
             <span class="queue-side"><span class="bib bib-sm">{{ q.match.a.bib }}</span><span class="queue-names">{{ short(q.match.a) }}</span></span>
             <span class="queue-side"><span class="bib bib-sm">{{ q.match.b.bib }}</span><span class="queue-names">{{ short(q.match.b) }}</span></span>
+            @if (q.reason !== 'playing' && !view().rounds.active) {
+              @if (launching() === q.match.id) {
+                <div class="launch">
+                  <span class="launch-label">{{ t(q.reason ? 'desk.forceOn' : 'desk.launchOn') }}</span>
+                  @for (n of openCourts(); track n) {
+                    <button type="button" class="launch-court" [class.force]="q.reason" (click)="launch(q.match, n)">{{ n }}</button>
+                  } @empty {
+                    <span class="launch-none">{{ t('desk.noOpenCourt') }}</span>
+                  }
+                  <button type="button" class="launch-cancel" (click)="launching.set(null)" [attr.aria-label]="t('common.cancel')">×</button>
+                </div>
+              }
+            }
             @if (q.reason) {
               <span class="queue-reason">
                 <span class="dot" [class.rest]="q.reason === 'resting'"></span>

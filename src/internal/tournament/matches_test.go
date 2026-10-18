@@ -153,6 +153,10 @@ func TestQueueRestAndProposals(t *testing.T) {
 	if p := g.state().Proposals(at(20)); p[1].ID != "MS-A2" || p[2].ID != "" {
 		t.Errorf("proposals while resting = %v / %v", p[1].ID, p[2].ID)
 	}
+	// Rest is a warning: the desk can still force the call.
+	if _, err := g.state().CallMatch(q[1].Match.ID, 2); err != nil {
+		t.Errorf("forcing a resting match: %v", err)
+	}
 	// After the rest, ready again.
 	if q = g.state().Queue(at(26)); !q[1].Ready() {
 		t.Errorf("after rest = %+v", q[1])

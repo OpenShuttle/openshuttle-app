@@ -873,3 +873,78 @@
     background: #33363d;
   }
 }
+
+// Calling a queued match by hand, resting or not.
+.launch-btn {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-free);
+  background: #fff;
+  color: var(--color-free-fg);
+  font-size: 12px;
+  font-weight: 700;
+
+  &:hover {
+    background: var(--color-free-bg);
+  }
+
+  &.force {
+    border-color: var(--color-finished);
+    color: var(--color-finished-fg);
+
+    &:hover {
+      background: var(--color-finished-bg);
+    }
+  }
+}
+
+.launch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.launch-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.launch-court {
+  min-width: 34px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-free);
+  color: #fff;
+  font: 700 15px var(--font-mono);
+
+  &.force {
+    background: var(--color-finished);
+    color: var(--color-text);
+  }
+
+  &:hover {
+    filter: brightness(0.92);
+  }
+}
+
+.launch-none {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.launch-cancel {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  color: var(--color-text-muted);
+}

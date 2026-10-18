@@ -48,6 +48,13 @@ export class ControlDesk {
   protected readonly now = signal(Date.now());
   protected readonly scoring = signal<MatchView | null>(null);
   protected readonly queueFilter = signal<Category | 'all'>('all');
+  /** Queue match whose court picker is open. */
+  protected readonly launching = signal<string | null>(null);
+
+  /** Courts a match can be called on now: nothing in progress there. */
+  protected readonly openCourts = computed(() =>
+    (this.view().courts ?? []).filter((c) => c.state !== 'playing').map((c) => c.number),
+  );
 
   protected readonly counts = computed(() => {
     const courts = this.view().courts ?? [];
@@ -130,6 +137,13 @@ export class ControlDesk {
     return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(
       new Date(iso),
     );
+  }
+
+  /** Calls a queued match on a court, rest or not: rest is only a warning. */
+  protected async launch(m: MatchView, court: number): Promise<void> {
+    if (await this.tournament.callMatch(m.id, court)) {
+      this.launching.set(null);
+    }
   }
 
   protected call(court: CourtView): void {

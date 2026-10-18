@@ -509,7 +509,14 @@
     "scoreTitle": "Saisir le score",
     "side": "Camp",
     "walkoverBib": "WO · forfait de #{bib}",
-    "walkoverConfirmBib": "Confirmer le forfait de #{bib}"
+    "walkoverConfirmBib": "Confirmer le forfait de #{bib}",
+    "launch": "Lancer",
+    "force": "Forcer",
+    "launchOn": "Lancer sur le terrain :",
+    "forceOn": "Forcer sur le terrain :",
+    "noOpenCourt": "Aucun terrain disponible",
+    "launchHint": "Choisir le terrain",
+    "forceHint": "Lancer quand même : le repos ou l'absence n'est qu'un avertissement"
   },
   "priority": {
     "balanced": "Équilibrée",

@@ -509,7 +509,14 @@
     "scoreTitle": "Enter the score",
     "side": "Side",
     "walkoverBib": "WO · forfeit of #{bib}",
-    "walkoverConfirmBib": "Confirm the forfeit of #{bib}"
+    "walkoverConfirmBib": "Confirm the forfeit of #{bib}",
+    "launch": "Call",
+    "force": "Force",
+    "launchOn": "Call on court:",
+    "forceOn": "Force on court:",
+    "noOpenCourt": "No court available",
+    "launchHint": "Choose the court",
+    "forceHint": "Call anyway: the rest or presence is only a warning"
   },
   "priority": {
     "balanced": "Balanced",
