@@ -11,7 +11,10 @@
       <div class="error" role="alert">{{ t('errors.' + error.code) }}</div>
     }
 
-    <h2 class="section-title">{{ t('presets.formats') }}</h2>
+    <div class="section-head">
+      <h2 class="section-title">{{ t('presets.formats') }}</h2>
+      <button type="button" class="btn btn-sm btn-primary" (click)="openFormat('new')">+ {{ t('presets.newFormat') }}</button>
+    </div>
     <div class="cards">
       @for (p of presets.value().formats ?? []; track p.id) {
         <div class="card preset">
@@ -24,19 +27,23 @@
           @if (formatDescription(p)) {
             <span class="preset-desc">{{ formatDescription(p) }}</span>
           }
-          <div class="diagram">
+          <button type="button" class="diagram" (click)="openFormat(p.id)" [attr.title]="t('presets.simulate')">
             @for (col of columns(p); track $index; let first = $first) {
               @if (!first) {
                 <span class="arrow">→</span>
               }
-              <div class="col">
+              <span class="col">
                 @for (st of col; track st.id) {
                   <span class="chip">{{ chip(st) }}</span>
                 }
-              </div>
+              </span>
             }
-          </div>
+          </button>
           <div class="preset-actions">
+            <button type="button" class="btn btn-sm" (click)="openFormat(p.id)">
+              {{ t(builtIn(p.id) ? 'presets.view' : 'presets.edit') }}
+            </button>
+            <button type="button" class="btn btn-sm" (click)="duplicate(p.id, formatName(p))">{{ t('presets.duplicate') }}</button>
             @if (tournament.view().open) {
               @for (c of tournament.view().categories ?? []; track c.category) {
                 <button type="button" class="btn btn-sm btn-primary" (click)="apply(p, c.category)">
@@ -54,24 +61,108 @@
 
     <div class="lists">
       <section class="card list">
-        <h2 class="list-title">{{ t('presets.winConditions') }}</h2>
+        <div class="list-head">
+          <h2 class="list-title">{{ t('presets.winConditions') }}</h2>
+          <button type="button" class="btn btn-xs" (click)="newWin()">+ {{ t('presets.new') }}</button>
+        </div>
+        @if (winDraft(); as d) {
+          <form class="editor-form" (submit)="$event.preventDefault(); saveWin()">
+            <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="d.name" (input)="winDraft.set({ id: d.id, name: value($event), win: d.win })" />
+            <div class="seg seg-sm">
+              <button type="button" class="seg-option" [class.active]="d.win.kind === kinds.WinBySets" (click)="setWinKind(kinds.WinBySets)">{{ t('format.bySets') }}</button>
+              <button type="button" class="seg-option" [class.active]="d.win.kind === kinds.WinByTime" (click)="setWinKind(kinds.WinByTime)">{{ t('format.byTime') }}</button>
+            </div>
+            @if (d.win.kind === kinds.WinBySets) {
+              <div class="line">
+                <span>{{ t('format.setsToWinLabel') }}</span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(d.win.setsToWin ?? 1) <= 1" (click)="stepWin('setsToWin', -1)">−</button>
+                  <span class="stepper-value">{{ d.win.setsToWin }}</span>
+                  <button type="button" [disabled]="(d.win.setsToWin ?? 1) >= 3" (click)="stepWin('setsToWin', 1)">+</button>
+                </div>
+              </div>
+              <div class="line">
+                <span>{{ t('format.pointsPerSet') }}</span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(d.win.pointsPerSet ?? 1) <= 1" (click)="stepWin('pointsPerSet', -1)">−</button>
+                  <span class="stepper-value">{{ d.win.pointsPerSet }}</span>
+                  <button type="button" (click)="stepWin('pointsPerSet', 1)">+</button>
+                </div>
+              </div>
+              <div class="line">
+                <span>{{ t('format.capLabel') }} <span class="hint">{{ t('format.capNone') }}</span></span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(d.win.cap ?? 0) <= 0" (click)="stepWin('cap', -1)">−</button>
+                  <span class="stepper-value">{{ d.win.cap ?? 0 }}</span>
+                  <button type="button" (click)="stepWin('cap', 1)">+</button>
+                </div>
+              </div>
+            } @else {
+              <div class="line">
+                <span>{{ t('format.matchDuration') }}</span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(d.win.minutes ?? 1) <= 1" (click)="stepWin('minutes', -1)">−</button>
+                  <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: d.win.minutes }) }}</span>
+                  <button type="button" (click)="stepWin('minutes', 1)">+</button>
+                </div>
+              </div>
+            }
+            <span class="hint">{{ win(d.win) }}</span>
+            <div class="form-actions">
+              <button type="button" class="btn btn-sm" (click)="winDraft.set(null)">{{ t('common.cancel') }}</button>
+              <button type="submit" class="btn btn-sm btn-primary" [disabled]="!d.name.trim()">{{ t('presets.save') }}</button>
+            </div>
+          </form>
+        }
         @for (p of presets.value().win ?? []; track p.id) {
           <div class="row">
             <span class="row-text">
+              <strong>{{ p.name || win(p.win) }}</strong>
               @if (p.name) {
-                <strong>{{ p.name }}</strong> ·
+                <span class="order">{{ win(p.win) }}</span>
               }
-              {{ win(p.win) }}
             </span>
-            @if (!builtIn(p.id)) {
-              <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
-            }
+            <span class="row-actions">
+              @if (builtIn(p.id)) {
+                <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
+              } @else {
+                <button type="button" class="btn btn-xs" (click)="editWin(p)">{{ t('presets.edit') }}</button>
+              }
+              <button type="button" class="btn btn-xs" (click)="duplicate(p.id, p.name || win(p.win))">{{ t('presets.duplicate') }}</button>
+              @if (!builtIn(p.id)) {
+                <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
+              }
+            </span>
           </div>
         }
-        <span class="hint">{{ t('presets.saveFromFormat') }}</span>
       </section>
+
       <section class="card list">
-        <h2 class="list-title">{{ t('presets.tiebreakOrders') }}</h2>
+        <div class="list-head">
+          <h2 class="list-title">{{ t('presets.tiebreakOrders') }}</h2>
+          <button type="button" class="btn btn-xs" (click)="newTiebreaks()">+ {{ t('presets.new') }}</button>
+        </div>
+        @if (tiebreakDraft(); as d) {
+          <form class="editor-form" (submit)="$event.preventDefault(); saveTiebreaks()">
+            <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="d.name" (input)="tiebreakDraft.set({ id: d.id, name: value($event), tiebreaks: d.tiebreaks })" />
+            @for (tb of d.tiebreaks; track tb; let i = $index, first = $first, last = $last) {
+              <div class="tb-row">
+                <span class="tb-rank">{{ i + 1 }}</span>
+                <span class="tb-name">{{ t('tiebreak.' + tb) }}</span>
+                <button type="button" class="tb-move" [disabled]="first" (click)="moveTiebreak(i, -1)">↑</button>
+                <button type="button" class="tb-move" [disabled]="last" (click)="moveTiebreak(i, 1)">↓</button>
+                <button type="button" class="tb-move" [disabled]="d.tiebreaks.length === 1" (click)="toggleTiebreak(tb)">×</button>
+              </div>
+            }
+            @for (tb of missingTiebreaks(d); track tb) {
+              <button type="button" class="btn btn-xs add-tb" (click)="toggleTiebreak(tb)">+ {{ t('tiebreak.' + tb) }}</button>
+            }
+            <div class="form-actions">
+              <button type="button" class="btn btn-sm" (click)="tiebreakDraft.set(null)">{{ t('common.cancel') }}</button>
+              <button type="submit" class="btn btn-sm btn-primary" [disabled]="!d.name.trim()">{{ t('presets.save') }}</button>
+            </div>
+          </form>
+        }
         @for (p of presets.value().tiebreaks ?? []; track p.id) {
           <div class="row">
             <span class="row-text">
@@ -82,12 +173,19 @@
                 }
               </span>
             </span>
-            @if (!builtIn(p.id)) {
-              <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
-            }
+            <span class="row-actions">
+              @if (builtIn(p.id)) {
+                <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
+              } @else {
+                <button type="button" class="btn btn-xs" (click)="editTiebreaks(p)">{{ t('presets.edit') }}</button>
+              }
+              <button type="button" class="btn btn-xs" (click)="duplicate(p.id, tiebreakName(p))">{{ t('presets.duplicate') }}</button>
+              @if (!builtIn(p.id)) {
+                <button type="button" class="btn-link" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
+              }
+            </span>
           </div>
         }
-        <span class="hint">{{ t('presets.saveFromFormat') }}</span>
       </section>
     </div>
   </div>

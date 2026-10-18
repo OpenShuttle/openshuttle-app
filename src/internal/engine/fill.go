@@ -14,6 +14,16 @@ func FillPools(entrants []BracketEntrant, pools int) [][]EntrantID {
 	if pools < 1 {
 		return nil
 	}
+	return FillPoolsSized(entrants, PoolSizes(len(entrants), pools))
+}
+
+// FillPoolsSized is FillPools with the size of each pool given, larger
+// pools first.
+func FillPoolsSized(entrants []BracketEntrant, sizes []int) [][]EntrantID {
+	pools := len(sizes)
+	if pools < 1 {
+		return nil
+	}
 	sorted := slices.Clone(entrants)
 	slices.SortStableFunc(sorted, func(a, b BracketEntrant) int {
 		if a.Rank != b.Rank {
@@ -21,7 +31,6 @@ func FillPools(entrants []BracketEntrant, pools int) [][]EntrantID {
 		}
 		return a.Pool - b.Pool
 	})
-	sizes := PoolSizes(len(sorted), pools)
 	out := make([][]EntrantID, pools)
 	groups := make([]map[int]bool, pools)
 	for i := range groups {

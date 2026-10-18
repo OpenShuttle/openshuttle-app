@@ -194,7 +194,8 @@
     "STAGE_FILLED": "This phase already has its entrants: its type and the ranks feeding it can no longer change.",
     "PRESET_NOT_FOUND": "This preset no longer exists.",
     "PRESET_READ_ONLY": "Built-in presets cannot be deleted.",
-    "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened."
+    "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened.",
+    "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -350,8 +351,7 @@
     "fullPlacementHint": "Losers play for the lower places: a full ranking with no tie.",
     "tiedByRoundHint": "Entrants losing in the same round share their places.",
     "routing": "Advancement",
-    "routingHint": "Each rank goes on to a later phase, or stops here with its final rank.",
-    "ranks": "Ranks {ranks}",
+    "routingHint": "Rules apply in order, each to the entrants the earlier ones left. The others keep their final rank here.",
     "poolsN": "{n, plural, one {# pool} other {# pools}}",
     "poolsOf": "{n, plural, one {# pool} other {# pools}} of {size}",
     "poolsSizes": "{n} pools ({sizes})",
@@ -381,8 +381,6 @@
     "matchDuration": "Match duration",
     "tiebreaksHint": "Differences only, never ratios: walkovers stay neutral.",
     "routingEmpty": "Add a phase to send ranks to it.",
-    "rank": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
-    "entrantsShort": "{n, plural, one {# entrant} other {# entrants}}",
     "addPools": "Pools",
     "applyPreset": "Start from a preset…",
     "saveAsPreset": "Save as preset",
@@ -393,9 +391,41 @@
     "entryPoolsHint": "Entry stage: the draw spreads the present entrants into the pools.",
     "entryBracketHint": "Entry stage: the draw places the present entrants in the bracket, seeds first.",
     "laterHint": "{n, plural, =0 {No entrant reaches it yet: route ranks of an earlier phase here.} one {# entrant reaches it through the routing.} other {# entrants reach it through the routing.}}",
-    "kept": "Final rank here",
-    "noRanksYet": "Ranks show up once entrants are registered.",
-    "removeStage": "Remove the phase"
+    "removeStage": "Remove the phase",
+    "edgeCount": "{n, plural, one {# entrant} other {# entrants}}",
+    "poolsOfSizes": "Pools of {sizes}",
+    "orList": "{first} or {last}",
+    "noSplit": "No split for {n} entrants",
+    "noSplitWarning": "{name}: {n} entrants cannot be split into pools of {sizes}.",
+    "colGroups": "Pools / bracket",
+    "bracketOf": "bracket of {n}",
+    "bySizes": "Pool sizes",
+    "byCount": "Number of pools",
+    "bySizesHint": "Sizes in order of preference: the number of pools follows the number of entrants.",
+    "sizePreferred": "Pools of {n} first",
+    "sizeThen": "else pools of {n}",
+    "sizeLast": "pools of {n} as a last resort",
+    "addSize": "Add a pool size…",
+    "sizeOption": "Pools of {n}",
+    "crossPool": "Comparing across pools",
+    "crossRaw": "Raw results",
+    "crossSame": "Same number of matches",
+    "crossRawHint": "Entrants of the same rank compare on all their matches: larger pools played more.",
+    "crossSameHint": "In larger pools, matches against the lowest-ranked entrants are left out, so everyone compares on the same number of matches.",
+    "rule": {
+      "ranks": "Ranks",
+      "bestOfRank": "The best of a rank",
+      "best": "The N best",
+      "rest": "The rest",
+      "from": "from",
+      "to": "to",
+      "bestOf": "best of rank",
+      "theBest": "The best"
+    },
+    "ruleCount": "{n, plural, =0 {Nobody} one {# entrant} other {# entrants}} with this simulation",
+    "addRule": "Add a rule",
+    "keptCount": "{n, plural, =0 {Nobody keeps a final rank here.} one {# entrant keeps a final rank here.} other {# entrants keep a final rank here.}}",
+    "nobodyHere": "Nobody with this simulation"
   },
   "tiebreak": {
     "wins": "Wins",
@@ -668,7 +698,6 @@
     "builtIn": "Built in",
     "delete": "Delete",
     "applyTo": "Apply to {category}",
-    "saveFromFormat": "Save your own from the Format screen of a tournament.",
     "name": "Preset name",
     "description": "Description (optional)",
     "save": "Save",
@@ -677,15 +706,15 @@
     "format": {
       "pools": {
         "name": "Pools only",
-        "description": "4 pools, everyone ranked by pool position."
+        "description": "Pools of 4 (else 3, else 5), everyone ranked by pool position."
       },
       "poolsMain": {
         "name": "Pools + main bracket",
-        "description": "4 pools, the top two of each pool in a bracket with every place played."
+        "description": "Pools of 4 (else 3, else 5); the top two of each pool in a bracket with every place played."
       },
       "poolsMainConsolation": {
         "name": "Pools + main + consolation",
-        "description": "4 pools; ranks 1-2 in the main bracket, ranks 3-4 in a consolation bracket."
+        "description": "Pools of 4 (else 3, else 5); ranks 1-2 in the main bracket, everyone else in a consolation bracket."
       },
       "bracket": {
         "name": "Bracket with every place",
@@ -693,12 +722,26 @@
       },
       "twoPoolRounds": {
         "name": "Two pool rounds + final",
-        "description": "4 pools, the top two in 2 new pools, then a final bracket for their top two."
+        "description": "Pools of 4 (else 3, else 5), the top two in new pools, then a final bracket for their top two."
+      },
+      "poolsBest16": {
+        "name": "Pools + best 16 + consolation",
+        "description": "Pools of 4 (else 3, else 5); the 16 best in the main bracket, compared across pools, the rest in a consolation bracket."
       }
     },
     "tiebreaks": {
       "standard": "Standard",
-      "pointsFirst": "Points before head-to-head"
-    }
+      "differencesFirst": "Differences before head-to-head"
+    },
+    "newFormat": "New format",
+    "new": "New",
+    "edit": "Edit",
+    "view": "View",
+    "duplicate": "Duplicate",
+    "simulate": "Open and simulate",
+    "simulateWith": "Simulate with",
+    "teams": "teams",
+    "readOnly": "Built in · read only",
+    "duplicateToEdit": "Duplicate to edit"
   }
 }

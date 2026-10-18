@@ -3,6 +3,7 @@
 
 export {
     Category,
+    CrossPool,
     Tiebreak,
     WinConditionKind
 } from "./models.js";

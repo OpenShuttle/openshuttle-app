@@ -53,6 +53,7 @@ const (
 	CodeStageNotFound      Code = "STAGE_NOT_FOUND"
 	CodeTooManyStages      Code = "TOO_MANY_STAGES"
 	CodeStageFilled        Code = "STAGE_FILLED"
+	CodeNoPoolSplit        Code = "NO_POOL_SPLIT"
 	CodePresetNotFound     Code = "PRESET_NOT_FOUND"
 	CodePresetReadOnly     Code = "PRESET_READ_ONLY"
 	CodeInvalidRouting     Code = "INVALID_ROUTING"

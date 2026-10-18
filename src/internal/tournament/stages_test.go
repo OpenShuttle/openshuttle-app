@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 	"testing"
@@ -83,7 +84,7 @@ func (g *game) editStage(c engine.Category, id string, edit func(*StageConfig)) 
 // route sets where the ranks of a stage go.
 func (g *game) route(c engine.Category, from string, routing ...string) {
 	g.t.Helper()
-	g.editStage(c, from, func(st *StageConfig) { st.Routing = routing })
+	g.editStage(c, from, func(st *StageConfig) { st.Routing = RanksRules(routing...) })
 }
 
 func (g *game) fill(c engine.Category, id string) {
@@ -102,7 +103,7 @@ func TestStageFormat(t *testing.T) {
 	}
 	cons := g.addStage(engine.MensSingles, StageBracket, "Consolante", false)
 	g.route(engine.MensSingles, "S1", main, main, cons, "", "")
-	if st, _ := g.state().Stage(engine.MensSingles, "S1"); !slices.Equal(st.Routing, []string{main, main, cons}) {
+	if st, _ := g.state().Stage(engine.MensSingles, "S1"); !slices.EqualFunc(st.Routing, RanksRules(main, main, cons), ruleEqual) {
 		t.Errorf("routing = %v (trailing kept ranks trimmed)", st.Routing)
 	}
 	if g.state().Phase(engine.MensSingles, cons) != 2 {
@@ -112,12 +113,12 @@ func TestStageFormat(t *testing.T) {
 	// Routing only points forward, to known stages.
 	g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
-		stages[2].Routing = []string{main}
+		stages[2].Routing = RanksRules(main)
 		return s.SetFormat(engine.MensSingles, stages)
 	})
 	g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
-		stages[0].Routing = []string{"S9"}
+		stages[0].Routing = RanksRules("S9")
 		return s.SetFormat(engine.MensSingles, stages)
 	})
 	g.fails(engine.CodeInvalidWinCondition, func(s State) (Change, error) {
@@ -131,7 +132,7 @@ func TestStageFormat(t *testing.T) {
 
 	// Removing a stage clears the routing to it; numbers are never reused.
 	g.do(func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, cons) })
-	if st, _ := g.state().Stage(engine.MensSingles, "S1"); !slices.Equal(st.Routing, []string{main, main}) {
+	if st, _ := g.state().Stage(engine.MensSingles, "S1"); !slices.EqualFunc(st.Routing, RanksRules(main, main), ruleEqual) {
 		t.Errorf("routing after removal = %v", st.Routing)
 	}
 	if id := g.addStage(engine.MensSingles, StagePools, "Poules 2", false); id != "S4" {
@@ -149,17 +150,17 @@ func TestStageFormat(t *testing.T) {
 func TestApplyFormatRenumbers(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	preset := []StageConfig{
-		{ID: "P1", Kind: StagePools, Pools: 4, Win: sets21, Tiebreaks: engine.DefaultTiebreaks, Routing: []string{"P2", "P2", "P3"}},
+		{ID: "P1", Kind: StagePools, Pools: 4, Win: sets21, Tiebreaks: engine.DefaultTiebreaks, Routing: RanksRules("P2", "P2", "P3")},
 		{ID: "P2", Kind: StageBracket, Name: "Main", Win: sets21, FullPlacement: true},
 		{ID: "P3", Kind: StageBracket, Name: "Consolation", Win: sets21},
 	}
 	g.do(func(s State) (Change, error) { return s.ApplyFormat(engine.MensSingles, preset) })
 	stages := g.state().StageConfigs(engine.MensSingles)
-	if len(stages) != 3 || stages[0].ID != "S1" || !slices.Equal(stages[0].Routing, []string{"S2", "S2", "S3"}) {
+	if len(stages) != 3 || stages[0].ID != "S1" || !slices.EqualFunc(stages[0].Routing, RanksRules("S2", "S2", "S3"), ruleEqual) {
 		t.Fatalf("applied = %+v", stages)
 	}
 	g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
-		return s.ApplyFormat(engine.MensSingles, []StageConfig{{ID: "X", Kind: StagePools, Pools: 1, Win: sets21, Tiebreaks: engine.DefaultTiebreaks, Routing: []string{"Y"}}})
+		return s.ApplyFormat(engine.MensSingles, []StageConfig{{ID: "X", Kind: StagePools, Pools: 1, Win: sets21, Tiebreaks: engine.DefaultTiebreaks, Routing: RanksRules("Y")}})
 	})
 }
 
@@ -211,7 +212,7 @@ func TestBracketFullPlacement(t *testing.T) {
 	// A filled stage keeps its kind and its feeding ranks.
 	g.fails(engine.CodeStageFilled, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
-		stages[0].Routing = []string{main}
+		stages[0].Routing = RanksRules(main)
 		return s.SetFormat(engine.MensSingles, stages)
 	})
 	g.fails(engine.CodeStageFilled, func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, main) })
@@ -462,5 +463,126 @@ func TestPhases(t *testing.T) {
 	g.route(engine.MensSingles, "S1", main, main, cons)
 	if got := g.state().Phase(engine.MensSingles, cons); got != 2 {
 		t.Errorf("phase of the consolation = %d, want 2", got)
+	}
+}
+
+func TestRoutingRules(t *testing.T) {
+	// 22 entrants, pools of 4 or 5 (4 preferred): 5, 5, 4, 4, 4. The top
+	// three of each pool and the best fourth go to the main bracket, the
+	// other six to the consolation.
+	setup := func(rules func(main, cons string) []RouteRule) (*game, string, string) {
+		g := newGame(t, engine.MensSingles)
+		clubs := make([]string, 22)
+		for i := range clubs {
+			clubs[i] = fmt.Sprint("club", i)
+		}
+		g.presentSingles(engine.MensSingles, clubs, 22)
+		g.editStage(engine.MensSingles, "S1", func(st *StageConfig) {
+			st.Pools, st.PoolSizes, st.CrossPool = 0, []int{4, 5}, engine.CrossPoolSameMatches
+		})
+		main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+		cons := g.addStage(engine.MensSingles, StageBracket, "Cons", true)
+		g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.Routing = rules(main, cons) })
+		g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+		g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
+		d, _ := g.state().Draw(engine.MensSingles)
+		var sizes []int
+		for _, p := range d.Pools {
+			sizes = append(sizes, len(p))
+		}
+		if !slices.Equal(sizes, []int{5, 5, 4, 4, 4}) {
+			t.Fatalf("pool sizes = %v", sizes)
+		}
+		g.finishPools(engine.MensSingles)
+		return g, main, cons
+	}
+	byRank, main, cons := setup(func(main, cons string) []RouteRule {
+		return []RouteRule{
+			{Kind: RouteRanks, To: main, Ranks: []int{1, 2, 3}},
+			{Kind: RouteBestOfRank, To: main, Rank: 4, Count: 1},
+			{Kind: RouteRest, To: cons},
+		}
+	})
+	toMain, toCons := byRank.state().Routed(engine.MensSingles, main), byRank.state().Routed(engine.MensSingles, cons)
+	if len(toMain) != 16 || len(toCons) != 6 {
+		t.Fatalf("main %d, consolation %d", len(toMain), len(toCons))
+	}
+	fourths := 0
+	for _, e := range toMain {
+		if e.Rank == 4 {
+			fourths++
+		}
+	}
+	if fourths != 1 {
+		t.Errorf("%d fourths in the main bracket", fourths)
+	}
+
+	// "The 16 best, then the rest" picks the same entrants.
+	best, main2, cons2 := setup(func(main, cons string) []RouteRule {
+		return []RouteRule{{Kind: RouteBest, To: main, Count: 16}, {Kind: RouteRest, To: cons}}
+	})
+	ids := func(es []engine.BracketEntrant) []engine.EntrantID {
+		var out []engine.EntrantID
+		for _, e := range es {
+			out = append(out, e.ID)
+		}
+		slices.Sort(out)
+		return out
+	}
+	if got := best.state().Routed(engine.MensSingles, main2); !slices.Equal(ids(got), ids(toMain)) {
+		t.Errorf("best 16 = %v, want %v", ids(got), ids(toMain))
+	}
+	if got := best.state().Routed(engine.MensSingles, cons2); len(got) != 6 {
+		t.Errorf("rest = %d", len(got))
+	}
+
+	// Full standings: main bracket places 1-16 come first, then the
+	// consolation's 17-22.
+	byRank.fill(engine.MensSingles, main)
+	byRank.fill(engine.MensSingles, cons)
+	byRank.playAll(engine.MensSingles, main)
+	byRank.playAll(engine.MensSingles, cons)
+	rows, complete := byRank.state().FinalStandings(engine.MensSingles)
+	if !complete || len(rows) != 22 || rows[15].Stage != main || rows[16].Stage != cons || rows[21].Rank != 22 {
+		t.Fatalf("standings = %+v, complete %v", rows, complete)
+	}
+}
+
+func TestRuleValidation(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	bad := [][]RouteRule{
+		{{Kind: RouteRanks, To: main}},
+		{{Kind: RouteRanks, To: main, Ranks: []int{1, 1}}},
+		{{Kind: RouteBestOfRank, To: main, Rank: 2}},
+		{{Kind: RouteBest, To: main}},
+		{{Kind: "worst", To: main, Count: 1}},
+		{{Kind: RouteRest, To: "S1"}},
+	}
+	for _, rules := range bad {
+		g.fails(engine.CodeInvalidRouting, func(s State) (Change, error) {
+			stages := s.StageConfigs(engine.MensSingles)
+			stages[0].Routing = rules
+			return s.SetFormat(engine.MensSingles, stages)
+		})
+	}
+	// Pool sizes: distinct, from 2 to 16.
+	for _, sizes := range [][]int{{1}, {4, 4}, {17}} {
+		g.fails(engine.CodeInvalidFormat, func(s State) (Change, error) {
+			stages := s.StageConfigs(engine.MensSingles)
+			stages[0].PoolSizes = sizes
+			return s.SetFormat(engine.MensSingles, stages)
+		})
+	}
+	// No split with the sizes allowed: the draw says so.
+	g.presentSingles(engine.MensSingles, []string{"a", "b", "c", "d", "e"}, 5)
+	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.PoolSizes = []int{4} })
+	g.fails(engine.CodeNoPoolSplit, func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+
+	if _, err := ValidateFormat([]StageConfig{{ID: "P", Kind: StagePools, Pools: 2, Win: sets21, Tiebreaks: engine.DefaultTiebreaks}}); err != nil {
+		t.Errorf("valid preset refused: %v", err)
+	}
+	if _, err := ValidateFormat(nil); err == nil {
+		t.Error("empty format accepted")
 	}
 }

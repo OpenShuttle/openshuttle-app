@@ -118,11 +118,15 @@ func (s State) DrawEntry(c engine.Category, rng *rand.Rand) (Change, error) {
 		}
 		return Change{TypeEntryDrawn, EntryDrawn{Category: c, Groups: [][]engine.EntrantID{engine.DrawBracket(in, rng)}}}, nil
 	}
-	if len(present) < 2*e.Pools {
-		// A pool of one entrant has no match to play.
+	sizes := e.PoolSizesFor(len(present))
+	if sizes == nil {
+		// Too few entrants for the pools, or no split with the sizes allowed.
+		if len(e.PoolSizes) > 0 && len(present) >= 2 {
+			return Change{}, engine.NewError(engine.CodeNoPoolSplit)
+		}
 		return Change{}, engine.NewError(engine.CodeNotEnoughEntrants)
 	}
-	return Change{TypeEntryDrawn, EntryDrawn{Category: c, Groups: engine.DrawPools(in, e.Pools, rng)}}, nil
+	return Change{TypeEntryDrawn, EntryDrawn{Category: c, Groups: engine.DrawPoolsSized(in, sizes, rng)}}, nil
 }
 
 // MoveEntrant moves an entrant to another pool of the draft draw. An entrant
@@ -279,13 +283,22 @@ func (s State) CheckDraw(c engine.Category) DrawCheck {
 	for _, pool := range d.Pools {
 		placed += len(pool)
 	}
-	sizes := slices.Clone(engine.PoolSizes(placed, len(d.Pools)))
-	minSize, maxSize := slices.Min(sizes), slices.Max(sizes)
+	// Pools are unbalanced when their size is not what the format plans.
+	planned := map[int]bool{}
+	if e := s.entry(c); len(e.PoolSizes) > 0 {
+		for _, size := range e.PoolSizes {
+			planned[size] = true
+		}
+	} else {
+		for _, size := range engine.PoolSizes(placed, len(d.Pools)) {
+			planned[size] = true
+		}
+	}
 
 	check := DrawCheck{Pools: make([]PoolCheck, len(d.Pools))}
 	for i, pool := range d.Pools {
 		pc := PoolCheck{
-			Unbalanced: len(pool) < minSize || len(pool) > maxSize,
+			Unbalanced: !planned[len(pool)],
 			SameClub:   map[engine.EntrantID][]engine.EntrantID{},
 		}
 		for _, id := range pool {

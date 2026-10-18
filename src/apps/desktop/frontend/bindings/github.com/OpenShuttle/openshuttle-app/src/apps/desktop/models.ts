@@ -542,15 +542,6 @@ export interface QueueView {
 }
 
 /**
- * RankPreview is a rank of a stage and how many entrants it holds: one per
- * pool for a pool position, one per bracket place (several when tied).
- */
-export interface RankPreview {
-    "rank": number;
-    "count": number;
-}
-
-/**
  * RecentTournament is an entry of the home screen list.
  */
 export interface RecentTournament {
@@ -715,7 +706,9 @@ export interface StagePhase {
     "name": string;
     "kind": tournament$0.StageKind;
     "win": engine$0.WinCondition;
+    "poolSizes"?: number[] | null;
     "tiebreaks"?: engine$0.Tiebreak[] | null;
+    "crossPool"?: engine$0.CrossPool;
 
     /**
      * Bracket stages: every place is played (losers play for the lower
@@ -724,10 +717,10 @@ export interface StagePhase {
     "fullPlacement"?: boolean;
 
     /**
-     * Routing[i] is the stage of the entrants at rank i+1 (pool position, or
-     * bracket place), "" to keep them: their final rank is earned here.
+     * Routing sends entrants to later stages; the others keep their final
+     * rank here.
      */
-    "routing"?: string[] | null;
+    "routing"?: tournament$0.RouteRule[] | null;
     "phase": number;
     "entry": boolean;
 
@@ -774,8 +767,8 @@ export interface StageRefView {
 }
 
 /**
- * StageView is a stage in the format editor, with a preview computed from
- * the registered entrants (or the actual ones once filled).
+ * StageView is a stage in the format editor, with what it gives for the
+ * registered entrants (the actual ones once filled).
  */
 export interface StageView {
     "id": string;
@@ -788,10 +781,15 @@ export interface StageView {
     "win": engine$0.WinCondition;
 
     /**
-     * Pools stages.
+     * Pools stages: a fixed number of pools (Pools), or pool sizes in order
+     * of preference (PoolSizes, 4 then 3 then 6), the number of pools then
+     * following the number of entrants. CrossPool compares entrants of the
+     * same rank across pools.
      */
     "pools"?: number;
+    "poolSizes"?: number[] | null;
     "tiebreaks"?: engine$0.Tiebreak[] | null;
+    "crossPool"?: engine$0.CrossPool;
 
     /**
      * Bracket stages: every place is played (losers play for the lower
@@ -800,11 +798,36 @@ export interface StageView {
     "fullPlacement"?: boolean;
 
     /**
-     * Routing[i] is the stage of the entrants at rank i+1 (pool position, or
-     * bracket place), "" to keep them: their final rank is earned here.
+     * Routing sends entrants to later stages; the others keep their final
+     * rank here.
      */
-    "routing"?: string[] | null;
+    "routing"?: tournament$0.RouteRule[] | null;
     "phase": number;
+    "entrants": number;
+
+    /**
+     * Pools: their sizes; NoSplit when the allowed sizes cannot split the
+     * entrants.
+     */
+    "sizes": number[] | null;
+    "noSplit": boolean;
+
+    /**
+     * Brackets: byes in the first round.
+     */
+    "byes": number;
+    "matches": number;
+    "rounds": number;
+    "ranks": tournament$0.RankCount[] | null;
+
+    /**
+     * Rules counts the entrants each routing rule sends on; Kept those
+     * keeping their final rank here, at places PlaceFrom..PlaceTo.
+     */
+    "rules": number[] | null;
+    "kept": number;
+    "placeFrom": number;
+    "placeTo": number;
     "entry": boolean;
 
     /**
@@ -814,31 +837,6 @@ export interface StageView {
     "filled": boolean;
     "confirmed": boolean;
     "started": boolean;
-
-    /**
-     * Preview.
-     */
-    "entrants": number;
-
-    /**
-     * pools
-     */
-    "sizes": number[] | null;
-
-    /**
-     * brackets
-     */
-    "byes": number;
-    "matches": number;
-    "rounds": number;
-    "ranks": RankPreview[] | null;
-
-    /**
-     * PlaceFrom..PlaceTo are the final places of the entrants kept in this
-     * stage; 0 when every rank goes on.
-     */
-    "placeFrom": number;
-    "placeTo": number;
 }
 
 /**

@@ -143,7 +143,7 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 		Pools: []PoolPhase{}, Slots: []SideView{}, Rounds: []RoundView{}, Places: []PlaceView{},
 	}
 	if sp.Routing == nil {
-		sp.Routing = []string{}
+		sp.Routing = []tournament.RouteRule{}
 	}
 	if sp.Tiebreaks == nil {
 		sp.Tiebreaks = []engine.Tiebreak{}

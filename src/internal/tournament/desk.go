@@ -240,6 +240,12 @@ func (s State) PoolStandings(c engine.Category, stage string, pool int) engine.P
 	if st == nil || st.Kind != StagePools || pool < 0 || pool >= len(st.Groups) {
 		return engine.PoolStandings{}
 	}
+	return engine.RankPool(s.poolInput(c, stage, pool))
+}
+
+// poolInput gathers what ranks a pool: entrants, matches, forfeits, lots.
+func (s State) poolInput(c engine.Category, stage string, pool int) engine.Pool {
+	st := s.stage(c, stage)
 	si := s.stageIndex(c, stage)
 	p := engine.Pool{
 		Entrants:  st.Groups[pool],
@@ -255,5 +261,5 @@ func (s State) PoolStandings(c engine.Category, stage string, pool int) engine.P
 			p.Matches = append(p.Matches, engine.PoolMatch{A: m.A, B: m.B, Score: m.Score})
 		}
 	}
-	return engine.RankPool(p)
+	return p
 }

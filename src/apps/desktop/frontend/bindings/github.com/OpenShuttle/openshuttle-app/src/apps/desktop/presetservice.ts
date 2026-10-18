@@ -13,6 +13,9 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as engine$0 from "../../internal/engine/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as tournament$0 from "../../internal/tournament/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -26,6 +29,14 @@ export function DeletePreset(id: string): $CancellablePromise<void> {
 }
 
 /**
+ * DuplicatePreset saves a copy of any preset, built-in or saved, under a
+ * new name.
+ */
+export function DuplicatePreset(id: string, name: string): $CancellablePromise<void> {
+    return $Call.ByID(2442215124, id, name);
+}
+
+/**
  * GetPresets lists every preset.
  */
 export function GetPresets(): $CancellablePromise<$models.Presets> {
@@ -33,15 +44,33 @@ export function GetPresets(): $CancellablePromise<$models.Presets> {
 }
 
 /**
- * SaveTiebreakPreset saves a tiebreak order under a name.
+ * PreviewFormat shows what a format gives for a number of entrants, before
+ * saving it: pools, routing, brackets, matches and final places.
  */
-export function SaveTiebreakPreset(name: string, tiebreaks: engine$0.Tiebreak[] | null): $CancellablePromise<void> {
-    return $Call.ByID(846281393, name, tiebreaks);
+export function PreviewFormat(stages: tournament$0.StageConfig[] | null, entrants: number): $CancellablePromise<tournament$0.FormatPreview> {
+    return $Call.ByID(3100979853, stages, entrants);
 }
 
 /**
- * SaveWinPreset saves a win condition under a name.
+ * SaveFormatPreset creates a format preset (id "") or changes a saved one.
+ * The format is checked on its own, as for a tournament of one category.
  */
-export function SaveWinPreset(name: string, win: engine$0.WinCondition): $CancellablePromise<void> {
-    return $Call.ByID(2820709424, name, win);
+export function SaveFormatPreset(id: string, name: string, description: string, stages: tournament$0.StageConfig[] | null): $CancellablePromise<void> {
+    return $Call.ByID(340115847, id, name, description, stages);
+}
+
+/**
+ * SaveTiebreakPreset creates a tiebreak order preset (id "") or changes a
+ * saved one.
+ */
+export function SaveTiebreakPreset(id: string, name: string, tiebreaks: engine$0.Tiebreak[] | null): $CancellablePromise<void> {
+    return $Call.ByID(846281393, id, name, tiebreaks);
+}
+
+/**
+ * SaveWinPreset creates a win condition preset (id "") or changes a saved
+ * one. Built-in presets are read-only.
+ */
+export function SaveWinPreset(id: string, name: string, win: engine$0.WinCondition): $CancellablePromise<void> {
+    return $Call.ByID(2820709424, id, name, win);
 }

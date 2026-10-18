@@ -16,6 +16,10 @@ export const routes: Routes = [
         loadComponent: () => import('./presets/presets').then((m) => m.PresetsPage),
       },
       {
+        path: 'presets/format/:id',
+        loadComponent: () => import('./presets/format-preset').then((m) => m.FormatPresetPage),
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./settings/settings').then((m) => m.SettingsPage),
       },

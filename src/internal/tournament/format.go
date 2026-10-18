@@ -29,7 +29,6 @@ const (
 	MaxStages          = 8
 	MaxPools           = 16
 	MaxStageNameLength = 60
-	MaxRouting         = 32 // routed ranks of a stage
 )
 
 // DefaultTimedMinutes is the duration of a timed match by default.
@@ -43,15 +42,20 @@ type StageConfig struct {
 	Name string              `json:"name"`
 	Kind StageKind           `json:"kind"`
 	Win  engine.WinCondition `json:"win"`
-	// Pools stages.
+	// Pools stages: a fixed number of pools (Pools), or pool sizes in order
+	// of preference (PoolSizes, 4 then 3 then 6), the number of pools then
+	// following the number of entrants. CrossPool compares entrants of the
+	// same rank across pools.
 	Pools     int               `json:"pools,omitempty"`
+	PoolSizes []int             `json:"poolSizes,omitempty"`
 	Tiebreaks []engine.Tiebreak `json:"tiebreaks,omitempty"`
+	CrossPool engine.CrossPool  `json:"crossPool,omitempty"`
 	// Bracket stages: every place is played (losers play for the lower
 	// places). Otherwise entrants losing in the same round are tied.
 	FullPlacement bool `json:"fullPlacement,omitempty"`
-	// Routing[i] is the stage of the entrants at rank i+1 (pool position, or
-	// bracket place), "" to keep them: their final rank is earned here.
-	Routing []string `json:"routing,omitempty"`
+	// Routing sends entrants to later stages; the others keep their final
+	// rank here.
+	Routing []RouteRule `json:"routing,omitempty"`
 }
 
 // FormatSet is the payload of TypeFormatSet: the whole format of a category.
@@ -83,14 +87,6 @@ func (st Stage) Slots() []engine.EntrantID {
 	return st.Groups[0]
 }
 
-// RouteOf returns the stage the entrants at a rank (1-based) go to.
-func (st StageConfig) RouteOf(rank int) string {
-	if rank < 1 || rank > len(st.Routing) {
-		return ""
-	}
-	return st.Routing[rank-1]
-}
-
 // DefaultPoolsStage is the entry stage of a new category: 2 pools, best of
 // three sets of 21 capped at 30, default tiebreaks.
 func DefaultPoolsStage(id string) StageConfig {
@@ -100,6 +96,7 @@ func DefaultPoolsStage(id string) StageConfig {
 		Win:       engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 2, PointsPerSet: 21, Cap: 30},
 		Pools:     2,
 		Tiebreaks: slices.Clone(engine.DefaultTiebreaks),
+		CrossPool: engine.CrossPoolRaw,
 	}
 }
 
@@ -151,32 +148,35 @@ func (s State) entry(c engine.Category) *Stage {
 	return s.formats[c][0]
 }
 
-// Phase returns the phase of a stage: 1 for the entry stage, one more than
-// the latest stage feeding it, or, for a later stage nothing feeds yet, one
-// more than the stage before it in the list.
+// Phase returns the phase of a stage of a category.
 func (s State) Phase(c engine.Category, id string) int {
+	return Phases(s.StageConfigs(c))[id]
+}
+
+// Phases returns the phase of every stage: 1 for the entry stage, one more
+// than the latest stage feeding it, or, for a later stage nothing feeds yet,
+// one more than the stage before it in the list.
+func Phases(stages []StageConfig) map[string]int {
 	phases := map[string]int{}
-	for i, st := range s.formats[c] {
+	for i, st := range stages {
 		if phases[st.ID] == 0 {
 			phases[st.ID] = 1
 			if i > 0 {
-				phases[st.ID] = phases[s.formats[c][i-1].ID] + 1
+				phases[st.ID] = phases[stages[i-1].ID] + 1
 			}
 		}
-		for _, to := range st.Routing {
-			if to != "" {
-				phases[to] = max(phases[to], phases[st.ID]+1)
-			}
+		for _, to := range st.Targets() {
+			phases[to] = max(phases[to], phases[st.ID]+1)
 		}
 	}
-	return phases[id]
+	return phases
 }
 
 // Sources returns the stages routing entrants to a stage.
 func (s State) Sources(c engine.Category, id string) []string {
 	var out []string
 	for _, st := range s.formats[c] {
-		if slices.Contains(st.Routing, id) {
+		if slices.Contains(st.Targets(), id) {
 			out = append(out, st.ID)
 		}
 	}
@@ -216,7 +216,7 @@ func (s State) AddStage(c engine.Category, kind StageKind) (Change, error) {
 		st.Win = stages[n-1].Win
 	}
 	if kind == StageBracket {
-		st.Kind, st.Pools, st.Tiebreaks, st.FullPlacement = StageBracket, 0, nil, true
+		st.Kind, st.Pools, st.Tiebreaks, st.CrossPool, st.FullPlacement = StageBracket, 0, nil, "", true
 	} else if kind != StagePools {
 		return Change{}, engine.NewError(engine.CodeInvalidFormat)
 	}
@@ -240,11 +240,7 @@ func (s State) RemoveStage(c engine.Category, id string) (Change, error) {
 		if cfg.ID == id {
 			continue
 		}
-		for i, to := range cfg.Routing {
-			if to == id {
-				cfg.Routing[i] = ""
-			}
-		}
+		cfg.Routing = slices.DeleteFunc(cfg.Routing, func(r RouteRule) bool { return r.To == id })
 		stages = append(stages, cfg)
 	}
 	return s.formatChange(c, stages)
@@ -271,12 +267,12 @@ func (s State) ApplyFormat(c engine.Category, stages []StageConfig) (Change, err
 	}
 	for i := range renumbered {
 		renumbered[i].ID = ids[stages[i].ID]
-		for j, to := range renumbered[i].Routing {
-			id, ok := ids[to]
+		for j, r := range renumbered[i].Routing {
+			id, ok := ids[r.To]
 			if !ok {
 				return Change{}, engine.NewError(engine.CodeInvalidRouting)
 			}
-			renumbered[i].Routing[j] = id
+			renumbered[i].Routing[j].To = id
 		}
 	}
 	return s.formatChange(c, renumbered)
@@ -293,14 +289,14 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 		position[st.ID] = i + 1
 	}
 	for i := range stages {
-		st, err := s.validStage(stages[i])
+		st, err := validStage(stages[i], len(s.Categories))
 		if err != nil {
 			return Change{}, err
 		}
-		for _, to := range st.Routing {
+		for j, r := range st.Routing {
 			// Routing only points forward: the format stays acyclic.
-			if to != "" && position[to] <= i+1 {
-				return Change{}, engine.NewError(engine.CodeInvalidRouting)
+			if st.Routing[j], err = validRule(r, position, i+1); err != nil {
+				return Change{}, err
 			}
 		}
 		stages[i] = st
@@ -320,7 +316,7 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 		switch {
 		case cur.Filled() && next.Kind != cur.Kind:
 			return Change{}, engine.NewError(engine.CodeStageFilled)
-		case cur.Confirmed && next.Kind == StagePools && next.Pools != cur.Pools:
+		case cur.Confirmed && next.Kind == StagePools && (next.Pools != cur.Pools || !slices.Equal(next.PoolSizes, cur.PoolSizes)):
 			return Change{}, engine.NewError(engine.CodeDrawConfirmed)
 		case started && next.FullPlacement != cur.FullPlacement:
 			return Change{}, engine.NewError(engine.CodeBracketStarted)
@@ -330,7 +326,7 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 			if other == cur || !other.Filled() {
 				continue
 			}
-			if !slices.Equal(routedRanks(cur.Routing, other.ID), routedRanks(next.Routing, other.ID)) {
+			if !slices.EqualFunc(rulesTo(cur.Routing, other.ID), rulesTo(next.Routing, other.ID), ruleEqual) {
 				return Change{}, engine.NewError(engine.CodeStageFilled)
 			}
 		}
@@ -341,9 +337,38 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 	return Change{TypeFormatSet, FormatSet{Category: c, Stages: stages}}, nil
 }
 
+// ValidateFormat checks a format on its own, as a preset: its stages and
+// routing, for a tournament of one category.
+func ValidateFormat(stages []StageConfig) ([]StageConfig, error) {
+	if len(stages) == 0 || len(stages) > MaxStages {
+		return nil, engine.NewError(engine.CodeInvalidFormat)
+	}
+	out := make([]StageConfig, len(stages))
+	position := map[string]int{}
+	for i, st := range stages {
+		if st.ID == "" || position[st.ID] != 0 {
+			return nil, engine.NewError(engine.CodeInvalidFormat)
+		}
+		position[st.ID] = i + 1
+	}
+	for i, st := range stages {
+		st, err := validStage(st, 1)
+		if err != nil {
+			return nil, err
+		}
+		for j, r := range st.Routing {
+			if st.Routing[j], err = validRule(r, position, i+1); err != nil {
+				return nil, err
+			}
+		}
+		out[i] = st
+	}
+	return out, nil
+}
+
 // validStage checks and normalizes a stage: fields of the other kind are
-// dropped, trailing kept ranks are trimmed.
-func (s State) validStage(st StageConfig) (StageConfig, error) {
+// dropped. Timed matches need a single category.
+func validStage(st StageConfig, categories int) (StageConfig, error) {
 	st = cloneConfig(st)
 	st.Name = collapseSpaces(st.Name)
 	if utf8.RuneCountInString(st.Name) > MaxStageNameLength {
@@ -353,7 +378,7 @@ func (s State) validStage(st StageConfig) (StageConfig, error) {
 		return st, err
 	}
 	if st.Win.Kind == engine.WinByTime {
-		if len(s.Categories) > 1 {
+		if categories > 1 {
 			return st, engine.NewError(engine.CodeTimedNeedsOneCategory)
 		}
 		st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: st.Win.Minutes}
@@ -362,20 +387,31 @@ func (s State) validStage(st StageConfig) (StageConfig, error) {
 	}
 	switch st.Kind {
 	case StagePools:
-		if st.Pools < 1 || st.Pools > MaxPools || !ValidTiebreaks(st.Tiebreaks) {
+		if len(st.PoolSizes) > 0 {
+			if !validPoolSizes(st.PoolSizes) {
+				return st, engine.NewError(engine.CodeInvalidFormat)
+			}
+			st.Pools = 0
+		} else if st.Pools < 1 || st.Pools > MaxPools {
+			return st, engine.NewError(engine.CodeInvalidFormat)
+		}
+		if !ValidTiebreaks(st.Tiebreaks) {
+			return st, engine.NewError(engine.CodeInvalidFormat)
+		}
+		if st.CrossPool == "" {
+			st.CrossPool = engine.CrossPoolRaw
+		}
+		if !st.CrossPool.Valid() {
 			return st, engine.NewError(engine.CodeInvalidFormat)
 		}
 		st.FullPlacement = false
 	case StageBracket:
-		st.Pools, st.Tiebreaks = 0, nil
+		st.Pools, st.PoolSizes, st.Tiebreaks, st.CrossPool = 0, nil, nil, ""
 	default:
 		return st, engine.NewError(engine.CodeInvalidFormat)
 	}
-	if len(st.Routing) > MaxRouting {
+	if len(st.Routing) > MaxRules {
 		return st, engine.NewError(engine.CodeInvalidRouting)
-	}
-	for len(st.Routing) > 0 && st.Routing[len(st.Routing)-1] == "" {
-		st.Routing = st.Routing[:len(st.Routing)-1]
 	}
 	if len(st.Routing) == 0 {
 		st.Routing = nil
@@ -398,15 +434,19 @@ func ValidTiebreaks(tbs []engine.Tiebreak) bool {
 	return true
 }
 
-// routedRanks lists the ranks a routing sends to a stage.
-func routedRanks(routing []string, id string) []int {
-	var out []int
-	for i, to := range routing {
-		if to == id {
-			out = append(out, i+1)
+// rulesTo lists the rules sending entrants to a stage.
+func rulesTo(rules []RouteRule, id string) []RouteRule {
+	var out []RouteRule
+	for _, r := range rules {
+		if r.To == id {
+			out = append(out, r)
 		}
 	}
 	return out
+}
+
+func ruleEqual(a, b RouteRule) bool {
+	return a.Kind == b.Kind && a.To == b.To && a.Rank == b.Rank && a.Count == b.Count && slices.Equal(a.Ranks, b.Ranks)
 }
 
 // hasTimedStage reports whether a category plays timed matches. A default
@@ -480,7 +520,8 @@ func (s *State) applyFormatSet(p FormatSet) {
 			delete(old, cfg.ID)
 			st.Groups, st.Confirmed, st.ConfirmedAt = prev.Groups, prev.Confirmed, prev.ConfirmedAt
 			// A draft draw no longer matching the stage is dropped.
-			if prev.Kind != cfg.Kind || (!prev.Confirmed && cfg.Kind == StagePools && len(prev.Groups) != cfg.Pools) {
+			if prev.Kind != cfg.Kind || (!prev.Confirmed && cfg.Kind == StagePools &&
+				(prev.Pools != cfg.Pools || !slices.Equal(prev.PoolSizes, cfg.PoolSizes))) {
 				st.Groups, st.Confirmed = nil, false
 			}
 		}
@@ -502,11 +543,16 @@ func (s *State) applyFormatSet(p FormatSet) {
 
 func cloneConfig(st StageConfig) StageConfig {
 	st.Tiebreaks = slices.Clone(st.Tiebreaks)
+	st.PoolSizes = slices.Clone(st.PoolSizes)
 	st.Routing = slices.Clone(st.Routing)
+	for i := range st.Routing {
+		st.Routing[i].Ranks = slices.Clone(st.Routing[i].Ranks)
+	}
 	return st
 }
 
 func configEqual(a, b StageConfig) bool {
 	return a.ID == b.ID && a.Name == b.Name && a.Kind == b.Kind && a.Win == b.Win && a.Pools == b.Pools &&
-		a.FullPlacement == b.FullPlacement && slices.Equal(a.Tiebreaks, b.Tiebreaks) && slices.Equal(a.Routing, b.Routing)
+		slices.Equal(a.PoolSizes, b.PoolSizes) && a.CrossPool == b.CrossPool && a.FullPlacement == b.FullPlacement &&
+		slices.Equal(a.Tiebreaks, b.Tiebreaks) && slices.EqualFunc(a.Routing, b.Routing, ruleEqual)
 }

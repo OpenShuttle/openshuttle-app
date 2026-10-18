@@ -1,0 +1,80 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.toolbar {
+  flex: none;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 260px;
+
+  .input {
+    height: 34px;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .name {
+    font-size: 17px;
+    font-weight: 800;
+  }
+}
+
+.simulate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-playing-bg);
+}
+
+.simulate-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-playing-fg);
+}
+
+.stepper-input {
+  width: 56px;
+  height: 38px;
+  border: none;
+  text-align: center;
+  font: 700 15px var(--font-mono);
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error {
+  flex-basis: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-alert-bg);
+  color: var(--color-alert);
+  font-weight: 700;
+  font-size: 13px;
+}

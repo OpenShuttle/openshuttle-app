@@ -28,12 +28,14 @@ func TestPresets(t *testing.T) {
 	builtIns := len(p.Win)
 
 	win := engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 1, PointsPerSet: 11, Cap: 15}
-	must(presets.SaveWinPreset(ctx, "  Court  ", win))
-	wantCode(t, presets.SaveWinPreset(ctx, " ", win), engine.CodeInvalidName)
-	wantCode(t, presets.SaveWinPreset(ctx, "X", engine.WinCondition{}), engine.CodeInvalidWinCondition)
+	must(presets.SaveWinPreset(ctx, "", "  Court  ", win))
+	wantCode(t, presets.SaveWinPreset(ctx, "", " ", win), engine.CodeInvalidName)
+	wantCode(t, presets.SaveWinPreset(ctx, "", "X", engine.WinCondition{}), engine.CodeInvalidWinCondition)
+	wantCode(t, presets.SaveWinPreset(ctx, "b-sets-2x21", "Mine", win), engine.CodePresetReadOnly)
+	wantCode(t, presets.SaveWinPreset(ctx, "u404", "Gone", win), engine.CodePresetNotFound)
 	order := []engine.Tiebreak{engine.TiebreakWins, engine.TiebreakDraw}
-	must(presets.SaveTiebreakPreset(ctx, "Rapide", order))
-	wantCode(t, presets.SaveTiebreakPreset(ctx, "Bad", []engine.Tiebreak{"elo"}), engine.CodeInvalidFormat)
+	must(presets.SaveTiebreakPreset(ctx, "", "Rapide", order))
+	wantCode(t, presets.SaveTiebreakPreset(ctx, "", "Bad", []engine.Tiebreak{"elo"}), engine.CodeInvalidFormat)
 	if got := f.rec.last(); got.name != EventPresetsChanged {
 		t.Errorf("emitted %+v", got)
 	}
@@ -45,6 +47,29 @@ func TestPresets(t *testing.T) {
 	}
 	if tb := p.Tiebreaks[len(p.Tiebreaks)-1]; tb.Name != "Rapide" || !slices.Equal(tb.Tiebreaks, order) {
 		t.Errorf("tiebreak preset = %+v", tb)
+	}
+
+	// Edit a saved preset in place; duplicate a built-in one.
+	f.clock = f.clock.Add(time.Second)
+	must(presets.SaveWinPreset(ctx, saved.ID, "Court 11", win))
+	must(presets.DuplicatePreset(ctx, "b-sets-1x21", "Un set"))
+	p, _ = presets.GetPresets(ctx)
+	if len(p.Win) != builtIns+2 || p.Win[builtIns].Name != "Court 11" || p.Win[builtIns+1].Name != "Un set" || p.Win[builtIns+1].Win.SetsToWin != 1 {
+		t.Errorf("after edit and duplicate = %+v", p.Win[builtIns:])
+	}
+
+	// Format presets, made outside any tournament, and simulated.
+	stages := []tournament.StageConfig{
+		{ID: "A", Kind: tournament.StagePools, PoolSizes: []int{4, 5}, Win: win, Tiebreaks: engine.DefaultTiebreaks,
+			Routing: []tournament.RouteRule{{Kind: tournament.RouteBest, To: "B", Count: 16}, {Kind: tournament.RouteRest, To: "C"}}},
+		{ID: "B", Kind: tournament.StageBracket, Win: win, FullPlacement: true},
+		{ID: "C", Kind: tournament.StageBracket, Win: win, FullPlacement: true},
+	}
+	must(presets.SaveFormatPreset(ctx, "", "Top 16", "", stages))
+	wantCode(t, presets.SaveFormatPreset(ctx, "", "Bad", "", stages[1:2:2][:0]), engine.CodeInvalidFormat)
+	sim, err := presets.PreviewFormat(stages, 22)
+	if err != nil || sim.Stages[1].Entrants != 16 || sim.Stages[2].Entrants != 6 || sim.Ranked != 22 {
+		t.Errorf("simulation = %+v, %v", sim, err)
 	}
 
 	// Formats: save one from a tournament, apply it to another category.
@@ -63,7 +88,8 @@ func TestPresets(t *testing.T) {
 		t.Errorf("applied = %+v", fc.Stages)
 	}
 	must(f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, "b-pools-main-consolation"))
-	if fc := f.svc.GetFormatView().Categories[1]; len(fc.Stages) != 3 || !slices.Equal(fc.Stages[0].Routing, []string{"S2", "S2", "S3", "S3"}) {
+	if fc := f.svc.GetFormatView().Categories[1]; len(fc.Stages) != 3 || len(fc.Stages[0].Routing) != 2 ||
+		!ruleEq(fc.Stages[0].Routing[1], tournament.RouteRule{Kind: tournament.RouteRest, To: "S3"}) {
 		t.Errorf("built-in applied = %+v", fc.Stages)
 	}
 	wantCode(t, f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, "nope"), engine.CodePresetNotFound)
@@ -80,4 +106,8 @@ func TestPresets(t *testing.T) {
 	for _, fp := range builtInPresets().Formats {
 		must(f.svc.ApplyFormatPreset(ctx, engine.MensDoubles, fp.ID))
 	}
+}
+
+func ruleEq(a, b tournament.RouteRule) bool {
+	return a.Kind == b.Kind && a.To == b.To && a.Rank == b.Rank && a.Count == b.Count && slices.Equal(a.Ranks, b.Ranks)
 }

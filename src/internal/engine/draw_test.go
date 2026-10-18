@@ -123,3 +123,27 @@ func TestDrawPoolsMoreSeedsThanRoom(t *testing.T) {
 		t.Errorf("sizes = %d, %d", len(got[0]), len(got[1]))
 	}
 }
+
+func TestPlanPools(t *testing.T) {
+	tests := []struct {
+		n     int
+		sizes []int
+		want  []int
+	}{
+		{22, []int{4, 3, 6}, []int{4, 4, 4, 4, 3, 3}},
+		{22, []int{4, 5}, []int{5, 5, 4, 4, 4}},
+		{16, []int{4, 5}, []int{4, 4, 4, 4}},
+		{12, []int{4, 3, 6}, []int{4, 4, 4}},
+		{13, []int{4, 3, 6}, []int{4, 3, 3, 3}},
+		{14, []int{6}, nil},
+		{18, []int{6}, []int{6, 6, 6}},
+		{7, []int{4, 3}, []int{4, 3}},
+		{1, []int{4}, nil},
+		{8, nil, nil},
+	}
+	for _, tt := range tests {
+		if got := PlanPools(tt.n, tt.sizes); !slices.Equal(got, tt.want) {
+			t.Errorf("PlanPools(%d, %v) = %v, want %v", tt.n, tt.sizes, got, tt.want)
+		}
+	}
+}

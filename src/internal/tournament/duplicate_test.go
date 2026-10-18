@@ -55,7 +55,7 @@ func TestDuplicate(t *testing.T) {
 	if !slices.Equal(names, []string{"S1 ", "S2 Principal", "S3 Consolante"}) || stages[0].Pools != 3 {
 		t.Errorf("stages = %v", names)
 	}
-	if r := stages[0].Routing; !slices.Equal(r, []string{"S2", "S2", "S3"}) {
+	if r := stages[0].Routing; !slices.EqualFunc(r, RanksRules("S2", "S2", "S3"), ruleEqual) {
 		t.Errorf("routing = %v", r)
 	}
 

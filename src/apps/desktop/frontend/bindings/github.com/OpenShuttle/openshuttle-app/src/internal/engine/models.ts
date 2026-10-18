@@ -19,6 +19,30 @@ export enum Category {
 };
 
 /**
+ * CrossPool is how entrants of the same rank in different pools compare,
+ * for instance to pick the best thirds.
+ */
+export enum CrossPool {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * CrossPoolRaw compares the results as they are: in larger pools,
+     * entrants played more matches.
+     */
+    CrossPoolRaw = "raw",
+
+    /**
+     * CrossPoolSameMatches leaves out, in larger pools, the matches against
+     * the entrants ranked below the size of the smallest pool, so everyone
+     * is compared on the same number of matches.
+     */
+    CrossPoolSameMatches = "sameMatches",
+};
+
+/**
  * EntrantID identifies an entrant (a player in singles, a pair in doubles).
  */
 export type EntrantID = string;

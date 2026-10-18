@@ -1,6 +1,6 @@
 # 4. Flexible format: stages of any kind, chained by routing
 
-- Status: accepted
+- Status: accepted, routing and pool sizes amended by ADR 5
 - Date: 2026-10-18
 
 ## Context

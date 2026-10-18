@@ -24,6 +24,17 @@ export enum CourtState {
 };
 
 /**
+ * FormatPreview is what a format gives for a number of entrants: each stage,
+ * then how many entrants the full standings place and whether some share a
+ * rank.
+ */
+export interface FormatPreview {
+    "stages": StagePreview[] | null;
+    "ranked": number;
+    "ties": boolean;
+}
+
+/**
  * MatchID identifies a match: category, stage (but the entry stage's),
  * then pool and number, or the bracket match number: "MD-A3", "MD-S2-5".
  */
@@ -71,6 +82,61 @@ export interface PlayerInput {
 }
 
 /**
+ * RankCount is a rank of a stage and how many entrants hold it: one per pool
+ * at a pool position, one per bracket place (several when tied).
+ */
+export interface RankCount {
+    "rank": number;
+    "count": number;
+}
+
+/**
+ * RouteKind says which entrants of a stage a routing rule sends on.
+ */
+export enum RouteKind {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * RouteRanks: every entrant at one of Ranks (pool position, bracket
+     * place).
+     */
+    RouteRanks = "ranks",
+
+    /**
+     * RouteBestOfRank: the Count best entrants at Rank, compared across pools.
+     */
+    RouteBestOfRank = "bestOfRank",
+
+    /**
+     * RouteBest: the Count best entrants not routed yet, rank by rank, then
+     * compared across pools.
+     */
+    RouteBest = "best",
+
+    /**
+     * RouteRest: every entrant not routed yet.
+     */
+    RouteRest = "rest",
+};
+
+/**
+ * RouteRule sends some entrants of a stage to a later stage. Rules apply in
+ * order, each to the entrants earlier rules left; entrants no rule takes
+ * keep their final rank in the stage. Stored in events and presets: keep the
+ * JSON names.
+ */
+export interface RouteRule {
+    "kind": RouteKind;
+    "to": string;
+    "ranks"?: number[] | null;
+    "rank"?: number;
+    "count"?: number;
+}
+
+/**
  * StageConfig is a stage as the format editor sets it. It is stored in
  * FormatSet events and in presets: keep the JSON names.
  */
@@ -85,10 +151,15 @@ export interface StageConfig {
     "win": engine$0.WinCondition;
 
     /**
-     * Pools stages.
+     * Pools stages: a fixed number of pools (Pools), or pool sizes in order
+     * of preference (PoolSizes, 4 then 3 then 6), the number of pools then
+     * following the number of entrants. CrossPool compares entrants of the
+     * same rank across pools.
      */
     "pools"?: number;
+    "poolSizes"?: number[] | null;
     "tiebreaks"?: engine$0.Tiebreak[] | null;
+    "crossPool"?: engine$0.CrossPool;
 
     /**
      * Bracket stages: every place is played (losers play for the lower
@@ -97,10 +168,10 @@ export interface StageConfig {
     "fullPlacement"?: boolean;
 
     /**
-     * Routing[i] is the stage of the entrants at rank i+1 (pool position, or
-     * bracket place), "" to keep them: their final rank is earned here.
+     * Routing sends entrants to later stages; the others keep their final
+     * rank here.
      */
-    "routing"?: string[] | null;
+    "routing"?: RouteRule[] | null;
 }
 
 /**
@@ -122,3 +193,36 @@ export enum StageKind {
      */
     StageBracket = "bracket",
 };
+
+/**
+ * StagePreview is what a stage gives for a number of entrants, in the
+ * order of the format's stages.
+ */
+export interface StagePreview {
+    "phase": number;
+    "entrants": number;
+
+    /**
+     * Pools: their sizes; NoSplit when the allowed sizes cannot split the
+     * entrants.
+     */
+    "sizes": number[] | null;
+    "noSplit": boolean;
+
+    /**
+     * Brackets: byes in the first round.
+     */
+    "byes": number;
+    "matches": number;
+    "rounds": number;
+    "ranks": RankCount[] | null;
+
+    /**
+     * Rules counts the entrants each routing rule sends on; Kept those
+     * keeping their final rank here, at places PlaceFrom..PlaceTo.
+     */
+    "rules": number[] | null;
+    "kept": number;
+    "placeFrom": number;
+    "placeTo": number;
+}

@@ -21,6 +21,57 @@ func PoolSizes(n, pools int) []int {
 	return sizes
 }
 
+// PlanPools splits n entrants into pools whose sizes come from a priority
+// list: sizes[0] is preferred, the last one is the last resort. Among the
+// splits using only these sizes, it keeps the one with the fewest pools of
+// the last size, then of the one before, and so on: 22 entrants with sizes
+// 4, 3, 6 make four pools of 4 and two of 3. Larger pools come first. It
+// returns nil when no split exists.
+func PlanPools(n int, sizes []int) []int {
+	if n < 2 || len(sizes) == 0 {
+		return nil
+	}
+	k := len(sizes)
+	// best[m] counts, for m entrants, the pools of each size; nil if m
+	// cannot be split.
+	best := make([][]int, n+1)
+	best[0] = make([]int, k)
+	better := func(a, b []int) bool {
+		for i := k - 1; i >= 0; i-- {
+			if a[i] != b[i] {
+				if i == 0 {
+					return a[i] > b[i] // more pools of the preferred size
+				}
+				return a[i] < b[i]
+			}
+		}
+		return false
+	}
+	for m := 1; m <= n; m++ {
+		for i, size := range sizes {
+			if size < 2 || size > m || best[m-size] == nil {
+				continue
+			}
+			c := slices.Clone(best[m-size])
+			c[i]++
+			if best[m] == nil || better(c, best[m]) {
+				best[m] = c
+			}
+		}
+	}
+	if best[n] == nil {
+		return nil
+	}
+	var out []int
+	for i, count := range best[n] {
+		for range count {
+			out = append(out, sizes[i])
+		}
+	}
+	slices.SortFunc(out, func(a, b int) int { return b - a })
+	return out
+}
+
 // RoundRobinMatches is the number of matches of a pool of size n.
 func RoundRobinMatches(n int) int {
 	return n * (n - 1) / 2
@@ -46,7 +97,13 @@ type DrawEntrant struct {
 // result rather than the seed. The engine never reads a clock or global
 // randomness.
 func DrawPools(entrants []DrawEntrant, pools int, rng *rand.Rand) [][]EntrantID {
-	sizes := PoolSizes(len(entrants), pools)
+	return DrawPoolsSized(entrants, PoolSizes(len(entrants), pools), rng)
+}
+
+// DrawPoolsSized is DrawPools with the size of each pool given: they must
+// add up to the number of entrants.
+func DrawPoolsSized(entrants []DrawEntrant, sizes []int, rng *rand.Rand) [][]EntrantID {
+	pools := len(sizes)
 	out := make([][]EntrantID, pools)
 	clubs := make([]map[string]int, pools)
 	for i := range clubs {

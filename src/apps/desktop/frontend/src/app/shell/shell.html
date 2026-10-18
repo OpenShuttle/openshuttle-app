@@ -48,7 +48,7 @@
             class="tab"
             [routerLink]="tab.path"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLinkActiveOptions]="{ exact: tab.path === '/' }"
             >{{ t('homeTabs.' + tab.key) }}</a
           >
         }

@@ -62,23 +62,32 @@ func (s State) FinalStandings(c engine.Category) (rows []Ranked, complete bool) 
 			complete = false
 			return
 		}
+		to := s.Assignment(c, st.ID)
+		ranked := s.rankedEntrants(c, st)
+		decided := map[int]bool{}
 		for _, g := range s.StageRanks(c, st.ID) {
-			to := st.RouteOf(g.Rank)
-			if g.Rank == 0 || to == "" {
-				add(g.Entrants, st.ID, g.Rank, g.Decided && g.Rank > 0)
-				continue
+			decided[g.Rank] = g.Decided
+		}
+		for i := 0; i < len(ranked); {
+			j := i
+			for j < len(ranked) && ranked[j].Rank == ranked[i].Rank {
+				j++
 			}
-			if next := s.stage(c, to); next != nil && !expanded[to] {
-				walk(next)
-			}
-			// Withdrawn entrants are not routed: they stay ranked here, last.
-			var stay []engine.EntrantID
-			for _, id := range g.Entrants {
-				if s.withdrawnBy(id, c, s.stageIndex(c, st.ID)) {
-					stay = append(stay, id)
+			// Entrants routed on bring their stage's standings, in order;
+			// the others share this rank.
+			var kept []engine.EntrantID
+			for _, e := range ranked[i:j] {
+				if dest := to[e.ID]; dest != "" {
+					if next := s.stage(c, dest); next != nil && !expanded[dest] {
+						walk(next)
+					}
+					continue
 				}
+				kept = append(kept, e.ID)
 			}
-			add(stay, st.ID, g.Rank, g.Decided)
+			rank := ranked[i].Rank
+			add(kept, st.ID, rank, rank > 0 && decided[rank])
+			i = j
 		}
 	}
 	walk(entry)

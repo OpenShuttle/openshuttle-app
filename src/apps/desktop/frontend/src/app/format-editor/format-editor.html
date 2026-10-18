@@ -1,0 +1,401 @@
+<ng-container *transloco="let t">
+  <div class="editor" [class.readonly]="readonly()">
+    <div class="main">
+      <ng-content />
+
+      <div class="canvas-wrap">
+        <div class="canvas" [style.width.px]="canvasWidth()" [style.height.px]="canvasHeight()">
+          <svg class="edges" [attr.width]="canvasWidth()" [attr.height]="canvasHeight()">
+            @for (e of edges(); track $index) {
+              <path [attr.d]="e.d" fill="none" stroke="#16181D" stroke-width="2" />
+            }
+          </svg>
+          @for (e of edges(); track $index) {
+            <span class="edge-label" [style.left.px]="e.x" [style.top.px]="e.y">{{ e.label }}</span>
+          }
+          @for (n of nodes(); track n.stage.id) {
+            @let s = n.stage;
+            <button
+              type="button"
+              class="node"
+              [class.selected]="selected()?.id === s.id"
+              [style.left.px]="n.x"
+              [style.top.px]="n.y"
+              [style.width.px]="nodeW"
+              [style.height.px]="nodeH"
+              (click)="select(s.id)"
+            >
+              <span class="node-kicker">{{ t('format.phaseKind', { n: s.phase, kind: t('stage.kind.' + s.kind) }) }}</span>
+              <span class="node-title">{{ s.name || (s.kind === stageKinds.StagePools ? poolsTitle(s) : t('stage.kind.bracket')) }}</span>
+              @if (s.name && s.kind === stageKinds.StagePools) {
+                <span class="node-line">{{ poolsTitle(s) }}</span>
+              }
+              @if (s.kind === stageKinds.StageBracket) {
+                <span class="node-line">{{ t('format.bracketEntrants', { n: s.entrants, byes: s.byes }) }}</span>
+              }
+              <span class="node-line">{{ win(s.win) }}</span>
+              @if (s.noSplit) {
+                <span class="node-warn">{{ t('format.noSplit', { n: s.entrants }) }}</span>
+              } @else if (s.entrants > 0) {
+                <span class="node-line">{{ t('format.matchesRounds', { matches: s.matches, rounds: s.rounds }) }}</span>
+              } @else if (!s.entry && !fed().has(s.id)) {
+                <span class="node-warn">{{ t('format.notRouted') }}</span>
+              } @else if (!s.entry) {
+                <span class="node-line muted">{{ t('format.nobodyHere') }}</span>
+              }
+            </button>
+          }
+          <div class="node output" [style.left.px]="outputX()" [style.top.px]="outputY()" [style.width.px]="outputW" [style.height.px]="nodeH">
+            <span class="node-kicker">{{ t('format.output') }}</span>
+            <span class="node-title">{{ t('format.fullStandings') }}</span>
+            <span class="node-line">{{ t('format.places', { from: 1, to: ranked() }) }}</span>
+            <span class="node-status">{{ t(ties() ? 'format.withTies' : 'format.noTies') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="preview-head">
+          <span class="preview-title">{{ t('format.previewFor', { n: entrants() }) }}</span>
+          @if (courts()) {
+            <span class="preview-sub">{{ t('format.courtsCount', { n: courts() }) }}</span>
+          }
+          <span class="preview-total">{{ t('format.totalMatches', { n: totalMatches() }) }}</span>
+        </div>
+        <div class="preview-table">
+          <span class="th">{{ t('format.colStage') }}</span>
+          <span class="th">{{ t('format.colEntrants') }}</span>
+          <span class="th">{{ t('format.colGroups') }}</span>
+          <span class="th">{{ t('format.colMatches') }}</span>
+          <span class="th">{{ t('format.colRounds') }}</span>
+          <span class="th">{{ t('format.colPlaces') }}</span>
+          @for (s of stages(); track s.id) {
+            <span class="td strong">{{ t('format.phaseShort', { n: s.phase }) }} · {{ label(s) }}</span>
+            <span class="td mono">{{ s.entrants }}</span>
+            <span class="td mono">
+              @if (s.kind === stageKinds.StagePools) {
+                {{ s.noSplit ? '–' : (s.sizes ?? []).join(' · ') }}
+              } @else if (s.entrants > 0) {
+                {{ t('format.bracketOf', { n: s.entrants + s.byes }) }}
+              }
+            </span>
+            <span class="td mono">{{ s.matches }}</span>
+            <span class="td mono">{{ s.rounds }}</span>
+            <span class="td mono">{{ s.placeFrom ? places(s.placeFrom, s.placeTo) : '–' }}</span>
+          }
+        </div>
+        @for (s of stages(); track s.id) {
+          @if (s.noSplit) {
+            <span class="preview-warn alert"><span class="dot"></span>{{ t('format.noSplitWarning', { name: label(s), n: s.entrants, sizes: sizesText(s) }) }}</span>
+          }
+          @if (s.byes > 0) {
+            <span class="preview-warn"><span class="dot"></span>{{ t('format.byesWarning', { name: label(s), byes: s.byes, n: s.entrants, size: s.entrants + s.byes }) }}</span>
+          }
+        }
+      </div>
+    </div>
+
+    @if (selected(); as s) {
+      <aside class="panel">
+        <div class="panel-head">
+          <span class="panel-kicker">{{ t('format.phaseKind', { n: s.phase, kind: t('stage.kind.' + s.kind) }) }} · {{ s.id }}</span>
+          <input
+            class="panel-name"
+            maxlength="60"
+            [disabled]="readonly()"
+            [placeholder]="s.kind === stageKinds.StagePools ? t('stage.kind.pools') : t('stage.kind.bracket')"
+            [value]="s.name"
+            (change)="edit(s, { name: value($event) })"
+          />
+        </div>
+
+        <fieldset class="panel-body" [disabled]="readonly()">
+          <div class="section">
+            <span class="field-label">{{ t('format.kind') }}</span>
+            <div class="seg">
+              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StagePools" [disabled]="s.filled" (click)="setKind(s, stageKinds.StagePools)">
+                {{ t('stage.kind.pools') }}
+              </button>
+              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StageBracket" [disabled]="s.filled" (click)="setKind(s, stageKinds.StageBracket)">
+                {{ t('stage.kind.bracket') }}
+              </button>
+            </div>
+            <span class="note">
+              @if (s.entry) {
+                {{ t(s.kind === stageKinds.StagePools ? 'format.entryPoolsHint' : 'format.entryBracketHint') }}
+              } @else {
+                {{ t('format.laterHint', { n: s.entrants }) }}
+              }
+            </span>
+          </div>
+
+          @if (s.kind === stageKinds.StagePools) {
+            @let bySizes = (s.poolSizes ?? []).length > 0;
+            <div class="section">
+              <span class="field-label">{{ t('format.size') }}</span>
+              <div class="seg seg-sm">
+                <button type="button" class="seg-option" [class.active]="bySizes" [disabled]="s.confirmed" (click)="setPoolMode(s, true)">{{ t('format.bySizes') }}</button>
+                <button type="button" class="seg-option" [class.active]="!bySizes" [disabled]="s.confirmed" (click)="setPoolMode(s, false)">{{ t('format.byCount') }}</button>
+              </div>
+              @if (bySizes) {
+                <span class="note">{{ t('format.bySizesHint') }}</span>
+                @for (size of s.poolSizes ?? []; track size; let i = $index, first = $first, last = $last) {
+                  <div class="tiebreak">
+                    <span class="tb-rank">{{ i + 1 }}</span>
+                    <span class="tb-name">{{ t(first ? 'format.sizePreferred' : last ? 'format.sizeLast' : 'format.sizeThen', { n: size }) }}</span>
+                    <button type="button" class="tb-move" [disabled]="first || s.confirmed" (click)="movePoolSize(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
+                    <button type="button" class="tb-move" [disabled]="last || s.confirmed" (click)="movePoolSize(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
+                    <button type="button" class="tb-move" [disabled]="(s.poolSizes ?? []).length === 1 || s.confirmed" (click)="removePoolSize(s, i)" [attr.aria-label]="t('presets.delete')">×</button>
+                  </div>
+                }
+                <select class="preset-select full" [disabled]="s.confirmed" (change)="addPoolSize(s, $event)">
+                  <option value="">{{ t('format.addSize') }}</option>
+                  @for (n of poolSizeChoices; track n) {
+                    @if (!(s.poolSizes ?? []).includes(n)) {
+                      <option [value]="n">{{ t('format.sizeOption', { n }) }}</option>
+                    }
+                  }
+                </select>
+              } @else {
+                <div class="line">
+                  <span class="text">{{ t('format.poolCount') }}</span>
+                  <div class="stepper">
+                    <button type="button" [disabled]="s.confirmed || (s.pools ?? 1) <= 1" (click)="edit(s, { pools: (s.pools ?? 1) - 1 })">−</button>
+                    <span class="stepper-value">{{ s.pools }}</span>
+                    <button type="button" [disabled]="s.confirmed || (s.pools ?? 1) >= maxPools" (click)="edit(s, { pools: (s.pools ?? 1) + 1 })">+</button>
+                  </div>
+                </div>
+              }
+              <span class="note">
+                @if (s.confirmed) {
+                  {{ t('format.poolsLocked') }}
+                } @else if (s.noSplit) {
+                  {{ t('format.noSplit', { n: s.entrants }) }}
+                } @else if (s.entrants > 0) {
+                  {{ t('format.preview', { registered: s.entrants, sizes: (s.sizes ?? []).join(', '), matches: s.matches }) }}
+                }
+              </span>
+            </div>
+          }
+
+          <div class="section">
+            <div class="section-head">
+              <span class="field-label">{{ t('format.winCondition') }}</span>
+              @if (!readonly()) {
+                <button type="button" class="link" (click)="openSave('win')">{{ t('presets.saveShort') }}</button>
+              }
+            </div>
+            <select class="preset-select full" (change)="applyWinPreset(s, $event)">
+              <option value="">{{ t('presets.choose') }}</option>
+              @for (p of presets.value().win ?? []; track p.id) {
+                <option [value]="p.id">{{ p.name ? p.name + ' · ' : '' }}{{ win(p.win) }}</option>
+              }
+            </select>
+            @if (saving() === 'win') {
+              <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
+                <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
+                <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
+              </form>
+            }
+            <div class="seg">
+              <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinBySets" (click)="setWinKind(s, kinds.WinBySets)">
+                {{ t('format.bySets') }}
+              </button>
+              <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinByTime" [disabled]="!timedAllowed()" (click)="setWinKind(s, kinds.WinByTime)">
+                {{ t('format.byTime') }}
+              </button>
+            </div>
+            @if (!timedAllowed()) {
+              <span class="note warning">{{ t('format.timedNeedsOneCategory') }}</span>
+            }
+            @if (s.win.kind === kinds.WinBySets) {
+              <div class="line">
+                <span class="text">{{ t('format.setsToWinLabel') }}</span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(s.win.setsToWin ?? 1) <= 1" (click)="stepWin(s, 'setsToWin', -1)">−</button>
+                  <span class="stepper-value">{{ s.win.setsToWin }}</span>
+                  <button type="button" [disabled]="(s.win.setsToWin ?? 1) >= 3" (click)="stepWin(s, 'setsToWin', 1)">+</button>
+                </div>
+              </div>
+              <div class="block">
+                <span class="text">{{ t('format.pointsPerSet') }}</span>
+                <div class="seg seg-sm">
+                  @for (p of pointChoices; track p) {
+                    <button type="button" class="seg-option" [class.active]="s.win.pointsPerSet === p" (click)="setPoints(s, p)">{{ p }}</button>
+                  }
+                  @if (!pointChoices.includes(s.win.pointsPerSet ?? 0)) {
+                    <button type="button" class="seg-option active">{{ s.win.pointsPerSet }}</button>
+                  }
+                </div>
+              </div>
+              <div class="line">
+                <span class="text-block">
+                  <span class="text">{{ t('format.capLabel') }}</span>
+                  <span class="note">{{ t('format.capNone') }}</span>
+                </span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(s.win.cap ?? 0) <= 0" (click)="stepWin(s, 'cap', -1)">−</button>
+                  <span class="stepper-value">{{ s.win.cap ?? 0 }}</span>
+                  <button type="button" [disabled]="(s.win.cap ?? 0) >= 99" (click)="stepWin(s, 'cap', 1)">+</button>
+                </div>
+              </div>
+            } @else {
+              <span class="note">{{ t('format.timedHint') }}</span>
+              <div class="line">
+                <span class="text">{{ t('format.matchDuration') }}</span>
+                <div class="stepper">
+                  <button type="button" [disabled]="(s.win.minutes ?? 1) <= 1" (click)="stepWin(s, 'minutes', -1)">−</button>
+                  <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: s.win.minutes }) }}</span>
+                  <button type="button" [disabled]="(s.win.minutes ?? 1) >= 60" (click)="stepWin(s, 'minutes', 1)">+</button>
+                </div>
+              </div>
+              <span class="note">{{ t('format.goldenPoint') }}</span>
+            }
+          </div>
+
+          @if (s.kind === stageKinds.StagePools) {
+            <div class="section">
+              <div class="section-head">
+                <span class="field-label">{{ t('format.tiebreaks') }}</span>
+                @if (!readonly()) {
+                  <button type="button" class="link" (click)="openSave('tiebreaks')">{{ t('presets.saveShort') }}</button>
+                }
+              </div>
+              <select class="preset-select full" (change)="applyTiebreakPreset(s, $event)">
+                <option value="">{{ t('presets.choose') }}</option>
+                @for (p of presets.value().tiebreaks ?? []; track p.id) {
+                  <option [value]="p.id">{{ tiebreakPresetLabel(p) }}</option>
+                }
+              </select>
+              @if (saving() === 'tiebreaks') {
+                <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
+                  <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                  <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
+                  <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
+                </form>
+              }
+              @for (tb of tiebreaks(s); track tb; let i = $index, first = $first, last = $last) {
+                <div class="tiebreak">
+                  <span class="tb-rank">{{ i + 1 }}</span>
+                  <span class="tb-name">{{ t('tiebreak.' + tb) }}</span>
+                  <button type="button" class="tb-move" [disabled]="first" (click)="moveTiebreak(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
+                  <button type="button" class="tb-move" [disabled]="last" (click)="moveTiebreak(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
+                </div>
+              }
+              <span class="note">{{ t('format.tiebreaksHint') }}</span>
+            </div>
+
+            <div class="section">
+              <span class="field-label">{{ t('format.crossPool') }}</span>
+              <div class="seg seg-sm">
+                <button type="button" class="seg-option" [class.active]="s.crossPool !== crossPools.CrossPoolSameMatches" (click)="edit(s, { crossPool: crossPools.CrossPoolRaw })">
+                  {{ t('format.crossRaw') }}
+                </button>
+                <button type="button" class="seg-option" [class.active]="s.crossPool === crossPools.CrossPoolSameMatches" (click)="edit(s, { crossPool: crossPools.CrossPoolSameMatches })">
+                  {{ t('format.crossSame') }}
+                </button>
+              </div>
+              <span class="note">{{ t(s.crossPool === crossPools.CrossPoolSameMatches ? 'format.crossSameHint' : 'format.crossRawHint') }}</span>
+            </div>
+          } @else {
+            <div class="section">
+              <span class="field-label">{{ t('format.placement') }}</span>
+              <div class="seg">
+                <button type="button" class="seg-option" [class.active]="s.fullPlacement" [disabled]="s.started" (click)="edit(s, { fullPlacement: true })">
+                  {{ t('format.fullPlacement') }}
+                </button>
+                <button type="button" class="seg-option" [class.active]="!s.fullPlacement" [disabled]="s.started" (click)="edit(s, { fullPlacement: false })">
+                  {{ t('format.tiedByRound') }}
+                </button>
+              </div>
+              <span class="note">{{ t(s.fullPlacement ? 'format.fullPlacementHint' : 'format.tiedByRoundHint') }}</span>
+            </div>
+          }
+
+          <div class="section">
+            <span class="field-label">{{ t('format.routing') }}</span>
+            @if (laterStages(s).length === 0) {
+              <span class="note">{{ t('format.routingEmpty') }}</span>
+            } @else {
+              <span class="note">{{ t('format.routingHint') }}</span>
+              @for (r of s.routing ?? []; track $index; let i = $index) {
+                <div class="rule">
+                  <div class="rule-head">
+                    <select class="rule-kind" (change)="setRuleKind(s, i, $event)">
+                      @for (k of [routeKinds.RouteRanks, routeKinds.RouteBestOfRank, routeKinds.RouteBest, routeKinds.RouteRest]; track k) {
+                        <option [value]="k" [selected]="r.kind === k">{{ t('format.rule.' + k) }}</option>
+                      }
+                    </select>
+                    <button type="button" class="tb-move" (click)="removeRule(s, i)" [attr.aria-label]="t('presets.delete')">×</button>
+                  </div>
+                  @switch (r.kind) {
+                    @case (routeKinds.RouteRanks) {
+                      @let range = rangeOf(r);
+                      <div class="line">
+                        <span class="text">{{ t('format.rule.from') }}</span>
+                        <div class="stepper small">
+                          <button type="button" (click)="stepRange(s, i, 'from', -1)">−</button>
+                          <span class="stepper-value">{{ range.from }}</span>
+                          <button type="button" (click)="stepRange(s, i, 'from', 1)">+</button>
+                        </div>
+                        <span class="text">{{ t('format.rule.to') }}</span>
+                        <div class="stepper small">
+                          <button type="button" (click)="stepRange(s, i, 'to', -1)">−</button>
+                          <span class="stepper-value">{{ range.to }}</span>
+                          <button type="button" (click)="stepRange(s, i, 'to', 1)">+</button>
+                        </div>
+                      </div>
+                    }
+                    @case (routeKinds.RouteBestOfRank) {
+                      <div class="line">
+                        <div class="stepper small">
+                          <button type="button" (click)="stepRule(s, i, 'count', -1)">−</button>
+                          <span class="stepper-value">{{ r.count }}</span>
+                          <button type="button" (click)="stepRule(s, i, 'count', 1)">+</button>
+                        </div>
+                        <span class="text">{{ t('format.rule.bestOf') }}</span>
+                        <div class="stepper small">
+                          <button type="button" (click)="stepRule(s, i, 'rank', -1)">−</button>
+                          <span class="stepper-value">{{ r.rank }}</span>
+                          <button type="button" (click)="stepRule(s, i, 'rank', 1)">+</button>
+                        </div>
+                      </div>
+                    }
+                    @case (routeKinds.RouteBest) {
+                      <div class="line">
+                        <span class="text">{{ t('format.rule.theBest') }}</span>
+                        <div class="stepper small">
+                          <button type="button" (click)="stepRule(s, i, 'count', -1)">−</button>
+                          <span class="stepper-value">{{ r.count }}</span>
+                          <button type="button" (click)="stepRule(s, i, 'count', 1)">+</button>
+                        </div>
+                      </div>
+                    }
+                  }
+                  <div class="line">
+                    <span class="text">→</span>
+                    <select class="rule-target" (change)="setRuleTarget(s, i, $event)">
+                      @for (l of laterStages(s); track l.id) {
+                        <option [value]="l.id" [selected]="r.to === l.id">{{ l.id }} · {{ label(l) }}</option>
+                      }
+                    </select>
+                  </div>
+                  <span class="note">{{ t('format.ruleCount', { n: s.rules?.[i] ?? 0 }) }}</span>
+                </div>
+              }
+              <button type="button" class="btn btn-sm add-rule" (click)="addRule(s)">+ {{ t('format.addRule') }}</button>
+              <span class="note">{{ t('format.keptCount', { n: s.kept }) }}</span>
+            }
+          </div>
+
+          @if (stages().length > 1 && !readonly()) {
+            <button type="button" class="btn btn-sm btn-danger remove" [disabled]="s.filled" (click)="removed.emit(s.id)">
+              {{ t('format.removeStage') }}
+            </button>
+          }
+        </fieldset>
+      </aside>
+    }
+  </div>
+</ng-container>

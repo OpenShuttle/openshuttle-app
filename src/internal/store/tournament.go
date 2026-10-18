@@ -25,10 +25,12 @@ var tournamentMigrations = []migration{
 	// Version 2: the flexible format (ADR 4) changed the event types. Files
 	// written before it are refused rather than read wrong.
 	refuseOldEvents,
+	// Version 3: routing rules replaced the list of stages per rank.
+	refuseOldEvents,
 }
 
 // refuseOldEvents fails on a file that already holds events: they were
-// written by the first format.
+// written by an earlier format.
 func refuseOldEvents(ctx context.Context, tx *sql.Tx) error {
 	var n int
 	if err := tx.QueryRowContext(ctx, "SELECT count(*) FROM events").Scan(&n); err != nil {

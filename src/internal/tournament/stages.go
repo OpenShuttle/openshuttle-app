@@ -119,26 +119,58 @@ func (s State) StageComplete(c engine.Category, id string) bool {
 	return st != nil && s.stageComplete(c, st)
 }
 
+// rankedEntrants lists the entrants of a filled stage, best first: rank by
+// rank and, within a rank, compared across pools with the stage's rule.
+// Entrants whose bracket place is not known yet come last with rank 0.
+func (s State) rankedEntrants(c engine.Category, st *Stage) []rankedEntrant {
+	var keys map[engine.EntrantID]engine.AcrossKey
+	if st.Kind == StagePools {
+		pools := make([]engine.RankedPool, len(st.Groups))
+		for p := range st.Groups {
+			in := s.poolInput(c, st.ID, p)
+			pools[p] = engine.RankedPool{Pool: in, Standings: engine.RankPool(in)}
+		}
+		keys = engine.AcrossKeys(pools, st.CrossPool)
+	}
+	var out []rankedEntrant
+	for _, g := range s.StageRanks(c, st.ID) {
+		ids := g.Entrants
+		if keys != nil {
+			ids = engine.SortAcross(ids, keys)
+		}
+		for _, id := range ids {
+			out = append(out, rankedEntrant{ID: id, Rank: g.Rank})
+		}
+	}
+	return out
+}
+
+// Assignment returns the stage each entrant of a filled stage is routed to,
+// from the current ranks. Forfeited entrants are never routed.
+func (s State) Assignment(c engine.Category, id string) map[engine.EntrantID]string {
+	st := s.stage(c, id)
+	if st == nil || !st.Confirmed {
+		return map[engine.EntrantID]string{}
+	}
+	si := s.stageIndex(c, id)
+	ranked := slices.DeleteFunc(s.rankedEntrants(c, st), func(e rankedEntrant) bool { return s.withdrawnBy(e.ID, c, si) })
+	return assign(st.Routing, ranked)
+}
+
 // Routed returns the entrants routed to a stage, from the current ranks of
-// the stages feeding it: Rank is their rank there, Pool tells their group
-// apart (stage position and pool), so pool mates are kept apart. Forfeited
-// entrants are left out.
+// the stages feeding it, best first: Rank is their rank there, Pool tells
+// their group apart (stage position and pool), so pool mates are kept apart.
 func (s State) Routed(c engine.Category, id string) []engine.BracketEntrant {
 	target := s.stageIndex(c, id)
 	var out []engine.BracketEntrant
 	for si, src := range s.formats[c] {
-		if si >= target || !slices.Contains(src.Routing, id) || !src.Confirmed {
+		if si >= target || !slices.Contains(src.Targets(), id) || !src.Confirmed {
 			continue
 		}
-		for _, g := range s.StageRanks(c, src.ID) {
-			if g.Rank == 0 || src.RouteOf(g.Rank) != id {
-				continue
-			}
-			for _, e := range g.Entrants {
-				if s.withdrawnBy(e, c, si) {
-					continue
-				}
-				out = append(out, engine.BracketEntrant{ID: e, Rank: g.Rank, Pool: si*MaxPools + s.groupOf(src, e)})
+		to := s.Assignment(c, src.ID)
+		for _, e := range s.rankedEntrants(c, src) {
+			if to[e.ID] == id {
+				out = append(out, engine.BracketEntrant{ID: e.ID, Rank: e.Rank, Pool: si*MaxPools + s.groupOf(src, e.ID)})
 			}
 		}
 	}
@@ -195,10 +227,11 @@ func (s State) FillStage(c engine.Category, id string) (Change, error) {
 	st := s.formats[c][i]
 	var groups [][]engine.EntrantID
 	if st.Kind == StagePools {
-		if len(routed) < 2*st.Pools {
-			return Change{}, engine.NewError(engine.CodeNotEnoughEntrants)
+		sizes := st.PoolSizesFor(len(routed))
+		if sizes == nil {
+			return Change{}, engine.NewError(engine.CodeNoPoolSplit)
 		}
-		groups = engine.FillPools(routed, st.Pools)
+		groups = engine.FillPoolsSized(routed, sizes)
 	} else {
 		if len(routed) < 2 {
 			return Change{}, engine.NewError(engine.CodeNotEnoughEntrants)

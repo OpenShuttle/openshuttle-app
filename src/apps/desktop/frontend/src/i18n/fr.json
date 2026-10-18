@@ -194,7 +194,8 @@
     "STAGE_FILLED": "Cette phase a déjà ses participants : son type et les rangs qui l'alimentent ne peuvent plus changer.",
     "PRESET_NOT_FOUND": "Ce preset n'existe plus.",
     "PRESET_READ_ONLY": "Les presets intégrés ne peuvent pas être supprimés.",
-    "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert."
+    "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert.",
+    "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -350,8 +351,7 @@
     "fullPlacementHint": "Les perdants jouent les places suivantes : classement complet, sans ex aequo.",
     "tiedByRoundHint": "Les perdants d'un même tour partagent leurs places.",
     "routing": "Routage",
-    "routingHint": "Chaque rang passe dans une phase suivante, ou s'arrête ici avec son classement final.",
-    "ranks": "Rangs {ranks}",
+    "routingHint": "Les règles s'appliquent dans l'ordre, chacune sur ceux que les précédentes ont laissés. Les autres gardent ici leur classement final.",
     "poolsN": "{n, plural, one {# poule} other {# poules}}",
     "poolsOf": "{n, plural, one {# poule} other {# poules}} de {size}",
     "poolsSizes": "{n} poules ({sizes})",
@@ -381,8 +381,6 @@
     "matchDuration": "Durée du match",
     "tiebreaksHint": "Différences uniquement, jamais de ratios : les WO restent neutres.",
     "routingEmpty": "Ajoutez une phase pour y envoyer des rangs.",
-    "rank": "{n, plural, =1 {1er} other {#e}}",
-    "entrantsShort": "{n, plural, one {# participant} other {# participants}}",
     "addPools": "Poules",
     "applyPreset": "Partir d'un preset…",
     "saveAsPreset": "Enregistrer comme preset",
@@ -393,9 +391,41 @@
     "entryPoolsHint": "Phase d'entrée : le tirage répartit les présents dans les poules.",
     "entryBracketHint": "Phase d'entrée : le tirage place les présents dans le tableau, têtes de série d'abord.",
     "laterHint": "{n, plural, =0 {Personne n'y arrive encore : routez ici des rangs d'une phase précédente.} one {# participant y arrive par le routage.} other {# participants y arrivent par le routage.}}",
-    "kept": "Classement final ici",
-    "noRanksYet": "Les rangs apparaissent avec les inscrits.",
-    "removeStage": "Supprimer la phase"
+    "removeStage": "Supprimer la phase",
+    "edgeCount": "{n, plural, one {# participant} other {# participants}}",
+    "poolsOfSizes": "Poules de {sizes}",
+    "orList": "{first} ou {last}",
+    "noSplit": "Aucune répartition pour {n} participants",
+    "noSplitWarning": "{name} : {n} participants ne se répartissent pas en poules de {sizes}.",
+    "colGroups": "Poules / tableau",
+    "bracketOf": "tableau de {n}",
+    "bySizes": "Tailles de poule",
+    "byCount": "Nombre de poules",
+    "bySizesHint": "Tailles par ordre de préférence : le nombre de poules suit le nombre de participants.",
+    "sizePreferred": "Poules de {n} d'abord",
+    "sizeThen": "sinon poules de {n}",
+    "sizeLast": "poules de {n} en dernier recours",
+    "addSize": "Ajouter une taille…",
+    "sizeOption": "Poules de {n}",
+    "crossPool": "Comparaison entre poules",
+    "crossRaw": "Résultats bruts",
+    "crossSame": "Même nombre de matchs",
+    "crossRawHint": "Les participants de même rang sont comparés sur tous leurs matchs : les grandes poules en ont joué plus.",
+    "crossSameHint": "Dans les grandes poules, les matchs contre les derniers sont retirés : tout le monde est comparé sur le même nombre de matchs.",
+    "rule": {
+      "ranks": "Rangs",
+      "bestOfRank": "Les meilleurs d'un rang",
+      "best": "Les N meilleurs",
+      "rest": "Le reste",
+      "from": "du",
+      "to": "au",
+      "bestOf": "meilleur(s) du rang",
+      "theBest": "Les meilleurs :"
+    },
+    "ruleCount": "{n, plural, =0 {Personne} one {# participant} other {# participants}} avec cette simulation",
+    "addRule": "Ajouter une règle",
+    "keptCount": "{n, plural, =0 {Personne ne garde ici son classement final.} one {# participant garde ici son classement final.} other {# participants gardent ici leur classement final.}}",
+    "nobodyHere": "Personne avec cette simulation"
   },
   "tiebreak": {
     "wins": "Victoires",
@@ -668,7 +698,6 @@
     "builtIn": "Intégré",
     "delete": "Supprimer",
     "applyTo": "Appliquer à {category}",
-    "saveFromFormat": "Enregistrez les vôtres depuis l'écran Format d'un tournoi.",
     "name": "Nom du preset",
     "description": "Description (facultative)",
     "save": "Enregistrer",
@@ -677,15 +706,15 @@
     "format": {
       "pools": {
         "name": "Poules uniquement",
-        "description": "4 poules, classement par position dans la poule."
+        "description": "Poules de 4 (sinon 3, sinon 5), classement par position dans la poule."
       },
       "poolsMain": {
         "name": "Poules + tableau principal",
-        "description": "4 poules, les deux premiers de chaque poule dans un tableau à placement complet."
+        "description": "Poules de 4 (sinon 3, sinon 5) ; les deux premiers de chaque poule dans un tableau à placement complet."
       },
       "poolsMainConsolation": {
         "name": "Poules + principal + consolante",
-        "description": "4 poules ; rangs 1-2 en tableau principal, rangs 3-4 en consolante."
+        "description": "Poules de 4 (sinon 3, sinon 5) ; rangs 1-2 en tableau principal, tous les autres en consolante."
       },
       "bracket": {
         "name": "Tableau à placement complet",
@@ -693,12 +722,26 @@
       },
       "twoPoolRounds": {
         "name": "Deux tours de poules + finale",
-        "description": "4 poules, les deux premiers en 2 nouvelles poules, puis un tableau final pour leurs deux premiers."
+        "description": "Poules de 4 (sinon 3, sinon 5), les deux premiers en nouvelles poules, puis un tableau final pour leurs deux premiers."
+      },
+      "poolsBest16": {
+        "name": "Poules + 16 meilleurs + consolante",
+        "description": "Poules de 4 (sinon 3, sinon 5) ; les 16 meilleurs en tableau principal, comparés entre poules, le reste en consolante."
       }
     },
     "tiebreaks": {
       "standard": "Standard",
-      "pointsFirst": "Points avant confrontation directe"
-    }
+      "differencesFirst": "Différences avant confrontation directe"
+    },
+    "newFormat": "Nouveau format",
+    "new": "Nouveau",
+    "edit": "Modifier",
+    "view": "Voir",
+    "duplicate": "Dupliquer",
+    "simulate": "Ouvrir et simuler",
+    "simulateWith": "Simuler avec",
+    "teams": "équipes",
+    "readOnly": "Intégré · lecture seule",
+    "duplicateToEdit": "Dupliquer pour modifier"
   }
 }

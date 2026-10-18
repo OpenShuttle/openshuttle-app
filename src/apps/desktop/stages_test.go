@@ -40,12 +40,12 @@ func TestStageViews(t *testing.T) {
 		return out
 	}
 	format := stages()
-	format[0].Pools, format[0].Routing = 1, []string{"S2", "S2"}
+	format[0].Pools, format[0].Routing = 1, tournament.RanksRules("S2", "S2")
 	format[1].Name, format[1].Win, format[1].FullPlacement = "Finale", win, false
 	must(f.svc.SetFormat(ctx, engine.MensSingles, format))
 
 	fc := f.svc.GetFormatView().Categories[0]
-	if len(fc.Stages) != 2 || fc.Stages[1].Name != "Finale" || fc.Stages[1].Phase != 2 || fc.Stages[0].Routing[1] != "S2" {
+	if len(fc.Stages) != 2 || fc.Stages[1].Name != "Finale" || fc.Stages[1].Phase != 2 || fc.Stages[0].Routing[0].To != "S2" {
 		t.Fatalf("format = %+v", fc)
 	}
 	if s := fc.Stages[1]; s.Entrants != 2 || s.PlaceFrom != 1 || s.PlaceTo != 2 || fc.Ranked != 4 || fc.Ties {
@@ -121,7 +121,7 @@ func TestFormatPreview(t *testing.T) {
 	for _, st := range f.svc.GetFormatView().Categories[0].Stages {
 		format = append(format, st.StageConfig)
 	}
-	format[0].Pools, format[0].Routing = 3, []string{"S2", "S2", "S3"}
+	format[0].Pools, format[0].Routing = 3, tournament.RanksRules("S2", "S2", "S3")
 	format[1].Win, format[1].FullPlacement = sets, true
 	format[2].Win, format[2].FullPlacement = sets, false
 	must(f.svc.SetFormat(ctx, engine.MensSingles, format))
@@ -136,7 +136,7 @@ func TestFormatPreview(t *testing.T) {
 	}
 	// Without full placement: places 1, 2, then 3 tied (one semi lost).
 	if cons.Entrants != 3 || cons.PlaceFrom != 7 || cons.PlaceTo != 9 ||
-		!reflect.DeepEqual(cons.Ranks, []RankPreview{{1, 1}, {2, 1}, {3, 1}}) {
+		!reflect.DeepEqual(cons.Ranks, []tournament.RankCount{{Rank: 1, Count: 1}, {Rank: 2, Count: 1}, {Rank: 3, Count: 1}}) {
 		t.Errorf("consolation = %+v", cons)
 	}
 	if pools.PlaceFrom != 10 || pools.PlaceTo != 11 || fc.Ranked != 11 || !fc.Ties {
