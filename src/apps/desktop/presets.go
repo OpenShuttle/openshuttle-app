@@ -52,11 +52,13 @@ type FormatPreset struct {
 	Stages      []tournament.StageConfig `json:"stages"`
 }
 
-// Presets lists every preset, built-in ones first.
+// Presets lists every preset, built-in ones first. Disabled presets (any
+// kind, built-in ones included) stay listed but are not offered.
 type Presets struct {
 	Win       []WinPreset      `json:"win"`
 	Tiebreaks []TiebreakPreset `json:"tiebreaks"`
 	Formats   []FormatPreset   `json:"formats"`
+	Disabled  []string         `json:"disabled"`
 }
 
 // builtInPresets are always there and cannot be deleted.
@@ -126,11 +128,12 @@ func readPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
 	all.Win = append(all.Win, user.Win...)
 	all.Tiebreaks = append(all.Tiebreaks, user.Tiebreaks...)
 	all.Formats = append(all.Formats, user.Formats...)
+	all.Disabled = user.Disabled
 	return all, nil
 }
 
 func readUserPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
-	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}}
+	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}}
 	raw, ok, err := db.Setting(ctx, settingPresets)
 	if err != nil || !ok {
 		return p, err
@@ -299,11 +302,32 @@ func (s *PresetService) DeletePreset(ctx context.Context, id string) error {
 		p.Tiebreaks = slices.DeleteFunc(p.Tiebreaks, func(x TiebreakPreset) bool { return x.ID == id })
 		p.Formats = slices.DeleteFunc(p.Formats, func(x FormatPreset) bool { return x.ID == id })
 		found = n != len(p.Win)+len(p.Tiebreaks)+len(p.Formats)
+		p.Disabled = slices.DeleteFunc(p.Disabled, func(x string) bool { return x == id })
 	})
 	if err == nil && !found {
 		return engine.NewError(engine.CodePresetNotFound)
 	}
 	return err
+}
+
+// SetPresetEnabled offers a preset again, or stops offering it in the
+// tournament screens. Built-in presets can be disabled too.
+func (s *PresetService) SetPresetEnabled(ctx context.Context, id string, enabled bool) error {
+	all, err := readPresets(ctx, s.db)
+	if err != nil {
+		return err
+	}
+	if !slices.ContainsFunc(all.Win, func(x WinPreset) bool { return x.ID == id }) &&
+		!slices.ContainsFunc(all.Tiebreaks, func(x TiebreakPreset) bool { return x.ID == id }) &&
+		!slices.ContainsFunc(all.Formats, func(x FormatPreset) bool { return x.ID == id }) {
+		return engine.NewError(engine.CodePresetNotFound)
+	}
+	return s.update(ctx, func(p *Presets) {
+		p.Disabled = slices.DeleteFunc(p.Disabled, func(x string) bool { return x == id })
+		if !enabled {
+			p.Disabled = append(p.Disabled, id)
+		}
+	})
 }
 
 func (s *PresetService) update(ctx context.Context, change func(*Presets)) error {

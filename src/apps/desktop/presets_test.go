@@ -94,12 +94,25 @@ func TestPresets(t *testing.T) {
 	}
 	wantCode(t, f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, "nope"), engine.CodePresetNotFound)
 
+	// Disabling: any preset, built-in ones included; deleting forgets it.
+	must(presets.SetPresetEnabled(ctx, "b-pools", false))
+	must(presets.SetPresetEnabled(ctx, "b-pools", false))
+	must(presets.SetPresetEnabled(ctx, mine.ID, false))
+	wantCode(t, presets.SetPresetEnabled(ctx, "nope", false), engine.CodePresetNotFound)
+	if p, _ = presets.GetPresets(ctx); !slices.Equal(p.Disabled, []string{"b-pools", mine.ID}) {
+		t.Errorf("disabled = %v", p.Disabled)
+	}
+	must(presets.SetPresetEnabled(ctx, "b-pools", true))
+
 	// Deleting: saved presets only.
 	must(presets.DeletePreset(ctx, mine.ID))
 	wantCode(t, presets.DeletePreset(ctx, mine.ID), engine.CodePresetNotFound)
 	wantCode(t, presets.DeletePreset(ctx, "b-pools"), engine.CodePresetReadOnly)
 	if p, _ = presets.GetPresets(ctx); slices.ContainsFunc(p.Formats, func(x FormatPreset) bool { return x.ID == mine.ID }) {
 		t.Error("deleted preset still listed")
+	}
+	if len(p.Disabled) != 0 {
+		t.Errorf("disabled after delete = %v", p.Disabled)
 	}
 
 	// Every built-in format is a valid format.

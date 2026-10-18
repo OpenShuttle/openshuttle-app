@@ -482,12 +482,14 @@ export interface PoolRefView {
 }
 
 /**
- * Presets lists every preset, built-in ones first.
+ * Presets lists every preset, built-in ones first. Disabled presets (any
+ * kind, built-in ones included) stay listed but are not offered.
  */
 export interface Presets {
     "win": WinPreset[] | null;
     "tiebreaks": TiebreakPreset[] | null;
     "formats": FormatPreset[] | null;
+    "disabled": string[] | null;
 }
 
 /**

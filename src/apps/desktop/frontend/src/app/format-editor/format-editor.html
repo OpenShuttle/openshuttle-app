@@ -187,7 +187,7 @@
             </div>
             <select class="preset-select full" (change)="applyWinPreset(s, $event)">
               <option value="">{{ t('presets.choose') }}</option>
-              @for (p of presets.value().win ?? []; track p.id) {
+              @for (p of presets.offered().win ?? []; track p.id) {
                 <option [value]="p.id">{{ p.name ? p.name + ' · ' : '' }}{{ win(p.win) }}</option>
               }
             </select>
@@ -264,7 +264,7 @@
               </div>
               <select class="preset-select full" (change)="applyTiebreakPreset(s, $event)">
                 <option value="">{{ t('presets.choose') }}</option>
-                @for (p of presets.value().tiebreaks ?? []; track p.id) {
+                @for (p of presets.offered().tiebreaks ?? []; track p.id) {
                   <option [value]="p.id">{{ tiebreakPresetLabel(p) }}</option>
                 }
               </select>

@@ -102,6 +102,12 @@ export class PresetsPage {
     void this.presets.run(() => PresetService.DuplicatePreset(id, this.copyName(name)));
   }
 
+  /** Offers a preset in the tournament screens, or stops offering it. */
+  protected setEnabled(id: string, event: Event): void {
+    const enabled = (event.target as HTMLInputElement).checked;
+    void this.presets.run(() => PresetService.SetPresetEnabled(id, enabled));
+  }
+
   protected remove(id: string): void {
     void this.presets.run(() => PresetService.DeletePreset(id));
   }

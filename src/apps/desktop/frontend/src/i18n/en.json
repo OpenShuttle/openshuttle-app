@@ -745,6 +745,8 @@
     "simulateWith": "Simulate with",
     "teams": "teams",
     "readOnly": "Built in · read only",
-    "duplicateToEdit": "Duplicate to edit"
+    "duplicateToEdit": "Duplicate to edit",
+    "offered": "Offered",
+    "offeredHint": "Unchecked, this preset is no longer offered in tournaments. It stays here."
   }
 }

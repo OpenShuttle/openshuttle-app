@@ -745,6 +745,8 @@
     "simulateWith": "Simuler avec",
     "teams": "équipes",
     "readOnly": "Intégré · lecture seule",
-    "duplicateToEdit": "Dupliquer pour modifier"
+    "duplicateToEdit": "Dupliquer pour modifier",
+    "offered": "Proposé",
+    "offeredHint": "Décoché, ce preset n'est plus proposé dans les tournois. Il reste ici."
   }
 }

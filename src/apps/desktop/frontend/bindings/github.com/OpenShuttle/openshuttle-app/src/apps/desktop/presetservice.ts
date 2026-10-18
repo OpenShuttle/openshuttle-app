@@ -74,3 +74,11 @@ export function SaveTiebreakPreset(id: string, name: string, tiebreaks: engine$0
 export function SaveWinPreset(id: string, name: string, win: engine$0.WinCondition): $CancellablePromise<void> {
     return $Call.ByID(2820709424, id, name, win);
 }
+
+/**
+ * SetPresetEnabled offers a preset again, or stops offering it in the
+ * tournament screens. Built-in presets can be disabled too.
+ */
+export function SetPresetEnabled(id: string, enabled: boolean): $CancellablePromise<void> {
+    return $Call.ByID(4251075938, id, enabled);
+}

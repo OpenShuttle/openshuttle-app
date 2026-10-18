@@ -228,3 +228,35 @@
 .add-tb {
   align-self: flex-start;
 }
+
+.preset-flags {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Offered in the tournament screens, or not.
+.offer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+// A disabled preset stays here, faded, with its actions.
+.preset.off .preset-name,
+.preset.off .preset-desc,
+.preset.off .diagram,
+.row.off .row-text {
+  opacity: 0.45;
+}

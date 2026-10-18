@@ -17,12 +17,15 @@
     </div>
     <div class="cards">
       @for (p of presets.value().formats ?? []; track p.id) {
-        <div class="card preset">
+        <div class="card preset" [class.off]="!presets.enabled(p.id)">
           <div class="preset-head">
             <span class="preset-name">{{ formatName(p) }}</span>
-            @if (builtIn(p.id)) {
-              <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
-            }
+            <span class="preset-flags">
+              @if (builtIn(p.id)) {
+                <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
+              }
+              <label class="offer" [attr.title]="t('presets.offeredHint')"><input type="checkbox" [checked]="presets.enabled(p.id)" (change)="setEnabled(p.id, $event)" /><span>{{ t('presets.offered') }}</span></label>
+            </span>
           </div>
           @if (formatDescription(p)) {
             <span class="preset-desc">{{ formatDescription(p) }}</span>
@@ -115,7 +118,7 @@
           </form>
         }
         @for (p of presets.value().win ?? []; track p.id) {
-          <div class="row">
+          <div class="row" [class.off]="!presets.enabled(p.id)">
             <span class="row-text">
               <strong>{{ p.name || win(p.win) }}</strong>
               @if (p.name) {
@@ -123,6 +126,7 @@
               }
             </span>
             <span class="row-actions">
+              <label class="offer" [attr.title]="t('presets.offeredHint')"><input type="checkbox" [checked]="presets.enabled(p.id)" (change)="setEnabled(p.id, $event)" /><span>{{ t('presets.offered') }}</span></label>
               @if (builtIn(p.id)) {
                 <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
               } @else {
@@ -164,7 +168,7 @@
           </form>
         }
         @for (p of presets.value().tiebreaks ?? []; track p.id) {
-          <div class="row">
+          <div class="row" [class.off]="!presets.enabled(p.id)">
             <span class="row-text">
               <strong>{{ tiebreakName(p) }}</strong>
               <span class="order">
@@ -174,6 +178,7 @@
               </span>
             </span>
             <span class="row-actions">
+              <label class="offer" [attr.title]="t('presets.offeredHint')"><input type="checkbox" [checked]="presets.enabled(p.id)" (change)="setEnabled(p.id, $event)" /><span>{{ t('presets.offered') }}</span></label>
               @if (builtIn(p.id)) {
                 <span class="pill pill-muted">{{ t('presets.builtIn') }}</span>
               } @else {

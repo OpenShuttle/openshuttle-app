@@ -43,7 +43,7 @@
           <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StageBracket)">+ {{ t('format.addBracket') }}</button>
           <select class="preset-select" [attr.aria-label]="t('format.applyPreset')" (change)="applyFormatPreset($event)">
             <option value="">{{ t('format.applyPreset') }}</option>
-            @for (p of presets.value().formats ?? []; track p.id) {
+            @for (p of presets.offered().formats ?? []; track p.id) {
               <option [value]="p.id">{{ formatPresetLabel(p) }}</option>
             }
           </select>
