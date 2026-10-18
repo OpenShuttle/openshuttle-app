@@ -11,6 +11,7 @@ import (
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
 type emitted struct {
@@ -246,6 +247,65 @@ func TestTournamentLifecycle(t *testing.T) {
 	backups, _ := os.ReadDir(filepath.Join(f.dir, "backups"))
 	if len(backups) == 0 {
 		t.Error("no backup written")
+	}
+}
+
+func TestDuplicateAndSummaries(t *testing.T) {
+	f := newFixture(t)
+	src := filepath.Join(f.dir, "src.openshuttle")
+	if err := f.svc.CreateTournamentAt(f.ctx, src, "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.svc.AddCategory(f.ctx, engine.MensDoubles); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.svc.RegisterEntrant(f.ctx, engine.MensDoubles, []tournament.PlayerInput{
+		{FirstName: "A", LastName: "A"}, {FirstName: "B", LastName: "B"},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	p := f.svc.GetTournamentView().Progress
+	if p.Entrants != 1 || !p.Doubles || p.Players != 2 || p.PlayersPresent != 0 || p.Stage != StagePreparation {
+		t.Errorf("progress = %+v", p)
+	}
+
+	// The open tournament is summed up live.
+	recent, _ := f.svc.ListRecentTournaments(f.ctx)
+	if s := recent[0].Summary; s == nil || s.Entrants != 1 || len(s.Categories) != 1 || s.Stage != StagePreparation {
+		t.Fatalf("live summary = %+v", recent[0].Summary)
+	}
+
+	// Cancelled dialog: nothing is written.
+	if path, err := f.svc.DuplicateTournament(f.ctx, src, "Plume 2027"); err != nil || path != "" {
+		t.Fatalf("cancelled duplicate = %q, %v", path, err)
+	}
+	wantCode(t, func() error { _, err := f.svc.DuplicateTournament(f.ctx, src, " "); return err }(), engine.CodeInvalidName)
+
+	f.dialogs.save = filepath.Join(f.dir, "copy")
+	path, err := f.svc.DuplicateTournament(f.ctx, src, "Plume 2027")
+	if err != nil || path != f.dialogs.save+".openshuttle" {
+		t.Fatalf("duplicate = %q, %v", path, err)
+	}
+	if f.svc.GetTournamentView().Path != src {
+		t.Error("duplicating changed the open tournament")
+	}
+	recent, _ = f.svc.ListRecentTournaments(f.ctx)
+	if recent[0].Path != path || recent[0].Name != "Plume 2027" || recent[0].Summary.Entrants != 0 ||
+		len(recent[0].Summary.Categories) != 1 {
+		t.Fatalf("recent after duplicate = %+v", recent[0])
+	}
+
+	// Closing keeps the summary of the closed tournament.
+	f.svc.CloseTournament()
+	recent, _ = f.svc.ListRecentTournaments(f.ctx)
+	if recent[1].Path != src || recent[1].Summary == nil || recent[1].Summary.Entrants != 1 {
+		t.Fatalf("summary after close = %+v", recent[1])
+	}
+
+	// A closed file can be duplicated too, read from disk.
+	f.dialogs.save = filepath.Join(f.dir, "copy2.openshuttle")
+	if _, err := f.svc.DuplicateTournament(f.ctx, src, "Plume 2028"); err != nil {
+		t.Fatal(err)
 	}
 }
 

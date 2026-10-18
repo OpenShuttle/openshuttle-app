@@ -9,6 +9,7 @@ const row = (firstName: string, lastName: string, club = '', bib = 0): CheckInRo
   lastName,
   club,
   checkedIn: false,
+  checkedInAt: null,
   duplicate: false,
   entrantId: 'e1',
   category: Category.MensDoubles,

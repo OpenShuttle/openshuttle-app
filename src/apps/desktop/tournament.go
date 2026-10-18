@@ -37,6 +37,7 @@ type TournamentView struct {
 	Courts              int               `json:"courts"`
 	MinRest             int               `json:"minRest"`
 	Priority            string            `json:"priority"`
+	Progress            ProgressView      `json:"progress"`
 }
 
 // CategoryRef is a category with its slot (1 or 2), which sets its color.
@@ -124,6 +125,76 @@ func (s *TournamentService) CreateTournamentAt(ctx context.Context, path, name s
 	return s.OpenTournament(ctx, path)
 }
 
+// DuplicateTournament asks where to save a copy of a tournament's setup
+// (courts, categories, format), without its entrants, and adds it to the
+// recent list without opening it. It returns the path, or "" when the user
+// cancelled.
+func (s *TournamentService) DuplicateTournament(ctx context.Context, source, name string) (string, error) {
+	src, err := s.stateOf(ctx, source)
+	if err != nil {
+		return "", err
+	}
+	changes, err := tournament.Duplicate(src, name)
+	if err != nil {
+		return "", err
+	}
+	path, err := s.dialogs.SaveTournament(s.tournamentsDir(ctx), fileNameFor(name))
+	if err != nil || path == "" {
+		return "", err
+	}
+	if !strings.EqualFold(filepath.Ext(path), store.TournamentExtension) {
+		path += store.TournamentExtension
+	}
+	f, err := store.CreateTournament(ctx, path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	log := make([]events.Event, 0, len(changes))
+	for _, ch := range changes {
+		d, err := events.NewDraft(ch.Type, ch.Data, s.now(), s.operator(ctx))
+		if err != nil {
+			return "", err
+		}
+		e, err := f.Append(ctx, d)
+		if err != nil {
+			return "", err
+		}
+		log = append(log, e)
+	}
+	state, err := tournament.Project(log)
+	if err != nil {
+		return "", err
+	}
+	if list, err := readRecent(ctx, s.app); err == nil {
+		list = touchRecent(list, path, state.Name, s.now())
+		_ = writeRecent(ctx, s.app, setSummary(list, path, summaryOf(state, lastEventAt(log))))
+	}
+	return path, nil
+}
+
+// stateOf projects a tournament file: the open one from memory, any other
+// read from disk.
+func (s *TournamentService) stateOf(ctx context.Context, path string) (tournament.State, error) {
+	s.mu.Lock()
+	if s.file != nil && s.file.Path() == path {
+		st := s.state
+		s.mu.Unlock()
+		return st, nil
+	}
+	s.mu.Unlock()
+	f, err := store.OpenTournament(ctx, path)
+	if err != nil {
+		return tournament.State{}, err
+	}
+	defer f.Close()
+	log, err := f.Events(ctx)
+	if err != nil {
+		return tournament.State{}, err
+	}
+	return tournament.Project(log)
+}
+
 // OpenTournamentDialog asks for a tournament file and opens it. It returns
 // the path, or "" when the user cancelled.
 func (s *TournamentService) OpenTournamentDialog(ctx context.Context) (string, error) {
@@ -159,7 +230,8 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 	s.mu.Unlock()
 
 	if list, err := readRecent(ctx, s.app); err == nil {
-		_ = writeRecent(ctx, s.app, touchRecent(list, path, state.Name, s.now()))
+		list = touchRecent(list, path, state.Name, s.now())
+		_ = writeRecent(ctx, s.app, setSummary(list, path, summaryOf(state, lastEventAt(log))))
 	}
 	s.emit(EventTournamentUpdated, state.Version)
 	return nil
@@ -221,6 +293,7 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 		Courts:              s.state.Courts(),
 		MinRest:             s.state.MinRest(),
 		Priority:            s.state.CourtPriority(),
+		Progress:            progressOf(s.state),
 	}
 	if len(s.log) > 0 {
 		v.LastAction = s.describe(s.log[len(s.log)-1])
@@ -229,9 +302,19 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 	return v
 }
 
-// ListRecentTournaments returns the recently opened tournaments.
+// ListRecentTournaments returns the recently opened tournaments. The open
+// one is summed up from its live state.
 func (s *TournamentService) ListRecentTournaments(ctx context.Context) ([]RecentTournament, error) {
-	return readRecent(ctx, s.app)
+	list, err := readRecent(ctx, s.app)
+	if err != nil {
+		return list, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.file != nil {
+		list = setSummary(list, s.file.Path(), summaryOf(s.state, lastEventAt(s.log)))
+	}
+	return list, nil
 }
 
 // ServiceShutdown closes the tournament when the app quits.
@@ -426,7 +509,11 @@ func (s *TournamentService) closeLocked() {
 		s.stopBackups = nil
 	}
 	if s.file != nil {
-		s.backupLocked(context.Background())
+		ctx := context.Background()
+		s.backupLocked(ctx)
+		if list, err := readRecent(ctx, s.app); err == nil {
+			_ = writeRecent(ctx, s.app, setSummary(list, s.file.Path(), summaryOf(s.state, lastEventAt(s.log))))
+		}
 		if err := s.file.Close(); err != nil {
 			slog.Error("close tournament", "err", err)
 		}

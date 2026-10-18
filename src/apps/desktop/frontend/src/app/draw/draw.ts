@@ -6,7 +6,6 @@ import { EntrantID } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
-import { CategoryBadge } from '../shared/category-badge';
 
 /** Pointer travel before a press becomes a drag, in pixels. */
 const DRAG_THRESHOLD = 5;
@@ -27,7 +26,7 @@ function poolAt(x: number, y: number): string | null {
 /** Draw: pools of each category, seeds, drag and drop, validation. */
 @Component({
   selector: 'app-draw',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge],
+  imports: [TranslocoDirective, RouterLink],
   templateUrl: './draw.html',
   styleUrl: './draw.scss',
 })
@@ -41,7 +40,25 @@ export class Draw {
   protected readonly dropTarget = signal<string | null>(null);
 
   protected names(e: DrawEntrantView): string {
-    return (e.players ?? []).map((p) => `${p.lastName} ${p.firstName}`).join(' / ');
+    return (e.players ?? [])
+      .map((p) => (p.firstName ? `${p.firstName[0]}. ${p.lastName}` : p.lastName))
+      .join(' / ');
+  }
+
+  protected fullNames(e: DrawEntrantView): string {
+    return (e.players ?? []).map((p) => `${p.firstName} ${p.lastName}`).join(' / ');
+  }
+
+  /** Entrants sharing their pool with a club mate. */
+  protected conflicts(c: DrawCategory): number {
+    return (c.pools ?? []).reduce(
+      (n, pool) => n + (pool.entrants ?? []).filter((e) => (e.sameClub ?? []).length > 0).length,
+      0,
+    );
+  }
+
+  protected entrantCount(c: DrawCategory): number {
+    return (c.pools ?? []).reduce((n, pool) => n + (pool.entrants ?? []).length, 0) + (c.unplaced ?? []).length;
   }
 
   protected draw(c: DrawCategory): void {

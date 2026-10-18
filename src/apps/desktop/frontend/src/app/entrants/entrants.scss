@@ -1,175 +1,116 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 1040px;
+  display: block;
 }
 
-.tabs {
-  display: flex;
-  gap: 8px;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 42px;
-  padding: 0 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  font-weight: 700;
-
-  &.active {
-    border-color: var(--color-text);
-    box-shadow: inset 0 -3px 0 var(--color-text);
-  }
-}
-
-.count {
-  font: 600 13px var(--font-mono);
-  color: var(--color-text-muted);
-}
-
-.card {
-  padding: 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.add,
-.edit {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.edit {
-  flex: 1;
-}
-
-.player-row {
-  display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr;
-  align-items: center;
-  gap: 8px;
-
-  .edit & {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
-
-.player-number {
-  width: 22px;
-  font: 700 13px var(--font-mono);
-  color: var(--color-text-muted);
-}
-
-.form-actions {
-  display: flex;
-  gap: 8px;
+.filter {
+  min-width: 340px;
 }
 
 .empty {
-  padding: 24px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   color: var(--color-text-muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
 }
 
 .list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) 150px 90px;
+  gap: 12px;
+  align-items: center;
 }
 
 .row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
-
-  & + & {
-    border-top: 1px solid var(--color-border);
-  }
+  padding: 10px 16px;
+  border-top: 1px solid #ecedf0;
+  font-size: 14px;
 }
 
-.bib {
-  width: 40px;
-  flex: none;
-  text-align: center;
-  font: 700 15px var(--font-mono);
-}
-
-.players {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.player {
+.who {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
-.dot {
-  width: 9px;
-  height: 9px;
-  flex: none;
-  border-radius: 50%;
-  border: 2px solid var(--color-border-strong);
-
-  &.present {
-    background: var(--color-free);
-    border-color: var(--color-free);
-  }
-}
-
-.name {
+.names {
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .club {
-  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.none {
+  margin: 0;
+  padding: 16px;
+  font-size: 14px;
   color: var(--color-text-muted);
 }
 
-.warning {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-finished-fg);
-  background: var(--color-finished-bg);
-  border-radius: 4px;
-  padding: 1px 6px;
-}
-
-.row-actions {
+.edit {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--color-bg);
 }
 
-.btn-small {
-  height: 30px;
-  padding: 0 10px;
-  font-size: 13px;
+.player-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.btn-danger {
-  color: var(--color-alert);
-  border-color: var(--color-alert-border);
+.edit-actions {
+  display: flex;
+  gap: 8px;
 
-  &:hover:not(:disabled) {
-    background: var(--color-alert-bg);
-    border-color: var(--color-alert);
-    color: var(--color-alert);
+  .spacer {
+    flex: 1;
   }
+}
+
+.add {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.add-player {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .input {
+    width: 100%;
+  }
+}
+
+.add-names {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
 }

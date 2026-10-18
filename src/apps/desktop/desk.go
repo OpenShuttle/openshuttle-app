@@ -86,12 +86,18 @@ type ControlDeskView struct {
 
 // DisplayCourt is a court on the display screen.
 type DisplayCourt struct {
-	Number int        `json:"number"`
-	Match  *MatchView `json:"match"` // nil when free
+	Number int                   `json:"number"`
+	State  tournament.CourtState `json:"state"`
+	Match  *MatchView            `json:"match"` // nil when free
+	// Proposal is the match coming next on a free or finished court.
+	Proposal *MatchView `json:"proposal"`
 }
 
 // DisplayView is the display screen: latest calls in big, then every court.
 type DisplayView struct {
+	Name       string        `json:"name"`
+	Categories []CategoryRef `json:"categories"`
+	// Calls are the latest calls, newest first: the first one in big.
 	Calls  []MatchView    `json:"calls"`
 	Courts []DisplayCourt `json:"courts"`
 	// Round is the timed round in progress, for the shared countdown.
@@ -213,20 +219,26 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 	defer s.mu.Unlock()
 	st := s.state
 	mv := s.matchViewer(st)
-	v := DisplayView{Calls: []MatchView{}, Courts: []DisplayCourt{}}
+	v := DisplayView{Name: st.Name, Categories: categoryRefs(st), Calls: []MatchView{}, Courts: []DisplayCourt{}}
+	proposals := st.Proposals(s.now())
 	var playing []tournament.Match
 	for _, c := range st.CourtStates() {
-		dc := DisplayCourt{Number: c.Number}
-		if c.State == tournament.CourtPlaying {
+		dc := DisplayCourt{Number: c.Number, State: c.State}
+		if c.Match != nil && c.State != tournament.CourtFree {
 			m := mv(*c.Match)
 			dc.Match = &m
+		}
+		if c.State == tournament.CourtPlaying {
 			playing = append(playing, *c.Match)
+		} else if p, ok := proposals[c.Number]; ok {
+			m := mv(p)
+			dc.Proposal = &m
 		}
 		v.Courts = append(v.Courts, dc)
 	}
 	// Latest calls first: the hall reads the top of the screen.
 	slices.SortStableFunc(playing, func(a, b tournament.Match) int { return b.CalledAt.Compare(a.CalledAt) })
-	for _, m := range playing[:min(len(playing), 3)] {
+	for _, m := range playing[:min(len(playing), 4)] {
 		v.Calls = append(v.Calls, mv(m))
 	}
 	v.Round = s.roundsView(st).Current

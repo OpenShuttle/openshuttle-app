@@ -13,6 +13,14 @@ type BracketView struct {
 	ID string `json:"id"`
 	tournament.BracketConfig
 	Drawn bool `json:"drawn"`
+	// Preview from the pool sizes and the routing: entrants sent here, byes
+	// in the first round, matches and rounds, and the places at stake.
+	Entrants  int `json:"entrants"`
+	Byes      int `json:"byes"`
+	Matches   int `json:"matches"`
+	Rounds    int `json:"rounds"`
+	PlaceFrom int `json:"placeFrom"`
+	PlaceTo   int `json:"placeTo"`
 }
 
 // RoundView is the first round of a sub-bracket: the entrants playing for

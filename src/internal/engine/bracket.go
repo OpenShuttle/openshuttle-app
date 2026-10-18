@@ -14,6 +14,39 @@ func NextPowerOfTwo(n int) int {
 	return p
 }
 
+// BracketMatches counts the matches a bracket of n entrants plays: n-1 for
+// a plain knockout. With full placement every place is played: the losers of
+// a round go on in their own sub-bracket. Byes go to the top seeds, so the
+// first round has n - size/2 matches.
+func BracketMatches(n int, fullPlacement bool) int {
+	if n < 2 {
+		return 0
+	}
+	if !fullPlacement {
+		return n - 1
+	}
+	half := NextPowerOfTwo(n) / 2
+	first := n - half
+	return first + BracketMatches(half, true) + BracketMatches(first, true)
+}
+
+// BracketRounds is the number of rounds of a bracket of n entrants.
+func BracketRounds(n int) int {
+	return bits.Len(uint(NextPowerOfTwo(n))) - 1
+}
+
+// RoundRobinRounds is the number of rounds of a pool of n entrants: n-1,
+// or n when one entrant sits out each round.
+func RoundRobinRounds(n int) int {
+	if n < 2 {
+		return 0
+	}
+	if n%2 == 1 {
+		return n
+	}
+	return n - 1
+}
+
 // StandardOrder returns the seed numbers (1-based) of a bracket of the given
 // size, slot by slot: 1, 8, 4, 5, 2, 7, 3, 6 for 8. Seed 1 and 2 can only
 // meet in the final, and every first-round match pairs a strong seed with a

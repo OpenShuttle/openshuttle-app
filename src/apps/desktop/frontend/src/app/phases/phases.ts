@@ -1,20 +1,29 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { BracketPhase, MatchView, PhaseCategory, PhasesView, RoundView, SideView, TournamentService } from '@bindings/apps/desktop';
+import {
+  BracketPhase,
+  MatchView,
+  PhaseCategory,
+  PhasesView,
+  PoolPhase,
+  RoundView,
+  SideView,
+  TournamentService,
+} from '@bindings/apps/desktop';
 import { Category, WinConditionKind } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
-import { CategoryBadge } from '../shared/category-badge';
 import { roundLabel } from '../shared/match-stage';
+import { shortNames } from '../shared/names';
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge, ScorePanel, HistoryPanel],
+  imports: [TranslocoDirective, RouterLink, ScorePanel, HistoryPanel],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })
@@ -29,7 +38,12 @@ export class Phases {
   });
 
   protected readonly correction = signal(false);
-  protected readonly showHistory = signal(false);
+  protected readonly showHistory = signal(true);
+  /** Stage shown: 'pools' or a bracket id. */
+  private readonly stageKey = signal('pools');
+  protected readonly bracket = computed(
+    () => (this.current()?.brackets ?? []).find((b) => b.id === this.stageKey()) ?? null,
+  );
   protected readonly scoring = signal<MatchView | null>(null);
   /** First match picked for a swap. */
   protected readonly swapping = signal<MatchView | null>(null);
@@ -38,6 +52,19 @@ export class Phases {
 
   protected select(category: Category): void {
     this.selected.set(category);
+    this.stageKey.set('pools');
+  }
+
+  protected selectStage(key: string): void {
+    this.stageKey.set(key);
+  }
+
+  protected played(pool: PoolPhase): number {
+    return (pool.matches ?? []).filter((m) => m.score || m.walkover).length;
+  }
+
+  protected short(side: SideView): string {
+    return shortNames(side);
   }
 
   protected toggleCorrection(): void {
@@ -70,7 +97,7 @@ export class Phases {
     if (!side.entrant) {
       return { key: 'phases.tbd' };
     }
-    return { text: `${side.bib} ${this.names(side)}` };
+    return { text: `#${side.bib} ${shortNames(side)}` };
   }
 
   protected place(from: number, to: number): string {
@@ -111,7 +138,7 @@ export class Phases {
   }
 
   protected scoreText(m: MatchView): string {
-    return (m.score?.sets ?? []).map((s) => `${s.a}-${s.b}`).join('  ');
+    return (m.score?.sets ?? []).map((s) => `${s.a}-${s.b}`).join(' · ');
   }
 
   /** Waiting: not called and not decided, so it can be swapped. */

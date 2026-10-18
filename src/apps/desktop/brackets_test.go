@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
@@ -80,5 +81,24 @@ func TestBracketViews(t *testing.T) {
 	bp = f.svc.GetPhasesView().Categories[0].Brackets[0]
 	if len(bp.Places) != 2 || bp.Places[0].From != 1 || bp.Places[0].Entrant.Entrant != final.A.Entrant {
 		t.Errorf("places = %+v", bp.Places)
+	}
+}
+
+func TestBracketPreviews(t *testing.T) {
+	sets := engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 30}
+	brackets := []tournament.Bracket{
+		{ID: "T2", BracketConfig: tournament.BracketConfig{Name: "Consolation", Win: sets, FullPlacement: true}},
+		{ID: "T1", BracketConfig: tournament.BracketConfig{Name: "Main", Win: sets}},
+		{ID: "T3", BracketConfig: tournament.BracketConfig{Name: "Unused", Win: sets}},
+	}
+	// Three pools of 4, 4 and 3: ranks 1-2 to T1, ranks 3-4 to T2.
+	got := bracketPreviews(brackets, []string{"T1", "T1", "T2", "T2"}, []int{4, 4, 3})
+	want := []BracketView{
+		{ID: "T2", BracketConfig: brackets[0].BracketConfig, Entrants: 5, Byes: 3, Matches: 5, Rounds: 3, PlaceFrom: 7, PlaceTo: 11},
+		{ID: "T1", BracketConfig: brackets[1].BracketConfig, Entrants: 6, Byes: 2, Matches: 5, Rounds: 3, PlaceFrom: 1, PlaceTo: 6},
+		{ID: "T3", BracketConfig: brackets[2].BracketConfig},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("previews =\n%+v\nwant\n%+v", got, want)
 	}
 }

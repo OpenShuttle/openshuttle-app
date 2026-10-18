@@ -1,87 +1,160 @@
 <ng-container *transloco="let t">
-  <header class="bar">
-    <span class="brand">{{ t('app.name') }}</span>
-  </header>
+  <div class="screen">
+    <header class="top">
+      <span class="title-block">
+        <span class="title">{{ view().name || t('app.name') }}</span>
+        <span class="sub">
+          @for (c of view().categories; track c.category; let last = $last) {
+            {{ t('category.name.' + c.category) }}{{ last ? '' : ' + ' }}
+          }
+        </span>
+      </span>
+      <span class="clock">{{ time(now()) }}</span>
+    </header>
 
-  @if ((view().calls ?? []).length === 0) {
-    <main class="stage">
-      <p class="waiting">{{ t('displayScreen.waiting') }}</p>
-    </main>
-  } @else {
-    <main class="board">
-      <section class="calls">
-        @if (view().round; as r) {
-          <div class="round" [class.elapsed]="left() <= 0">
-            <span class="round-label">
-              {{ t('rounds.current', { n: r.number }) }}
-              @if (left() <= 0) {
-                <span class="elapsed-label">{{ t('rounds.elapsed') }}</span>
+    @if (view().round; as r) {
+      <main class="grid timed">
+        <section class="panel round-panel" [class.elapsed]="left() <= 0">
+          <span class="panel-tag">
+            <span class="tag">{{ t('displayScreen.round', { n: r.number }) }}</span>
+            <span class="panel-title">{{ t('displayScreen.roundPlaying', { n: (r.matches ?? []).length }) }}</span>
+          </span>
+          @for (m of r.matches; track m.id) {
+            <div class="round-row">
+              <span class="round-court"><span class="court-label">{{ t('desk.court') }}</span><span class="court-n">{{ m.court }}</span></span>
+              <span class="round-sides">
+                <span class="round-side"><span class="bib">{{ m.a.bib }}</span>{{ short(m.a) }}</span>
+                <span class="round-side"><span class="bib">{{ m.b.bib }}</span>{{ short(m.b) }}</span>
+              </span>
+              <span class="round-pool">{{ t('category.short.' + m.category) }} · <app-match-stage [match]="m" /></span>
+            </div>
+          }
+        </section>
+        <section class="column">
+          <div class="panel countdown">
+            <span class="countdown-label">{{ t(left() > 0 ? 'displayScreen.endsIn' : 'rounds.elapsed') }}</span>
+            <span class="countdown-value" [class.over]="left() <= 0">{{ clock() }}</span>
+            <span class="countdown-sub">{{ t(left() > 0 ? 'displayScreen.roundSub' : 'displayScreen.waitWhistle') }}</span>
+          </div>
+          <ng-container *ngTemplateOutlet="standings" />
+        </section>
+      </main>
+    } @else if (!hero()) {
+      <main class="waiting">{{ t('displayScreen.waiting') }}</main>
+    } @else {
+      <main class="grid">
+        <section class="column">
+          @if (hero(); as m) {
+            <div class="panel call">
+              <span class="call-head">
+                <span class="tag">{{ t('displayScreen.call') }}</span>
+                <span class="call-cat" [style.background]="'var(--color-category-' + m.slot + ')'">{{ t('category.short.' + m.category) }}</span>
+                <span class="call-meta"><app-match-stage [match]="m" /> · {{ t('displayScreen.calledAt', { time: time(m.calledAt) }) }}</span>
+              </span>
+              <div class="call-body">
+                <span class="call-court">
+                  <span class="call-court-label">{{ t('desk.court') }}</span>
+                  <span class="call-court-n">{{ m.court }}</span>
+                </span>
+                <span class="call-sides">
+                  <span class="call-side"><span class="call-bib">{{ m.a.bib }}</span><span>{{ short(m.a) }}</span></span>
+                  <span class="versus">{{ t('desk.versus') }}</span>
+                  <span class="call-side"><span class="call-bib">{{ m.b.bib }}</span><span>{{ short(m.b) }}</span></span>
+                </span>
+              </div>
+            </div>
+          }
+          @if (previous().length > 0) {
+            <div class="previous">
+              <span class="previous-title">{{ t('displayScreen.previous') }}</span>
+              @for (m of previous(); track m.id) {
+                <div class="previous-row">
+                  <span class="previous-court">{{ m.court }}</span>
+                  <span class="previous-text">
+                    {{ t('category.short.' + m.category) }} · #{{ m.a.bib }} {{ short(m.a) }} — #{{ m.b.bib }} {{ short(m.b) }}
+                  </span>
+                  <span class="previous-time">{{ time(m.calledAt) }}</span>
+                </div>
               }
-            </span>
-            <span class="round-clock">{{ clock() }}</span>
-          </div>
-        }
-        @for (m of view().calls; track trackCall(m); let first = $first) {
-          <div class="call" [class.latest]="first">
-            <div class="call-court">
-              <span class="label">{{ t('desk.court') }}</span>
-              <span class="number">{{ m.court }}</span>
             </div>
-            <div class="call-body">
-              <span class="call-meta">
-                <app-category-badge class="big-badge" [category]="m.category" [slot]="m.slot" />
-                <app-match-stage [match]="m" />
-              </span>
-              <span class="call-side"><span class="bib">{{ m.a.bib }}</span> {{ names(m.a) }}</span>
-              <span class="call-side"><span class="bib">{{ m.b.bib }}</span> {{ names(m.b) }}</span>
-            </div>
-          </div>
-        }
-      </section>
+          }
+        </section>
 
-      <section class="side">
-      <div class="courts">
-        @for (c of view().courts; track c.number) {
-          <div class="court" [class.busy]="c.match">
-            <span class="court-number">{{ c.number }}</span>
-            @if (c.match; as m) {
-              <span class="court-match">
-                <app-category-badge [category]="m.category" [slot]="m.slot" />
-                {{ m.a.bib }} – {{ m.b.bib }}
-              </span>
-            } @else {
-              <span class="court-free">{{ t('desk.state.free') }}</span>
+        <section class="column">
+          <div class="tiles">
+            @for (c of view().courts; track c.number) {
+              @let state = tileState(c);
+              <div class="tile" [class]="'tile ' + state">
+                <span class="tile-n">{{ c.number }}</span>
+                <span class="tile-text">
+                  <span class="tile-head">
+                    <span class="tile-label">
+                      @if (c.match ?? c.proposal; as m) {
+                        {{ t('category.short.' + m.category) }} ·
+                      }
+                      {{ t('displayScreen.tile.' + state) }}
+                    </span>
+                    @if (state === 'playing' && c.match) {
+                      <span class="tile-time">{{ t('displayScreen.minutes', { n: minutes(c.match) }) }}</span>
+                    }
+                  </span>
+                  @if (c.match; as m) {
+                    @if (state !== 'free') {
+                      <span class="tile-line">#{{ m.a.bib }} {{ short(m.a) }}</span>
+                      <span class="tile-line">#{{ m.b.bib }} {{ short(m.b) }}</span>
+                    }
+                  } @else if (c.proposal; as p) {
+                    <span class="tile-line">{{ t('displayScreen.soon', { bib: p.a.bib, names: short(p.a) }) }}</span>
+                    <span class="tile-line">{{ t('displayScreen.against', { bib: p.b.bib, names: short(p.b) }) }}</span>
+                  }
+                </span>
+              </div>
             }
           </div>
+          <ng-container *ngTemplateOutlet="standings" />
+        </section>
+      </main>
+    }
+  </div>
+
+  <ng-template #standings>
+    @if (board(); as b) {
+      <div class="panel board">
+        <div class="board-head">
+          <span class="board-title">
+            {{ t('category.short.' + b.category) }} ·
+            {{ b.pool ? t('desk.pool', { pool: b.pool }) + ' · ' + t('displayScreen.standings') : b.bracketName }}
+          </span>
+          <span class="dots">
+            @for (x of view().boards; track $index; let i = $index) {
+              <span class="dot" [class.on]="i === boardIndex()"></span>
+            }
+          </span>
+        </div>
+        @if (b.pool) {
+          <div class="board-row board-labels">
+            <span>{{ t('displayScreen.rank') }}</span>
+            <span>{{ t('phases.entrant') }}</span>
+            <span>{{ t('phases.wins') }}</span>
+            <span>{{ t('displayScreen.points') }}</span>
+          </div>
+          @for (r of b.standings; track r.entrant.entrant) {
+            <div class="board-row">
+              <span class="b-rank">{{ r.rank }}</span>
+              <span class="b-name">#{{ r.entrant.bib }} {{ short(r.entrant) }}</span>
+              <span class="b-num strong">{{ r.wins }}</span>
+              <span class="b-num">{{ diff(r.pointsWon, r.pointsLost) }}</span>
+            </div>
+          }
+        } @else {
+          @for (m of b.matches; track m.id) {
+            <div class="board-row match-row">
+              <span class="b-name">#{{ m.a.bib }} {{ short(m.a) }} — #{{ m.b.bib }} {{ short(m.b) }}</span>
+              <span class="b-num">{{ m.walkover ? 'WO' : score(m) }}</span>
+            </div>
+          }
         }
       </div>
-      @if (board(); as b) {
-        <div class="board">
-          <div class="board-title">
-            <app-category-badge [category]="b.category" [slot]="b.slot" />
-            {{ b.pool ? t('desk.pool', { pool: b.pool }) + ' · ' + t('displayScreen.standings') : b.bracketName }}
-          </div>
-          @if (b.pool) {
-            @for (r of b.standings; track r.entrant.entrant) {
-              <div class="board-row">
-                <span class="b-rank">{{ r.rank }}</span>
-                <span class="b-bib">{{ r.entrant.bib }}</span>
-                <span class="b-name">{{ names(r.entrant) }}</span>
-                <span class="b-num">{{ r.wins }}</span>
-                <span class="b-num">{{ diff(r.pointsWon, r.pointsLost) }}</span>
-              </div>
-            }
-          } @else {
-            @for (m of b.matches; track m.id) {
-              <div class="board-row">
-                <span class="b-name"><span class="b-bib">{{ m.a.bib }}</span> – <span class="b-bib">{{ m.b.bib }}</span> <app-match-stage class="b-stage" [match]="m" /></span>
-                <span class="b-score">{{ m.walkover ? 'WO' : score(m) }}</span>
-              </div>
-            }
-          }
-        </div>
-      }
-      </section>
-    </main>
-  }
+    }
+  </ng-template>
 </ng-container>

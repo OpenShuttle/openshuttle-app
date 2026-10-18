@@ -1,63 +1,88 @@
 <ng-container *transloco="let t">
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark">OS</div>
-      <div class="brand-text">
-        <span class="brand-name">{{ view().open ? view().name : t('app.name') }}</span>
-        @if (view().open) {
+    @if (inTournament()) {
+      <div class="brand">
+        <div class="brand-mark">{{ mark() }}</div>
+        <div class="brand-text">
+          <span class="brand-name" [attr.title]="view().name">{{ view().name }}</span>
           <span class="brand-sub">
-            @for (c of view().categories; track c.category) {
-              <app-category-badge [category]="c.category" [slot]="c.slot" />
-            } @empty {
-              {{ t('app.name') }}
+            @for (c of view().categories; track c.category; let last = $last) {
+              {{ t('category.name.' + c.category) }}{{ last ? '' : ' + ' }}
+            }
+            @if (view().progress.entrants > 0) {
+              ·
+              {{
+                t(view().progress.doubles ? 'topBar.pairs' : 'topBar.entrants', {
+                  count: view().progress.entrants,
+                })
+              }}
             }
           </span>
-        }
+        </div>
       </div>
-    </div>
 
-    @if (view().open) {
       <div class="last-action">
         <div class="last-action-text">
-          @if (lastAction(); as action) {
-            <span class="field-label">{{ t('topBar.lastAction', { time: time(action.at) }) }}</span>
-            <span class="last-action-label" [attr.title]="actionLabel(action)">{{ actionLabel(action) }}</span>
-          }
+          <span class="last-action-time">
+            {{ t('topBar.lastAction', { time: lastAction() ? time(lastAction()!.at) : '—' }) }}
+          </span>
+          <span class="last-action-label" [attr.title]="lastAction() ? actionLabel(lastAction()!) : null">
+            {{ lastAction() ? actionLabel(lastAction()!) : t('topBar.nothingToUndo') }}
+          </span>
         </div>
-        <button type="button" class="btn" [disabled]="!view().canUndo" (click)="undo()">
+        <button type="button" class="undo" [disabled]="!view().canUndo" (click)="undo()">
           <span>{{ t('topBar.undo') }}</span><span class="kbd">Ctrl Z</span>
         </button>
       </div>
+    } @else {
+      <div class="brand">
+        <div class="brand-mark">OS</div>
+        <div class="brand-text">
+          <span class="brand-name">{{ t('app.name') }}</span>
+          <span class="brand-sub">{{ t('app.tagline') }}</span>
+        </div>
+      </div>
+      <nav class="tabs">
+        @for (tab of homeTabs; track tab.key) {
+          <a
+            class="tab"
+            [routerLink]="tab.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >{{ t('homeTabs.' + tab.key) }}</a
+          >
+        }
+      </nav>
     }
 
-    <div class="topbar-actions">
-      <label class="field">
-        <span class="field-label">{{ t('displayScreen.monitor') }}</span>
-        <select (change)="onMonitor($event)" (focus)="display.refresh()">
-          <option value="" [selected]="monitorId() === ''">{{ t('displayScreen.monitorAuto') }}</option>
-          @for (m of display.monitors(); track m.id) {
-            <option [value]="m.id" [selected]="m.id === monitorId()">
-              {{ t('displayScreen.monitorLabel', { name: m.name, width: m.width, height: m.height }) }}
-            </option>
-          }
-        </select>
-      </label>
-
-      <button type="button" class="btn" [class.btn-active]="display.isOpen()" (click)="toggleDisplay()">
-        @if (display.isOpen()) {
-          <span class="dot"></span>{{ t('displayScreen.close') }}
-        } @else {
-          {{ t('displayScreen.open') }}
-        }
-      </button>
-      <a class="btn gear" routerLink="/settings" routerLinkActive="btn-active"
-         [attr.title]="t('settingsPage.title')" [attr.aria-label]="t('settingsPage.title')">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      </a>
+    <div class="topbar-right">
+      <span class="clock">{{ time(clock.now()) }}</span>
+      @if (inTournament()) {
+        <div class="display-box">
+          <span class="display-dot" [class.on]="display.isOpen()"></span>
+          <span class="display-state">{{ t(display.isOpen() ? 'displayScreen.isOpen' : 'displayScreen.isClosed') }}</span>
+          <select
+            class="display-monitor"
+            [attr.aria-label]="t('displayScreen.monitor')"
+            (change)="onMonitor($event)"
+            (focus)="display.refresh()"
+          >
+            <option value="" [selected]="monitorId() === ''">{{ t('displayScreen.monitorAuto') }}</option>
+            @for (m of display.monitors(); track m.id) {
+              <option [value]="m.id" [selected]="m.id === monitorId()">
+                {{ t('displayScreen.monitorLabel', { name: m.name, width: m.width, height: m.height }) }}
+              </option>
+            }
+          </select>
+          <button type="button" class="display-toggle" (click)="toggleDisplay()">
+            {{ t(display.isOpen() ? 'displayScreen.closeShort' : 'displayScreen.openShort') }}
+          </button>
+        </div>
+      } @else if (view().open) {
+        <button type="button" class="resume" (click)="resume()">
+          {{ t('topBar.resume', { name: view().name }) }}
+        </button>
+      }
     </div>
   </header>
 

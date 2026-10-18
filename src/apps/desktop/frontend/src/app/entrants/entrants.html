@@ -1,111 +1,131 @@
 <ng-container *transloco="let t">
-  <h1>{{ t('entrants.title') }}</h1>
-
-  @if ((view().categories ?? []).length === 0) {
-    <div class="empty">
-      {{ t('entrants.noCategory') }}
-      <a routerLink="../info">{{ t('entrants.goToInfo') }}</a>
-    </div>
-  } @else if (current(); as cat) {
-    <div class="tabs" role="tablist">
-      @for (c of view().categories; track c.category) {
-        <button
-          type="button"
-          role="tab"
-          class="tab"
-          [class.active]="c.category === cat.category"
-          [attr.aria-selected]="c.category === cat.category"
-          (click)="select(c.category)"
-        >
-          <app-category-badge [category]="c.category" [slot]="c.slot" />
-          {{ t('category.name.' + c.category) }}
-          <span class="count">{{ c.entrants?.length ?? 0 }}</span>
-        </button>
-      }
-    </div>
-
-    <form class="card add" (submit)="$event.preventDefault(); add()">
-      <span class="field-label">{{ t(cat.doubles ? 'entrants.addPair' : 'entrants.addPlayer') }}</span>
-      @for (i of cat.doubles ? [0, 1] : [0]; track i) {
-        <div class="player-row">
-          @if (cat.doubles) {
-            <span class="player-number">{{ i + 1 }}</span>
+  <div class="page-body">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('entrants.title') }}</h1>
+        <span class="page-sub">
+          {{ t(totals().doubles ? 'entrants.countPairs' : 'entrants.countEntrants', { n: totals().entrants }) }} ·
+          {{ t('entrants.countPlayers', { n: totals().players }) }}
+        </span>
+      </div>
+      @if ((view().categories ?? []).length > 1) {
+        <div class="seg seg-sm filter">
+          <button type="button" class="seg-option" [class.active]="filter() === 'all'" (click)="filter.set('all')">{{ t('desk.all') }}</button>
+          @for (c of view().categories; track c.category) {
+            <button type="button" class="seg-option" [class.active]="filter() === c.category" (click)="filter.set(c.category)">
+              {{ t('category.name.' + c.category) }}
+            </button>
           }
-          <input
-            #firstField
-            class="input"
-            [placeholder]="t('entrants.firstName')"
-            maxlength="50"
-            [value]="draftValue(i, 'firstName')"
-            (input)="setDraft(i, 'firstName', value($event))"
-          />
-          <input
-            class="input"
-            [placeholder]="t('entrants.lastName')"
-            maxlength="50"
-            [value]="draftValue(i, 'lastName')"
-            (input)="setDraft(i, 'lastName', value($event))"
-          />
-          <input
-            class="input"
-            [placeholder]="t('entrants.club')"
-            maxlength="80"
-            [value]="draftValue(i, 'club')"
-            (input)="setDraft(i, 'club', value($event))"
-          />
         </div>
       }
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">{{ t('entrants.add') }}</button>
-      </div>
-    </form>
+    </div>
 
-    @if ((cat.entrants?.length ?? 0) === 0) {
-      <div class="empty">{{ t('entrants.empty') }}</div>
+    @if ((view().categories ?? []).length === 0) {
+      <div class="card empty">
+        <span>{{ t('entrants.noCategory') }}</span>
+        <a class="btn btn-sm" routerLink="../info">{{ t('entrants.goToInfo') }}</a>
+      </div>
     } @else {
-      <ul class="list">
-        @for (e of cat.entrants; track e.id) {
-          <li class="row">
-            <span class="bib" [attr.title]="t('checkIn.bib')">{{ e.bib || '–' }}</span>
+      <div class="layout">
+        <div class="card list">
+          <div class="table-head grid">
+            <span>{{ t(totals().doubles ? 'entrants.pair' : 'entrants.entrant') }}</span>
+            <span>{{ t('entrants.club') }}</span>
+            <span>{{ t('nav.checkIn') }}</span>
+            <span></span>
+          </div>
+          @for (r of rows(); track r.entrant.id) {
+            @let e = r.entrant;
             @if (editing() === e.id) {
-              <form class="edit" (submit)="$event.preventDefault(); saveEdit()" (keydown.escape)="editing.set(null)">
+              <form class="row edit" (submit)="$event.preventDefault(); saveEdit()" (keydown.escape)="editing.set(null)">
                 @for (p of editDraft(); track $index; let i = $index) {
-                  <div class="player-row">
-                    <input class="input" [value]="p.firstName" maxlength="50" (input)="setEdit(i, 'firstName', value($event))" />
-                    <input class="input" [value]="p.lastName" maxlength="50" (input)="setEdit(i, 'lastName', value($event))" />
-                    <input class="input" [value]="p.club" maxlength="80" (input)="setEdit(i, 'club', value($event))" />
+                  <div class="player-fields">
+                    <input class="input" [placeholder]="t('entrants.firstName')" [value]="p.firstName" maxlength="50" (input)="setEdit(i, 'firstName', value($event))" />
+                    <input class="input" [placeholder]="t('entrants.lastName')" [value]="p.lastName" maxlength="50" (input)="setEdit(i, 'lastName', value($event))" />
+                    <input class="input" [placeholder]="t('entrants.club')" [value]="p.club" maxlength="80" (input)="setEdit(i, 'club', value($event))" />
                   </div>
                 }
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary btn-small">{{ t('entrants.save') }}</button>
-                  <button type="button" class="btn btn-small" (click)="editing.set(null)">{{ t('common.cancel') }}</button>
+                <div class="edit-actions">
+                  <button type="button" class="btn btn-sm btn-danger" (click)="tournament.removeEntrant(e.id)">{{ t('entrants.remove') }}</button>
+                  <span class="spacer"></span>
+                  <button type="button" class="btn btn-sm" (click)="editing.set(null)">{{ t('common.cancel') }}</button>
+                  <button type="submit" class="btn btn-sm btn-primary">{{ t('entrants.save') }}</button>
                 </div>
               </form>
             } @else {
-              <div class="players">
-                @for (p of e.players; track p.id) {
-                  <div class="player">
-                    <span class="dot" [class.present]="p.checkedIn" [attr.title]="t(p.checkedIn ? 'checkIn.present' : 'checkIn.absent')"></span>
-                    <span class="name">{{ p.lastName }} {{ p.firstName }}</span>
-                    @if (p.club) {
-                      <span class="club">{{ p.club }}</span>
-                    }
-                    @if (p.duplicate) {
-                      <span class="warning">{{ t('entrants.duplicate') }}</span>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="row-actions">
-                <button type="button" class="btn btn-small" (click)="edit(e)">{{ t('entrants.edit') }}</button>
-                <button type="button" class="btn btn-small btn-danger" (click)="tournament.removeEntrant(e.id)">
-                  {{ t('entrants.remove') }}
-                </button>
+              <div class="row grid">
+                <span class="who">
+                  <app-category-badge [category]="r.category" [slot]="r.slot" />
+                  <span class="names">{{ names(e) }}</span>
+                  @if (hasDuplicate(e)) {
+                    <span class="pill pill-finished" [attr.title]="t('entrants.duplicate')">{{ t('entrants.homonym') }}</span>
+                  }
+                </span>
+                <span class="club">{{ clubs(e) }}</span>
+                <span>
+                  @if (e.complete) {
+                    <span class="pill pill-free">{{ t('entrants.present', { bib: e.bib }) }}</span>
+                  } @else if (present(e) > 0) {
+                    <span class="pill pill-finished">{{ t('entrants.partly', { n: present(e), total: (e.players ?? []).length }) }}</span>
+                  } @else {
+                    <span class="pill pill-alert">{{ t('checkIn.absent') }}</span>
+                  }
+                </span>
+                <button type="button" class="btn btn-xs" (click)="edit(e)">{{ t('entrants.edit') }}</button>
               </div>
             }
-          </li>
+          } @empty {
+            <p class="none">{{ t('entrants.empty') }}</p>
+          }
+        </div>
+
+        @if (current(); as cat) {
+          <form class="card add" (submit)="$event.preventDefault(); add()">
+            <span class="add-title">{{ t(cat.doubles ? 'entrants.addPair' : 'entrants.addPlayer') }}</span>
+            @if ((view().categories ?? []).length > 1) {
+              <div class="seg seg-sm">
+                @for (c of view().categories; track c.category) {
+                  <button type="button" class="seg-option" [class.active]="c.category === cat.category" (click)="select(c.category)">
+                    {{ t('category.name.' + c.category) }}
+                  </button>
+                }
+              </div>
+            }
+            @for (i of cat.doubles ? [0, 1] : [0]; track i) {
+              <div class="add-player">
+                @if (cat.doubles) {
+                  <span class="field-label">{{ t('entrants.playerN', { n: i + 1 }) }}</span>
+                }
+                <div class="add-names">
+                  <input
+                    #firstField
+                    class="input"
+                    [placeholder]="t('entrants.firstName')"
+                    maxlength="50"
+                    [value]="draftValue(i, 'firstName')"
+                    (input)="setDraft(i, 'firstName', value($event))"
+                  />
+                  <input
+                    class="input"
+                    [placeholder]="t('entrants.lastName')"
+                    maxlength="50"
+                    [value]="draftValue(i, 'lastName')"
+                    (input)="setDraft(i, 'lastName', value($event))"
+                  />
+                </div>
+                <input
+                  class="input"
+                  [placeholder]="t('entrants.club')"
+                  maxlength="80"
+                  [value]="draftValue(i, 'club')"
+                  (input)="setDraft(i, 'club', value($event))"
+                />
+              </div>
+            }
+            <button type="submit" class="btn btn-primary">{{ t('entrants.add') }}</button>
+          </form>
         }
-      </ul>
+      </div>
     }
-  }
+  </div>
 </ng-container>

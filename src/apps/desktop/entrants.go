@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
@@ -14,6 +15,8 @@ type PlayerView struct {
 	LastName  string              `json:"lastName"`
 	Club      string              `json:"club"`
 	CheckedIn bool                `json:"checkedIn"`
+	// CheckedInAt is when the player was checked in.
+	CheckedInAt *time.Time `json:"checkedInAt"`
 	// Duplicate warns that another player has the same full name.
 	Duplicate bool `json:"duplicate"`
 }
@@ -175,8 +178,13 @@ func checkInView(st tournament.State) CheckInView {
 }
 
 func playerView(p tournament.Player, duplicate bool) PlayerView {
-	return PlayerView{
+	v := PlayerView{
 		ID: p.ID, FirstName: p.FirstName, LastName: p.LastName, Club: p.Club,
 		CheckedIn: p.CheckedIn, Duplicate: duplicate,
 	}
+	if p.CheckedIn && !p.CheckedInAt.IsZero() {
+		at := p.CheckedInAt
+		v.CheckedInAt = &at
+	}
+	return v
 }

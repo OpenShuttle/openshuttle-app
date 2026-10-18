@@ -1,65 +1,70 @@
 <ng-container *transloco="let t">
-  <div class="header">
-    <h1>{{ t('results.title') }}</h1>
-    <div class="actions">
+  <div class="page-body">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('results.title') }}</h1>
+        <span class="page-sub">{{ t('results.lead') }}</span>
+      </div>
       <button type="button" class="btn" (click)="exportCsv()">{{ t('results.export') }}</button>
-      <button type="button" class="btn" [class.btn-confirm]="confirmingArchive()" (click)="archive()" (blur)="confirmingArchive.set(false)">
+      <button
+        type="button"
+        class="btn btn-primary"
+        [class.confirm]="confirmingArchive()"
+        (click)="archive()"
+        (blur)="confirmingArchive.set(false)"
+      >
         {{ t(confirmingArchive() ? 'results.archiveConfirm' : 'results.archive') }}
       </button>
     </div>
-  </div>
 
-  @if (view().archived) {
-    <div class="notice archived">{{ t('results.archived') }}</div>
-  }
-  @if (confirmingArchive()) {
-    <div class="notice">{{ t('results.archiveHint') }}</div>
-  }
-  @if (exported(); as path) {
-    <div class="notice done">{{ t('results.exported', { path }) }}</div>
-  }
+    @if (view().archived) {
+      <div class="notice muted">{{ t('results.archived') }}</div>
+    } @else if (provisional()) {
+      <div class="notice info">{{ t('results.provisionalHint') }}</div>
+    }
+    @if (confirmingArchive()) {
+      <div class="notice warn">{{ t('results.archiveHint') }}</div>
+    }
+    @if (exported(); as path) {
+      <div class="notice done">{{ t('results.exported', { path }) }}</div>
+    }
 
-  @for (c of view().categories; track c.category) {
-    <section class="card">
-      <header class="cat-header">
-        <app-category-badge [category]="c.category" [slot]="c.slot" />
-        <h2>{{ t('category.name.' + c.category) }}</h2>
-        @if (c.started) {
-          <span class="status" [class.final]="c.complete">{{ t(c.complete ? 'results.final' : 'results.provisional') }}</span>
+    @if ((view().categories ?? []).length > 1) {
+      <div class="seg categories">
+        @for (c of view().categories; track c.category) {
+          <button type="button" class="seg-option" [class.active]="current()?.category === c.category" (click)="select(c.category)">
+            {{ t('category.name.' + c.category) }}
+          </button>
         }
-      </header>
+      </div>
+    }
 
+    @if (current(); as c) {
       @if (!c.started) {
-        <p class="muted">
-          {{ t('results.notStarted') }}
-          <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
-        </p>
+        <div class="card empty">
+          <span>{{ t('results.notStarted') }}</span>
+          <a class="btn btn-sm" routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+        </div>
       } @else {
-        <table>
-          <thead>
-            <tr>
-              <th class="num">{{ t('results.rank') }}</th>
-              <th class="num">{{ t('results.bib') }}</th>
-              <th>{{ t('phases.entrant') }}</th>
-              <th>{{ t('entrants.club') }}</th>
-              <th>{{ t('results.origin') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (r of c.rows; track r.entrant.entrant) {
-              <tr [class.podium]="r.rank >= 1 && r.rank <= 3">
-                <td class="num rank">{{ rank(r) }}</td>
-                <td class="num">{{ r.entrant.bib || '–' }}</td>
-                <td class="name">{{ names(r) }}</td>
-                <td class="muted">{{ (r.entrant.clubs ?? []).join(' / ') }}</td>
-                <td class="muted">{{ origin(r) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        <div class="card table">
+          <div class="table-head grid">
+            <span>{{ t('results.place') }}</span>
+            <span>{{ t('phases.entrant') }}</span>
+            <span>{{ t('entrants.club') }}</span>
+            <span>{{ t('results.origin') }}</span>
+          </div>
+          @for (r of c.rows; track r.entrant.entrant) {
+            <div class="row grid">
+              <span class="place" [class.podium]="r.rank >= 1 && r.rank <= 3">{{ rank(r) }}</span>
+              <span class="who"><span class="bib">{{ r.entrant.bib || '–' }}</span><span class="names" [attr.title]="names(r)">{{ short(r) }}</span></span>
+              <span>{{ (r.entrant.clubs ?? []).join(' / ') }}</span>
+              <span class="muted">{{ origin(r) }}</span>
+            </div>
+          }
+        </div>
       }
-    </section>
-  } @empty {
-    <div class="card muted">{{ t('entrants.noCategory') }}</div>
-  }
+    } @else {
+      <div class="card empty">{{ t('entrants.noCategory') }}</div>
+    }
+  </div>
 </ng-container>

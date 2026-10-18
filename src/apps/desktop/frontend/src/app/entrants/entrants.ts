@@ -25,10 +25,28 @@ export class Entrants {
     categories: [],
   });
 
+  /** Category of the add form. */
   private readonly selected = signal<Category | null>(null);
   protected readonly current = computed(() => {
     const categories = this.view().categories ?? [];
     return categories.find((c) => c.category === this.selected()) ?? categories[0] ?? null;
+  });
+  /** Category shown in the list; 'all' mixes them. */
+  protected readonly filter = signal<Category | 'all'>('all');
+
+  protected readonly rows = computed(() =>
+    (this.view().categories ?? [])
+      .filter((c) => this.filter() === 'all' || c.category === this.filter())
+      .flatMap((c) => (c.entrants ?? []).map((e) => ({ entrant: e, category: c.category, slot: c.slot }))),
+  );
+
+  protected readonly totals = computed(() => {
+    const categories = this.view().categories ?? [];
+    return {
+      entrants: categories.reduce((n, c) => n + (c.entrants ?? []).length, 0),
+      players: categories.reduce((n, c) => n + c.players, 0),
+      doubles: categories.length > 0 && categories.every((c) => c.doubles),
+    };
   });
 
   /** Players being typed in the add form. */
@@ -93,6 +111,22 @@ export class Entrants {
     if (id && (await this.tournament.updateEntrant(id, this.editDraft()))) {
       this.editing.set(null);
     }
+  }
+
+  protected names(e: EntrantView): string {
+    return (e.players ?? []).map((p) => `${p.firstName} ${p.lastName}`.trim()).join(' / ');
+  }
+
+  protected clubs(e: EntrantView): string {
+    return [...new Set((e.players ?? []).map((p) => p.club).filter((c) => c))].join(' / ');
+  }
+
+  protected present(e: EntrantView): number {
+    return (e.players ?? []).filter((p) => p.checkedIn).length;
+  }
+
+  protected hasDuplicate(e: EntrantView): boolean {
+    return (e.players ?? []).some((p) => p.duplicate);
   }
 
   protected value(event: Event): string {

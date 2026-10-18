@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ResultRow, ResultsView, TournamentService } from '@bindings/apps/desktop';
@@ -7,13 +7,13 @@ import { backendError } from '../core/backend-error';
 import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
-import { CategoryBadge } from '../shared/category-badge';
+import { shortNames } from '../shared/names';
 import { toCsv } from './csv';
 
 /** Results: full standings per category, CSV export, archive. */
 @Component({
   selector: 'app-results',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge],
+  imports: [TranslocoDirective, RouterLink],
   templateUrl: './results.html',
   styleUrl: './results.scss',
 })
@@ -30,6 +30,24 @@ export class Results {
   /** Path of the last export, shown as a confirmation. */
   protected readonly exported = signal<string | null>(null);
   protected readonly confirmingArchive = signal(false);
+
+  private readonly selected = signal<string | null>(null);
+  protected readonly current = computed(() => {
+    const categories = this.view().categories ?? [];
+    return categories.find((c) => c.category === this.selected()) ?? categories[0] ?? null;
+  });
+  /** True while some category is not final: the standings are a preview. */
+  protected readonly provisional = computed(() =>
+    (this.view().categories ?? []).some((c) => c.started && !c.complete),
+  );
+
+  protected select(category: string): void {
+    this.selected.set(category);
+  }
+
+  protected short(row: ResultRow): string {
+    return shortNames(row.entrant);
+  }
 
   protected names(row: ResultRow): string {
     return (row.entrant.names ?? []).join(' / ');

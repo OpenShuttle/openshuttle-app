@@ -1,103 +1,66 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 720px;
+  display: block;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 20px;
+  align-items: start;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.form {
   padding: 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  &.wide {
+    grid-column: 1 / -1;
+  }
 }
 
-.path {
-  font: 13px var(--font-mono);
-  color: var(--color-text-muted);
-  word-break: break-all;
+.name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.categories {
+  flex-wrap: wrap;
 }
 
 .hint {
-  margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--color-text-muted);
 }
 
-.category {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.category-name {
-  flex: 1;
-  font-weight: 700;
-}
-
-.btn-small {
-  height: 30px;
-  padding: 0 10px;
-  font-size: 13px;
-}
-
-.add {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.row {
+.step {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 10px;
 }
 
-.row-label {
-  font-weight: 700;
-}
-
-.stepper {
+.file {
+  padding: 18px;
   display: flex;
-  align-items: center;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  button {
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: var(--color-bg);
-    font-size: 18px;
-    font-weight: 700;
+.path {
+  font: 500 13px var(--font-mono);
+  word-break: break-all;
+}
 
-    &:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-  }
-
-  .value {
-    min-width: 72px;
-    text-align: center;
-    font: 700 15px var(--font-mono);
-  }
+.file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }

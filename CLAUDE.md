@@ -49,6 +49,8 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
     - Codes are `engine.Code` values wrapped in `*engine.Error`. The app-level `MarshalError` sends them as the call's `cause` (`{code, set?}`); anything else becomes `INTERNAL` and is logged. The frontend reads it with `backendError()` and shows `errors.<CODE>`.
 - **Desktop layering**: `internal/tournament` (pure: event types, projection, command validation) → `apps/desktop` services (load log, validate, append, emit `tournament.updated`). Services take `emit`, `now` and dialogs as dependencies so they are tested without Wails.
 - **Settings** live in app.db and are broadcast with `settings.changed`; both windows apply them (language included).
+- **Navigation**: going home keeps the tournament open (the top bar offers to resume it); opening another file replaces it. The home screen lists recent files with a summary saved in app.db when a file is opened or closed (`TournamentSummary`), live for the open one.
+- **Duplicate** (`tournament.Duplicate`) starts a new file with the setup of another: courts, rest, court priority, categories, pool stages, brackets and routing (bracket IDs renumbered). Never entrants, draws or results.
 - **Timed matches**: Go stores the round start time (`RoundStarted` event) and duration. The frontend only renders the countdown.
 - **Never block the user.** Inconsistencies produce warnings, not refusals, unless the action is impossible.
 
@@ -193,3 +195,7 @@ The Claude Design mockup lives in `docs/tournoi-badminton-interactif/project/`
 structure. Colors are CSS custom properties in `frontend/src/styles.scss`, taken
 from the mockup. Category badges are colored by the category's slot in the
 tournament (`--color-category-1`, `--color-category-2`), not by type.
+Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,
+`.card`, `.btn`/`.btn-primary`/`.btn-sm`, `.seg`/`.seg-option`, `.stepper`,
+`.bib`, `.pill-*`): use them before adding component styles. Compare a screen
+with the mockup by rendering both (the mockup opens in any browser).

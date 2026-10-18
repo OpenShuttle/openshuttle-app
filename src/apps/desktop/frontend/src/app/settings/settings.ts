@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AppInfo, AppService, SettingsService } from '@bindings/apps/desktop';
@@ -18,16 +17,11 @@ export class SettingsPage {
   protected readonly settings = inject(AppSettings);
   protected readonly language = inject(LanguageService);
   protected readonly display = inject(DisplayScreenService);
-  private readonly location = inject(Location);
   protected readonly app = signal<AppInfo | null>(null);
 
   constructor() {
     void this.display.refresh();
     void AppService.GetAppInfo().then((info) => this.app.set(info));
-  }
-
-  protected back(): void {
-    this.location.back();
   }
 
   protected setLanguage(lang: Language): void {

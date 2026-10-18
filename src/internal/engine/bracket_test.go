@@ -108,3 +108,34 @@ func TestSeedBracketEveryEntrantOnce(t *testing.T) {
 		}
 	}
 }
+
+func TestBracketCounts(t *testing.T) {
+	tests := []struct {
+		n             int
+		full          bool
+		matches, rnds int
+	}{
+		{0, true, 0, 0},
+		{1, true, 0, 0},
+		{2, true, 1, 1},
+		{4, false, 3, 2},
+		{4, true, 4, 2},
+		{6, false, 5, 3},
+		{6, true, 7, 3},
+		{8, true, 12, 3},
+		{16, true, 32, 4},
+	}
+	for _, tt := range tests {
+		if got := BracketMatches(tt.n, tt.full); got != tt.matches {
+			t.Errorf("BracketMatches(%d, %v) = %d, want %d", tt.n, tt.full, got, tt.matches)
+		}
+		if got := BracketRounds(tt.n); got != tt.rnds {
+			t.Errorf("BracketRounds(%d) = %d, want %d", tt.n, got, tt.rnds)
+		}
+	}
+	for n, want := range map[int]int{0: 0, 1: 0, 2: 1, 3: 3, 4: 3, 5: 5} {
+		if got := RoundRobinRounds(n); got != want {
+			t.Errorf("RoundRobinRounds(%d) = %d, want %d", n, got, want)
+		}
+	}
+}

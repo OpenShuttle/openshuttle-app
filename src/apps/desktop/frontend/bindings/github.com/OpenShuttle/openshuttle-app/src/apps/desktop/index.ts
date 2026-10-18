@@ -44,6 +44,7 @@ export type {
     PlayerView,
     PoolPhase,
     PoolRefView,
+    ProgressView,
     QueueView,
     RecentTournament,
     ResultCategory,
@@ -55,5 +56,6 @@ export type {
     SideView,
     StandingView,
     TimedRoundView,
+    TournamentSummary,
     TournamentView
 } from "./models.js";

@@ -2,7 +2,10 @@ import { Component, input } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { Category } from '@bindings/internal/engine';
 
-/** Colored category badge (MD/DH…), colored by the category's slot. */
+/**
+ * Colored category badge (MD/DH…), colored by the category's slot. Projected
+ * content follows the code: `DH · Pool A`.
+ */
 @Component({
   selector: 'app-category-badge',
   imports: [TranslocoDirective],
@@ -11,7 +14,8 @@ import { Category } from '@bindings/internal/engine';
     class="badge"
     [style.background]="'var(--color-category-' + slot() + ')'"
     [attr.title]="t('category.name.' + category())"
-    >{{ t('category.short.' + category()) }}</span
+    [class.ring]="ring()"
+    >{{ t('category.short.' + category()) }}<ng-content /></span
   >`,
   styles: `
     .badge {
@@ -24,9 +28,15 @@ import { Category } from '@bindings/internal/engine';
       line-height: 1.2;
       white-space: nowrap;
     }
+
+    .ring {
+      box-shadow: 0 0 0 2px #fff;
+    }
   `,
 })
 export class CategoryBadge {
   readonly category = input.required<Category>();
   readonly slot = input.required<number>();
+  /** White outline, for a badge on a colored background. */
+  readonly ring = input(false);
 }

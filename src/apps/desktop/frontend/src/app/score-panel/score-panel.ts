@@ -1,11 +1,12 @@
 import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChildren } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { MatchView } from '@bindings/apps/desktop';
+import { MatchView, SideView } from '@bindings/apps/desktop';
 import { EntrantID, Score, WinConditionKind } from '@bindings/internal/engine';
 
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
+import { clubs, fullNames } from '../shared/names';
 
 /** Builds the score from the typed points, ignoring sets left empty. */
 export function scoreFrom(points: string[][], goldenPoint: boolean): Score {
@@ -90,6 +91,14 @@ export class ScorePanel {
     if (await this.tournament.withdrawEntrant(entrant)) {
       this.closed.emit();
     }
+  }
+
+  protected names(side: SideView): string {
+    return fullNames(side);
+  }
+
+  protected clubs(side: SideView): string {
+    return clubs(side);
   }
 
   protected sets(): number[] {

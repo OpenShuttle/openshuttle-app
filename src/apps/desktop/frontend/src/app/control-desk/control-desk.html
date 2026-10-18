@@ -1,197 +1,301 @@
 <ng-container *transloco="let t">
-  <div class="header">
-    <h1>{{ t('desk.title') }}</h1>
-    <div class="counters">
-      <span class="counter playing"><span class="swatch"></span>{{ t('desk.countPlaying', { n: counts().playing }) }}</span>
-      <span class="counter free"><span class="swatch"></span>{{ t('desk.countFree', { n: counts().free }) }}</span>
-      <span class="counter finished"><span class="swatch"></span>{{ t('desk.countPending', { n: counts().pending }) }}</span>
-    </div>
-    @if ((view().categories ?? []).length > 1) {
-      <div class="priority">
-        <span class="field-label">{{ t('desk.priority') }}</span>
-        <div class="segments">
-          <button type="button" class="segment" [class.active]="view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
-            {{ t('priority.balanced') }}
-          </button>
-          @for (c of view().categories; track c.category) {
-            <button type="button" class="segment" [class.active]="view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
-              {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
+  <div class="desk">
+    <section class="main">
+      <div class="head">
+        <div class="page-title">
+          <h1>{{ t('desk.title') }}</h1>
+          <span class="page-sub">{{ t('desk.sub', { courts: (view().courts ?? []).length, rest: view().minRest }) }}</span>
+        </div>
+        <div class="head-right">
+          @if ((view().categories ?? []).length > 1) {
+            <span class="priority">
+              <span class="priority-label">{{ t('desk.priority') }}</span>
+              <span class="seg seg-sm priority-seg">
+                <button type="button" class="seg-option" [class.active]="view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
+                  {{ t('priority.balanced') }}
+                </button>
+                @for (c of view().categories; track c.category) {
+                  <button type="button" class="seg-option" [class.active]="view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
+                    {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
+                  </button>
+                }
+              </span>
+            </span>
+          }
+          <span class="count playing"><span class="swatch"></span>{{ t('desk.countPlaying', { n: counts().playing }) }}</span>
+          <span class="count free"><span class="swatch"></span>{{ t('desk.countFree', { n: counts().free }) }}</span>
+          <span class="count finished"><span class="swatch"></span>{{ t('desk.countPending', { n: counts().pending }) }}</span>
+        </div>
+      </div>
+
+      @if (!view().started) {
+        <div class="card not-started">
+          <span>{{ t('desk.notStarted') }}</span>
+          <a class="btn btn-sm" routerLink="../draw">{{ t('desk.goToDraw') }}</a>
+        </div>
+      } @else {
+        @if (view().rounds.active) {
+          @let rounds = view().rounds;
+          @if (rounds.current; as r) {
+            <section class="round" [class]="roundLeft() > 0 ? 'round running' : 'round elapsed'">
+              <span class="round-text">
+                <span class="round-kicker">{{ t(roundLeft() > 0 ? 'rounds.kickerRunning' : 'rounds.kickerElapsed', { n: r.number }) }}</span>
+                <span class="round-title">
+                  {{ roundLeft() > 0 ? t('rounds.titleRunning', { n: (r.matches ?? []).length }) : t('rounds.titleElapsed') }}
+                </span>
+              </span>
+              <span class="round-clock">
+                <span class="round-clock-label">{{ t(roundLeft() > 0 ? 'rounds.endsIn' : 'rounds.elapsedFor') }}</span>
+                <span class="round-clock-value">{{ roundClock() }}</span>
+              </span>
+              <span class="round-sub">{{ t(roundLeft() > 0 ? 'rounds.subRunning' : 'rounds.subElapsed', { minutes: r.minutes }) }}</span>
+              <button type="button" class="round-btn" (click)="endRound()">
+                {{ t('rounds.whistle') }}<span class="key">F</span>
+              </button>
+            </section>
+          } @else {
+            <section class="round ready">
+              <span class="round-text">
+                <span class="round-kicker">{{ t('rounds.kickerReady', { n: rounds.played + 1 }) }}</span>
+                <span class="round-title">
+                  {{ (rounds.next ?? []).length ? t('rounds.titleReady', { n: (rounds.next ?? []).length, courts: (view().courts ?? []).length }) : t('rounds.nothingReady') }}
+                </span>
+              </span>
+              <span class="round-sub">
+                {{ (view().pending ?? []).length ? t('rounds.subPending', { n: (view().pending ?? []).length }) : t('rounds.subReady') }}
+              </span>
+              <button type="button" class="round-btn" [disabled]="(rounds.next ?? []).length === 0" (click)="startRound()">
+                {{ t('rounds.start', { n: rounds.played + 1 }) }}<span class="key">L</span>
+              </button>
+            </section>
+          }
+        }
+
+        <div class="courts">
+          @for (c of view().courts; track c.number) {
+            @if (c.state === 'playing' && c.match; as m) {
+              <article class="court playing" (click)="scoring.set(m)">
+                <header class="court-head">
+                  <span class="court-number">{{ c.number }}</span>
+                  <span class="court-state">
+                    <span class="court-label">{{ t('desk.court') }}</span>
+                    <span class="court-state-name">{{ t('desk.state.playing') }}</span>
+                  </span>
+                  <app-category-badge [category]="m.category" [slot]="m.slot" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
+                </header>
+                <div class="court-body">
+                  <div class="side">
+                    <span class="bib bib-lg">{{ m.a.bib }}</span>
+                    <span class="side-text"><span class="side-names">{{ short(m.a) }}</span><span class="side-club">{{ clubs(m.a) }}</span></span>
+                  </div>
+                  <span class="versus">{{ t('desk.versus') }}</span>
+                  <div class="side">
+                    <span class="bib bib-lg">{{ m.b.bib }}</span>
+                    <span class="side-text"><span class="side-names">{{ short(m.b) }}</span><span class="side-club">{{ clubs(m.b) }}</span></span>
+                  </div>
+                </div>
+                @if (inRound(m)) {
+                  <div class="court-foot-line">{{ t('rounds.inRoundFoot') }}</div>
+                } @else {
+                  <div class="court-foot">
+                    <span class="played">
+                      <span class="played-label">{{ t('desk.playedFor') }}</span>
+                      <span class="played-value">{{ elapsed(m.calledAt) }}</span>
+                    </span>
+                    <button type="button" class="end-btn" (click)="$event.stopPropagation(); end(c)">
+                      {{ t('desk.end') }}<span class="key">{{ c.number }}</span>
+                    </button>
+                  </div>
+                }
+              </article>
+            } @else if (c.state === 'finished' && c.match; as m) {
+              <article class="court finished">
+                <header class="court-head">
+                  <span class="court-number">{{ c.number }}</span>
+                  <span class="court-state">
+                    <span class="court-label">{{ t('desk.court') }}</span>
+                    <span class="court-state-name">{{ t('desk.endedAt', { time: time(m.endedAt) }) }}</span>
+                  </span>
+                  <app-category-badge [category]="m.category" [slot]="m.slot" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
+                </header>
+                <button type="button" class="pending-match" (click)="scoring.set(m)">
+                  <span class="line"><span class="bib">{{ m.a.bib }}</span><span class="line-names">{{ short(m.a) }}</span></span>
+                  <span class="line"><span class="bib">{{ m.b.bib }}</span><span class="line-names">{{ short(m.b) }}</span></span>
+                  <span class="cta">{{ t('desk.scorePendingClick') }}</span>
+                </button>
+                @if (!view().rounds.active && c.proposal; as p) {
+                  <div class="next">
+                    <span class="kicker">{{ t('desk.nextProposed', { id: p.id }) }}</span>
+                    <span class="line"><span class="bib bib-outline">{{ p.a.bib }}</span><span class="line-names">{{ short(p.a) }}</span></span>
+                    <span class="line"><span class="bib bib-outline">{{ p.b.bib }}</span><span class="line-names">{{ short(p.b) }}</span></span>
+                  </div>
+                } @else {
+                  <div class="next next-none">{{ t(view().rounds.active ? 'rounds.courtWaiting' : 'desk.noMatchReady') }}</div>
+                }
+                <div class="finished-actions">
+                  <button type="button" class="score-btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
+                  @if (!view().rounds.active) {
+                    <button type="button" class="next-btn" [disabled]="!c.proposal" (click)="call(c)">
+                      {{ t('desk.startNext') }}<span class="key">{{ c.number }}</span>
+                    </button>
+                  }
+                </div>
+              </article>
+            } @else {
+              <article class="court free">
+                <header class="court-head">
+                  <span class="court-number">{{ c.number }}</span>
+                  <span class="court-state">
+                    <span class="court-label">{{ t('desk.court') }}</span>
+                    <span class="court-state-name">{{ t('desk.state.free') }}</span>
+                  </span>
+                  @if (c.proposal; as p) {
+                    <app-category-badge [category]="p.category" [slot]="p.slot" [ring]="true"> · <app-match-stage [match]="p" /></app-category-badge>
+                  }
+                </header>
+                @if (c.proposal; as p) {
+                  <div class="court-body">
+                    <span class="kicker">{{ t('desk.proposed', { id: p.id }) }}</span>
+                    <div class="side">
+                      <span class="bib bib-lg bib-outline">{{ p.a.bib }}</span>
+                      <span class="side-text"><span class="side-names">{{ short(p.a) }}</span><span class="side-club">{{ clubs(p.a) }}</span></span>
+                    </div>
+                    <div class="side">
+                      <span class="bib bib-lg bib-outline">{{ p.b.bib }}</span>
+                      <span class="side-text"><span class="side-names">{{ short(p.b) }}</span><span class="side-club">{{ clubs(p.b) }}</span></span>
+                    </div>
+                  </div>
+                  <div class="court-foot">
+                    <button type="button" class="call-btn" (click)="call(c)">
+                      {{ t('desk.call') }}<span class="key">{{ c.number }}</span>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="idle">
+                    <span class="idle-title">{{ t('desk.noMatchReadyTitle') }}</span>
+                    <span class="idle-text">{{ t(view().rounds.active ? 'rounds.courtWaiting' : 'desk.noMatchReady') }}</span>
+                  </div>
+                }
+              </article>
+            }
+          }
+        </div>
+
+        <div class="keys">
+          <span><span class="kbd">1–{{ (view().courts ?? []).length }}</span>{{ t('desk.keyCourt') }}</span>
+          <span><span class="kbd">S</span>{{ t('desk.keyScore') }}</span>
+          <span><span class="kbd">Ctrl Z</span>{{ t('desk.keyUndo') }}</span>
+        </div>
+      }
+    </section>
+
+    <aside class="aside">
+      <div class="pending">
+        <div class="aside-head pending-head">
+          <h2>{{ t('desk.pendingScores') }}</h2>
+          <span class="aside-count">{{ (view().pending ?? []).length }}</span>
+        </div>
+        @if ((view().pending ?? []).length === 0) {
+          <p class="aside-empty">{{ t('desk.noPending') }}</p>
+        }
+        <div class="pending-list">
+          @for (m of view().pending; track m.id) {
+            <button type="button" class="pending-item" [class.late]="late(m)" (click)="scoring.set(m)">
+              <span class="pending-court">
+                <span class="pending-court-label">{{ t('desk.courtShort') }}</span>
+                <span class="pending-court-n">{{ m.court || '–' }}</span>
+              </span>
+              <span class="pending-text">
+                <span class="pending-meta">
+                  {{ m.id }} · {{ t('category.short.' + m.category) }} · <app-match-stage [match]="m" /> ·
+                  {{ t('desk.endedMinutesAgo', { time: time(m.endedAt), minutes: minutesSince(m.endedAt) }) }}
+                </span>
+                <span class="pending-side">#{{ m.a.bib }} {{ short(m.a) }}</span>
+                <span class="pending-side">#{{ m.b.bib }} {{ short(m.b) }}</span>
+              </span>
+              <span class="pending-cta">{{ t('desk.enter') }}</span>
             </button>
           }
         </div>
       </div>
-    }
-  </div>
 
-  @if (!view().started) {
-    <div class="empty">
-      {{ t('desk.notStarted') }}
-      <a routerLink="../draw">{{ t('desk.goToDraw') }}</a>
-    </div>
-  } @else {
-    @if (view().rounds.active) {
-      @let rounds = view().rounds;
-      <section class="round-banner" [class.running]="rounds.current" [class.elapsed]="rounds.current && roundLeft() <= 0">
-        @if (rounds.current; as r) {
-          <div class="round-info">
-            <span class="field-label">{{ t('rounds.current', { n: r.number }) }}</span>
-            <span class="round-sub">{{ t('rounds.playing', { n: (r.matches ?? []).length, minutes: r.minutes }) }}</span>
-          </div>
-          <span class="clock">{{ roundLeft() > 0 ? roundClock() : t('rounds.elapsed') }}</span>
-          <button type="button" class="btn btn-whistle" (click)="endRound()">
-            {{ t('rounds.whistle') }} <span class="kbd">F</span>
-          </button>
-        } @else {
-          <div class="round-info">
-            <span class="field-label">{{ t('rounds.next', { n: rounds.played + 1 }) }}</span>
-            <span class="round-sub">
-              @for (m of rounds.next; track m.id; let last = $last) {
-                {{ t('rounds.courtMatch', { court: m.court, a: m.a.bib, b: m.b.bib }) }}{{ last ? '' : ' · ' }}
-              } @empty {
-                {{ t('rounds.nothingReady') }}
-              }
-            </span>
-          </div>
-          <button type="button" class="btn btn-primary" [disabled]="(rounds.next ?? []).length === 0" (click)="startRound()">
-            {{ t('rounds.start') }} <span class="kbd">L</span>
-          </button>
-        }
-      </section>
-    }
-
-    <div class="layout">
-      <div class="courts">
-        @for (c of view().courts; track c.number) {
-          <article class="court" [class]="'court ' + c.state">
-            <header class="court-header">
-              <span class="court-number">{{ c.number }}</span>
-              <span class="court-label">{{ t('desk.court') }}</span>
-              <span class="state">{{ t('desk.state.' + c.state) }}</span>
-              @if (c.match; as m) {
-                <span class="pool"><app-category-badge [category]="m.category" [slot]="m.slot" /> <app-match-stage [match]="m" /></span>
-              }
-            </header>
-
-            @if (c.state === 'playing' && c.match; as m) {
-              <div class="match">
-                <div class="side"><span class="bib">{{ m.a.bib }}</span><span class="names">{{ names(m.a) }}</span></div>
-                <span class="versus">{{ t('desk.versus') }}</span>
-                <div class="side"><span class="bib">{{ m.b.bib }}</span><span class="names">{{ names(m.b) }}</span></div>
-              </div>
-              <div class="court-footer">
-                @if (inRound(m)) {
-                  <span class="timer"><span class="field-label">{{ t('rounds.inRound') }}</span></span>
-                  <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }} <span class="kbd">{{ c.number }}</span></button>
-                } @else {
-                  <span class="timer"><span class="field-label">{{ t('desk.playedFor') }}</span> {{ elapsed(m.calledAt) }}</span>
-                  <button type="button" class="btn btn-small" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
-                  <button type="button" class="btn btn-primary" (click)="end(c)">{{ t('desk.end') }} <span class="kbd">{{ c.number }}</span></button>
-                }
-              </div>
-            } @else if (c.state === 'finished' && c.match; as m) {
-              <button type="button" class="finished-match" (click)="scoring.set(m)">
-                <span class="field-label">{{ t('desk.endedAt', { time: time(m.endedAt) }) }}</span>
-                <span class="line">{{ m.a.bib }} {{ names(m.a) }}</span>
-                <span class="line">{{ m.b.bib }} {{ names(m.b) }}</span>
-                <span class="cta">{{ t('desk.scorePendingClick') }}</span>
+      <div class="queue">
+        <div class="aside-head queue-head">
+          <h2>{{ t('desk.nextMatches') }}</h2>
+          <span class="aside-count muted">{{ t('desk.inQueue', { n: queue().length }) }}</span>
+        </div>
+        @if ((view().categories ?? []).length > 1) {
+          <div class="queue-filter">
+            <div class="seg seg-sm">
+              <button type="button" class="seg-option" [class.active]="queueFilter() === 'all'" (click)="queueFilter.set('all')">
+                {{ t('desk.all') }}
               </button>
-              @if (c.proposal; as p) {
-                <div class="proposal">
-                  <span class="field-label">{{ t('desk.nextProposed', { id: p.id }) }}</span>
-                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ p.a.bib }} {{ names(p.a) }} – {{ p.b.bib }} {{ names(p.b) }}</span>
-                </div>
+              @for (c of view().categories; track c.category) {
+                <button type="button" class="seg-option" [class.active]="queueFilter() === c.category" (click)="queueFilter.set(c.category)">
+                  {{ t('category.short.' + c.category) }}
+                </button>
               }
-              <div class="court-footer">
-                <button type="button" class="btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }} <span class="kbd">{{ c.number }}</span></button>
-                @if (!view().rounds.active) {
-                  <button type="button" class="btn btn-primary" [disabled]="!c.proposal" (click)="call(c)">{{ t('desk.startNext') }}</button>
-                }
-              </div>
-            } @else {
-              @if (c.proposal; as p) {
-                <div class="proposal">
-                  <span class="field-label">{{ t('desk.proposed', { id: p.id }) }}</span>
-                  <span class="line"><app-category-badge [category]="p.category" [slot]="p.slot" /> <app-match-stage [match]="p" /></span>
-                  <div class="side"><span class="bib">{{ p.a.bib }}</span><span class="names">{{ names(p.a) }}</span></div>
-                  <div class="side"><span class="bib">{{ p.b.bib }}</span><span class="names">{{ names(p.b) }}</span></div>
-                </div>
-                <div class="court-footer">
-                  <button type="button" class="btn btn-primary" (click)="call(c)">{{ t('desk.call') }} <span class="kbd">{{ c.number }}</span></button>
-                </div>
-              } @else {
-                <p class="idle">{{ t(view().rounds.active ? 'rounds.courtWaiting' : 'desk.noMatchReady') }}</p>
-              }
-            }
-          </article>
-        }
-      </div>
-
-      <aside class="side-column">
-        <section class="panel">
-          <h2>{{ t('desk.pendingScores') }}</h2>
-          @for (m of view().pending; track m.id) {
-            <button type="button" class="pending" [class.late]="late(m)" (click)="scoring.set(m)">
-              <span class="pending-court">{{ m.court ? t('desk.courtN', { n: m.court }) : '–' }}</span>
-              <span class="pending-match">
-                <app-category-badge [category]="m.category" [slot]="m.slot" />
-                {{ m.a.bib }} – {{ m.b.bib }}
-              </span>
-              <span class="pending-time">{{ t('desk.endedMinutesAgo', { time: time(m.endedAt), minutes: minutesSince(m.endedAt) }) }}</span>
-            </button>
-          } @empty {
-            <p class="muted">{{ t('desk.noPending') }}</p>
-          }
-          @if ((view().pending ?? []).length > 0) {
-            <p class="muted small">{{ t('desk.pendingKey') }}</p>
-          }
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <h2>{{ t('desk.nextMatches') }}</h2>
-            @if ((view().categories ?? []).length > 1) {
-              <select (change)="queueFilter.set($any($event.target).value)">
-                <option value="all">{{ t('checkIn.allCategories') }}</option>
-                @for (c of view().categories; track c.category) {
-                  <option [value]="c.category">{{ t('category.short.' + c.category) }}</option>
-                }
-              </select>
-            }
+            </div>
           </div>
-          @for (q of queue().slice(0, 12); track q.match.id) {
-            <div class="queue-item" [class.waiting]="q.reason">
-              <app-category-badge [category]="q.match.category" [slot]="q.match.slot" />
-              <span class="queue-match"><app-match-stage class="queue-stage" [match]="q.match" /> · {{ q.match.a.bib }} – {{ q.match.b.bib }}</span>
-              <span class="reason">
+        }
+        @for (q of queue().slice(0, 30); track q.match.id) {
+          <div class="queue-item">
+            <div class="queue-top">
+              <app-category-badge [category]="q.match.category" [slot]="q.match.slot"> · <app-match-stage [match]="q.match" /></app-category-badge>
+              <span class="queue-id">{{ q.match.id }}</span>
+              @if (proposedCourt(q.match.id); as court) {
+                <span class="pill pill-free queue-status">{{ t('desk.status.proposed', { court }) }}</span>
+              } @else if (q.reason) {
+                <span class="pill queue-status muted-pill">{{ t('desk.status.' + q.reason) }}</span>
+              } @else {
+                <span class="pill pill-free queue-status">{{ t('desk.reason.ready') }}</span>
+              }
+            </div>
+            <span class="queue-side"><span class="bib bib-sm">{{ q.match.a.bib }}</span><span class="queue-names">{{ short(q.match.a) }}</span></span>
+            <span class="queue-side"><span class="bib bib-sm">{{ q.match.b.bib }}</span><span class="queue-names">{{ short(q.match.b) }}</span></span>
+            @if (q.reason) {
+              <span class="queue-reason">
+                <span class="dot" [class.rest]="q.reason === 'resting'"></span>
                 @switch (q.reason) {
                   @case ('playing') { {{ t('desk.reason.playing', { court: q.court }) }} }
                   @case ('resting') { {{ t('desk.reason.resting', { minutes: minutesSince(q.restingSince) }) }} }
-                  @case ('absent') { {{ t('desk.reason.absent') }} }
-                  @default { {{ t('desk.reason.ready') }} }
+                  @default { {{ t('desk.reason.absent') }} }
                 }
               </span>
-            </div>
-          } @empty {
-            <p class="muted">{{ t('desk.queueEmpty') }}</p>
-          }
-        </section>
-
-        @if ((view().complete ?? []).length + (view().bracketsToFill ?? []).length > 0) {
-          <section class="panel">
-            <h2>{{ t('desk.alerts') }}</h2>
-            @for (c of view().bracketsToFill; track c.category) {
-              <a class="alert" routerLink="../stages">
-                <app-category-badge [category]="c.category" [slot]="c.slot" /> {{ t('desk.fillBrackets') }}
-              </a>
             }
-            @for (p of view().complete; track p.category + p.pool) {
-              <div class="alert"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.poolComplete', { pool: p.pool }) }}</div>
-            }
-          </section>
+          </div>
+        } @empty {
+          <p class="aside-empty">{{ t('desk.queueEmpty') }}</p>
         }
-      </aside>
-    </div>
-  }
+      </div>
+
+      <div class="alerts">
+        <div class="aside-head">
+          <h2>{{ t('desk.alerts') }}</h2>
+          <span class="aside-count muted">{{ t('desk.toHandle', { n: alertCount() }) }}</span>
+        </div>
+        @if (alertCount() === 0) {
+          <p class="aside-empty">{{ t('desk.noAlert') }}</p>
+        }
+        <div class="alert-list">
+          @for (c of view().bracketsToFill; track c.category) {
+            <div class="alert">
+              <span class="alert-title"><app-category-badge [category]="c.category" [slot]="c.slot" /> {{ t('desk.fillBracketsTitle') }}</span>
+              <span class="alert-text">{{ t('desk.fillBrackets') }}</span>
+              <a class="alert-btn" routerLink="../stages">{{ t('desk.openStages') }}</a>
+            </div>
+          }
+          @for (p of view().complete; track p.category + p.pool) {
+            <div class="alert">
+              <span class="alert-title"><app-category-badge [category]="p.category" [slot]="p.slot" /> {{ t('desk.poolComplete', { pool: p.pool }) }}</span>
+              <span class="alert-text">{{ t('desk.poolCompleteText') }}</span>
+              <a class="alert-btn" routerLink="../stages">{{ t('desk.checkStandings') }}</a>
+            </div>
+          }
+        </div>
+      </div>
+    </aside>
+  </div>
 
   @if (scoring(); as m) {
     <app-score-panel [match]="m" (closed)="scoring.set(null)" />

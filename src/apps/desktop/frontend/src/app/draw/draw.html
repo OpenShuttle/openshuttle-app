@@ -1,131 +1,147 @@
 <ng-container *transloco="let t">
-  <h1>{{ t('draw.title') }}</h1>
+  <div class="page-body">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('draw.title') }}</h1>
+        <span class="page-sub">{{ t('draw.lead') }}</span>
+      </div>
+    </div>
 
-  @for (c of view().categories; track c.category) {
-    <section class="category">
-      <header class="cat-header">
-        <app-category-badge [category]="c.category" [slot]="c.slot" />
-        <h2>{{ t('category.name.' + c.category) }}</h2>
-        <span class="status" [class]="'status ' + c.status">{{ t('draw.status.' + c.status) }}</span>
-        <div class="actions">
-          @if (c.status !== 'confirmed') {
-            <button type="button" class="btn" [disabled]="!c.canDraw" (click)="draw(c)">
-              {{ t(c.status === 'none' ? 'draw.draw' : 'draw.redraw') }}
-            </button>
+    @for (c of view().categories; track c.category) {
+      <section class="category">
+        <div class="cat-head">
+          <span class="cat-label" [style.background]="'var(--color-category-' + c.slot + ')'">
+            {{ t('category.name.' + c.category) }} · {{ t('draw.presentCount', { n: c.present }) }}
+          </span>
+          <span class="pill" [class]="'pill status-' + c.status">{{ t('draw.status.' + c.status) }}</span>
+          @if (c.status !== 'none') {
+            <span class="pill" [class.pill-finished]="conflicts(c) > 0" [class.pill-free]="conflicts(c) === 0">
+              {{ conflicts(c) > 0 ? t('draw.conflicts', { n: conflicts(c) }) : t('draw.noConflict') }}
+            </span>
           }
-          @if (c.status === 'draft') {
-            <button type="button" class="btn btn-primary" (click)="tournament.confirmDraw(c.category)">{{ t('draw.confirm') }}</button>
-          }
-          @if (c.status === 'confirmed') {
-            <button type="button" class="btn" (click)="tournament.reopenDraw(c.category)">{{ t('draw.reopen') }}</button>
-          }
+          <span class="cat-hint">
+            @if (c.status === 'draft') {
+              {{ t('draw.dragHint') }}
+            } @else {
+              {{ t('draw.summary', { present: c.present, pools: c.planned }) }}
+              <a routerLink="../format">{{ t('draw.changeFormat') }}</a>
+            }
+            @if (!c.canDraw && c.status !== 'confirmed') {
+              <span class="warn">{{ t('draw.notEnough', { min: c.planned * 2 }) }}</span>
+            }
+          </span>
+          <span class="cat-actions">
+            @if (c.status !== 'confirmed') {
+              <button type="button" class="btn" [disabled]="!c.canDraw" (click)="draw(c)">
+                {{ t(c.status === 'none' ? 'draw.draw' : 'draw.redraw') }}
+              </button>
+            }
+            @if (c.status === 'draft') {
+              <button type="button" class="btn btn-primary" (click)="tournament.confirmDraw(c.category)">{{ t('draw.confirm') }}</button>
+            }
+            @if (c.status === 'confirmed') {
+              <button type="button" class="btn" (click)="tournament.reopenDraw(c.category)">{{ t('draw.reopen') }}</button>
+            }
+          </span>
         </div>
-      </header>
 
-      <p class="hint">
-        {{ t('draw.summary', { present: c.present, pools: c.planned }) }}
-        <a routerLink="../format">{{ t('draw.changeFormat') }}</a>
-        @if (!c.canDraw) {
-          <span class="warn">{{ t('draw.notEnough', { min: c.planned * 2 }) }}</span>
-        }
-      </p>
-
-      @if (c.status !== 'none') {
-        @if (c.status === 'draft') {
-          <p class="hint">{{ t('draw.dragHint') }}</p>
-        }
-        <div class="pools">
-          @for (pool of c.pools; track pool.name; let i = $index) {
-            <div
-              class="pool"
-              [attr.data-pool]="c.status === 'draft' ? c.category + ':' + i : null"
-              [class.over]="dropTarget() === c.category + ':' + i"
-            >
-              <div class="pool-header">
-                <span class="pool-name">{{ t('draw.pool', { name: pool.name }) }}</span>
-                <span class="count">{{ (pool.entrants ?? []).length }}</span>
-              </div>
-              @if (pool.unbalanced) {
-                <span class="pool-warn">{{ t('draw.unbalanced') }}</span>
-              }
-              @if (pool.seeds > 1) {
-                <span class="pool-warn">{{ t('draw.seeds', { count: pool.seeds }) }}</span>
-              }
-              @for (e of pool.entrants; track e.id) {
-                <div
-                  class="card"
-                  [class.conflict]="(e.sameClub ?? []).length > 0"
-                  [class.movable]="c.status === 'draft'"
-                  [class.dragging]="dragging() === e.id"
-                  (pointerdown)="onPointerDown($event, e.id, c.status === 'draft')"
-                >
-                  <span class="bib">{{ e.bib || '–' }}</span>
-                  <div class="card-body">
-                    <span class="names">{{ names(e) }}</span>
-                    <span class="meta">
+        @if (c.status !== 'none') {
+          <div class="pools">
+            @for (pool of c.pools; track pool.name; let i = $index) {
+              <div
+                class="pool"
+                [attr.data-pool]="c.status === 'draft' ? c.category + ':' + i : null"
+                [class.over]="dropTarget() === c.category + ':' + i"
+              >
+                <div class="pool-head">
+                  <span class="pool-name">{{ t('draw.pool', { name: pool.name }) }}</span>
+                  <span class="pool-count">{{ t('draw.entrantsCount', { n: (pool.entrants ?? []).length }) }}</span>
+                </div>
+                @if (pool.unbalanced) {
+                  <span class="pool-warn">{{ t('draw.unbalanced') }}</span>
+                }
+                @if (pool.seeds > 1) {
+                  <span class="pool-warn">{{ t('draw.seeds', { count: pool.seeds }) }}</span>
+                }
+                @for (e of pool.entrants; track e.id) {
+                  <div
+                    class="entrant"
+                    [class.conflict]="(e.sameClub ?? []).length > 0"
+                    [class.movable]="c.status === 'draft'"
+                    [class.dragging]="dragging() === e.id"
+                    [attr.title]="fullNames(e)"
+                    (pointerdown)="onPointerDown($event, e.id, c.status === 'draft')"
+                  >
+                    <div class="entrant-top">
+                      <span class="bib">{{ e.bib || '–' }}</span>
+                      <span class="names">{{ names(e) }}</span>
                       @if (e.seed) {
                         <span class="seed">{{ t('draw.seedShort', { n: e.seed }) }}</span>
                       }
-                      {{ (e.clubs ?? []).join(' · ') }}
-                    </span>
-                    @if ((e.sameClub ?? []).length > 0) {
-                      <span class="tag">{{ t('draw.sameClub', { bibs: (e.sameClub ?? []).join(', ') }) }}</span>
-                    }
-                    @if (e.absent) {
-                      <span class="tag alert">{{ t('draw.absent') }}</span>
-                    }
+                    </div>
+                    <div class="entrant-meta">
+                      <span class="club">{{ (e.clubs ?? []).join(' · ') }}</span>
+                      @if ((e.sameClub ?? []).length > 0) {
+                        <span class="tag">{{ t('draw.sameClub', { bibs: (e.sameClub ?? []).join(', ') }) }}</span>
+                      }
+                      @if (e.absent) {
+                        <span class="tag alert">{{ t('draw.absent') }}</span>
+                      }
+                    </div>
                   </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        @if ((c.unplaced ?? []).length > 0) {
-          <div class="unplaced">
-            <span class="field-label">{{ t('draw.unplaced') }}</span>
-            <div class="unplaced-list">
-              @for (e of c.unplaced; track e.id) {
-                <div
-                  class="card"
-                  [class.movable]="c.status === 'draft'"
-                  [class.dragging]="dragging() === e.id"
-                  (pointerdown)="onPointerDown($event, e.id, c.status === 'draft')"
-                >
-                  <span class="bib">{{ e.bib || '–' }}</span>
-                  <span class="names">{{ names(e) }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        }
-      }
-
-      @if (c.status !== 'confirmed' && (c.seeded ?? []).length > 0) {
-        <details class="seeds" [open]="c.status === 'none'">
-          <summary class="field-label">{{ t('draw.seedsTitle') }}</summary>
-          <p class="hint">{{ t('draw.seedsHint') }}</p>
-          <div class="seed-list">
-            @for (e of c.seeded; track e.id) {
-              <label class="seed-row">
-                <span class="bib">{{ e.bib || '–' }}</span>
-                <span class="names">{{ names(e) }}</span>
-                <select (change)="setSeed(e, $event)">
-                  <option value="0" [selected]="!e.seed">–</option>
-                  @for (n of seedOptions(c); track n) {
-                    <option [value]="n" [selected]="e.seed === n">{{ t('draw.seedShort', { n }) }}</option>
-                  }
-                </select>
-              </label>
+                }
+              </div>
             }
           </div>
-        </details>
-      }
-    </section>
-  } @empty {
-    <div class="empty">
-      {{ t('entrants.noCategory') }}
-      <a routerLink="../info">{{ t('entrants.goToInfo') }}</a>
-    </div>
-  }
+
+          @if ((c.unplaced ?? []).length > 0) {
+            <div class="unplaced">
+              <span class="field-label">{{ t('draw.unplaced') }}</span>
+              <div class="unplaced-list">
+                @for (e of c.unplaced; track e.id) {
+                  <div
+                    class="entrant"
+                    [class.movable]="c.status === 'draft'"
+                    [class.dragging]="dragging() === e.id"
+                    (pointerdown)="onPointerDown($event, e.id, c.status === 'draft')"
+                  >
+                    <div class="entrant-top">
+                      <span class="bib">{{ e.bib || '–' }}</span>
+                      <span class="names">{{ names(e) }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (c.status !== 'confirmed' && (c.seeded ?? []).length > 0) {
+          <details class="card seeds" [open]="c.status === 'none'">
+            <summary>{{ t('draw.seedsTitle') }}</summary>
+            <p class="seeds-hint">{{ t('draw.seedsHint') }}</p>
+            <div class="seed-list">
+              @for (e of c.seeded; track e.id) {
+                <label class="seed-row">
+                  <span class="bib">{{ e.bib || '–' }}</span>
+                  <span class="names">{{ fullNames(e) }}</span>
+                  <select (change)="setSeed(e, $event)">
+                    <option value="0" [selected]="!e.seed">–</option>
+                    @for (n of seedOptions(c); track n) {
+                      <option [value]="n" [selected]="e.seed === n">{{ t('draw.seedShort', { n }) }}</option>
+                    }
+                  </select>
+                </label>
+              }
+            </div>
+          </details>
+        }
+      </section>
+    } @empty {
+      <div class="card empty">
+        <span>{{ t('entrants.noCategory') }}</span>
+        <a class="btn btn-sm" routerLink="../info">{{ t('entrants.goToInfo') }}</a>
+      </div>
+    }
+  </div>
 </ng-container>

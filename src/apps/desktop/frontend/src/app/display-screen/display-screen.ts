@@ -1,22 +1,26 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { DisplayBoard, DisplayView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
+import { DisplayBoard, DisplayCourt, DisplayView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
 
 import { liveView } from '../core/live-view';
-import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
 import { AppSettings } from '../core/settings.service';
+import { LanguageService } from '../core/language.service';
+import { shortNames } from '../shared/names';
 
 /** Display screen: second window on the hall monitor. Read-only, read from 10 m. */
 @Component({
   selector: 'app-display-screen',
-  imports: [TranslocoDirective, CategoryBadge, MatchStage],
+  imports: [TranslocoDirective, NgTemplateOutlet, MatchStage],
   templateUrl: './display-screen.html',
   styleUrl: './display-screen.scss',
 })
 export class DisplayScreen {
   protected readonly view = liveView<DisplayView>(() => TournamentService.GetDisplayView(), {
+    name: '',
+    categories: [],
     calls: [],
     courts: [],
     round: null,
@@ -34,7 +38,16 @@ export class DisplayScreen {
     return boards[Math.floor(this.now() / period) % boards.length];
   });
 
-  private readonly now = signal(Date.now());
+  private readonly language = inject(LanguageService);
+  protected readonly now = signal(Date.now());
+  /** Index of the board shown, for the dots. */
+  protected readonly boardIndex = computed(() => {
+    const boards = this.view().boards ?? [];
+    const period = (this.settings.value()?.rotationSeconds ?? 8) * 1000;
+    return boards.length ? Math.floor(this.now() / period) % boards.length : 0;
+  });
+  protected readonly hero = computed(() => (this.view().calls ?? [])[0] ?? null);
+  protected readonly previous = computed(() => (this.view().calls ?? []).slice(1));
   protected readonly left = computed(() => {
     const round = this.view().round;
     return round ? secondsLeft(round.endsAt, this.now()) : 0;
@@ -48,6 +61,25 @@ export class DisplayScreen {
 
   protected names(side: SideView): string {
     return (side.names ?? []).join(' / ');
+  }
+
+  protected short(side: SideView): string {
+    return shortNames(side);
+  }
+
+  protected time(value: string | number | null | undefined): string {
+    return value
+      ? new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(new Date(value))
+      : '';
+  }
+
+  /** Whole minutes since a match was called. */
+  protected minutes(m: MatchView): number {
+    return m.calledAt ? Math.max(0, Math.floor((this.now() - Date.parse(m.calledAt)) / 60_000)) : 0;
+  }
+
+  protected tileState(c: DisplayCourt): string {
+    return c.state === 'playing' ? 'playing' : c.state === 'finished' ? 'finished' : 'free';
   }
 
   protected diff(won: number, lost: number): string {

@@ -61,6 +61,9 @@ func TestControlDesk(t *testing.T) {
 	if len(d.Calls) != 1 || d.Calls[0].ID != "MS-A1" || d.Courts[0].Match == nil || d.Courts[1].Match != nil {
 		t.Errorf("display = %+v", d)
 	}
+	if d.Courts[0].State != tournament.CourtPlaying || d.Courts[0].Proposal != nil || d.Courts[1].Proposal == nil || d.Name == "" {
+		t.Errorf("display courts = %+v", d.Courts)
+	}
 
 	f.clock = f.clock.Add(12 * time.Minute)
 	must(f.svc.EndMatch(ctx, "MS-A1"))

@@ -8,6 +8,7 @@ package tournament
 import (
 	"encoding/json"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -129,7 +130,7 @@ func (s *State) apply(e events.Event) error {
 	case TypeEntrantRemoved:
 		return decodeInto(e, s.applyEntrantRemoved)
 	case TypePlayerCheckedIn:
-		return decodeInto(e, s.applyPlayerCheckedIn)
+		return decodeInto(e, func(p PlayerCheckedIn) { s.applyPlayerCheckedIn(p, e.At) })
 	case TypeCheckInCancelled:
 		return decodeInto(e, s.applyCheckInCancelled)
 	case TypePoolStageConfigured:
@@ -142,13 +143,13 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyEntrantMoved)
 	case TypeDrawConfirmed:
 		return decodeInto(e, func(p DrawConfirmed) {
-			s.setConfirmed(p.Category, true)
+			s.setConfirmed(p.Category, true, e.At)
 			s.dropMatches(p.Category)
 			s.generateMatches(p.Category)
 		})
 	case TypeDrawReopened:
 		return decodeInto(e, func(p DrawConfirmed) {
-			s.setConfirmed(p.Category, false)
+			s.setConfirmed(p.Category, false, time.Time{})
 			s.dropMatches(p.Category)
 		})
 	case TypeCourtsSet:

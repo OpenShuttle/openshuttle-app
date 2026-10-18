@@ -84,6 +84,17 @@ export interface BracketView {
      */
     "fullPlacement": boolean;
     "drawn": boolean;
+
+    /**
+     * Preview from the pool sizes and the routing: entrants sent here, byes
+     * in the first round, matches and rounds, and the places at stake.
+     */
+    "entrants": number;
+    "byes": number;
+    "matches": number;
+    "rounds": number;
+    "placeFrom": number;
+    "placeTo": number;
 }
 
 /**
@@ -116,6 +127,11 @@ export interface CheckInRow {
     "lastName": string;
     "club": string;
     "checkedIn": boolean;
+
+    /**
+     * CheckedInAt is when the player was checked in.
+     */
+    "checkedInAt": string | null;
 
     /**
      * Duplicate warns that another player has the same full name.
@@ -205,17 +221,29 @@ export interface DisplayBoard {
  */
 export interface DisplayCourt {
     "number": number;
+    "state": tournament$0.CourtState;
 
     /**
      * nil when free
      */
     "match": MatchView | null;
+
+    /**
+     * Proposal is the match coming next on a free or finished court.
+     */
+    "proposal": MatchView | null;
 }
 
 /**
  * DisplayView is the display screen: latest calls in big, then every court.
  */
 export interface DisplayView {
+    "name": string;
+    "categories": CategoryRef[] | null;
+
+    /**
+     * Calls are the latest calls, newest first: the first one in big.
+     */
     "calls": MatchView[] | null;
     "courts": DisplayCourt[] | null;
 
@@ -349,6 +377,11 @@ export interface FormatCategory {
      */
     "routing": string[] | null;
     "routingRows": number;
+
+    /**
+     * PoolRounds is the number of rounds of the largest pool.
+     */
+    "poolRounds": number;
 }
 
 /**
@@ -470,6 +503,11 @@ export interface PlayerView {
     "checkedIn": boolean;
 
     /**
+     * CheckedInAt is when the player was checked in.
+     */
+    "checkedInAt": string | null;
+
+    /**
      * Duplicate warns that another player has the same full name.
      */
     "duplicate": boolean;
@@ -494,6 +532,47 @@ export interface PoolRefView {
     "category": engine$0.Category;
     "slot": number;
     "pool": string;
+}
+
+/**
+ * ProgressView sums up a tournament for the side navigation and the top bar.
+ */
+export interface ProgressView {
+    "entrants": number;
+
+    /**
+     * Doubles is true when every category is played in pairs.
+     */
+    "doubles": boolean;
+    "players": number;
+    "playersPresent": number;
+
+    /**
+     * DrawsConfirmed counts the categories whose draw is confirmed.
+     */
+    "drawsConfirmed": number;
+
+    /**
+     * DrawConfirmedAt is when the latest draw was confirmed, once all are.
+     */
+    "drawConfirmedAt": string | null;
+
+    /**
+     * Started is set once a match has been called.
+     */
+    "started": boolean;
+
+    /**
+     * Matches counts the known matches (byes excluded); Played the decided ones.
+     */
+    "matches": number;
+    "played": number;
+
+    /**
+     * Final is set once every category has its full standings.
+     */
+    "final": boolean;
+    "stage": string;
 }
 
 /**
@@ -523,6 +602,12 @@ export interface RecentTournament {
      * Archived is set once the tournament was archived from this app.
      */
     "archived": boolean;
+
+    /**
+     * Summary is the tournament as it was when last closed; nil for
+     * entries saved by older versions.
+     */
+    "summary": TournamentSummary | null;
 }
 
 /**
@@ -676,6 +761,22 @@ export interface TimedRoundView {
 }
 
 /**
+ * TournamentSummary describes a tournament in the recent list.
+ */
+export interface TournamentSummary {
+    "categories": engine$0.Category[] | null;
+    "entrants": number;
+    "doubles": boolean;
+    "courts": number;
+    "stage": string;
+
+    /**
+     * UpdatedAt is the time of the latest event.
+     */
+    "updatedAt": string;
+}
+
+/**
  * TournamentView is what the top bar and the home screen need.
  */
 export interface TournamentView {
@@ -699,4 +800,5 @@ export interface TournamentView {
     "courts": number;
     "minRest": number;
     "priority": string;
+    "progress": ProgressView;
 }

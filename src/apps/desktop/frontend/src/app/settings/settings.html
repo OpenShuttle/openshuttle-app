@@ -1,9 +1,9 @@
 <ng-container *transloco="let t">
-  <div class="header">
-    <button type="button" class="btn back" (click)="back()">← {{ t('settingsPage.back') }}</button>
-    <div>
+  <div class="page-body settings">
+  <div class="page-head">
+    <div class="page-title">
       <h1>{{ t('settingsPage.title') }}</h1>
-      <p class="lead">{{ t('settingsPage.lead') }}</p>
+      <span class="page-sub">{{ t('settingsPage.lead') }}</span>
     </div>
   </div>
 
@@ -18,9 +18,9 @@
           <span class="name">{{ t('settings.language') }}</span>
           <span class="hint">{{ t('settingsPage.languageHint') }}</span>
         </div>
-        <div class="segments">
+        <div class="seg">
           @for (lang of language.languages; track lang) {
-            <button type="button" class="segment" [class.active]="language.active === lang" (click)="setLanguage(lang)">
+            <button type="button" class="seg-option" [class.active]="language.active === lang" (click)="setLanguage(lang)">
               {{ t('language.' + lang) }}
             </button>
           }
@@ -50,7 +50,7 @@
         </div>
         <div class="stepper">
           <button type="button" [disabled]="s.rotationSeconds <= 4" (click)="step('rotation', -1)">−</button>
-          <span class="value">{{ t('settingsPage.seconds', { n: s.rotationSeconds }) }}</span>
+          <span class="stepper-value">{{ t('settingsPage.seconds', { n: s.rotationSeconds }) }}</span>
           <button type="button" [disabled]="s.rotationSeconds >= 30" (click)="step('rotation', 1)">+</button>
         </div>
       </div>
@@ -79,7 +79,7 @@
         <div class="label"><span class="name">{{ t('tournamentInfo.courts') }}</span></div>
         <div class="stepper">
           <button type="button" [disabled]="s.defaultCourts <= 1" (click)="step('courts', -1)">−</button>
-          <span class="value">{{ s.defaultCourts }}</span>
+          <span class="stepper-value">{{ s.defaultCourts }}</span>
           <button type="button" [disabled]="s.defaultCourts >= 20" (click)="step('courts', 1)">+</button>
         </div>
       </div>
@@ -87,7 +87,7 @@
         <div class="label"><span class="name">{{ t('tournamentInfo.minRest') }}</span></div>
         <div class="stepper">
           <button type="button" [disabled]="s.defaultMinRest <= 0" (click)="step('rest', -1)">−</button>
-          <span class="value">{{ t('tournamentInfo.minutes', { n: s.defaultMinRest }) }}</span>
+          <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: s.defaultMinRest }) }}</span>
           <button type="button" [disabled]="s.defaultMinRest >= 60" (click)="step('rest', 1)">+</button>
         </div>
       </div>
@@ -96,11 +96,11 @@
           <span class="name">{{ t('settingsPage.poolWin') }}</span>
           <span class="hint">{{ t('settingsPage.poolWinHint') }}</span>
         </div>
-        <div class="segments">
-          <button type="button" class="segment" [class.active]="s.defaultPoolWin === 'timed'" (click)="setPoolWin('timed')">
+        <div class="seg">
+          <button type="button" class="seg-option" [class.active]="s.defaultPoolWin === 'timed'" (click)="setPoolWin('timed')">
             {{ t('format.byTime') }}
           </button>
-          <button type="button" class="segment" [class.active]="s.defaultPoolWin === 'sets'" (click)="setPoolWin('sets')">
+          <button type="button" class="seg-option" [class.active]="s.defaultPoolWin === 'sets'" (click)="setPoolWin('sets')">
             {{ t('format.bySets') }}
           </button>
         </div>
@@ -129,4 +129,5 @@
       <p class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</p>
     }
   }
+  </div>
 </ng-container>

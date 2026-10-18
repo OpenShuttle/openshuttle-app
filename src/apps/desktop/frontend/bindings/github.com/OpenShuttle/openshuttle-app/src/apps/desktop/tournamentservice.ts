@@ -138,6 +138,16 @@ export function DrawPools(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * DuplicateTournament asks where to save a copy of a tournament's setup
+ * (courts, categories, format), without its entrants, and adds it to the
+ * recent list without opening it. It returns the path, or "" when the user
+ * cancelled.
+ */
+export function DuplicateTournament(source: string, name: string): $CancellablePromise<string> {
+    return $Call.ByID(158212500, source, name);
+}
+
+/**
  * EndMatch ends a match in progress; its score can be entered later.
  */
 export function EndMatch(id: tournament$0.MatchID): $CancellablePromise<void> {
@@ -232,7 +242,8 @@ export function GetTournamentView(): $CancellablePromise<$models.TournamentView>
 }
 
 /**
- * ListRecentTournaments returns the recently opened tournaments.
+ * ListRecentTournaments returns the recently opened tournaments. The open
+ * one is summed up from its live state.
  */
 export function ListRecentTournaments(): $CancellablePromise<$models.RecentTournament[] | null> {
     return $Call.ByID(596346015);

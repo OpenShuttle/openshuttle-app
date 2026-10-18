@@ -1,17 +1,22 @@
 <ng-container *transloco="let t">
   <nav class="nav">
-    @for (group of groups; track group.key) {
-      <div class="group">
-        <span class="field-label">{{ t('nav.' + group.key) }}</span>
-        @for (item of group.items; track item.key) {
-          @if (item.path) {
-            <a class="item" [routerLink]="item.path" routerLinkActive="active">{{ t('nav.' + item.key) }}</a>
-          } @else {
-            <span class="item disabled" [attr.title]="t('nav.soon')">{{ t('nav.' + item.key) }}</span>
-          }
-        }
-      </div>
+    @for (group of groups(); track group.key; let first = $first) {
+      <span class="group-label" [class.first]="first">{{ t('nav.' + group.key) }}</span>
+      @for (item of group.items; track item.key) {
+        <a class="item" [routerLink]="item.path" routerLinkActive="active" [class.current]="item.mark === 'current'">
+          <span class="mark" [class]="'mark ' + item.mark">{{ item.mark === 'done' ? '✓' : '' }}</span>
+          <span class="item-text">
+            <span class="item-label">{{ t('nav.' + item.key) }}</span>
+            <span class="item-sub">{{ t(item.sub, item.params ?? {}) }}</span>
+          </span>
+        </a>
+      }
     }
+    <div class="file">
+      <a class="home" routerLink="/">{{ t('nav.home') }}</a>
+      <span class="file-name" [attr.title]="view().path">{{ fileName() }}</span>
+      <span class="file-saved">{{ t('nav.autosaved', { time: time(clock.now()) }) }}</span>
+    </div>
   </nav>
   <section class="page">
     <router-outlet />

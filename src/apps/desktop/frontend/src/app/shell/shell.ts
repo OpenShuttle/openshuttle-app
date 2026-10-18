@@ -1,6 +1,8 @@
-import { Component, HostListener, OnInit, computed, effect, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, HostListener, OnInit, computed, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { filter, map } from 'rxjs';
 
 import { DisplayScreenService } from '../core/display-screen.service';
 import { LanguageService } from '../core/language.service';
@@ -8,13 +10,17 @@ import { AppSettings } from '../core/settings.service';
 import { SettingsService } from '@bindings/apps/desktop';
 import { TournamentStore } from '../core/tournament.service';
 import { ActionView } from '@bindings/apps/desktop';
-import { CategoryBadge } from '../shared/category-badge';
 import { ActionLabels } from '../core/action-label';
+import { Clock } from '../core/clock';
 
-/** Main window: top bar, then the home screen or the open tournament. */
+/**
+ * Main window: the top bar, then the home screens (recent tournaments,
+ * settings) or the open tournament. Going home keeps the tournament open:
+ * the top bar offers to resume it.
+ */
 @Component({
   selector: 'app-shell',
-  imports: [TranslocoDirective, RouterOutlet, RouterLink, RouterLinkActive, CategoryBadge],
+  imports: [TranslocoDirective, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -22,6 +28,7 @@ export class Shell implements OnInit {
   protected readonly display = inject(DisplayScreenService);
   protected readonly language = inject(LanguageService);
   protected readonly tournament = inject(TournamentStore);
+  protected readonly clock = inject(Clock);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly labels = inject(ActionLabels);
@@ -32,18 +39,28 @@ export class Shell implements OnInit {
   protected readonly view = this.tournament.view;
   protected readonly lastAction = computed(() => this.view().lastAction);
 
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+  /** True inside the open tournament, false on the home screens. */
+  protected readonly inTournament = computed(() => this.view().open && this.url().startsWith('/tournament'));
+
+  protected readonly homeTabs = [
+    { key: 'home', path: '/' },
+    { key: 'settings', path: '/settings' },
+  ];
+
+  /** Two letters standing for the tournament: "Plume d'automne" → PD. */
+  protected readonly mark = computed(() => initials(this.view().name));
+
   constructor() {
-    // Opening a tournament enters it; closing it goes back home.
+    // Closing the tournament leaves its screens.
     effect(() => {
-      const open = this.view().open;
-      const url = this.router.url;
-      // Settings stay reachable whether a tournament is open or not.
-      if (url.startsWith('/settings')) {
-        return;
-      }
-      if (open && !url.startsWith('/tournament')) {
-        void this.router.navigateByUrl('/tournament');
-      } else if (!open && url.startsWith('/tournament')) {
+      if (!this.view().open && this.url().startsWith('/tournament')) {
         void this.router.navigateByUrl('/');
       }
     });
@@ -63,7 +80,7 @@ export class Shell implements OnInit {
   protected onKeydown(event: KeyboardEvent): void {
     const isUndo =
       (event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'z';
-    if (!isUndo || isEditable(event.target) || !this.view().canUndo) {
+    if (!isUndo || isEditable(event.target) || !this.view().canUndo || !this.inTournament()) {
       return;
     }
     event.preventDefault();
@@ -74,14 +91,18 @@ export class Shell implements OnInit {
     void this.tournament.undo();
   }
 
+  protected resume(): void {
+    void this.router.navigateByUrl('/tournament');
+  }
+
   /** Translated label of a history entry. */
   protected actionLabel(action: ActionView): string {
     return this.labels.label(action);
   }
 
-  protected time(iso: string): string {
+  protected time(value: string | Date): string {
     return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(
-      new Date(iso),
+      new Date(value),
     );
   }
 
@@ -102,6 +123,12 @@ export class Shell implements OnInit {
   protected toggleDisplay(): void {
     void (this.display.isOpen() ? this.display.close() : this.display.open(this.monitorId()));
   }
+}
+
+/** First letters of the first two words, digits skipped: "Plume d'automne 2026" → PD. */
+export function initials(name: string): string {
+  const words = name.split(/\s+/).filter((w) => /^\p{L}/u.test(w));
+  return words.slice(0, 2).map((w) => w[0].toUpperCase()).join('') || 'OS';
 }
 
 function isEditable(target: EventTarget | null): boolean {

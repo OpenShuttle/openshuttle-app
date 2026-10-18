@@ -35,6 +35,8 @@ type FormatCategory struct {
 	// RoutingRows is how many positions to show (the largest pool).
 	Routing     []string `json:"routing"`
 	RoutingRows int      `json:"routingRows"`
+	// PoolRounds is the number of rounds of the largest pool.
+	PoolRounds int `json:"poolRounds"`
 }
 
 // FormatView is the format screen.
@@ -139,14 +141,21 @@ func (s *TournamentService) GetFormatView() FormatView {
 		if d, ok := st.Draw(ref.Category); ok && d.Confirmed {
 			fc.PoolsLocked = true
 		}
-		fc.Brackets = []BracketView{}
-		for _, b := range st.Brackets(ref.Category) {
-			fc.Brackets = append(fc.Brackets, BracketView{ID: b.ID, BracketConfig: b.BracketConfig, Drawn: b.Drawn()})
-		}
 		fc.Routing = st.Routing(ref.Category)
 		if fc.Routing == nil {
 			fc.Routing = []string{}
 		}
+		sizes := fc.Sizes
+		if d, ok := st.Draw(ref.Category); ok {
+			sizes = nil
+			for _, pool := range d.Pools {
+				sizes = append(sizes, len(pool))
+			}
+		}
+		for _, size := range sizes {
+			fc.PoolRounds = max(fc.PoolRounds, engine.RoundRobinRounds(size))
+		}
+		fc.Brackets = bracketPreviews(st.Brackets(ref.Category), fc.Routing, sizes)
 		fc.RoutingRows = max(len(fc.Routing), 2)
 		if len(fc.Sizes) > 0 {
 			fc.RoutingRows = max(fc.RoutingRows, fc.Sizes[0])
@@ -228,4 +237,44 @@ func cryptoRand() *rand.Rand {
 	var b [16]byte
 	_, _ = cryptorand.Read(b[:])
 	return rand.New(rand.NewPCG(binary.LittleEndian.Uint64(b[:8]), binary.LittleEndian.Uint64(b[8:])))
+}
+
+// bracketPreviews sums up each bracket from the pool sizes and the routing.
+// Places follow the order of the pool positions brackets take, as in the
+// full standings.
+func bracketPreviews(brackets []tournament.Bracket, routing []string, sizes []int) []BracketView {
+	entrants := map[string]int{}
+	var order []string
+	for i, id := range routing {
+		if id == "" {
+			continue
+		}
+		if _, seen := entrants[id]; !seen {
+			order = append(order, id)
+		}
+		for _, size := range sizes {
+			if size > i {
+				entrants[id]++
+			}
+		}
+	}
+	places := map[string][2]int{}
+	next := 1
+	for _, id := range order {
+		places[id] = [2]int{next, next + entrants[id] - 1}
+		next += entrants[id]
+	}
+	out := []BracketView{}
+	for _, b := range brackets {
+		n := entrants[b.ID]
+		v := BracketView{ID: b.ID, BracketConfig: b.BracketConfig, Drawn: b.Drawn(), Entrants: n}
+		if n > 0 {
+			v.Byes = engine.NextPowerOfTwo(n) - n
+			v.Matches = engine.BracketMatches(n, b.FullPlacement)
+			v.Rounds = engine.BracketRounds(n)
+			v.PlaceFrom, v.PlaceTo = places[b.ID][0], places[b.ID][1]
+		}
+		out = append(out, v)
+	}
+	return out
 }

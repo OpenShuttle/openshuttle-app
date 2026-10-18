@@ -3,6 +3,7 @@ package tournament
 import (
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
+	"time"
 )
 
 const (
@@ -52,12 +53,13 @@ func (s State) CancelCheckIn(id PlayerID) (Change, error) {
 	return Change{TypeCheckInCancelled, CheckInCancelled{Player: id}}, nil
 }
 
-func (s *State) applyPlayerCheckedIn(p PlayerCheckedIn) {
+func (s *State) applyPlayerCheckedIn(p PlayerCheckedIn, at time.Time) {
 	i, j := s.playerIndex(p.Player)
 	if i < 0 {
 		return
 	}
 	s.Entrants[i].Players[j].CheckedIn = true
+	s.Entrants[i].Players[j].CheckedInAt = at
 	if p.Bib != 0 && s.Entrants[i].Bib == 0 {
 		// Normally p.Bib == lastBib+1. After an undo of an undo, the recorded
 		// number may have been reused since: take the next free one.
@@ -70,5 +72,6 @@ func (s *State) applyPlayerCheckedIn(p PlayerCheckedIn) {
 func (s *State) applyCheckInCancelled(p CheckInCancelled) {
 	if i, j := s.playerIndex(p.Player); i >= 0 {
 		s.Entrants[i].Players[j].CheckedIn = false
+		s.Entrants[i].Players[j].CheckedInAt = time.Time{}
 	}
 }

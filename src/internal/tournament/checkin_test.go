@@ -36,10 +36,14 @@ func TestCheckIn(t *testing.T) {
 		t.Errorf("double check-in = %+v", ch)
 	}
 
-	// Cancelling keeps the bib.
+	if at := g.entrant(pair).Players[0].CheckedInAt; !at.Equal(g.now) {
+		t.Errorf("checked in at %v, want %v", at, g.now)
+	}
+
+	// Cancelling keeps the bib and clears the time.
 	g.do(func(s State) (Change, error) { return s.CancelCheckIn(p1) })
-	if e := g.entrant(pair); e.Bib != 2 || e.Complete() {
-		t.Errorf("after cancel = bib %d complete %v", e.Bib, e.Complete())
+	if e := g.entrant(pair); e.Bib != 2 || e.Complete() || !e.Players[0].CheckedInAt.IsZero() {
+		t.Errorf("after cancel = bib %d complete %v at %v", e.Bib, e.Complete(), e.Players[0].CheckedInAt)
 	}
 	if ch := g.do(func(s State) (Change, error) { return s.CancelCheckIn(p1) }); !ch.None() {
 		t.Errorf("double cancel = %+v", ch)

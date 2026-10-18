@@ -11,6 +11,7 @@ import { ScorePanel } from '../score-panel/score-panel';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
+import { clubs, shortNames } from '../shared/names';
 
 /** Pending scores older than this are highlighted. */
 const LATE_SCORE_MINUTES = 10;
@@ -87,9 +88,22 @@ export class ControlDesk {
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
-  protected names(side: SideView): string {
-    return (side.names ?? []).join(' / ');
+  protected short(side: SideView): string {
+    return shortNames(side);
   }
+
+  protected clubs(side: SideView): string {
+    return clubs(side);
+  }
+
+  /** Court a waiting match is proposed on, 0 if none. */
+  protected proposedCourt(id: string): number {
+    return (this.view().courts ?? []).find((c) => c.proposal?.id === id)?.number ?? 0;
+  }
+
+  protected readonly alertCount = computed(
+    () => (this.view().complete ?? []).length + (this.view().bracketsToFill ?? []).length,
+  );
 
   /** "mm:ss" since an ISO time. */
   protected elapsed(iso: string | null | undefined): string {

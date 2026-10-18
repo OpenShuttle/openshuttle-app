@@ -3,6 +3,7 @@ package tournament
 import (
 	"math/rand/v2"
 	"slices"
+	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
@@ -23,6 +24,8 @@ const MaxSeed = 32
 type Draw struct {
 	Pools     [][]engine.EntrantID
 	Confirmed bool
+	// ConfirmedAt is when the draw was last confirmed.
+	ConfirmedAt time.Time
 }
 
 // EntrantSeeded is the payload of TypeEntrantSeeded. Seed 0 clears the seed.
@@ -225,9 +228,10 @@ func (s *State) applyEntrantMoved(p EntrantMoved) {
 	d.Pools[p.Pool] = append(d.Pools[p.Pool], p.Entrant)
 }
 
-func (s *State) setConfirmed(c engine.Category, confirmed bool) {
+func (s *State) setConfirmed(c engine.Category, confirmed bool, at time.Time) {
 	if d := s.draws[c]; d != nil {
 		d.Confirmed = confirmed
+		d.ConfirmedAt = at
 	}
 }
 

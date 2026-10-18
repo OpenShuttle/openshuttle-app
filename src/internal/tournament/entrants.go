@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -32,6 +33,8 @@ type Player struct {
 	LastName  string   `json:"lastName"`
 	Club      string   `json:"club"`
 	CheckedIn bool     `json:"-"`
+	// CheckedInAt is when the player was checked in, zero when absent.
+	CheckedInAt time.Time `json:"-"`
 }
 
 // Entrant is a player in singles, a pair in doubles.
@@ -221,9 +224,10 @@ func (s *State) applyEntrantUpdated(p EntrantUpdated) {
 	}
 	for j, updated := range p.Players {
 		if j < len(s.Entrants[i].Players) {
-			checkedIn := s.Entrants[i].Players[j].CheckedIn
+			old := s.Entrants[i].Players[j]
 			s.Entrants[i].Players[j] = updated
-			s.Entrants[i].Players[j].CheckedIn = checkedIn
+			s.Entrants[i].Players[j].CheckedIn = old.CheckedIn
+			s.Entrants[i].Players[j].CheckedInAt = old.CheckedInAt
 		}
 	}
 }

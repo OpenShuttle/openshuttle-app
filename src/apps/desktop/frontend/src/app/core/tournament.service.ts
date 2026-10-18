@@ -19,6 +19,19 @@ const CLOSED: TournamentView = {
   courts: 4,
   minRest: 10,
   priority: 'balanced',
+  progress: {
+    entrants: 0,
+    doubles: false,
+    players: 0,
+    playersPresent: 0,
+    drawsConfirmed: 0,
+    drawConfirmedAt: null,
+    started: false,
+    matches: 0,
+    played: 0,
+    final: false,
+    stage: 'preparation',
+  },
 };
 
 /**
@@ -59,6 +72,13 @@ export class TournamentStore {
       await Backend.OpenTournament(path);
       return true;
     });
+  }
+
+  /** Copies a tournament's setup, without its entrants. False when cancelled. */
+  async duplicate(path: string, name: string): Promise<boolean> {
+    const done = await this.run(async () => (await Backend.DuplicateTournament(path, name)) !== '');
+    await this.refresh();
+    return done;
   }
 
   close(): Promise<boolean> {

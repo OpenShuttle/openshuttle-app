@@ -1,77 +1,90 @@
 <ng-container *transloco="let t">
-  <div class="header">
-    <h1>{{ t('tournamentInfo.title') }}</h1>
-    <button type="button" class="btn" (click)="tournament.close()">{{ t('tournamentInfo.close') }}</button>
-  </div>
-
-  <section class="card">
-    <label class="field">
-      <span class="field-label">{{ t('tournamentInfo.name') }}</span>
-      <input
-        class="input"
-        type="text"
-        maxlength="100"
-        [value]="name()"
-        (input)="name.set($any($event.target).value)"
-        (blur)="save()"
-        (keydown.enter)="save()"
-        (keydown.escape)="reset()"
-      />
-    </label>
-    <div class="field">
-      <span class="field-label">{{ t('tournamentInfo.file') }}</span>
-      <span class="path">{{ tournament.view().path }}</span>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <span class="row-label">{{ t('tournamentInfo.courts') }}</span>
-      <div class="stepper">
-        <button type="button" [disabled]="tournament.view().courts <= 1" (click)="tournament.setCourts(tournament.view().courts - 1)">−</button>
-        <span class="value">{{ tournament.view().courts }}</span>
-        <button type="button" [disabled]="tournament.view().courts >= 20" (click)="tournament.setCourts(tournament.view().courts + 1)">+</button>
+  <div class="page-body">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('tournamentInfo.title') }}</h1>
+        <span class="page-sub">{{ t('tournamentInfo.lead') }}</span>
       </div>
     </div>
-    <div class="row">
-      <span class="row-label">{{ t('tournamentInfo.minRest') }}</span>
-      <div class="stepper">
-        <button type="button" [disabled]="tournament.view().minRest <= 0" (click)="tournament.setMinRest(tournament.view().minRest - 1)">−</button>
-        <span class="value">{{ t('tournamentInfo.minutes', { n: tournament.view().minRest }) }}</span>
-        <button type="button" [disabled]="tournament.view().minRest >= 60" (click)="tournament.setMinRest(tournament.view().minRest + 1)">+</button>
-      </div>
-    </div>
-  </section>
 
-  <section class="card">
-    <div class="field">
-      <span class="field-label">{{ t('tournamentInfo.categories') }}</span>
-      <p class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</p>
-    </div>
+    <div class="layout">
+      <section class="card form">
+        <label class="field wide">
+          <span class="field-label">{{ t('tournamentInfo.name') }}</span>
+          <input
+            class="input name"
+            type="text"
+            maxlength="100"
+            [value]="name()"
+            (input)="name.set($any($event.target).value)"
+            (blur)="save()"
+            (keydown.enter)="save()"
+            (keydown.escape)="reset()"
+          />
+        </label>
 
-    @for (c of tournament.view().categories; track c.category) {
-      <div class="category">
-        <app-category-badge [category]="c.category" [slot]="c.slot" />
-        <span class="category-name">{{ t('category.name.' + c.category) }}</span>
-        <button type="button" class="btn btn-small" (click)="tournament.removeCategory(c.category)">
-          {{ t('tournamentInfo.removeCategory') }}
-        </button>
-      </div>
-    } @empty {
-      <p class="hint">{{ t('tournamentInfo.noCategory') }}</p>
-    }
+        <div class="field wide">
+          <span class="field-label">{{ t('tournamentInfo.categories') }}</span>
+          <div class="seg categories">
+            @for (c of allCategories; track c) {
+              <button
+                type="button"
+                class="seg-option"
+                [class.active]="has(c)"
+                [disabled]="!has(c) && !canAdd(c)"
+                (click)="toggle(c)"
+              >
+                {{ t('category.name.' + c) }}
+              </button>
+            }
+          </div>
+          <span class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</span>
+        </div>
 
-    @if (!full()) {
-      @if ((tournament.view().categories ?? []).length === 1) {
-        <p class="hint">{{ t('tournamentInfo.sexHint') }}</p>
-      }
-      <div class="add">
-        @for (c of available(); track c) {
-          <button type="button" class="btn" (click)="tournament.addCategory(c)">
-            + {{ t('category.name.' + c) }}
-          </button>
+        @if ((tournament.view().categories ?? []).length > 1) {
+          <div class="field wide">
+            <span class="field-label">{{ t('tournamentInfo.priority') }}</span>
+            <div class="seg seg-sm">
+              <button type="button" class="seg-option" [class.active]="tournament.view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
+                {{ t('priority.balanced') }}
+              </button>
+              @for (c of tournament.view().categories; track c.category) {
+                <button type="button" class="seg-option" [class.active]="tournament.view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
+                  {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
+                </button>
+              }
+            </div>
+            <span class="hint">{{ t('tournamentInfo.priorityHint') }}</span>
+          </div>
         }
-      </div>
-    }
-  </section>
+
+        <div class="step">
+          <span class="field-label">{{ t('tournamentInfo.courts') }}</span>
+          <div class="stepper">
+            <button type="button" [disabled]="tournament.view().courts <= 1" (click)="tournament.setCourts(tournament.view().courts - 1)">−</button>
+            <span class="stepper-value">{{ tournament.view().courts }}</span>
+            <button type="button" [disabled]="tournament.view().courts >= 20" (click)="tournament.setCourts(tournament.view().courts + 1)">+</button>
+          </div>
+        </div>
+        <div class="step">
+          <span class="field-label">{{ t('tournamentInfo.minRestShort') }}</span>
+          <div class="stepper">
+            <button type="button" [disabled]="tournament.view().minRest <= 0" (click)="tournament.setMinRest(tournament.view().minRest - 1)">−</button>
+            <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: tournament.view().minRest }) }}</span>
+            <button type="button" [disabled]="tournament.view().minRest >= 60" (click)="tournament.setMinRest(tournament.view().minRest + 1)">+</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card file">
+        <span class="field-label">{{ t('tournamentInfo.file') }}</span>
+        <span class="path">{{ tournament.view().path }}</span>
+        <span class="hint">{{ t('tournamentInfo.fileHint') }}</span>
+        <div class="file-actions">
+          <a class="btn" routerLink="../format">{{ t('tournamentInfo.openFormat') }}</a>
+          <button type="button" class="btn" (click)="tournament.close()">{{ t('tournamentInfo.close') }}</button>
+        </div>
+      </section>
+    </div>
+  </div>
 </ng-container>

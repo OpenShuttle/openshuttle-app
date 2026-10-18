@@ -1,59 +1,94 @@
 <ng-container *transloco="let t">
-  <div class="header">
-    <h1>{{ t('home.recentTournaments') }}</h1>
-    <div class="actions">
-      <button type="button" class="btn" (click)="tournament.openDialog()">{{ t('home.openFile') }}</button>
+  <div class="page-body home">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('home.recentTournaments') }}</h1>
+        <span class="page-sub">{{ t('home.lead') }}</span>
+      </div>
+      <button type="button" class="btn" (click)="openDialog()">{{ t('home.openFile') }}</button>
       <button type="button" class="btn btn-primary" (click)="startCreate()">{{ t('home.newTournament') }}</button>
     </div>
-  </div>
 
-  @if (creating()) {
-    <form class="create" (submit)="$event.preventDefault(); create()">
-      <label class="create-field">
-        <span class="field-label">{{ t('home.tournamentName') }}</span>
-        <input
-          class="input"
-          type="text"
-          maxlength="100"
-          autofocus
-          [value]="name()"
-          (input)="name.set($any($event.target).value)"
-          (keydown.escape)="creating.set(false)"
-        />
-      </label>
-      <button type="submit" class="btn btn-primary" [disabled]="!name().trim()">{{ t('home.create') }}</button>
-      <button type="button" class="btn" (click)="creating.set(false)">{{ t('common.cancel') }}</button>
-    </form>
-  }
+    @if (creating()) {
+      <form class="card create" (submit)="$event.preventDefault(); create()">
+        <label class="create-field">
+          <span class="field-label">{{ t('home.tournamentName') }}</span>
+          <input
+            class="input"
+            type="text"
+            maxlength="100"
+            autofocus
+            [value]="name()"
+            (input)="name.set($any($event.target).value)"
+            (keydown.escape)="creating.set(false)"
+          />
+        </label>
+        <button type="button" class="btn" (click)="creating.set(false)">{{ t('common.cancel') }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!name().trim()">{{ t('home.create') }}</button>
+      </form>
+    }
 
-  @if (tournament.recent().length === 0) {
-    <div class="empty">{{ t('home.noTournament') }}</div>
-  } @else {
-    <ul class="recent">
-      @for (r of tournament.recent(); track r.path) {
-        <li>
-          <button type="button" class="recent-item" [disabled]="!r.exists" (click)="tournament.open(r.path)">
-            <span class="recent-name">
-              {{ r.name }}
-              @if (r.archived) {
-                <span class="archived">{{ t('home.archived') }}</span>
+    @if (tournament.recent().length === 0) {
+      <div class="card empty">{{ t('home.noTournament') }}</div>
+    } @else {
+      <div class="card list">
+        @for (r of tournament.recent(); track r.path) {
+          <div class="row" [class.missing]="!r.exists">
+            <span class="cell">
+              <span class="name">{{ r.name }}</span>
+              <span class="file" [attr.title]="r.path">{{ fileName(r.path) }}</span>
+            </span>
+            <span class="cell">
+              @if (r.summary; as s) {
+                <span class="categories">
+                  @for (c of s.categories ?? []; track c; let last = $last) {
+                    {{ t('category.name.' + c) }}{{ last ? '' : ' + ' }}
+                  } @empty {
+                    {{ t('home.noCategory') }}
+                  }
+                </span>
+                <span class="size">
+                  {{ t(s.doubles ? 'home.pairs' : 'home.entrants', { count: s.entrants }) }} ·
+                  {{ t('home.courts', { count: s.courts }) }}
+                </span>
               }
             </span>
-            <span class="recent-path">{{ r.path }}</span>
-            <span class="recent-date">
-              @if (r.exists) {
-                {{ t('home.openedAt', { date: date(r.openedAt) }) }}
-              } @else {
-                {{ t('home.fileMissing') }}
+            <span class="status">
+              @if (!r.exists) {
+                <span class="pill pill-alert">{{ t('home.fileMissing') }}</span>
+              } @else if (isOpen(r)) {
+                <span class="pill pill-free">{{ t('home.isOpen') }}</span>
+              } @else if (r.archived || r.summary?.stage === 'archived') {
+                <span class="pill pill-muted">{{
+                  r.summary ? t('home.archivedOn', { date: date(r.summary.updatedAt) }) : t('home.archived')
+                }}</span>
+              } @else if (r.summary?.stage === 'dayOf') {
+                <span class="pill pill-playing">{{ t('home.dayOf') }}</span>
+              } @else if (r.summary) {
+                <span class="pill pill-finished">{{ t('home.preparation') }}</span>
               }
             </span>
-          </button>
-        </li>
+            <span class="actions">
+              <button type="button" class="btn btn-sm" [disabled]="!r.exists" (click)="duplicate(r)">
+                {{ t('home.duplicate') }}
+              </button>
+              <button type="button" class="btn btn-sm btn-primary" [disabled]="!r.exists" (click)="open(r)">
+                {{ t(isOpen(r) ? 'home.resume' : 'home.open') }}
+              </button>
+            </span>
+          </div>
+        }
+      </div>
+    }
+
+    <span class="note">
+      @if (folder()) {
+        {{ t('home.folder', { folder: folder() }) }}
       }
-    </ul>
-  }
-
-  @if (app(); as info) {
-    <p class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</p>
-  }
+      {{ t('home.duplicateHint') }}
+      @if (app(); as info) {
+        <span class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</span>
+      }
+    </span>
+  </div>
 </ng-container>
