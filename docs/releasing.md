@@ -39,12 +39,38 @@ The [Release desktop](../.github/workflows/release-desktop.yml) workflow then:
 A wrong tag fails the workflow before building: delete it (`git push origin
 :refs/tags/desktop-vX.Y.Z`), fix, tag again.
 
+### Download links
+
+The website links to `openshuttle.app/download/<platform>` (or
+`/telecharger/<platform>`), never to a release file: the last step of the
+workflow points these links to the new release, through a Cloudflare Bulk
+Redirects list (302 redirects). Platforms: `windows`, `windows-portable`,
+`macos`, `linux-deb`, `linux-tar`, `checksums`. Releases of the other apps
+(relay, web) never touch them.
+
+One-time setup in Cloudflare (the zone `openshuttle.app` on the account):
+
+1. **Rules → Bulk Redirects**: create a list `openshuttle_downloads`, then a
+   Bulk Redirect rule using it. Note the list ID (in the list's URL, or `GET
+   /accounts/<account>/rules/lists`).
+2. **My Profile → API Tokens**: create a token with only *Account → Account
+   Filter Lists → Edit* on this account.
+3. In the GitHub repository, **Settings → Secrets and variables → Actions**,
+   add `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and
+   `CLOUDFLARE_DOWNLOADS_LIST_ID`.
+
+Until the three secrets exist, the step is skipped and the links stay as they
+are. Each release replaces the whole list.
+
 ### Not signed yet
 
 The Windows installer and the macOS app are not signed with a publisher
-certificate: Windows SmartScreen and macOS Gatekeeper warn on first launch
-(macOS: right click → Open). Signing needs certificates and secrets, to set up
-before a public release.
+certificate: Windows SmartScreen and macOS Gatekeeper warn on first launch.
+On Windows: More info → Run anyway. On macOS (ad-hoc signed), since macOS 15:
+open the app once, then System Settings → Privacy & Security → Open Anyway.
+Planned: Windows signing through SignPath Foundation (free for open source,
+needs a code signing policy page on the website); macOS needs an Apple
+Developer account (or a fee waiver for a non-profit).
 
 ## Changing MAJOR
 

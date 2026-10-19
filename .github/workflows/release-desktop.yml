@@ -153,3 +153,41 @@ jobs:
             --verify-tag \
             --title "OpenShuttle desktop $VERSION" \
             --generate-notes
+      - name: Update the download links
+        # openshuttle.app/download/<platform> (and /telecharger/<platform>)
+        # redirect to this release's files through a Cloudflare Bulk
+        # Redirects list. Skipped until the secrets are set: see
+        # docs/releasing.md.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DOWNLOADS_LIST_ID: ${{ secrets.CLOUDFLARE_DOWNLOADS_LIST_ID }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_DOWNLOADS_LIST_ID" ]; then
+            echo "Cloudflare secrets not set: download links left as they are."
+            exit 0
+          fi
+          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}"
+          name="openshuttle-desktop-${VERSION}"
+          items=$(jq -n --arg base "$base" --arg name "$name" '
+            [
+              ["windows", "\($name)-windows-amd64-setup.exe"],
+              ["windows-portable", "\($name)-windows-amd64-portable.zip"],
+              ["macos", "\($name)-macos-arm64.zip"],
+              ["linux-deb", "\($name)-linux-amd64.deb"],
+              ["linux-tar", "\($name)-linux-amd64.tar.gz"],
+              ["checksums", "SHA256SUMS.txt"]
+            ]
+            | map(. as [$platform, $file] | ["download", "telecharger"][]
+                | {redirect: {
+                    source_url: "openshuttle.app/\(.)/\($platform)",
+                    target_url: "\($base)/\($file)",
+                    status_code: 302
+                  }})')
+          # Replaces every item of the list with this release's links.
+          curl --fail-with-body -sS -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/rules/lists/${CLOUDFLARE_DOWNLOADS_LIST_ID}/items" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "$items"
