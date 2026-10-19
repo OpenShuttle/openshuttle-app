@@ -124,6 +124,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyCategoryRemoved)
 	case TypeEntrantRegistered:
 		return decodeInto(e, s.applyEntrantRegistered)
+	case TypeEntrantsImported:
+		return decodeInto(e, s.applyEntrantsImported)
 	case TypeEntrantUpdated:
 		return decodeInto(e, s.applyEntrantUpdated)
 	case TypeEntrantRemoved:

@@ -35,6 +35,22 @@ export interface FormatPreview {
 }
 
 /**
+ * ImportReport says what an import did.
+ */
+export interface ImportReport {
+    "added": number;
+    "skipped": ImportSkip[] | null;
+}
+
+/**
+ * ImportSkip is a line left out of an import, with why.
+ */
+export interface ImportSkip {
+    "line": number;
+    "code": engine$0.Code;
+}
+
+/**
  * MatchID identifies a match: category, stage (but the entry stage's),
  * then pool and number, or the bracket match number: "MD-A3", "MD-S2-5".
  */

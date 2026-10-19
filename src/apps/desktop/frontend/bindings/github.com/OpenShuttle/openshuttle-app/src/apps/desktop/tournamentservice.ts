@@ -236,6 +236,16 @@ export function GetTournamentView(): $CancellablePromise<$models.TournamentView>
 }
 
 /**
+ * ImportEntrants asks for a player list (CSV, the layout of the entrants
+ * export) and enters its rows, in one undoable action. Rows without a
+ * category go to fallback. It reports what was added and skipped; a
+ * cancelled dialog reports nothing.
+ */
+export function ImportEntrants(fallback: engine$0.Category): $CancellablePromise<tournament$0.ImportReport> {
+    return $Call.ByID(1651524604, fallback);
+}
+
+/**
  * ListRecentTournaments returns the recently opened tournaments. The open
  * one is summed up from its live state.
  */

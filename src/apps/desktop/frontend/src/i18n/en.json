@@ -90,7 +90,8 @@
     "FormatSet": "Format changed: {category}",
     "EntryDrawn": "Draw: {category}",
     "StageFilled": "{stage} filled: {category}",
-    "SlotsSwapped": "Places swapped: {stage}"
+    "SlotsSwapped": "Places swapped: {stage}",
+    "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -124,7 +125,8 @@
     "FormatSet": "format change {category}",
     "EntryDrawn": "draw {category}",
     "StageFilled": "filling of {stage}",
-    "SlotsSwapped": "swap in {stage}"
+    "SlotsSwapped": "swap in {stage}",
+    "EntrantsImported": "import of {count} entrants"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -198,7 +200,9 @@
     "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format.",
     "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase.",
     "FORMAT_LOCKED": "A match of this category already started: its format can no longer change.",
-    "CLUB_NOT_FOUND": "This club is no longer in the list."
+    "CLUB_NOT_FOUND": "This club is no longer in the list.",
+    "INVALID_FILE": "This file cannot be read as a player list (CSV).",
+    "ALREADY_ENTERED": "Already entered."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -306,7 +310,20 @@
     "homonym": "Homonym",
     "playerN": "Player {n}",
     "name": "Name",
-    "namePlaceholder": "First and last name"
+    "namePlaceholder": "First and last name",
+    "import": "Import…",
+    "export": "Export",
+    "imported": "{n, plural, =0 {Nobody imported} one {# entrant imported} other {# entrants imported}}",
+    "importSkipped": "{n, plural, one {# line skipped} other {# lines skipped}}",
+    "importLine": "Line {line}",
+    "importFormat": "Expected columns: category (MD, WD… or DH, DD…), player 1, club 1, player 2, club 2. Without a category, the line goes to the category selected in the form.",
+    "exported": "List exported: {path}",
+    "csv": {
+      "category": "Category",
+      "player": "Player {n}",
+      "club": "Club {n}",
+      "fileSuffix": "players"
+    }
   },
   "checkIn": {
     "title": "Check-in",
@@ -765,5 +782,12 @@
     "add": "Add",
     "rename": "Rename",
     "empty": "No club yet."
+  },
+  "importSkip": {
+    "ALREADY_ENTERED": "already entered",
+    "CATEGORY_NOT_FOUND": "category not played in this tournament",
+    "WRONG_PLAYER_COUNT": "wrong number of players for the category",
+    "INVALID_PLAYER_NAME": "missing or too long name",
+    "INVALID_CLUB": "club name too long"
   }
 }

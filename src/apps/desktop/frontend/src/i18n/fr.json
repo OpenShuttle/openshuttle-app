@@ -90,7 +90,8 @@
     "FormatSet": "Format modifié : {category}",
     "EntryDrawn": "Tirage : {category}",
     "StageFilled": "{stage} rempli : {category}",
-    "SlotsSwapped": "Places échangées : {stage}"
+    "SlotsSwapped": "Places échangées : {stage}",
+    "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -124,7 +125,8 @@
     "FormatSet": "modification du format {category}",
     "EntryDrawn": "tirage {category}",
     "StageFilled": "remplissage de {stage}",
-    "SlotsSwapped": "échange dans {stage}"
+    "SlotsSwapped": "échange dans {stage}",
+    "EntrantsImported": "import de {count} inscriptions"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -198,7 +200,9 @@
     "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format.",
     "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase.",
     "FORMAT_LOCKED": "Un match de cette catégorie a déjà commencé : son format ne peut plus changer.",
-    "CLUB_NOT_FOUND": "Ce club n'est plus dans la liste."
+    "CLUB_NOT_FOUND": "Ce club n'est plus dans la liste.",
+    "INVALID_FILE": "Ce fichier ne se lit pas comme une liste de joueurs (CSV).",
+    "ALREADY_ENTERED": "Déjà inscrit."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -306,7 +310,20 @@
     "homonym": "Homonyme",
     "playerN": "Joueur {n}",
     "name": "Nom",
-    "namePlaceholder": "Prénom et nom"
+    "namePlaceholder": "Prénom et nom",
+    "import": "Importer…",
+    "export": "Exporter",
+    "imported": "{n, plural, =0 {Aucune inscription importée} one {# inscription importée} other {# inscriptions importées}}",
+    "importSkipped": "{n, plural, one {# ligne ignorée} other {# lignes ignorées}}",
+    "importLine": "Ligne {line}",
+    "importFormat": "Colonnes attendues : catégorie (DH, DD… ou MD, WD…), joueur 1, club 1, joueur 2, club 2. Sans catégorie, la ligne va dans la catégorie choisie dans le formulaire.",
+    "exported": "Liste exportée : {path}",
+    "csv": {
+      "category": "Catégorie",
+      "player": "Joueur {n}",
+      "club": "Club {n}",
+      "fileSuffix": "joueurs"
+    }
   },
   "checkIn": {
     "title": "Pointage",
@@ -765,5 +782,12 @@
     "add": "Ajouter",
     "rename": "Renommer",
     "empty": "Aucun club pour l'instant."
+  },
+  "importSkip": {
+    "ALREADY_ENTERED": "déjà inscrit",
+    "CATEGORY_NOT_FOUND": "catégorie absente du tournoi",
+    "WRONG_PLAYER_COUNT": "mauvais nombre de joueurs pour la catégorie",
+    "INVALID_PLAYER_NAME": "nom manquant ou trop long",
+    "INVALID_CLUB": "nom de club trop long"
   }
 }

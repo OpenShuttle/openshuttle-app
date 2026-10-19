@@ -10,7 +10,7 @@ import { TournamentStore } from '../core/tournament.service';
 import { fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 import { StageKind } from '@bindings/internal/tournament';
-import { toCsv } from './csv';
+import { toCsv } from '../shared/csv';
 
 /** Results: full standings per category, CSV export, archive. */
 @Component({

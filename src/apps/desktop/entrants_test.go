@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -84,4 +85,38 @@ func TestEntrantsAndCheckIn(t *testing.T) {
 		t.Errorf("remove action = %+v", a)
 	}
 	wantCode(t, f.svc.CheckInPlayer(ctx, pair.Players[0].ID), engine.CodePlayerNotFound)
+}
+
+func TestImportEntrantsFile(t *testing.T) {
+	f := newFixture(t)
+	f.dialogs.save = filepath.Join(f.dir, "import")
+	if _, err := f.svc.CreateTournament(f.ctx, "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.svc.AddCategory(f.ctx, engine.MensDoubles); err != nil {
+		t.Fatal(err)
+	}
+	// Cancelled: nothing.
+	if r, err := f.svc.ImportEntrants(f.ctx, engine.MensDoubles); err != nil || r.Added != 0 {
+		t.Fatalf("cancelled import = %+v, %v", r, err)
+	}
+	f.dialogs.openCSV = filepath.Join(f.dir, "list.csv")
+	content := "Catégorie;Joueur 1;Club 1;Joueur 2;Club 2\nDH;Paul Zola;BC Lyon;Hugo Écuyer;BC Lyon\n;Tom Petit;AS Bron;Max Roux;AS Bron\nDD;Léa Roux;;Zoé Petit;\n"
+	if err := os.WriteFile(f.dialogs.openCSV, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.svc.ImportEntrants(f.ctx, engine.MensDoubles)
+	if err != nil || r.Added != 2 || len(r.Skipped) != 1 || r.Skipped[0].Line != 4 {
+		t.Fatalf("import = %+v, %v", r, err)
+	}
+	if v := f.svc.GetTournamentView(); v.LastAction == nil || v.LastAction.Params["count"] != "2" {
+		t.Errorf("last action = %+v", v.LastAction)
+	}
+	// One undo cancels the whole import.
+	if err := f.svc.Undo(f.ctx); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(f.svc.GetEntrantsView().Categories[0].Entrants); n != 0 {
+		t.Errorf("entrants after undo = %d", n)
+	}
 }

@@ -79,6 +79,7 @@ type fileDialogs interface {
 	SaveTournament(dir, suggestedName string) (string, error)
 	OpenTournament(dir string) (string, error)
 	SaveCSV(dir, suggestedName string) (string, error)
+	OpenCSV(dir string) (string, error)
 	ChooseFolder(dir string) (string, error)
 }
 
@@ -427,6 +428,11 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		v.Params["names"] = playerNames(p.Players)
 	case tournament.TypeEntrantRemoved:
 		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq)
+	case tournament.TypeEntrantsImported:
+		var imp tournament.EntrantsImported
+		if e.Decode(&imp) == nil {
+			v.Params["count"] = itoa(len(imp.Entrants))
+		}
 	case tournament.TypePlayerCheckedIn, tournament.TypeCheckInCancelled:
 		v.Params["name"] = s.playerNameAt(p.Player, e.Seq)
 	case events.TypeUndone:
@@ -445,6 +451,17 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 func (s *TournamentService) registrations(before uint64, visit func(engine.EntrantID, []tournament.Player) bool) {
 	for i := min(int(before), len(s.log)) - 1; i >= 0; i-- {
 		e := s.log[i]
+		if e.Type == tournament.TypeEntrantsImported {
+			var imp tournament.EntrantsImported
+			if e.Decode(&imp) == nil {
+				for _, r := range imp.Entrants {
+					if !visit(r.ID, r.Players) {
+						return
+					}
+				}
+			}
+			continue
+		}
 		if e.Type != tournament.TypeEntrantRegistered && e.Type != tournament.TypeEntrantUpdated {
 			continue
 		}

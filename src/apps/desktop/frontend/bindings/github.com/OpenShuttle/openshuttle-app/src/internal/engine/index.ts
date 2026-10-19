@@ -3,6 +3,7 @@
 
 export {
     Category,
+    Code,
     CrossPool,
     Tiebreak,
     WinConditionKind

@@ -63,6 +63,8 @@ const (
 	// CodeFormatLocked: a match of the category started, its format is fixed.
 	CodeFormatLocked       Code = "FORMAT_LOCKED"
 	CodeClubNotFound       Code = "CLUB_NOT_FOUND"
+	CodeAlreadyEntered     Code = "ALREADY_ENTERED"
+	CodeInvalidFile        Code = "INVALID_FILE"
 	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
 	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
 	CodeBracketStarted     Code = "BRACKET_STARTED"

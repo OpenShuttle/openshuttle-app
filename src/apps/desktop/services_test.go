@@ -32,6 +32,7 @@ func (r *recorder) last() emitted {
 
 type fakeDialogs struct {
 	save, open, csv, folder string
+	openCSV                 string
 	suggested, dir          string
 }
 
@@ -48,6 +49,11 @@ func (f *fakeDialogs) OpenTournament(dir string) (string, error) {
 func (f *fakeDialogs) ChooseFolder(dir string) (string, error) {
 	f.dir = dir
 	return f.folder, nil
+}
+
+func (f *fakeDialogs) OpenCSV(dir string) (string, error) {
+	f.dir = dir
+	return f.openCSV, nil
 }
 
 func (f *fakeDialogs) SaveCSV(dir, name string) (string, error) {

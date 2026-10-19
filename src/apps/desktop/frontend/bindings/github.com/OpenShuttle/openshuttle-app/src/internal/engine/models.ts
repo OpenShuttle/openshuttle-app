@@ -19,6 +19,101 @@ export enum Category {
 };
 
 /**
+ * Code is a stable error code. The frontend translates it; Go never returns
+ * human-readable text.
+ */
+export enum Code {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    CodeInvalidWinCondition = "INVALID_WIN_CONDITION",
+    CodeInvalidScore = "INVALID_SCORE",
+    CodeInvalidSetScore = "INVALID_SET_SCORE",
+    CodeInvalidSetCount = "INVALID_SET_COUNT",
+    CodeInvalidTimedScore = "INVALID_TIMED_SCORE",
+    CodeInvalidCategory = "INVALID_CATEGORY",
+    CodeTooManyCategories = "TOO_MANY_CATEGORIES",
+    CodeCategoryExists = "CATEGORY_EXISTS",
+    CodeCategoryNotFound = "CATEGORY_NOT_FOUND",
+    CodeCategoryNotEmpty = "CATEGORY_NOT_EMPTY",
+    CodeCategoriesShareSex = "CATEGORIES_SHARE_SEX",
+    CodeInvalidPlayerName = "INVALID_PLAYER_NAME",
+    CodeInvalidClub = "INVALID_CLUB",
+    CodeWrongPlayerCount = "WRONG_PLAYER_COUNT",
+    CodeEntrantNotFound = "ENTRANT_NOT_FOUND",
+    CodePlayerNotFound = "PLAYER_NOT_FOUND",
+    CodeInvalidFormat = "INVALID_FORMAT",
+    CodeTimedNeedsOneCategory = "TIMED_NEEDS_ONE_CATEGORY",
+    CodeInvalidSeed = "INVALID_SEED",
+    CodeNotEnoughEntrants = "NOT_ENOUGH_ENTRANTS",
+    CodeNoDraw = "NO_DRAW",
+    CodeDrawConfirmed = "DRAW_CONFIRMED",
+    CodeInvalidPool = "INVALID_POOL",
+    CodeEntrantNotInDraw = "ENTRANT_NOT_IN_DRAW",
+    CodeInvalidCourts = "INVALID_COURTS",
+    CodeInvalidRest = "INVALID_REST",
+    CodeInvalidPriority = "INVALID_PRIORITY",
+    CodeMatchNotFound = "MATCH_NOT_FOUND",
+    CodeMatchStarted = "MATCH_STARTED",
+    CodeMatchNotPlaying = "MATCH_NOT_PLAYING",
+    CodeMatchWalkover = "MATCH_WALKOVER",
+    CodeInvalidCourt = "INVALID_COURT",
+    CodeCourtBusy = "COURT_BUSY",
+    CodeEntrantPlaying = "ENTRANT_PLAYING",
+    CodeMatchesStarted = "MATCHES_STARTED",
+    CodeEntrantInPools = "ENTRANT_IN_POOLS",
+    CodeEntrantNotInPools = "ENTRANT_NOT_IN_POOLS",
+    CodeNoScore = "NO_SCORE",
+    CodeEntrantNotWithdrawn = "ENTRANT_NOT_WITHDRAWN",
+    CodeNoTie = "NO_TIE",
+    CodeStageNotFound = "STAGE_NOT_FOUND",
+    CodeTooManyStages = "TOO_MANY_STAGES",
+    CodeStageFilled = "STAGE_FILLED",
+    CodeNoPoolSplit = "NO_POOL_SPLIT",
+    CodePresetNotFound = "PRESET_NOT_FOUND",
+    CodePresetReadOnly = "PRESET_READ_ONLY",
+    CodeInvalidRouting = "INVALID_ROUTING",
+
+    /**
+     * CodeBracketIsFinal: a bracket routes nobody on, and a new stage needs a
+     * pools stage to feed it.
+     */
+    CodeBracketIsFinal = "BRACKET_IS_FINAL",
+
+    /**
+     * CodeFormatLocked: a match of the category started, its format is fixed.
+     */
+    CodeFormatLocked = "FORMAT_LOCKED",
+    CodeClubNotFound = "CLUB_NOT_FOUND",
+    CodeAlreadyEntered = "ALREADY_ENTERED",
+    CodeInvalidFile = "INVALID_FILE",
+    CodePoolsNotComplete = "POOLS_NOT_COMPLETE",
+    CodeTieUnresolved = "TIE_UNRESOLVED",
+    CodeBracketStarted = "BRACKET_STARTED",
+    CodeBracketNotDrawn = "BRACKET_NOT_DRAWN",
+    CodeInvalidSlot = "INVALID_SLOT",
+    CodeMatchNotReady = "MATCH_NOT_READY",
+    CodeBracketNextStarted = "BRACKET_NEXT_STARTED",
+    CodeWriteFailed = "WRITE_FAILED",
+    CodeRoundInProgress = "ROUND_IN_PROGRESS",
+    CodeNoRound = "NO_ROUND",
+    CodeNoMatchReady = "NO_MATCH_READY",
+    CodeNothingToUndo = "NOTHING_TO_UNDO",
+    CodeInvalidName = "INVALID_NAME",
+    CodeNoTournament = "NO_TOURNAMENT",
+    CodeInvalidSetting = "INVALID_SETTING",
+    CodeInternal = "INTERNAL",
+    CodeInvalidEvent = "INVALID_EVENT",
+    CodeFileExists = "FILE_EXISTS",
+    CodeFileNotFound = "FILE_NOT_FOUND",
+    CodeNotATournamentFile = "NOT_A_TOURNAMENT_FILE",
+    CodeFileTooNew = "FILE_TOO_NEW",
+    CodeFileTooOld = "FILE_TOO_OLD",
+};
+
+/**
  * CrossPool is how entrants of the same rank in different pools compare,
  * for instance to pick the best thirds.
  */

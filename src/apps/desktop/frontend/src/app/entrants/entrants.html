@@ -8,17 +8,51 @@
           {{ t('entrants.countPlayers', { n: totals().players }) }}
         </span>
       </div>
-      @if ((view().categories ?? []).length > 1) {
-        <div class="seg seg-sm filter">
-          <button type="button" class="seg-option" [class.active]="filter() === 'all'" (click)="filter.set('all')">{{ t('desk.all') }}</button>
-          @for (c of view().categories; track c.category) {
-            <button type="button" class="seg-option" [class.active]="filter() === c.category" (click)="filter.set(c.category)">
-              {{ t('category.name.' + c.category) }}
-            </button>
-          }
-        </div>
-      }
+      <div class="head-actions">
+        @if ((view().categories ?? []).length > 0) {
+          <button type="button" class="btn btn-sm" (click)="importList()">{{ t('entrants.import') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="totals().entrants === 0" (click)="exportList()">{{ t('entrants.export') }}</button>
+        }
+        @if ((view().categories ?? []).length > 1) {
+          <div class="seg seg-sm filter">
+            <button type="button" class="seg-option" [class.active]="filter() === 'all'" (click)="filter.set('all')">{{ t('desk.all') }}</button>
+            @for (c of view().categories; track c.category) {
+              <button type="button" class="seg-option" [class.active]="filter() === c.category" (click)="filter.set(c.category)">
+                {{ t('category.name.' + c.category) }}
+              </button>
+            }
+          </div>
+        }
+      </div>
     </div>
+
+    @if (importReport(); as r) {
+      <div class="card report" role="status">
+        <div class="report-head">
+          <strong>{{ t('entrants.imported', { n: r.added }) }}</strong>
+          @if ((r.skipped ?? []).length > 0) {
+            <span>{{ t('entrants.importSkipped', { n: (r.skipped ?? []).length }) }}</span>
+          }
+          <button type="button" class="btn-link" (click)="importReport.set(null)">{{ t('common.dismiss') }}</button>
+        </div>
+        @if ((r.skipped ?? []).length > 0) {
+          <ul class="skipped">
+            @for (s of r.skipped; track s.line) {
+              <li>{{ t('entrants.importLine', { line: s.line }) }} · {{ t('importSkip.' + s.code) }}</li>
+            }
+          </ul>
+        }
+        <span class="hint">{{ t('entrants.importFormat') }}</span>
+      </div>
+    }
+    @if (exported(); as path) {
+      <div class="card report" role="status">
+        <div class="report-head">
+          <span>{{ t('entrants.exported', { path: path }) }}</span>
+          <button type="button" class="btn-link" (click)="exported.set(null)">{{ t('common.dismiss') }}</button>
+        </div>
+      </div>
+    }
 
     @if ((view().categories ?? []).length === 0) {
       <div class="card empty">

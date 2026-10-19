@@ -1,14 +1,17 @@
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { EntrantView, EntrantsView, TournamentService } from '@bindings/apps/desktop';
 import { Category, EntrantID } from '@bindings/internal/engine';
-import { PlayerInput } from '@bindings/internal/tournament';
+import { ImportReport, PlayerInput } from '@bindings/internal/tournament';
 
+import { backendError } from '../core/backend-error';
+import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
 import { ClubSelect } from '../shared/club-select';
+import { toCsv } from '../shared/csv';
 
 const emptyPlayers = (count: number): PlayerInput[] =>
   Array.from({ length: count }, () => ({ name: '', club: '' }));
@@ -22,6 +25,10 @@ const emptyPlayers = (count: number): PlayerInput[] =>
 })
 export class Entrants {
   protected readonly tournament = inject(TournamentStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
+  protected readonly importReport = signal<ImportReport | null>(null);
+  protected readonly exported = signal<string | null>(null);
   protected readonly view = liveView<EntrantsView>(() => TournamentService.GetEntrantsView(), {
     categories: [],
   });
@@ -111,6 +118,45 @@ export class Entrants {
     const id = this.editing();
     if (id && (await this.tournament.updateEntrant(id, this.editDraft()))) {
       this.editing.set(null);
+    }
+  }
+
+  /** Imports a player list; rows without category go to the add form's category. */
+  protected async importList(): Promise<void> {
+    const category = this.current()?.category;
+    if (!category) {
+      return;
+    }
+    try {
+      const report = await TournamentService.ImportEntrants(category);
+      this.importReport.set(report.added > 0 || (report.skipped ?? []).length > 0 ? report : null);
+      this.tournament.error.set(null);
+    } catch (err) {
+      this.tournament.error.set(backendError(err));
+    }
+  }
+
+  /**
+   * Exports the player list in the layout the import reads: category,
+   * player 1, club 1, player 2, club 2. ";" in French.
+   */
+  protected async exportList(): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
+    const rows: string[][] = [
+      [t('entrants.csv.category'), t('entrants.csv.player', { n: 1 }), t('entrants.csv.club', { n: 1 }), t('entrants.csv.player', { n: 2 }), t('entrants.csv.club', { n: 2 })],
+    ];
+    for (const c of this.view().categories ?? []) {
+      for (const e of c.entrants ?? []) {
+        rows.push([t('category.short.' + c.category), ...(e.players ?? []).flatMap((p) => [p.name, p.club])]);
+      }
+    }
+    const separator = this.language.active === 'fr' ? ';' : ',';
+    try {
+      const path = await TournamentService.ExportCSV(`${this.tournament.view().name} - ${t('entrants.csv.fileSuffix')}.csv`, toCsv(rows, separator));
+      this.exported.set(path || null);
+      this.tournament.error.set(null);
+    } catch (err) {
+      this.tournament.error.set(backendError(err));
     }
   }
 

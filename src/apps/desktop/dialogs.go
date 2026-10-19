@@ -21,10 +21,18 @@ func (nativeDialogs) SaveCSV(dir, suggestedName string) (string, error) {
 }
 
 func (nativeDialogs) OpenTournament(dir string) (string, error) {
+	return openFile(dir, "OpenShuttle", tournamentFilter)
+}
+
+func (nativeDialogs) OpenCSV(dir string) (string, error) {
+	return openFile(dir, "CSV", "*.csv;*.txt")
+}
+
+func openFile(dir, filterName, pattern string) (string, error) {
 	app := application.Get()
 	d := app.Dialog.OpenFile().
 		CanChooseFiles(true).
-		AddFilter("OpenShuttle", tournamentFilter)
+		AddFilter(filterName, pattern)
 	if dir != "" {
 		d.SetDirectory(dir)
 	}

@@ -10,6 +10,8 @@ export {
 
 export type {
     FormatPreview,
+    ImportReport,
+    ImportSkip,
     MatchID,
     PlayerID,
     PlayerInput,

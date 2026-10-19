@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -224,4 +225,38 @@ func (s *TournamentService) defaultFormat(ctx context.Context) []tournament.Stag
 		}
 	}
 	return nil
+}
+
+// ImportEntrants asks for a player list (CSV, the layout of the entrants
+// export) and enters its rows, in one undoable action. Rows without a
+// category go to fallback. It reports what was added and skipped; a
+// cancelled dialog reports nothing.
+func (s *TournamentService) ImportEntrants(ctx context.Context, fallback engine.Category) (tournament.ImportReport, error) {
+	report := tournament.ImportReport{Skipped: []tournament.ImportSkip{}}
+	path, err := s.dialogs.OpenCSV(s.tournamentsDir(ctx))
+	if err != nil || path == "" {
+		return report, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return report, engine.NewError(engine.CodeInvalidFile)
+	}
+	rows, err := tournament.ParseEntrantsCSV(data)
+	if err != nil {
+		return report, err
+	}
+	err = s.execute(ctx, func(st tournament.State) (tournament.Change, error) {
+		ch, r, err := st.ImportEntrants(rows, fallback)
+		report = r
+		return ch, err
+	})
+	if err != nil {
+		return report, err
+	}
+	var players []tournament.PlayerInput
+	for _, r := range rows {
+		players = append(players, r.Players...)
+	}
+	s.rememberClubs(ctx, players)
+	return report, nil
 }
