@@ -1,7 +1,9 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, computed, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { DisplayBoard, DisplayCourt, DisplayView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
+
+import { Window } from '@wailsio/runtime';
 
 import { liveView } from '../core/live-view';
 import { MatchStage } from '../shared/match-stage';
@@ -55,9 +57,34 @@ export class DisplayScreen {
   });
   protected readonly clock = computed(() => formatCountdown(this.left()));
 
+  /** Full screen or in a window; the button shows only while the mouse moves. */
+  protected readonly fullscreen = signal(false);
+  protected readonly controlsVisible = signal(false);
+  private hideControls: ReturnType<typeof setTimeout> | undefined;
+
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), 500);
-    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+    const refresh = () => void Window.IsFullscreen().then((f) => this.fullscreen.set(f), () => undefined);
+    refresh();
+    window.addEventListener('resize', refresh);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      clearTimeout(this.hideControls);
+      window.removeEventListener('resize', refresh);
+    });
+  }
+
+  /** The hall never sees the button: it appears when someone moves the mouse here. */
+  @HostListener('document:mousemove')
+  protected showControls(): void {
+    this.controlsVisible.set(true);
+    clearTimeout(this.hideControls);
+    this.hideControls = setTimeout(() => this.controlsVisible.set(false), 3000);
+  }
+
+  @HostListener('document:dblclick')
+  protected toggleFullscreen(): void {
+    void Window.ToggleFullscreen();
   }
 
   protected names(side: SideView): string {

@@ -214,7 +214,8 @@ the app's top bar drags the window (`--wails-draggable: drag`, controls
 on macOS the native traffic lights sit over its left end
 (`MacTitleBarHiddenInset`). The display window keeps its native frame; it opens
 in a window (monitor button with a status dot in the top bar) and goes full
-screen from its own button next to it.
+screen from its own window: a button that shows only while the mouse moves
+over it (hidden from the hall), or a double-click.
 Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,
 `.card`, `.btn`/`.btn-primary`/`.btn-sm`, `.seg`/`.seg-option`, `.stepper`,
 `.bib`, `.pill-*`): use them before adding component styles. Compare a screen

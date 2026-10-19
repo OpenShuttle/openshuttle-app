@@ -237,8 +237,6 @@
     "against": "contre #{bib} {names}",
     "rank": "Rang",
     "points": "Points",
-    "fullscreen": "Écran d'appel en plein écran",
-    "windowed": "Écran d'appel en fenêtre",
     "openTitle": "Ouvrir l'écran d'appel",
     "closeTitle": "Fermer l'écran d'appel"
   },

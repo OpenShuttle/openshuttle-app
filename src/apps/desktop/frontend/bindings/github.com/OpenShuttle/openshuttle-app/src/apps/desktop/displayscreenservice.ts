@@ -3,8 +3,8 @@
 
 /**
  * DisplayScreenService opens and closes the display screen: the second
- * window shown on the hall monitor or projector. It opens in a window, the
- * desk moves it if needed, then puts it in full screen.
+ * window shown on the hall monitor or projector. It opens in a window; the
+ * desk moves it if needed, then puts it in full screen from the window itself.
  * @module
  */
 
@@ -21,13 +21,6 @@ import * as $models from "./models.js";
  */
 export function Close(): $CancellablePromise<void> {
     return $Call.ByID(468658585);
-}
-
-/**
- * IsFullscreen reports whether the display screen is open in full screen.
- */
-export function IsFullscreen(): $CancellablePromise<boolean> {
-    return $Call.ByID(3043732398);
 }
 
 /**
@@ -52,12 +45,4 @@ export function ListMonitors(): $CancellablePromise<$models.Monitor[] | null> {
  */
 export function Open(monitorID: string): $CancellablePromise<void> {
     return $Call.ByID(1005984399, monitorID);
-}
-
-/**
- * SetFullscreen puts the open display screen in full screen, or back in a
- * window (to move it, check it, or reach the desktop behind).
- */
-export function SetFullscreen(on: boolean): $CancellablePromise<void> {
-    return $Call.ByID(3863877916, on);
 }

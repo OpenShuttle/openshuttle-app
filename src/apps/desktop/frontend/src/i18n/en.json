@@ -237,8 +237,6 @@
     "against": "against #{bib} {names}",
     "rank": "Rank",
     "points": "Points",
-    "fullscreen": "Display screen in full screen",
-    "windowed": "Display screen in a window",
     "openTitle": "Open the display screen",
     "closeTitle": "Close the display screen"
   },

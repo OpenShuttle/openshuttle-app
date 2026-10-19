@@ -64,28 +64,6 @@
             </svg>
             <span class="status-dot" [class.on]="display.isOpen()"></span>
           </button>
-          @if (display.isOpen()) {
-            <button
-              type="button"
-              class="window-btn"
-              [attr.aria-label]="
-                t(display.fullscreen() ? 'displayScreen.windowed' : 'displayScreen.fullscreen')
-              "
-              [attr.title]="
-                t(display.fullscreen() ? 'displayScreen.windowed' : 'displayScreen.fullscreen')
-              "
-              (click)="display.setFullscreen(!display.fullscreen())"
-            >
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <path d="M1 1.5h10v7H1zM4 11h4M6 8.5V11" />
-                @if (display.fullscreen()) {
-                  <path d="M4.5 3.5h3v2h-3z" />
-                } @else {
-                  <path d="M3 3v1.5M3 3h1.5M9 3v1.5M9 3H7.5M3 7V5.5M9 7V5.5" />
-                }
-              </svg>
-            </button>
-          }
           <span class="window-sep"></span>
         }
         <button

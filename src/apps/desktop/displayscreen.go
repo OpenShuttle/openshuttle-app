@@ -14,9 +14,6 @@ const (
 	// EventDisplayScreenChanged is emitted when the display screen opens or
 	// closes. Its payload is true when the window is open.
 	EventDisplayScreenChanged = "displayScreen.changed"
-	// EventDisplayFullscreenChanged is emitted when the display screen enters
-	// or leaves full screen. Its payload is true in full screen.
-	EventDisplayFullscreenChanged = "displayScreen.fullscreen"
 )
 
 // Monitor describes a screen the display window can be placed on.
@@ -29,12 +26,11 @@ type Monitor struct {
 }
 
 // DisplayScreenService opens and closes the display screen: the second
-// window shown on the hall monitor or projector. It opens in a window, the
-// desk moves it if needed, then puts it in full screen.
+// window shown on the hall monitor or projector. It opens in a window; the
+// desk moves it if needed, then puts it in full screen from the window itself.
 type DisplayScreenService struct {
-	mu         sync.Mutex
-	window     *application.WebviewWindow
-	fullscreen bool
+	mu     sync.Mutex
+	window *application.WebviewWindow
 }
 
 func NewDisplayScreenService() *DisplayScreenService {
@@ -94,45 +90,11 @@ func (s *DisplayScreenService) Open(monitorID string) {
 	w.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {
 		s.mu.Lock()
 		s.window = nil
-		s.fullscreen = false
 		s.mu.Unlock()
 		app.Event.Emit(EventDisplayScreenChanged, false)
-		app.Event.Emit(EventDisplayFullscreenChanged, false)
 	})
 	s.window = w
-	s.fullscreen = false
 	app.Event.Emit(EventDisplayScreenChanged, true)
-	app.Event.Emit(EventDisplayFullscreenChanged, false)
-}
-
-// IsFullscreen reports whether the display screen is open in full screen.
-func (s *DisplayScreenService) IsFullscreen() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.window != nil && s.fullscreen
-}
-
-// SetFullscreen puts the open display screen in full screen, or back in a
-// window (to move it, check it, or reach the desktop behind).
-func (s *DisplayScreenService) SetFullscreen(on bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.window == nil {
-		return
-	}
-	if on {
-		s.window.Fullscreen()
-	} else {
-		s.window.UnFullscreen()
-	}
-	s.setFullscreenLocked(on)
-}
-
-func (s *DisplayScreenService) setFullscreenLocked(on bool) {
-	if s.fullscreen != on {
-		s.fullscreen = on
-		application.Get().Event.Emit(EventDisplayFullscreenChanged, on)
-	}
 }
 
 // Close closes the display screen if it is open.

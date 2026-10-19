@@ -1,4 +1,20 @@
 <ng-container *transloco="let t">
+  <button
+    type="button"
+    class="fullscreen-btn"
+    [class.visible]="controlsVisible()"
+    [attr.aria-label]="t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen')"
+    [attr.title]="t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen')"
+    (click)="toggleFullscreen()"
+    (dblclick)="$event.stopPropagation()"
+  >
+    @if (fullscreen()) {
+      <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3.5 1v2.5H1M6.5 1v2.5H9M3.5 9V6.5H1M6.5 9V6.5H9" /></svg>
+    } @else {
+      <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3.5V1h2.5M9 3.5V1H6.5M1 6.5V9h2.5M9 6.5V9H6.5" /></svg>
+    }
+    <span>{{ t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen') }}</span>
+  </button>
   <div class="screen">
     <header class="top">
       <span class="title-block">
