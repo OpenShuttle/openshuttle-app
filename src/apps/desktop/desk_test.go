@@ -32,8 +32,8 @@ func TestControlDesk(t *testing.T) {
 	if v := f.svc.GetControlDeskView(); v.Started || len(v.Courts) != 2 {
 		t.Fatalf("before draw = %+v", v)
 	}
-	for _, row := range f.svc.GetCheckInView().Rows {
-		must(f.svc.CheckInPlayer(ctx, row.ID))
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
 	}
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) {
 		stage.Pools = 1

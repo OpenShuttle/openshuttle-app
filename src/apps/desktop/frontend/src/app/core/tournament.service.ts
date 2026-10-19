@@ -125,6 +125,10 @@ export class TournamentStore {
     return this.command(() => Backend.CheckInPlayer(id));
   }
 
+  checkInEntrant(id: EntrantID): Promise<boolean> {
+    return this.command(() => Backend.CheckInEntrant(id));
+  }
+
   cancelCheckIn(id: PlayerID): Promise<boolean> {
     return this.command(() => Backend.CancelCheckIn(id));
   }

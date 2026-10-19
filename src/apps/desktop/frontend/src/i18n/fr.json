@@ -92,7 +92,8 @@
     "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}",
     "SeedsSet": "Têtes de série classées : {category}",
     "ScheduleSet": "Échéancier modifié",
-    "ScheduleOrderSet": "Ordre de l'échéancier modifié"
+    "ScheduleOrderSet": "Ordre de l'échéancier modifié",
+    "EntrantCheckedIn": "Pointé(e)s : {names}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -130,7 +131,8 @@
     "EntrantsImported": "import de {count} inscriptions",
     "SeedsSet": "classement des têtes de série en {category}",
     "ScheduleSet": "modification de l'échéancier",
-    "ScheduleOrderSet": "modification de l'ordre de l'échéancier"
+    "ScheduleOrderSet": "modification de l'ordre de l'échéancier",
+    "EntrantCheckedIn": "pointage de {names}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -340,10 +342,9 @@
     "pairsComplete": "{complete} / {total} paires complètes",
     "present": "Présent",
     "absent": "Absent",
-    "withPartner": "avec {name}",
     "noPlayer": "Aucun joueur inscrit.",
-    "noMatch": "Aucun joueur ne correspond à cette recherche.",
-    "lead": "Pointage par joueur, une seule fois. Une paire est complète quand ses deux joueurs sont là.",
+    "noMatch": "Aucun joueur ni aucune paire ne correspond à cette recherche.",
+    "lead": "Les paires sont groupées : pointez la paire en une fois, ou chaque joueur séparément. Une paire est complète quand ses deux joueurs sont là.",
     "playersPresentLabel": "{n, plural, one {joueur présent} other {joueurs présents}}",
     "drawConfirmed": "Tirage validé à {time}. Pointer ou retirer un joueur maintenant ne modifie pas les poules : corrigez-les dans Tirage ou Phases.",
     "filter": {
@@ -352,7 +353,10 @@
       "absent": "Absents"
     },
     "addOnSite": "Ajouter sur place",
-    "checkedInAt": "pointé à {time}"
+    "checkedInAt": "pointé à {time}",
+    "teamPresent": "Paire présente",
+    "checkInTeam": "Pointer la paire",
+    "checkInPartner": "Pointer le partenaire"
   },
   "format": {
     "title": "Format",

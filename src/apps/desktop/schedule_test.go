@@ -31,8 +31,8 @@ func TestScheduleView(t *testing.T) {
 	if len(v.Slots) != 12 || v.Slots[0].Match != nil || len(v.Order) != 0 || v.End == nil {
 		t.Fatalf("before draw = %+v", v)
 	}
-	for _, row := range f.svc.GetCheckInView().Rows {
-		must(f.svc.CheckInPlayer(ctx, row.ID))
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
 	}
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools, stage.PoolSizes = 2, nil }))
 	must(f.svc.DrawEntry(ctx, engine.MensSingles))

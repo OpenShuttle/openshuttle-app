@@ -67,6 +67,13 @@ export function CancelCheckIn(id: tournament$0.PlayerID): $CancellablePromise<vo
 }
 
 /**
+ * CheckInEntrant marks every absent player of an entrant present at once.
+ */
+export function CheckInEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
+    return $Call.ByID(55080853, id);
+}
+
+/**
  * CheckInPlayer marks a player present, assigning the bib on the pair's first check-in.
  */
 export function CheckInPlayer(id: tournament$0.PlayerID): $CancellablePromise<void> {

@@ -1,16 +1,16 @@
 import { Component, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { CheckInRow, CheckInView, TournamentService } from '@bindings/apps/desktop';
+import { CheckInTeam, CheckInView, PlayerView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { LanguageService } from '../core/language.service';
 import { CategoryBadge } from '../shared/category-badge';
-import { fold, matches, ownText } from './check-in-search';
+import { fold, matches, ownText, teamText } from './check-in-search';
 
-/** Check-in: one row per player, one click to mark present. */
+/** Check-in: one row per team, the pair's players together; a whole team or one player at a time. */
 @Component({
   selector: 'app-check-in',
   imports: [TranslocoDirective, RouterLink, CategoryBadge],
@@ -20,7 +20,7 @@ import { fold, matches, ownText } from './check-in-search';
 export class CheckIn {
   protected readonly tournament = inject(TournamentStore);
   protected readonly view = liveView<CheckInView>(() => TournamentService.GetCheckInView(), {
-    rows: [],
+    teams: [],
     categories: [],
     players: 0,
     present: 0,
@@ -54,21 +54,31 @@ export class CheckIn {
   /** Time the draw was confirmed, once every category's is. */
   protected readonly drawConfirmedAt = computed(() => this.tournament.view().progress.drawConfirmedAt);
 
-  protected readonly rows = computed(() => {
+  protected readonly teams = computed(() => {
     const words = this.words();
     const category = this.category();
-    return (this.view().rows ?? []).filter(
-      (r) =>
-        (category === 'all' || r.category === category) &&
-        (this.presence() === 'all' || r.checkedIn === (this.presence() === 'present')) &&
-        matches([...ownText(r), r.partner?.name], words),
+    const presence = this.presence();
+    return (this.view().teams ?? []).filter(
+      (t) =>
+        (category === 'all' || t.category === category) &&
+        (presence === 'all' || t.complete === (presence === 'present')) &&
+        matches(teamText(t), words),
     );
   });
 
   private readonly words = computed(() => fold(this.search().trim()).split(/\s+/).filter(Boolean));
 
-  protected toggle(row: CheckInRow): void {
-    void (row.checkedIn ? this.tournament.cancelCheckIn(row.id) : this.tournament.checkIn(row.id));
+  protected toggle(p: PlayerView): void {
+    void (p.checkedIn ? this.tournament.cancelCheckIn(p.id) : this.tournament.checkIn(p.id));
+  }
+
+  /** Both players of a pair arriving together: one click, one undo. */
+  protected checkInTeam(team: CheckInTeam): void {
+    void this.tournament.checkInEntrant(team.entrantId);
+  }
+
+  protected absent(team: CheckInTeam): number {
+    return (team.players ?? []).filter((p) => !p.checkedIn).length;
   }
 
   protected time(iso: string | null | undefined): string {
@@ -77,11 +87,15 @@ export class CheckIn {
       : '';
   }
 
-  /** Enter in the search box checks in the only matching absent player. */
+  /**
+   * Enter in the search box checks in the only matching absent player: only
+   * players' own names, clubs or bibs count, so "zola p" picks Paul Zola, not
+   * his partner.
+   */
   protected async onSearchEnter(): Promise<void> {
-    // Partners also match the search; Enter only considers the player's own
-    // name, club or bib, so "zola p" picks Paul Zola, not his partner.
-    const absent = this.rows().filter((r) => !r.checkedIn && matches(ownText(r), this.words()));
+    const absent = this.teams().flatMap((t) =>
+      (t.players ?? []).filter((p) => !p.checkedIn && matches(ownText(p, t), this.words())),
+    );
     if (absent.length === 1 && (await this.tournament.checkIn(absent[0].id))) {
       this.search.set('');
     }

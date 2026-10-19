@@ -23,7 +23,7 @@ export type {
     AppInfo,
     CategoryEntrants,
     CategoryRef,
-    CheckInRow,
+    CheckInTeam,
     CheckInView,
     ControlDeskView,
     CourtReservation,

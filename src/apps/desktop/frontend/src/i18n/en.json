@@ -92,7 +92,8 @@
     "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}",
     "SeedsSet": "Seeds ranked: {category}",
     "ScheduleSet": "Schedule changed",
-    "ScheduleOrderSet": "Schedule order changed"
+    "ScheduleOrderSet": "Schedule order changed",
+    "EntrantCheckedIn": "Checked in: {names}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -130,7 +131,8 @@
     "EntrantsImported": "import of {count} entrants",
     "SeedsSet": "seed ranking of {category}",
     "ScheduleSet": "schedule change",
-    "ScheduleOrderSet": "change in the schedule order"
+    "ScheduleOrderSet": "change in the schedule order",
+    "EntrantCheckedIn": "check-in of {names}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -340,10 +342,9 @@
     "pairsComplete": "{complete} / {total} pairs complete",
     "present": "Present",
     "absent": "Absent",
-    "withPartner": "with {name}",
     "noPlayer": "No player entered yet.",
-    "noMatch": "No player matches this search.",
-    "lead": "Check in each player once. A pair is complete when both players are here.",
+    "noMatch": "No player or pair matches this search.",
+    "lead": "Pairs together: check in the whole pair at once, or each player on their own. A pair is complete when both players are here.",
     "playersPresentLabel": "{n, plural, one {player present} other {players present}}",
     "drawConfirmed": "Draw confirmed at {time}. Checking a player in or out now does not change the pools: fix them in Draw or Stages.",
     "filter": {
@@ -352,7 +353,10 @@
       "absent": "Absent"
     },
     "addOnSite": "Add on site",
-    "checkedInAt": "checked in at {time}"
+    "checkedInAt": "checked in at {time}",
+    "teamPresent": "Pair present",
+    "checkInTeam": "Check in the pair",
+    "checkInPartner": "Check in the partner"
   },
   "format": {
     "title": "Format",

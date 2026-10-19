@@ -141,6 +141,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyEntrantRemoved)
 	case TypePlayerCheckedIn:
 		return decodeInto(e, func(p PlayerCheckedIn) { s.applyPlayerCheckedIn(p, e.At) })
+	case TypeEntrantCheckedIn:
+		return decodeInto(e, func(p EntrantCheckedIn) { s.applyEntrantCheckedIn(p, e.At) })
 	case TypeCheckInCancelled:
 		return decodeInto(e, s.applyCheckInCancelled)
 	case TypeFormatSet:

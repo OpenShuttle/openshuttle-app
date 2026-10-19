@@ -51,20 +51,18 @@ func TestEntrantsAndCheckIn(t *testing.T) {
 	if ci.Players != 3 || ci.Present != 1 {
 		t.Fatalf("totals = %d/%d", ci.Present, ci.Players)
 	}
-	// Sorted by name, accents and case ignored: Hugo Écuyer, Léa durand, Paul Zola.
-	var order []string
-	for _, r := range ci.Rows {
-		order = append(order, r.Name)
+	// One row per team, sorted by its first name in order, accents and case
+	// ignored: the pair (Hugo Écuyer), then Léa durand.
+	if len(ci.Teams) != 2 {
+		t.Fatalf("teams = %+v", ci.Teams)
 	}
-	if order[0] != "Hugo Écuyer" || order[1] != "Léa durand" || order[2] != "Paul Zola" {
-		t.Errorf("order = %v", order)
+	pairRow, single := ci.Teams[0], ci.Teams[1]
+	if pairRow.Bib != 1 || pairRow.Complete || len(pairRow.Players) != 2 || !pairRow.Players[1].CheckedIn ||
+		pairRow.Players[0].Name != "Paul Zola" || pairRow.Slot != 1 {
+		t.Errorf("pair row = %+v", pairRow)
 	}
-	hugo := ci.Rows[0]
-	if !hugo.CheckedIn || hugo.Bib != 1 || hugo.Partner == nil || hugo.Partner.Name != "Paul Zola" || hugo.Slot != 1 {
-		t.Errorf("hugo row = %+v", hugo)
-	}
-	if ci.Rows[1].Partner != nil || ci.Rows[1].Slot != 2 {
-		t.Errorf("single row = %+v", ci.Rows[0])
+	if len(single.Players) != 1 || single.Players[0].Name != "Léa durand" || single.Slot != 2 {
+		t.Errorf("single row = %+v", single)
 	}
 	if c := ci.Categories[0]; c.PlayersPresent != 1 || c.EntrantsComplete != 0 {
 		t.Errorf("MD totals = %+v", c)
@@ -118,5 +116,29 @@ func TestImportEntrantsFile(t *testing.T) {
 	}
 	if n := len(f.svc.GetEntrantsView().Categories[0].Entrants); n != 0 {
 		t.Errorf("entrants after undo = %d", n)
+	}
+}
+
+func TestCheckInTeam(t *testing.T) {
+	f := newFixture(t)
+	ctx := f.ctx
+	if err := f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "t.openshuttle"), "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.svc.AddCategory(ctx, engine.MensDoubles); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.svc.RegisterEntrant(ctx, engine.MensDoubles, []tournament.PlayerInput{{Name: "Paul Zola"}, {Name: "Hugo Écuyer"}}); err != nil {
+		t.Fatal(err)
+	}
+	team := f.svc.GetCheckInView().Teams[0]
+	if err := f.svc.CheckInEntrant(ctx, team.EntrantID); err != nil {
+		t.Fatal(err)
+	}
+	if v := f.svc.GetCheckInView(); !v.Teams[0].Complete || v.Present != 2 || v.Teams[0].Bib != 1 {
+		t.Errorf("after team check-in = %+v", v.Teams[0])
+	}
+	if a := f.svc.GetTournamentView().LastAction; a.Type != "EntrantCheckedIn" || a.Params["names"] != "Paul Zola / Hugo Écuyer" {
+		t.Errorf("last action = %+v", a)
 	}
 }

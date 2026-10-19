@@ -58,40 +58,24 @@ export interface CategoryRef {
 }
 
 /**
- * CheckInRow is a row of the check-in screen: one per player.
+ * CheckInTeam is a row of the check-in screen: an entrant with its players,
+ * a pair shown together.
  */
-export interface CheckInRow {
-    "id": tournament$0.PlayerID;
-    "name": string;
-    "club": string;
-    "checkedIn": boolean;
-
-    /**
-     * CheckedInAt is when the player was checked in.
-     */
-    "checkedInAt": string | null;
-
-    /**
-     * Duplicate warns that another player has the same full name.
-     */
-    "duplicate": boolean;
+export interface CheckInTeam {
     "entrantId": engine$0.EntrantID;
     "category": engine$0.Category;
     "slot": number;
     "bib": number;
-
-    /**
-     * Partner is the other player of a pair, nil in singles.
-     */
-    "partner": PlayerView | null;
+    "players": PlayerView[] | null;
+    "complete": boolean;
 }
 
 /**
- * CheckInView is the check-in screen: every player, sorted by last name,
- * with totals per category.
+ * CheckInView is the check-in screen: every entrant, sorted by the names of
+ * its players, with totals per category.
  */
 export interface CheckInView {
-    "rows": CheckInRow[] | null;
+    "teams": CheckInTeam[] | null;
     "categories": CategoryEntrants[] | null;
     "players": number;
     "present": number;

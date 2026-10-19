@@ -431,6 +431,8 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		if e.Decode(&imp) == nil {
 			v.Params["count"] = itoa(len(imp.Entrants))
 		}
+	case tournament.TypeEntrantCheckedIn:
+		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
 	case tournament.TypePlayerCheckedIn, tournament.TypeCheckInCancelled:
 		v.Params["name"] = s.playerNameAt(p.Player, e.Seq)
 	case events.TypeUndone:

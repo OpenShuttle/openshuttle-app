@@ -81,24 +81,21 @@
   color: var(--color-text-muted);
 }
 
-.row {
-  width: 100%;
+.team {
   display: grid;
-  grid-template-columns: 130px 44px 56px minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1fr) 110px;
+  grid-template-columns: 170px 44px 56px minmax(0, 1fr);
   gap: 14px;
   align-items: center;
-  padding: 9px 16px;
-  border: none;
+  padding: 8px 16px;
   border-bottom: 1px solid #ecedf0;
   background: var(--color-surface);
-  text-align: left;
-
-  &:hover {
-    background: var(--color-bg);
-  }
 
   &:last-child {
     border-bottom: none;
+  }
+
+  &.complete {
+    background: #f6fbf8;
   }
 
   app-category-badge {
@@ -106,10 +103,37 @@
   }
 }
 
-.state {
+.team-btn {
+  width: 100%;
+}
+
+.team-done {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--color-free-fg);
+}
+
+.players {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.player {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1.4fr) minmax(0, 1fr) 110px;
+  gap: 12px;
   align-items: center;
-  gap: 10px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+
+  &:hover {
+    background: var(--color-bg);
+  }
 }
 
 .box {
@@ -132,16 +156,6 @@
   }
 }
 
-.state-label {
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--color-text-muted);
-
-  .present & {
-    color: var(--color-free-fg);
-  }
-}
-
 .bib-number {
   font: 700 20px var(--font-mono);
 }
@@ -159,21 +173,11 @@
 }
 
 .name-text,
-.partner,
 .club {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.partner {
-  font-size: 13px;
-  color: var(--color-text-muted);
-
-  &.away {
-    color: var(--color-alert);
-  }
 }
 
 .club {
@@ -185,4 +189,8 @@
   font-size: 13px;
   color: var(--color-text-muted);
   text-align: right;
+
+  .player:not(.present) & {
+    color: var(--color-alert);
+  }
 }

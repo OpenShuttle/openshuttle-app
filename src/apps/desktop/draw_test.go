@@ -49,8 +49,8 @@ func TestFormatAndDraw(t *testing.T) {
 	}
 	wantCode(t, f.svc.DrawEntry(ctx, engine.MensSingles), engine.CodeNotEnoughEntrants)
 
-	for _, row := range f.svc.GetCheckInView().Rows {
-		must(f.svc.CheckInPlayer(ctx, row.ID))
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
 	}
 	if dv = f.svc.GetDrawView().Categories[0]; !dv.CanDraw || dv.Planned != 2 || len(dv.Unseeded) != 7 || len(dv.Ranking) != 0 {
 		t.Fatalf("draw view after check-in = %+v", dv)

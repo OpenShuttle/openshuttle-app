@@ -1,14 +1,16 @@
 package tournament
 
 import (
+	"time"
+
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
-	"time"
 )
 
 const (
 	TypePlayerCheckedIn  events.Type = "PlayerCheckedIn"
 	TypeCheckInCancelled events.Type = "PlayerCheckInCancelled"
+	TypeEntrantCheckedIn events.Type = "EntrantCheckedIn"
 )
 
 // PlayerCheckedIn is the payload of TypePlayerCheckedIn. Bib is set when this
@@ -16,6 +18,15 @@ const (
 type PlayerCheckedIn struct {
 	Player PlayerID `json:"player"`
 	Bib    int      `json:"bib,omitempty"`
+}
+
+// EntrantCheckedIn is the payload of TypeEntrantCheckedIn: the players of
+// an entrant still absent, checked in at once. Bib is set when the entrant
+// had none yet.
+type EntrantCheckedIn struct {
+	Entrant engine.EntrantID `json:"entrant"`
+	Players []PlayerID       `json:"playerIds"`
+	Bib     int              `json:"bib,omitempty"`
 }
 
 // CheckInCancelled is the payload of TypeCheckInCancelled. The bib stays
@@ -39,6 +50,28 @@ func (s State) CheckInPlayer(id PlayerID) (Change, error) {
 		p.Bib = s.lastBib + 1
 	}
 	return Change{TypePlayerCheckedIn, p}, nil
+}
+
+// CheckInEntrant marks every absent player of an entrant present, in one
+// action: a pair arriving together.
+func (s State) CheckInEntrant(id engine.EntrantID) (Change, error) {
+	e, ok := s.Entrant(id)
+	if !ok {
+		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
+	}
+	p := EntrantCheckedIn{Entrant: id}
+	for _, pl := range e.Players {
+		if !pl.CheckedIn {
+			p.Players = append(p.Players, pl.ID)
+		}
+	}
+	if len(p.Players) == 0 {
+		return Change{}, nil
+	}
+	if e.Bib == 0 {
+		p.Bib = s.lastBib + 1
+	}
+	return Change{TypeEntrantCheckedIn, p}, nil
 }
 
 // CancelCheckIn marks a player absent again.
@@ -66,6 +99,16 @@ func (s *State) applyPlayerCheckedIn(p PlayerCheckedIn, at time.Time) {
 		bib := max(p.Bib, s.lastBib+1)
 		s.Entrants[i].Bib = bib
 		s.lastBib = bib
+	}
+}
+
+func (s *State) applyEntrantCheckedIn(p EntrantCheckedIn, at time.Time) {
+	for i, id := range p.Players {
+		bib := 0
+		if i == 0 {
+			bib = p.Bib
+		}
+		s.applyPlayerCheckedIn(PlayerCheckedIn{Player: id, Bib: bib}, at)
 	}
 }
 

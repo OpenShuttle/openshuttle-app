@@ -83,3 +83,36 @@ func TestBibsAreNeverReused(t *testing.T) {
 		t.Errorf("c bib = %d, want 3", bib)
 	}
 }
+
+func TestCheckInEntrant(t *testing.T) {
+	g := newGame(t, engine.MensDoubles)
+	first := g.register(engine.MensDoubles, "Paul", "Hugo")
+	pair := g.register(engine.MensDoubles, "Tom", "Max")
+	g.do(func(s State) (Change, error) { return s.CheckInPlayer(g.entrant(first).Players[1].ID) })
+
+	// Both players at once, one bib, one event.
+	ch := g.do(func(s State) (Change, error) { return s.CheckInEntrant(pair) })
+	if p := ch.Data.(EntrantCheckedIn); len(p.Players) != 2 || p.Bib != 2 {
+		t.Errorf("payload = %+v", p)
+	}
+	if e := g.entrant(pair); !e.Complete() || e.Bib != 2 || e.Players[0].CheckedInAt.IsZero() {
+		t.Errorf("pair = %+v", e)
+	}
+	// Only the absent partner of a pair half there; its bib stays.
+	ch = g.do(func(s State) (Change, error) { return s.CheckInEntrant(first) })
+	if p := ch.Data.(EntrantCheckedIn); len(p.Players) != 1 || p.Bib != 0 {
+		t.Errorf("partner only = %+v", p)
+	}
+	if e := g.entrant(first); !e.Complete() || e.Bib != 1 {
+		t.Errorf("first = %+v", e)
+	}
+	// Everyone there: nothing to do. One undo cancels the whole team.
+	if ch, err := g.state().CheckInEntrant(pair); err != nil || !ch.None() {
+		t.Errorf("again = %+v, %v", ch, err)
+	}
+	g.undo()
+	if e := g.entrant(first); e.Players[0].CheckedIn || !e.Players[1].CheckedIn {
+		t.Errorf("after undo = %+v", e)
+	}
+	g.fails(engine.CodeEntrantNotFound, func(s State) (Change, error) { return s.CheckInEntrant("e99") })
+}

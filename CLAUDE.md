@@ -98,7 +98,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **One independent format per category**: its own stages, win conditions, advancement rules, full standings.
 - **Courts are shared**. The schedule (ADR 6) decides who plays where: *alternate* mode (round 1 of each category in turn, then round 2…, `First` opens) or *reserved* courts per category until it is over.
 - **Bib numbers are unique across the tournament.** Pool names stay A, B, C… within each category.
-- **Check-in is per player**: each player is checked in once. A pair is complete when both players are present. The bib is assigned at the first check-in of the pair.
+- **Check-in is per player**: each player is checked in once. A pair is complete when both players are present. The bib is assigned at the first check-in of the pair. The check-in screen groups a pair's players; `CheckInEntrant` checks in every absent player of an entrant in one `EntrantCheckedIn` event (one undo).
 - **The draw is per category.** Moving an entrant to a pool of the other category is refused (impossible action, not a warning).
 - **UI**: every match, court, queue item and call shows a colored category badge (English: `MS`, `WS`, `MD`, `WD`, `XD`; French: `SH`, `SD`, `DH`, `DD`, `DM`). The control desk is a single view with a category filter on the queue. The display screen mixes both categories, with a very visible badge.
 - **Full standings** require full-placement brackets. Otherwise, entrants losing in the same round are tied.

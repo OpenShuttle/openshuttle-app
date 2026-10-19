@@ -30,8 +30,8 @@ func TestPhasesAndHistory(t *testing.T) {
 	if v := f.svc.GetPhasesView(); v.Categories[0].Started {
 		t.Fatal("started before the draw")
 	}
-	for _, row := range f.svc.GetCheckInView().Rows {
-		must(f.svc.CheckInPlayer(ctx, row.ID))
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
 	}
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) {
 		stage.Pools = 1

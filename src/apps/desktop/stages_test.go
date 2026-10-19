@@ -27,8 +27,8 @@ func TestStageViews(t *testing.T) {
 			{Name: fmt.Sprint("P N", i), Club: fmt.Sprint("C", i)},
 		}))
 	}
-	for _, row := range f.svc.GetCheckInView().Rows {
-		must(f.svc.CheckInPlayer(ctx, row.ID))
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
 	}
 	must(f.svc.AddStage(ctx, engine.MensSingles, tournament.StageBracket))
 	win := engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 30}

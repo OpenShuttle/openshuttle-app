@@ -44,20 +44,20 @@ type EntrantsView struct {
 	Categories []CategoryEntrants `json:"categories"`
 }
 
-// CheckInRow is a row of the check-in screen: one per player.
-type CheckInRow struct {
-	PlayerView
+// CheckInTeam is a row of the check-in screen: an entrant with its players,
+// a pair shown together.
+type CheckInTeam struct {
 	EntrantID engine.EntrantID `json:"entrantId"`
 	CategoryRef
-	Bib int `json:"bib"`
-	// Partner is the other player of a pair, nil in singles.
-	Partner *PlayerView `json:"partner"`
+	Bib      int          `json:"bib"`
+	Players  []PlayerView `json:"players"`
+	Complete bool         `json:"complete"`
 }
 
-// CheckInView is the check-in screen: every player, sorted by last name,
-// with totals per category.
+// CheckInView is the check-in screen: every entrant, sorted by the names of
+// its players, with totals per category.
 type CheckInView struct {
-	Rows       []CheckInRow       `json:"rows"`
+	Teams      []CheckInTeam      `json:"teams"`
 	Categories []CategoryEntrants `json:"categories"`
 	Players    int                `json:"players"`
 	Present    int                `json:"present"`
@@ -110,6 +110,11 @@ func (s *TournamentService) RemoveEntrant(ctx context.Context, id engine.Entrant
 // CheckInPlayer marks a player present, assigning the bib on the pair's first check-in.
 func (s *TournamentService) CheckInPlayer(ctx context.Context, id tournament.PlayerID) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.CheckInPlayer(id) })
+}
+
+// CheckInEntrant marks every absent player of an entrant present at once.
+func (s *TournamentService) CheckInEntrant(ctx context.Context, id engine.EntrantID) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.CheckInEntrant(id) })
 }
 
 // CancelCheckIn marks a player absent again.
@@ -172,27 +177,22 @@ func checkInView(st tournament.State) CheckInView {
 	for _, ref := range categoryRefs(st) {
 		slots[ref.Category] = ref.Slot
 	}
-	v := CheckInView{Rows: []CheckInRow{}, Categories: categoryEntrants(st)}
+	v := CheckInView{Teams: []CheckInTeam{}, Categories: categoryEntrants(st)}
 	for _, e := range st.Entrants {
-		for i, p := range e.Players {
-			row := CheckInRow{
-				PlayerView:  playerView(p, dup[p.ID]),
-				EntrantID:   e.ID,
-				CategoryRef: CategoryRef{Category: e.Category, Slot: slots[e.Category]},
-				Bib:         e.Bib,
-			}
-			if len(e.Players) == 2 {
-				partner := playerView(e.Players[1-i], dup[e.Players[1-i].ID])
-				row.Partner = &partner
-			}
-			v.Rows = append(v.Rows, row)
+		team := CheckInTeam{
+			EntrantID: e.ID, CategoryRef: CategoryRef{Category: e.Category, Slot: slots[e.Category]},
+			Bib: e.Bib, Players: []PlayerView{}, Complete: e.Complete(),
+		}
+		for _, p := range e.Players {
+			team.Players = append(team.Players, playerView(p, dup[p.ID]))
 			v.Players++
 			if p.CheckedIn {
 				v.Present++
 			}
 		}
+		v.Teams = append(v.Teams, team)
 	}
-	sortRows(v.Rows)
+	sortTeams(v.Teams)
 	return v
 }
 
