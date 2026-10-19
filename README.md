@@ -1,6 +1,8 @@
 # OpenShuttle
 
 [![CI](https://github.com/OpenShuttle/openshuttle-app/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenShuttle/openshuttle-app/actions/workflows/ci.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=OpenShuttle_openshuttle-app&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OpenShuttle_openshuttle-app)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenShuttle_openshuttle-app&metric=coverage)](https://sonarcloud.io/summary/new_code?id=OpenShuttle_openshuttle-app)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
 Open source desktop application to run non-sanctioned badminton club

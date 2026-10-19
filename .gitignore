@@ -18,3 +18,8 @@ src/apps/desktop/build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
 
 # Release packages (CI)
 /dist/
+
+# Test coverage
+src/coverage.out
+src/go-test.json
+src/apps/desktop/frontend/coverage/

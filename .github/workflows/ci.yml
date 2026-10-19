@@ -28,12 +28,17 @@ jobs:
       - run: npm ci
       - name: Check i18n keys
         run: npm run i18n:check
-      - run: npm test
+      - run: npm test -- --coverage --coverage-reporters=lcov
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: src/apps/desktop/frontend/dist
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: src/apps/desktop/frontend/coverage
           retention-days: 1
 
   go:
@@ -64,7 +69,42 @@ jobs:
             exit 1
           fi
       - run: go vet ./...
-      - run: go test ./...
+      - run: go test -coverprofile=coverage.out -json ./... > go-test.json
+      - name: Show test failures
+        if: failure()
+        run: go test ./... 2>&1 | tail -100
+      - uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage
+          path: |
+            src/coverage.out
+            src/go-test.json
+          retention-days: 1
+
+  sonar:
+    name: SonarQube Cloud
+    needs: [frontend, go]
+    # Fork pull requests get no secrets: they are analysed once merged.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # blame data for new code detection
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: src/apps/desktop/frontend/coverage
+      - uses: actions/download-artifact@v4
+        with:
+          name: go-coverage
+          path: src
+      # Vitest writes paths relative to the frontend: make them relative to the repository.
+      - name: Fix frontend coverage paths
+        run: sed -i 's#^SF:#SF:src/apps/desktop/frontend/#' src/apps/desktop/frontend/coverage/openshuttle/lcov.info
+      - uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   signoff:
     name: Sign-off (DCO)

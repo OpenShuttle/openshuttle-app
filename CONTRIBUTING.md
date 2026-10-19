@@ -100,7 +100,10 @@ submit, you have read and tested it, and you sign it off.
 ## Review
 
 A maintainer reviews every pull request. CI must be green (Go tests, frontend
-tests, i18n keys, formatting, sign-off). Pull requests are squashed on merge:
+tests, i18n keys, formatting, sign-off), and the
+[SonarQube Cloud](https://sonarcloud.io/project/overview?id=OpenShuttle_openshuttle-app)
+quality gate passes on new code (pull requests from forks are analysed once
+merged). Pull requests are squashed on merge:
 the title becomes the commit message, so make it a good Conventional Commit.
 
 ## License
