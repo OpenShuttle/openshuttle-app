@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest a change for running club tournaments.
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve?
+      description: Describe the situation on tournament day (or while preparing it) and what gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like?
+      description: How it would work for the organizer or the control desk. Use the glossary terms of docs/specs/scope-v1.md if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How do you handle it today?
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: It works offline, on a single PC (v1 has no network features).

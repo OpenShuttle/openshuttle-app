@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 **OpenShuttle** (openshuttle.app): open source desktop application to run non-sanctioned badminton club tournaments, fully offline.
-The functional spec lives in `docs/specs/cadrage-v1.md` (French). Read it before any feature work.
+The functional spec lives in `docs/specs/scope-v1.md`. Read it before any feature work. Contributors follow `CONTRIBUTING.md`.
 
 ## Scope
 
@@ -128,7 +128,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **No keyboard shortcuts**: every action is a button. Enter and Escape keep their usual meaning inside forms.
 - **Score JSON** is `{sets: [{a, b}], goldenPoint}`, win conditions `{kind, setsToWin, pointsPerSet, cap, minutes}`: these are stored in events, never rename them.
 
-## Glossary (French spec → code)
+## Glossary (French UI → code)
 
 | French | Code |
 | --- | --- |
@@ -164,10 +164,10 @@ Use these names everywhere: types, functions, events, i18n keys, UI labels.
 
 ## Conventions
 
-- All code, comments, commit messages, issues and docs in English (the functional spec stays in French).
+- All code, comments, commit messages, issues and docs in English.
 - i18n keys in English, namespaced by screen: `controlDesk.callMatch`, `checkIn.markPresent`. ICU plurals. No hardcoded UI strings.
 - French labels run 15 to 20 % longer than English: layouts must not break.
-- Commits: Conventional Commits (`feat(engine): ...`, `fix(desktop): ...`).
+- Commits: Conventional Commits (`feat(engine): ...`, `fix(desktop): ...`), signed off for the DCO (`git commit -s`). License: AGPL-3.0-or-later.
 - Every engine change comes with tests. Prefer table-driven tests.
 - Record significant architecture decisions as ADRs in `docs/adr/`.
 

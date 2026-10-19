@@ -56,5 +56,37 @@ jobs:
         with:
           name: frontend-dist
           path: src/apps/desktop/frontend/dist
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Run gofmt -w on: $unformatted"
+            exit 1
+          fi
       - run: go vet ./...
       - run: go test ./...
+
+  signoff:
+    name: Sign-off (DCO)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Every commit of the pull request carries "Signed-off-by" from its
+      # author: see CONTRIBUTING.md.
+      - name: Check sign-offs
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=0
+          for c in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            author=$(git log -1 --format='%an <%ae>' "$c")
+            if ! git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "$c" | grep -qF "$author"; then
+              echo "::error::$(git log -1 --format='%h %s' "$c") is not signed off by $author (git commit -s)"
+              missing=1
+            fi
+          done
+          exit $missing

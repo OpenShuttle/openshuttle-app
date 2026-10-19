@@ -1,0 +1,48 @@
+name: Bug report
+description: Something does not work as described in the functional scope.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Security issues go through SECURITY.md, not here.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a tournament with two categories
+        2. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: OpenShuttle version
+      description: Shown on the home screen (for example "1.2.0").
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, macOS, Linux]
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Interface language
+      options: [English, French]
+  - type: textarea
+    id: file
+    attributes:
+      label: Tournament file or screenshots
+      description: Attach a `.openshuttle` file (zip it) or screenshots if you can. Remove real names first.
