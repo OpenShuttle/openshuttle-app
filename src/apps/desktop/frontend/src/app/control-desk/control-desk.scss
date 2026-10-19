@@ -182,14 +182,6 @@
   }
 }
 
-// Keyboard key shown inside a button.
-.key {
-  font: 600 12px var(--font-mono);
-  border: 1px solid currentColor;
-  border-radius: 4px;
-  padding: 1px 6px;
-}
-
 // Court cards.
 .courts {
   display: grid;
@@ -428,11 +420,6 @@
   &:hover {
     background: #33363d;
   }
-
-  .key {
-    border-color: var(--color-text-muted);
-    color: var(--color-border);
-  }
 }
 
 .call-btn.forced {
@@ -455,10 +442,6 @@
 
   &:hover {
     background: var(--color-free-fg);
-  }
-
-  .key {
-    border-color: #cdebd9;
   }
 }
 
@@ -586,31 +569,6 @@
   &:disabled {
     cursor: default;
     background: #9ca3af;
-  }
-
-  .key {
-    border-color: #cdebd9;
-  }
-}
-
-.keys {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: var(--color-text-muted);
-
-  > span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .kbd {
-    font-size: 12px;
-    background: #fff;
-    color: var(--color-text);
-    padding: 1px 6px;
   }
 }
 

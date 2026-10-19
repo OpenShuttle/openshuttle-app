@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, computed, effect, inject } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -72,22 +72,6 @@ export class Shell implements OnInit {
     void this.tournament.refresh();
   }
 
-  /**
-   * Ctrl Z undoes the latest action, except while typing in a field: there it
-   * undoes the typing. An empty field (the check-in search) has nothing to
-   * undo, so Ctrl Z goes to the tournament.
-   */
-  @HostListener('document:keydown', ['$event'])
-  protected onKeydown(event: KeyboardEvent): void {
-    const isUndo =
-      (event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'z';
-    if (!isUndo || isEditable(event.target) || !this.view().canUndo || !this.inTournament()) {
-      return;
-    }
-    event.preventDefault();
-    void this.tournament.undo();
-  }
-
   protected undo(): void {
     void this.tournament.undo();
   }
@@ -130,11 +114,4 @@ export class Shell implements OnInit {
 export function initials(name: string): string {
   const words = name.split(/\s+/).filter((w) => /^\p{L}/u.test(w));
   return words.slice(0, 2).map((w) => w[0].toUpperCase()).join('') || 'OS';
-}
-
-function isEditable(target: EventTarget | null): boolean {
-  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    return target.value !== '';
-  }
-  return target instanceof HTMLElement && target.isContentEditable;
 }

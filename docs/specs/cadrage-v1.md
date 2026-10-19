@@ -212,7 +212,7 @@ L'interface doit rester utilisable par un bénévole stressé, sur un PC portabl
 - **Dossard + nom** partout, pour éviter les homonymes.
 - **Vocabulaire du glossaire** uniquement.
 - **Bilingue** : français et anglais. Le français est 15 à 20 % plus long, les boutons et libellés doivent le supporter.
-- **Raccourcis clavier** pour la saisie de score et l'appel des matchs : chiffre du terrain (appeler, terminer ou saisir), S (plus ancien score en attente), L / F (lancer / siffler la rotation), Entrée, Échap, Ctrl Z. Compatibles AZERTY.
+- **Pas de raccourcis clavier** : toutes les actions passent par des boutons. Entrée et Échap gardent leur rôle habituel dans les formulaires.
 
 ## Hors périmètre v1 et pistes v2
 

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ControlDeskView, CourtView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
@@ -166,59 +166,6 @@ export class ControlDesk {
   protected end(court: CourtView): void {
     if (court.match) {
       void this.tournament.endMatch(court.match.id);
-    }
-  }
-
-  /**
-   * Keyboard: a court number calls, ends, or opens the score of that court;
-   * S opens the oldest pending score. Digit codes work on AZERTY too.
-   */
-  @HostListener('document:keydown', ['$event'])
-  protected onKeydown(event: KeyboardEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (this.scoring() || event.ctrlKey || event.metaKey || event.altKey ||
-        (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) {
-      return;
-    }
-    const digit = /^(Digit|Numpad)([1-9])$/.exec(event.code);
-    if (digit) {
-      const court = (this.view().courts ?? []).find((c) => c.number === Number(digit[2]));
-      if (court) {
-        event.preventDefault();
-        this.act(court);
-      }
-      return;
-    }
-    const key = event.key.toLowerCase();
-    const rounds = this.view().rounds;
-    if (key === 'l' && rounds.active && !rounds.current && (rounds.next ?? []).length > 0) {
-      event.preventDefault();
-      this.startRound();
-      return;
-    }
-    if (key === 'f' && rounds.current) {
-      event.preventDefault();
-      this.endRound();
-      return;
-    }
-    if (event.key.toLowerCase() === 's') {
-      const oldest = (this.view().pending ?? [])[0];
-      if (oldest) {
-        event.preventDefault();
-        this.scoring.set(oldest);
-      }
-    }
-  }
-
-  private act(court: CourtView): void {
-    if (court.state === 'playing' && court.match && this.inRound(court.match)) {
-      this.scoring.set(court.match); // a round ends with the whistle, not per court
-    } else if (court.state === 'playing') {
-      this.end(court);
-    } else if (court.state === 'finished' && court.match) {
-      this.scoring.set(court.match);
-    } else {
-      this.call(court);
     }
   }
 }

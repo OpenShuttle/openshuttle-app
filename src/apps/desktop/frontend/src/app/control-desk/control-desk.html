@@ -42,7 +42,7 @@
               </span>
               <span class="round-sub">{{ t(roundLeft() > 0 ? 'rounds.subRunning' : 'rounds.subElapsed', { minutes: r.minutes }) }}</span>
               <button type="button" class="round-btn" (click)="endRound()">
-                {{ t('rounds.whistle') }}<span class="key">F</span>
+                {{ t('rounds.whistle') }}
               </button>
             </section>
           } @else {
@@ -57,7 +57,7 @@
                 {{ (view().pending ?? []).length ? t('rounds.subPending', { n: (view().pending ?? []).length }) : t('rounds.subReady') }}
               </span>
               <button type="button" class="round-btn" [disabled]="(rounds.next ?? []).length === 0" (click)="startRound()">
-                {{ t('rounds.start', { n: rounds.played + 1 }) }}<span class="key">L</span>
+                {{ t('rounds.start', { n: rounds.played + 1 }) }}
               </button>
             </section>
           }
@@ -95,7 +95,7 @@
                       <span class="played-value">{{ elapsed(m.calledAt) }}</span>
                     </span>
                     <button type="button" class="end-btn" (click)="$event.stopPropagation(); end(c)">
-                      {{ t('desk.end') }}<span class="key">{{ c.number }}</span>
+                      {{ t('desk.end') }}
                     </button>
                   </div>
                 }
@@ -131,7 +131,7 @@
                   <button type="button" class="score-btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
                   @if (!view().rounds.active) {
                     <button type="button" class="next-btn" [disabled]="!c.proposal" (click)="call(c)">
-                      {{ t('desk.startNext') }}<span class="key">{{ c.number }}</span>
+                      {{ t('desk.startNext') }}
                     </button>
                   }
                 </div>
@@ -165,7 +165,7 @@
                   </div>
                   <div class="court-foot">
                     <button type="button" class="call-btn" [class.forced]="c.proposalUnrested" (click)="call(c)">
-                      {{ t(c.proposalUnrested ? 'desk.callAnyway' : 'desk.call') }}<span class="key">{{ c.number }}</span>
+                      {{ t(c.proposalUnrested ? 'desk.callAnyway' : 'desk.call') }}
                     </button>
                   </div>
                 } @else {
@@ -179,11 +179,6 @@
           }
         </div>
 
-        <div class="keys">
-          <span><span class="kbd">1–{{ (view().courts ?? []).length }}</span>{{ t('desk.keyCourt') }}</span>
-          <span><span class="kbd">S</span>{{ t('desk.keyScore') }}</span>
-          <span><span class="kbd">Ctrl Z</span>{{ t('desk.keyUndo') }}</span>
-        </div>
       }
     </section>
 
