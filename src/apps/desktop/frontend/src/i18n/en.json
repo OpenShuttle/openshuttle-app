@@ -461,7 +461,12 @@
     "estimate": "Time on court",
     "estimateAuto": "Estimated from the win condition, changeover included: used by the schedule.",
     "estimateSet": "Set by hand, changeover included: used by the schedule.",
-    "estimateShort": "≈ {n} min on court"
+    "estimateShort": "≈ {n} min on court",
+    "stageName": "Stage name",
+    "winPreset": "Apply a win condition preset",
+    "tiebreakPreset": "Apply a tiebreak preset",
+    "ruleKind": "Kind of rule",
+    "ruleTarget": "Stage the entrants go to"
   },
   "tiebreak": {
     "wins": "Wins",

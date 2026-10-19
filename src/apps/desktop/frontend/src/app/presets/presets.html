@@ -70,7 +70,7 @@
         </div>
         @if (winDraft(); as d) {
           <form class="editor-form" (submit)="$event.preventDefault(); saveWin()">
-            <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="d.name" (input)="winDraft.set({ id: d.id, name: value($event), win: d.win })" />
+            <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="d.name" (input)="winDraft.set({ id: d.id, name: value($event), win: d.win })" />
             <div class="seg seg-sm">
               <button type="button" class="seg-option" [class.active]="d.win.kind === kinds.WinBySets" (click)="setWinKind(kinds.WinBySets)">{{ t('format.bySets') }}</button>
               <button type="button" class="seg-option" [class.active]="d.win.kind === kinds.WinByTime" (click)="setWinKind(kinds.WinByTime)">{{ t('format.byTime') }}</button>
@@ -154,7 +154,7 @@
         </div>
         @if (tiebreakDraft(); as d) {
           <form class="editor-form" (submit)="$event.preventDefault(); saveTiebreaks()">
-            <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="d.name" (input)="tiebreakDraft.set({ id: d.id, name: value($event), tiebreaks: d.tiebreaks })" />
+            <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="d.name" (input)="tiebreakDraft.set({ id: d.id, name: value($event), tiebreaks: d.tiebreaks })" />
             @for (tb of d.tiebreaks; track tb; let i = $index, first = $first, last = $last) {
               <div class="tb-row">
                 <span class="tb-rank">{{ i + 1 }}</span>
@@ -208,7 +208,7 @@
         @if (clubDraft(); as d) {
           @if (d.old === '') {
             <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
-              <input class="input" maxlength="80" [placeholder]="t('clubs.newPlaceholder')" [value]="d.name" (input)="clubDraft.set({ old: d.old, name: value($event) })" />
+              <input class="input" maxlength="80" [attr.aria-label]="t('clubs.newPlaceholder')" [placeholder]="t('clubs.newPlaceholder')" [value]="d.name" (input)="clubDraft.set({ old: d.old, name: value($event) })" />
               <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
               <button type="submit" class="btn btn-xs btn-primary" [disabled]="!d.name.trim()">{{ t('presets.save') }}</button>
             </form>
@@ -217,7 +217,7 @@
         @for (c of presets.value().clubs ?? []; track c) {
           @if (clubDraft()?.old === c) {
             <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
-              <input class="input" maxlength="80" [value]="clubDraft()!.name" (input)="clubDraft.set({ old: c, name: value($event) })" />
+              <input class="input" maxlength="80" [attr.aria-label]="t('clubs.newPlaceholder')" [value]="clubDraft()!.name" (input)="clubDraft.set({ old: c, name: value($event) })" />
               <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
               <button type="submit" class="btn btn-xs btn-primary" [disabled]="!clubDraft()!.name.trim()">{{ t('presets.save') }}</button>
             </form>

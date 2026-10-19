@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { CheckInRow, CheckInView, TournamentService } from '@bindings/apps/desktop';
@@ -30,6 +30,12 @@ export class CheckIn {
   protected readonly category = signal<Category | 'all'>('all');
   protected readonly presence = signal<'all' | 'present' | 'absent'>('all');
   private readonly language = inject(LanguageService);
+  private readonly searchField = viewChild<ElementRef<HTMLInputElement>>('searchField');
+
+  constructor() {
+    // Check-in is typing names: the search box is ready as the screen opens.
+    afterNextRender(() => this.searchField()?.nativeElement.focus());
+  }
 
   protected readonly pairs = computed(() => {
     const categories = (this.view().categories ?? []).filter((c) => c.doubles);

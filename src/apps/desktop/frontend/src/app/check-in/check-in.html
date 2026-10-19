@@ -23,9 +23,10 @@
 
     <div class="filters">
       <input
+        #searchField
         class="input search"
         type="search"
-        autofocus
+        [attr.aria-label]="t('checkIn.search')"
         [placeholder]="t('checkIn.search')"
         [value]="search()"
         (input)="search.set($any($event.target).value)"

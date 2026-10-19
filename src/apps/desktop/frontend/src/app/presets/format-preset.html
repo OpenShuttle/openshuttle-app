@@ -13,14 +13,14 @@
     <div class="toolbar">
       <a class="btn btn-sm back" routerLink="/presets">← {{ t('presets.title') }}</a>
       <div class="fields">
-        <input class="input name" maxlength="60" [disabled]="readonly()" [placeholder]="t('presets.name')" [value]="name()" (input)="name.set(value($event))" />
-        <input class="input" maxlength="200" [disabled]="readonly()" [placeholder]="t('presets.description')" [value]="description()" (input)="description.set(value($event))" />
+        <input class="input name" maxlength="60" [disabled]="readonly()" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="name()" (input)="name.set(value($event))" />
+        <input class="input" maxlength="200" [disabled]="readonly()" [attr.aria-label]="t('presets.description')" [placeholder]="t('presets.description')" [value]="description()" (input)="description.set(value($event))" />
       </div>
       <div class="simulate">
         <span class="simulate-label">{{ t('presets.simulateWith') }}</span>
         <div class="stepper">
           <button type="button" (click)="stepEntrants(-1)">−</button>
-          <input class="stepper-input" type="number" min="0" max="512" [value]="entrants()" (input)="setEntrants($event)" />
+          <input class="stepper-input" type="number" min="0" max="512" [attr.aria-label]="t('presets.simulateWith') + ' (' + t('presets.teams') + ')'" [value]="entrants()" (input)="setEntrants($event)" />
           <button type="button" (click)="stepEntrants(1)">+</button>
         </div>
         <span class="simulate-label">{{ t('presets.teams') }}</span>

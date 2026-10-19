@@ -461,7 +461,12 @@
     "estimate": "Durée sur le terrain",
     "estimateAuto": "Estimée d'après la condition de victoire, changement compris : sert à l'échéancier.",
     "estimateSet": "Fixée à la main, changement compris : sert à l'échéancier.",
-    "estimateShort": "≈ {n} min sur le terrain"
+    "estimateShort": "≈ {n} min sur le terrain",
+    "stageName": "Nom de la phase",
+    "winPreset": "Appliquer un preset de condition de victoire",
+    "tiebreakPreset": "Appliquer un preset de départage",
+    "ruleKind": "Type de règle",
+    "ruleTarget": "Phase de destination"
   },
   "tiebreak": {
     "wins": "Victoires",

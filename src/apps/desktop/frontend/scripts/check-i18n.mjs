@@ -20,7 +20,7 @@ const all = new Set([...keys.values()].flatMap((set) => [...set]));
 
 let failed = false;
 for (const [file, set] of keys) {
-  const missing = [...all].filter((k) => !set.has(k)).sort();
+  const missing = [...all].filter((k) => !set.has(k)).sort((a, b) => a.localeCompare(b));
   if (missing.length > 0) {
     failed = true;
     console.error(`${file} is missing ${missing.length} key(s):\n  ${missing.join('\n  ')}`);

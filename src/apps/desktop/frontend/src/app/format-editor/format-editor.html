@@ -102,6 +102,7 @@
           <input
             class="panel-name"
             maxlength="60"
+            [attr.aria-label]="t('format.stageName')"
             [disabled]="readonly()"
             [placeholder]="s.kind === stageKinds.StagePools ? t('stage.kind.pools') : t('stage.kind.bracket')"
             [value]="s.name"
@@ -148,7 +149,7 @@
                     <button type="button" class="tb-move" [disabled]="(s.poolSizes ?? []).length === 1 || s.confirmed" (click)="removePoolSize(s, i)" [attr.aria-label]="t('presets.delete')">×</button>
                   </div>
                 }
-                <select class="preset-select full" [disabled]="s.confirmed" (change)="addPoolSize(s, $event)">
+                <select class="preset-select full" [attr.aria-label]="t('format.addSize')" [disabled]="s.confirmed" (change)="addPoolSize(s, $event)">
                   <option value="">{{ t('format.addSize') }}</option>
                   @for (n of poolSizeChoices; track n) {
                     @if (!(s.poolSizes ?? []).includes(n)) {
@@ -185,7 +186,7 @@
                 <button type="button" class="link" (click)="openSave('win')">{{ t('presets.saveShort') }}</button>
               }
             </div>
-            <select class="preset-select full" (change)="applyWinPreset(s, $event)">
+            <select class="preset-select full" [attr.aria-label]="t('format.winPreset')" (change)="applyWinPreset(s, $event)">
               <option value="">{{ t('presets.choose') }}</option>
               @for (p of presets.offered().win ?? []; track p.id) {
                 <option [value]="p.id">{{ p.name ? p.name + ' · ' : '' }}{{ win(p.win) }}</option>
@@ -193,7 +194,7 @@
             </select>
             @if (saving() === 'win') {
               <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
-                <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
                 <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
                 <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
               </form>
@@ -271,7 +272,7 @@
                   <button type="button" class="link" (click)="openSave('tiebreaks')">{{ t('presets.saveShort') }}</button>
                 }
               </div>
-              <select class="preset-select full" (change)="applyTiebreakPreset(s, $event)">
+              <select class="preset-select full" [attr.aria-label]="t('format.tiebreakPreset')" (change)="applyTiebreakPreset(s, $event)">
                 <option value="">{{ t('presets.choose') }}</option>
                 @for (p of presets.offered().tiebreaks ?? []; track p.id) {
                   <option [value]="p.id">{{ tiebreakPresetLabel(p) }}</option>
@@ -279,7 +280,7 @@
               </select>
               @if (saving() === 'tiebreaks') {
                 <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
-                  <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                  <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
                   <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
                   <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
                 </form>
@@ -333,7 +334,7 @@
               @for (r of s.routing ?? []; track $index; let i = $index) {
                 <div class="rule">
                   <div class="rule-head">
-                    <select class="rule-kind" (change)="setRuleKind(s, i, $event)">
+                    <select class="rule-kind" [attr.aria-label]="t('format.ruleKind')" (change)="setRuleKind(s, i, $event)">
                       @for (k of [routeKinds.RouteRanks, routeKinds.RouteBestOfRank, routeKinds.RouteBest, routeKinds.RouteRest]; track k) {
                         <option [value]="k" [selected]="r.kind === k">{{ t('format.rule.' + k) }}</option>
                       }
@@ -386,7 +387,7 @@
                   }
                   <div class="line">
                     <span class="text">→</span>
-                    <select class="rule-target" (change)="setRuleTarget(s, i, $event)">
+                    <select class="rule-target" [attr.aria-label]="t('format.ruleTarget')" (change)="setRuleTarget(s, i, $event)">
                       @for (l of laterStages(s); track l.id) {
                         <option [value]="l.id" [selected]="r.to === l.id">{{ l.id }} · {{ label(l) }}</option>
                       }

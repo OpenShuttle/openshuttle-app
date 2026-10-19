@@ -32,9 +32,9 @@
       <h2>{{ t('settingsPage.displayScreen') }}</h2>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('displayScreen.monitor') }}</span>
+          <label class="name" for="setting-monitor">{{ t('displayScreen.monitor') }}</label>
         </div>
-        <select (change)="setMonitor($event)">
+        <select id="setting-monitor" (change)="setMonitor($event)">
           <option value="" [selected]="s.monitor === ''">{{ t('displayScreen.monitorAuto') }}</option>
           @for (m of display.monitors(); track m.id) {
             <option [value]="m.id" [selected]="m.id === s.monitor">
@@ -60,10 +60,11 @@
       <h2>{{ t('nav.controlDesk') }}</h2>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('settingsPage.operator') }}</span>
+          <label class="name" for="setting-operator">{{ t('settingsPage.operator') }}</label>
           <span class="hint">{{ t('settingsPage.operatorHint') }}</span>
         </div>
         <input
+          id="setting-operator"
           class="input operator"
           maxlength="50"
           [value]="s.operator"
@@ -93,10 +94,10 @@
       </div>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('settingsPage.defaultFormat') }}</span>
+          <label class="name" for="setting-default-format">{{ t('settingsPage.defaultFormat') }}</label>
           <span class="hint">{{ t('settingsPage.defaultFormatHint') }}</span>
         </div>
-        <select (change)="setDefault(presetKinds.PresetKindFormat, $event)">
+        <select id="setting-default-format" (change)="setDefault(presetKinds.PresetKindFormat, $event)">
           @for (p of presets.value().formats ?? []; track p.id) {
             <option [value]="p.id" [selected]="p.id === s.defaultFormat">{{ p.name || t('presets.format.' + p.key + '.name') }}</option>
           }
@@ -104,10 +105,10 @@
       </div>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('settingsPage.defaultWin') }}</span>
+          <label class="name" for="setting-default-win">{{ t('settingsPage.defaultWin') }}</label>
           <span class="hint">{{ t('settingsPage.defaultWinHint') }}</span>
         </div>
-        <select (change)="setDefault(presetKinds.PresetKindWin, $event)">
+        <select id="setting-default-win" (change)="setDefault(presetKinds.PresetKindWin, $event)">
           @for (p of presets.value().win ?? []; track p.id) {
             <option [value]="p.id" [selected]="p.id === s.defaultWin">{{ p.name || win(p.win) }}</option>
           }
@@ -115,9 +116,9 @@
       </div>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('settingsPage.defaultTiebreaks') }}</span>
+          <label class="name" for="setting-default-tiebreaks">{{ t('settingsPage.defaultTiebreaks') }}</label>
         </div>
-        <select (change)="setDefault(presetKinds.PresetKindTiebreaks, $event)">
+        <select id="setting-default-tiebreaks" (change)="setDefault(presetKinds.PresetKindTiebreaks, $event)">
           @for (p of presets.value().tiebreaks ?? []; track p.id) {
             <option [value]="p.id" [selected]="p.id === s.defaultTiebreaks">{{ p.name || t('presets.tiebreaks.' + p.key) }}</option>
           }

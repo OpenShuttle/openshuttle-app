@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
@@ -25,8 +25,11 @@ export class Home {
   protected readonly creating = signal(false);
   protected readonly name = signal('');
   protected readonly folder = computed(() => this.settings.value()?.tournamentsDir ?? '');
+  private readonly nameField = viewChild<ElementRef<HTMLInputElement>>('nameField');
 
   constructor() {
+    // The form opens on the desk's click: its field takes the focus.
+    effect(() => this.nameField()?.nativeElement.focus());
     void AppService.GetAppInfo().then((info) => this.app.set(info));
     void this.tournament.refresh();
   }

@@ -32,6 +32,7 @@
             <input
               #point
               class="point"
+              [attr.aria-label]="(timed() ? t('desk.points') : t('desk.setN', { n: i + 1 })) + ' · ' + names(s)"
               type="number"
               min="0"
               max="99"

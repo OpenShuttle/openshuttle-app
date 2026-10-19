@@ -74,7 +74,7 @@
               <form class="row edit" (submit)="$event.preventDefault(); saveEdit()" (keydown.escape)="editing.set(null)">
                 @for (p of editDraft(); track $index; let i = $index) {
                   <div class="player-fields">
-                    <input class="input" [placeholder]="t('entrants.name')" [value]="p.name" maxlength="100" (input)="setEdit(i, 'name', value($event))" />
+                    <input class="input" [attr.aria-label]="t('entrants.name')" [placeholder]="t('entrants.name')" [value]="p.name" maxlength="100" (input)="setEdit(i, 'name', value($event))" />
                     <app-club-select [value]="p.club" (changed)="setEdit(i, 'club', $event)" />
                   </div>
                 }
@@ -140,6 +140,7 @@
                 <input
                   #firstField
                   class="input"
+                  [attr.aria-label]="cat.doubles ? t('entrants.playerN', { n: i + 1 }) : t('entrants.name')"
                   [placeholder]="t('entrants.namePlaceholder')"
                   maxlength="100"
                   [value]="draftValue(i, 'name')"

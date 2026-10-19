@@ -17,7 +17,7 @@
             class="input"
             type="text"
             maxlength="100"
-            autofocus
+            #nameField
             [value]="name()"
             (input)="name.set($any($event.target).value)"
             (keydown.escape)="creating.set(false)"
