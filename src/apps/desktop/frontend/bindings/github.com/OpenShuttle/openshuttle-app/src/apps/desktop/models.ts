@@ -685,10 +685,9 @@ export interface RoundsView {
 }
 
 /**
- * ScheduleBlockView is a block the desk can move up: a pool, or a round of
- * a bracket, with when its matches are expected.
+ * ScheduleGroupView is a pool, or a bracket, of a stage still playing.
  */
-export interface ScheduleBlockView {
+export interface ScheduleGroupView {
     "key": string;
     "category": engine$0.Category;
     "slot": number;
@@ -697,15 +696,47 @@ export interface ScheduleBlockView {
     "stageKind": tournament$0.StageKind;
     "entryStage": boolean;
     "pool": string;
-    "round": number;
-    "matches": number;
-    "start": string;
-    "end": string;
+    "teams": ScheduleTeamView[] | null;
+}
+
+/**
+ * ScheduleMatchView is a waiting match in schedule order, with the
+ * forecast and the matches each side has left in the stage.
+ */
+export interface ScheduleMatchView {
+    "key": string;
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": string;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
 
     /**
-     * position among the pinned blocks, from 1; 0 if not pinned
+     * Pool is "A", "B"… in a pools stage, "" in a bracket.
      */
-    "pinned": number;
+    "pool": string;
+
+    /**
+     * Round is the round of the pool or of the bracket, from 1.
+     */
+    "round": number;
+
+    /**
+     * Match is nil in a stage not filled yet: who plays is not known.
+     */
+    "match": MatchView | null;
+    "court": number;
+    "start": string;
+    "end": string;
+    "unrested": boolean;
+
+    /**
+     * LeftA and LeftB count the matches each side has not started in the
+     * stage, this one included.
+     */
+    "leftA": number;
+    "leftB": number;
 }
 
 /**
@@ -742,6 +773,17 @@ export interface ScheduleSlotView {
 }
 
 /**
+ * ScheduleTeamView is an entrant with the matches it has left in a stage.
+ */
+export interface ScheduleTeamView {
+    "entrant": engine$0.EntrantID;
+    "bib": number;
+    "names": string[] | null;
+    "left": number;
+    "playing": boolean;
+}
+
+/**
  * ScheduleView is the schedule screen: the forecast of every match left.
  */
 export interface ScheduleView {
@@ -752,12 +794,29 @@ export interface ScheduleView {
     "courts": number;
     "minRest": number;
     "reserved": CourtReservation[] | null;
+
+    /**
+     * Slots is the timeline: waiting matches and stand-ins of stages not
+     * filled yet, by start time.
+     */
     "slots": ScheduleSlotView[] | null;
 
     /**
-     * Blocks in the order they start.
+     * ValidatedAt is when the desk validated the order; nil while it follows
+     * the rules. Only a validated order can be changed by hand.
      */
-    "blocks": ScheduleBlockView[] | null;
+    "validatedAt": string | null;
+
+    /**
+     * Order lists the waiting matches in the order courts take them.
+     */
+    "order": ScheduleMatchView[] | null;
+
+    /**
+     * Groups lists the pools and brackets still playing, with the matches
+     * each team has left.
+     */
+    "groups": ScheduleGroupView[] | null;
 
     /**
      * End is when the last match is expected to end; nil with nothing left.

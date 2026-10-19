@@ -89,6 +89,13 @@ export enum Code {
     CodeClubNotFound = "CLUB_NOT_FOUND",
     CodeAlreadyEntered = "ALREADY_ENTERED",
     CodeInvalidFile = "INVALID_FILE",
+
+    /**
+     * Schedule: nothing waiting to put in order, or a move before the order
+     * is validated.
+     */
+    CodeNothingToSchedule = "NOTHING_TO_SCHEDULE",
+    CodeScheduleNotValidated = "SCHEDULE_NOT_VALIDATED",
     CodePoolsNotComplete = "POOLS_NOT_COMPLETE",
     CodeTieUnresolved = "TIE_UNRESOLVED",
     CodeBracketStarted = "BRACKET_STARTED",

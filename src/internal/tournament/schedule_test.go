@@ -75,27 +75,81 @@ func TestScheduleBracketRounds(t *testing.T) {
 	}
 }
 
-func TestSchedulePools(t *testing.T) {
+func TestAutoOrder(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 4, 18) // pools of 5, 5, 4 and 4
+
+	// Round by round, the pools of 5 (more matches) first, then those of 4;
+	// the pools of 5 play two more rounds on their own.
+	var pools []string
+	for _, id := range g.state().AutoOrder() {
+		m, _ := g.state().Match(id)
+		pools = append(pools, engine.PoolName(m.Pool))
+	}
+	round := []string{"A", "A", "B", "B", "C", "C", "D", "D"}
+	want := slices.Concat(round, round, round, []string{"A", "A", "B", "B"}, []string{"A", "A", "B", "B"})
+	if !slices.Equal(pools, want) {
+		t.Errorf("order = %v\nwant    %v", pools, want)
+	}
+	// With nothing validated, the schedule follows that order.
+	if !slices.Equal(g.state().ScheduleOrder(), g.state().AutoOrder()) {
+		t.Error("schedule order differs from the rules before validation")
+	}
+}
+
+func TestValidateAndMove(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	g.do(func(s State) (Change, error) { return s.SetCourts(1) })
-	g.confirmedPools(engine.MensSingles, 2, 9) // pools of 5 and 4
+	g.confirmedPools(engine.MensSingles, 2, 8)
+	g.fails(engine.CodeScheduleNotValidated, func(s State) (Change, error) { return s.MoveScheduledMatch("MS-B1", "") })
 
-	// One court: pool A goes on to the end before pool B starts.
-	sc := g.state().Schedule(t0)
-	for i, s := range sc.Slots {
-		if want := map[bool]int{true: 0, false: 1}[i < 10]; s.Pool != want {
-			t.Fatalf("slot %d in pool %d", i, s.Pool)
-		}
+	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
+	if g.state().ScheduleValidatedAt().IsZero() {
+		t.Fatal("not validated")
+	}
+	order := g.state().ScheduleOrder()
+
+	// One match to the front.
+	last := order[len(order)-1]
+	g.do(func(s State) (Change, error) { return s.MoveScheduledMatch(last, order[0]) })
+	if got := g.state().ScheduleOrder(); got[0] != last || len(got) != len(order) {
+		t.Errorf("after moving %s: %v", last, got)
+	}
+	if first := g.state().Schedule(t0).Slots[0]; first.Match != last {
+		t.Errorf("first match played = %s, want %s", first.Match, last)
 	}
 
-	// Pool A with fewer rounds left than pool B: B goes first.
-	for _, m := range g.state().Matches() {
-		if m.Pool == 0 && m.Round <= 2 {
-			g.do(func(s State) (Change, error) { return s.RecordScore(m.ID, straight) })
+	// The whole pool B to the end, its matches in their order.
+	g.do(func(s State) (Change, error) { return s.MoveScheduledPool(engine.MensSingles, "S1", 1, "") })
+	got := g.state().ScheduleOrder()
+	for i, id := range got {
+		m, _ := g.state().Match(id)
+		if (i >= len(got)-6) != (m.Pool == 1) {
+			t.Fatalf("pool B not at the end: %v", got)
 		}
 	}
-	if first := g.state().Schedule(t0).Slots[0]; first.Pool != 1 {
-		t.Errorf("first after A's rounds 1-3 = pool %d", first.Pool)
+	// Played matches leave the order; the moves stay.
+	g.do(func(s State) (Change, error) { return s.CallMatch(got[0], 1) })
+	if next := g.state().ScheduleOrder(); next[0] != got[1] {
+		t.Errorf("after the call = %v", next)
+	}
+	g.fails(engine.CodeMatchNotFound, func(s State) (Change, error) { return s.MoveScheduledMatch(got[0], "") })
+
+	// Validating again recomputes the order from the rules.
+	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
+	if !slices.Equal(g.state().ScheduleOrder(), g.state().AutoOrder()) {
+		t.Error("validating again kept the moves")
+	}
+}
+
+func TestMatchesLeft(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 1, 4)
+	m, _ := g.state().Match("MS-A1")
+	g.do(func(s State) (Change, error) { return s.RecordScore("MS-A1", straight) })
+	left := g.state().MatchesLeft(engine.MensSingles, "S1")
+	if left[m.A] != 2 || left[m.B] != 2 || len(left) != 4 {
+		t.Errorf("left = %v", left)
 	}
 }
 
@@ -146,19 +200,6 @@ func TestScheduleReserved(t *testing.T) {
 		t.Errorf("court 4 reserved for MS = %v", r)
 	}
 	g.fails(engine.CodeInvalidCourt, func(s State) (Change, error) { return s.SetCourtCategory(9, engine.MensSingles) })
-}
-
-func TestSchedulePins(t *testing.T) {
-	g := newGame(t, engine.MensSingles)
-	g.do(func(s State) (Change, error) { return s.SetCourts(1) })
-	g.confirmedPools(engine.MensSingles, 2, 8)
-	g.do(func(s State) (Change, error) { return s.SetSchedulePins([]string{"MS/S1/B", "MS/S1/B", "gone"}) })
-	if p := g.state().ScheduleSettings().Pinned; !slices.Equal(p, []string{"MS/S1/B", "gone"}) {
-		t.Errorf("pins = %v", p)
-	}
-	if first := g.state().Schedule(t0).Slots[0]; first.Key != "MS/S1/B" {
-		t.Errorf("first = %s", first.Key)
-	}
 }
 
 func TestSchedulePlaceholders(t *testing.T) {

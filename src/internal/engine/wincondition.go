@@ -49,14 +49,15 @@ func (w WinCondition) EstimatedMinutes() int {
 	return w.DefaultEstimate()
 }
 
-// DefaultEstimate guesses the time on court: a timed match plus 2 minutes
-// of changeover; a set match by its length (0.6 min per point to win, sets
-// included) plus 4 minutes. 2 sets of 15: 22 min, of 21: 29 min.
+// DefaultEstimate guesses the time on court, changeover included: a timed
+// match plus 2 minutes; a set match about 2/3 min per point of a set, plus
+// 1 min, per set to win. 2 sets of 21: 30 min, 2 sets of 15: 22 min, 1 set
+// of 21: 15 min (the usual slots of club tournaments).
 func (w WinCondition) DefaultEstimate() int {
 	if w.Kind == WinByTime {
 		return w.Minutes + 2
 	}
-	return (w.SetsToWin*w.PointsPerSet*3+2)/5 + 4
+	return (w.SetsToWin*(2*w.PointsPerSet+3) + 1) / 3
 }
 
 // Validate checks that the win condition can be played.

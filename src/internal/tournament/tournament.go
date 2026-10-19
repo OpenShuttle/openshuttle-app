@@ -82,8 +82,11 @@ type State struct {
 
 	places map[string][]Place // "<category>/<stage>"
 	rounds []Round
-	// schedule is the schedule setup (mode, reserved courts, pinned blocks).
-	schedule ScheduleSet
+	// schedule is the schedule setup (mode, reserved courts); scheduleOrder
+	// the validated order of the waiting matches, since scheduleFrozenAt.
+	schedule         ScheduleSet
+	scheduleOrder    []MatchID
+	scheduleFrozenAt time.Time
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -144,6 +147,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyFormatSet)
 	case TypeScheduleSet:
 		return decodeInto(e, s.applyScheduleSet)
+	case TypeScheduleOrderSet:
+		return decodeInto(e, func(p ScheduleOrderSet) { s.applyScheduleOrderSet(p, e.At) })
 	case TypeSeedsSet:
 		return decodeInto(e, s.applySeedsSet)
 	case TypeEntrantSeeded:

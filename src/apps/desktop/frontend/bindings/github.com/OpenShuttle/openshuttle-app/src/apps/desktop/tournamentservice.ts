@@ -268,6 +268,21 @@ export function MoveEntrant(id: engine$0.EntrantID, pool: number): $CancellableP
 }
 
 /**
+ * MoveScheduledMatch moves a match just before another one ("" at the end).
+ */
+export function MoveScheduledMatch(id: tournament$0.MatchID, before: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(4116923883, id, before);
+}
+
+/**
+ * MoveScheduledPool moves every waiting match of the pool of a match just
+ * before another one ("" at the end).
+ */
+export function MoveScheduledPool($of: tournament$0.MatchID, before: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(2125977080, $of, before);
+}
+
+/**
  * OpenTournament opens a tournament file, closing the current one.
  */
 export function OpenTournament(path: string): $CancellablePromise<void> {
@@ -389,13 +404,6 @@ export function SetScheduleMode(mode: tournament$0.ScheduleMode): $CancellablePr
 }
 
 /**
- * SetSchedulePins sets the blocks played first, in order.
- */
-export function SetSchedulePins(keys: string[] | null): $CancellablePromise<void> {
-    return $Call.ByID(2521546563, keys);
-}
-
-/**
  * SetSeeds ranks the seeds of a category, top seed first; the entrants
  * left out are not seeded.
  */
@@ -436,6 +444,14 @@ export function Undo(): $CancellablePromise<void> {
  */
 export function UpdateEntrant(id: engine$0.EntrantID, players: tournament$0.PlayerInput[] | null): $CancellablePromise<void> {
     return $Call.ByID(3847520683, id, players);
+}
+
+/**
+ * ValidateSchedule fixes the order of the waiting matches from the rules
+ * (again: recomputes it, dropping the moves made by hand).
+ */
+export function ValidateSchedule(): $CancellablePromise<void> {
+    return $Call.ByID(1670295813);
 }
 
 /**

@@ -28,7 +28,7 @@ func TestScheduleView(t *testing.T) {
 	}
 	// Before the draw: stand-ins for two pools of 4, then nothing called.
 	v := f.svc.GetScheduleView()
-	if len(v.Slots) != 12 || v.Slots[0].Match != nil || len(v.Blocks) != 2 || v.End == nil {
+	if len(v.Slots) != 12 || v.Slots[0].Match != nil || len(v.Order) != 0 || v.End == nil {
 		t.Fatalf("before draw = %+v", v)
 	}
 	for _, row := range f.svc.GetCheckInView().Rows {
@@ -39,18 +39,33 @@ func TestScheduleView(t *testing.T) {
 	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
 
 	v = f.svc.GetScheduleView()
-	if len(v.Slots) != 12 || v.Slots[0].Match == nil || v.Slots[0].Pool != "A" || v.Blocks[0].Key != "MS/S1/A" || v.Blocks[0].Matches != 6 {
-		t.Fatalf("schedule = %+v", v.Blocks)
+	if len(v.Order) != 12 || v.ValidatedAt != nil || v.Order[0].Pool != "A" || v.Order[0].LeftA != 3 || len(v.Groups) != 2 {
+		t.Fatalf("schedule = %+v", v)
 	}
-	// Moving pool B up: it starts first, and the desk proposes it.
-	must(f.svc.SetSchedulePins(ctx, []string{"MS/S1/B"}))
-	if v = f.svc.GetScheduleView(); v.Blocks[0].Key != "MS/S1/B" || v.Blocks[0].Pinned != 1 {
-		t.Errorf("pinned = %+v", v.Blocks[0])
+	if g := v.Groups[0]; g.Pool != "A" || len(g.Teams) != 4 || g.Teams[0].Left != 3 {
+		t.Errorf("group A = %+v", g)
+	}
+	// Moves need a validated order.
+	wantCode(t, f.svc.MoveScheduledMatch(ctx, v.Order[3].Match.ID, ""), engine.CodeScheduleNotValidated)
+	must(f.svc.ValidateSchedule(ctx))
+	if v = f.svc.GetScheduleView(); v.ValidatedAt == nil {
+		t.Fatal("not validated")
+	}
+	// Pool B first: the desk proposes it.
+	firstB := ""
+	for _, o := range v.Order {
+		if o.Pool == "B" && firstB == "" {
+			firstB = string(o.Match.ID)
+		}
+	}
+	must(f.svc.MoveScheduledPool(ctx, tournament.MatchID(firstB), v.Order[0].Match.ID))
+	if v = f.svc.GetScheduleView(); v.Order[0].Pool != "B" || v.Order[5].Pool != "B" || v.Order[6].Pool != "A" {
+		t.Errorf("pool B first = %+v", v.Order[:7])
 	}
 	if d := f.svc.GetControlDeskView(); d.Courts[0].Proposal == nil || d.Courts[0].Proposal.Pool != "B" {
 		t.Errorf("desk proposal = %+v", d.Courts[0].Proposal)
 	}
-	if last := f.svc.GetTournamentView().LastAction; last == nil || last.Type != string(tournament.TypeScheduleSet) {
+	if last := f.svc.GetTournamentView().LastAction; last == nil || last.Type != string(tournament.TypeScheduleOrderSet) {
 		t.Errorf("last action = %+v", last)
 	}
 	wantCode(t, f.svc.SetScheduleMode(ctx, "golf"), engine.CodeInvalidSetting)

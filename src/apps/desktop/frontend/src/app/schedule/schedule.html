@@ -11,9 +11,20 @@
           }
         </span>
       </div>
-      @if (view().unrested > 0) {
-        <span class="pill pill-finished" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.unrested', { n: view().unrested }) }}</span>
-      }
+      <div class="head-actions">
+        @if (view().unrested > 0) {
+          <span class="pill pill-finished" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.unrested', { n: view().unrested }) }}</span>
+        }
+        @if (view().validatedAt; as at) {
+          <span class="pill pill-free">{{ t('schedule.validatedAt', { time: time(at) }) }}</span>
+          <button type="button" class="btn btn-sm" [class.btn-danger]="confirmingRecompute()" (click)="validate()">
+            {{ t(confirmingRecompute() ? 'schedule.recomputeConfirm' : 'schedule.recompute') }}
+          </button>
+        } @else if ((view().order ?? []).length > 0) {
+          <span class="pill pill-muted">{{ t('schedule.notValidated') }}</span>
+          <button type="button" class="btn btn-sm btn-primary" (click)="validate()">{{ t('schedule.validate') }}</button>
+        }
+      </div>
     </div>
 
     @if ((view().categories ?? []).length > 1) {
@@ -98,18 +109,18 @@
                     class="slot"
                     [class.unrested]="s.unrested"
                     [class.unknown]="!s.match"
-                    [class.dim]="selected() && selected() !== s.key"
+                    [class.dim]="selected() && selected() !== (s.match?.id ?? '')"
                     [style.top.px]="top(s)"
                     [style.height.px]="slotHeight(s)"
                     [style.border-left-color]="'var(--color-category-' + s.slot + ')'"
-                    [attr.title]="time(s.start) + ' – ' + time(s.end) + ' · ' + blockLabel(s) + ' · ' + sides(s)"
-                    (click)="selected.set(selected() === s.key ? null : s.key)"
+                    [attr.title]="time(s.start) + ' – ' + time(s.end) + ' · ' + label(s) + ' · ' + names(s)"
+                    (click)="s.match && selected.set(selected() === s.match.id ? null : s.match.id)"
                   >
                     <span class="slot-head">
                       <app-category-badge [category]="s.category" [slot]="s.slot" />
                       <span class="slot-time">{{ time(s.start) }}</span>
                     </span>
-                    <span class="slot-label">{{ blockLabel(s) }}</span>
+                    <span class="slot-label">{{ label(s) }}</span>
                     @if (slotHeight(s) > 54) {
                       <span class="slot-sides">{{ s.match ? bibs(s) : t('schedule.unknownPlayers') }}</span>
                     }
@@ -121,31 +132,83 @@
         </div>
 
         <aside class="card order">
-          <div class="order-head">
-            <span class="order-title">{{ t('schedule.order') }}</span>
-            @if (manual()) {
-              <button type="button" class="btn btn-xs" (click)="reset()">{{ t('schedule.reset') }}</button>
-            }
+          <div class="seg seg-sm">
+            <button type="button" class="seg-option" [class.active]="tab() === 'order'" (click)="tab.set('order')">{{ t('schedule.orderTab') }}</button>
+            <button type="button" class="seg-option" [class.active]="tab() === 'teams'" (click)="tab.set('teams')">{{ t('schedule.teamsTab') }}</button>
           </div>
-          <span class="hint">{{ t(manual() ? 'schedule.manualHint' : 'schedule.autoHint') }}</span>
-          <ol class="blocks">
-            @for (b of view().blocks; track b.key; let i = $index; let first = $first; let last = $last) {
-              <li class="block" [class.selected]="selected() === b.key" (click)="selected.set(selected() === b.key ? null : b.key)">
-                <span class="block-main">
-                  <span class="block-title">
-                    <app-category-badge [category]="b.category" [slot]="b.slot" />
-                    <span class="block-label">{{ blockLabel(b) }}</span>
-                  </span>
-                  <span class="block-meta">{{ t('schedule.blockMeta', { n: b.matches, start: time(b.start), end: time(b.end) }) }}</span>
-                </span>
-                <span class="block-actions" (click)="$event.stopPropagation()">
-                  <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('schedule.toTop')" [attr.title]="t('schedule.toTop')" (click)="toTop(i)">⤒</button>
-                  <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('schedule.up')" (click)="move(i, -1)">↑</button>
-                  <button type="button" class="icon-btn" [disabled]="last" [attr.aria-label]="t('schedule.down')" (click)="move(i, 1)">↓</button>
-                </span>
-              </li>
+          @if (tab() === 'order') {
+            @if (view().validatedAt) {
+              <div class="move-mode">
+                <span class="field-label">{{ t('schedule.dragMoves') }}</span>
+                <div class="seg seg-sm">
+                  <button type="button" class="seg-option" [class.active]="!moveWhole()" (click)="moveWhole.set(false)">{{ t('schedule.oneMatch') }}</button>
+                  <button type="button" class="seg-option" [class.active]="moveWhole()" (click)="moveWhole.set(true)">{{ t('schedule.wholePool') }}</button>
+                </div>
+              </div>
             }
-          </ol>
+            <span class="hint">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</span>
+            <ol class="matches" [class.movable]="!!view().validatedAt">
+              @for (o of view().order; track matchKey(o); let i = $index; let first = $first; let last = $last) {
+                <li
+                  class="match-row"
+                  [attr.data-order-index]="i"
+                  [class.selected]="selected() === matchKey(o)"
+                  [class.unrested]="o.unrested"
+                  [class.dragging]="inDrag(o)"
+                  [class.drop-before]="dropIndex() === i"
+                  [class.drop-after]="last && dropIndex() === i + 1"
+                  (pointerdown)="onRowDown($event, o)"
+                  (click)="selected.set(selected() === matchKey(o) ? null : matchKey(o))"
+                >
+                  <span class="pos">{{ i + 1 }}</span>
+                  <span class="match-main">
+                    <span class="match-title">
+                      <app-category-badge [category]="o.category" [slot]="o.slot" />
+                      <span class="match-label">{{ label(o) }}</span>
+                    </span>
+                    @if (o.start && o.court) {
+                      <span class="match-when">{{ t('schedule.when', { court: o.court, time: time(o.start) }) }}</span>
+                    }
+                    @if (o.match; as m) {
+                      <span class="side"><span class="bib">{{ m.a.bib || '–' }}</span><span class="side-names">{{ fullNames(m.a) }}</span><span class="left" [attr.title]="t('schedule.leftHint')">{{ t('schedule.left', { n: o.leftA }) }}</span></span>
+                      <span class="side"><span class="bib">{{ m.b.bib || '–' }}</span><span class="side-names">{{ fullNames(m.b) }}</span><span class="left" [attr.title]="t('schedule.leftHint')">{{ t('schedule.left', { n: o.leftB }) }}</span></span>
+                    }
+                    @if (o.unrested) {
+                      <span class="rest-warn">{{ t('schedule.unrestedRow', { rest: view().minRest }) }}</span>
+                    }
+                  </span>
+                  @if (view().validatedAt) {
+                    <span class="row-actions">
+                      <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('schedule.up')" (click)="step(i, -1)">↑</button>
+                      <button type="button" class="icon-btn" [disabled]="last" [attr.aria-label]="t('schedule.down')" (click)="step(i, 1)">↓</button>
+                    </span>
+                  }
+                </li>
+              }
+            </ol>
+          } @else {
+            <span class="hint">{{ t('schedule.teamsHint') }}</span>
+            @for (g of view().groups; track g.key) {
+              <section class="group">
+                <span class="group-title">
+                  <app-category-badge [category]="g.category" [slot]="g.slot" />
+                  <span>{{ label(g) }}</span>
+                </span>
+                @for (team of g.teams; track team.entrant) {
+                  <span class="team">
+                    <span class="bib">{{ team.bib || '–' }}</span>
+                    <span class="side-names">{{ (team.names ?? []).join(' / ') }}</span>
+                    @if (team.playing) {
+                      <span class="pill pill-playing">{{ t('schedule.onCourt') }}</span>
+                    }
+                    <span class="left strong">{{ t('schedule.left', { n: team.left }) }}</span>
+                  </span>
+                }
+              </section>
+            } @empty {
+              <span class="hint">{{ t('schedule.noTeams') }}</span>
+            }
+          }
         </aside>
       </div>
     }

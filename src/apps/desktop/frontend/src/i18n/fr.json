@@ -91,7 +91,8 @@
     "SlotsSwapped": "Places échangées : {stage}",
     "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}",
     "SeedsSet": "Têtes de série classées : {category}",
-    "ScheduleSet": "Échéancier modifié"
+    "ScheduleSet": "Échéancier modifié",
+    "ScheduleOrderSet": "Ordre de l'échéancier modifié"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -128,7 +129,8 @@
     "SlotsSwapped": "échange dans {stage}",
     "EntrantsImported": "import de {count} inscriptions",
     "SeedsSet": "classement des têtes de série en {category}",
-    "ScheduleSet": "modification de l'échéancier"
+    "ScheduleSet": "modification de l'échéancier",
+    "ScheduleOrderSet": "modification de l'ordre de l'échéancier"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -204,7 +206,9 @@
     "FORMAT_LOCKED": "Un match de cette catégorie a déjà commencé : son format ne peut plus changer.",
     "CLUB_NOT_FOUND": "Ce club n'est plus dans la liste.",
     "INVALID_FILE": "Ce fichier ne se lit pas comme une liste de joueurs (CSV).",
-    "ALREADY_ENTERED": "Déjà inscrit."
+    "ALREADY_ENTERED": "Déjà inscrit.",
+    "NOTHING_TO_SCHEDULE": "Aucun match en attente : rien à ordonner pour l'instant.",
+    "SCHEDULE_NOT_VALIDATED": "Validez l'échéancier avant de déplacer des matchs."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -825,13 +829,27 @@
     "pool": "Poule {name}",
     "round": "tour {n}",
     "unknownPlayers": "joueurs pas encore connus",
-    "order": "Ordre des blocs",
-    "reset": "Revenir à l'automatique",
-    "autoHint": "Automatique : une même poule à la suite, les poules avec le plus de tours restants d'abord, les tours de tableau l'un après l'autre. Déplacez un bloc pour changer l'ordre.",
-    "manualHint": "Ordre fixé à la main : les terrains prennent les blocs dans cet ordre, dès que leurs joueurs sont libres.",
-    "blockMeta": "{n, plural, one {# match} other {# matchs}} · {start}–{end}",
-    "toTop": "Jouer en premier",
+    "autoHint": "Ordre automatique : tour par tour, les poules avec le plus de matchs d'abord, puis les autres à tour de rôle, pour que tout le monde attende à peu près autant. Validez-le pour le figer et déplacer des matchs.",
     "up": "Plus tôt",
-    "down": "Plus tard"
+    "down": "Plus tard",
+    "validate": "Valider l'échéancier",
+    "notValidated": "Non validé : ordre automatique",
+    "validatedAt": "Validé à {time}",
+    "recompute": "Recalculer",
+    "recomputeConfirm": "Recalculer ? Les déplacements seront perdus",
+    "orderTab": "Ordre des matchs",
+    "teamsTab": "Équipes",
+    "dragMoves": "Glisser déplace",
+    "oneMatch": "Un match",
+    "wholePool": "Toute la poule",
+    "validatedHint": "Les terrains prennent les matchs dans cet ordre, dès que les deux équipes sont libres. Glissez une ligne, ou utilisez les flèches, pour la déplacer.",
+    "poolRound": "Poule {name} · tour {n}",
+    "when": "terrain {court} · {time}",
+    "left": "{n, plural, =0 {terminé} one {# restant} other {# restants}}",
+    "leftHint": "Matchs restants de l'équipe dans la phase, celui-ci compris",
+    "unrestedRow": "Moins de {rest} min de repos au départ",
+    "teamsHint": "Matchs restants de chaque équipe dans la phase, poule par poule.",
+    "onCourt": "sur le terrain",
+    "noTeams": "Aucune équipe n'a de match restant."
   }
 }

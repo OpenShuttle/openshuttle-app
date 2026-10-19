@@ -213,8 +213,16 @@ export class TournamentStore {
     return this.command(() => Backend.SetCourtCategory(court, category as Category));
   }
 
-  setSchedulePins(keys: string[]): Promise<boolean> {
-    return this.command(() => Backend.SetSchedulePins(keys));
+  validateSchedule(): Promise<boolean> {
+    return this.command(() => Backend.ValidateSchedule());
+  }
+
+  moveScheduledMatch(id: MatchID, before: MatchID | ''): Promise<boolean> {
+    return this.command(() => Backend.MoveScheduledMatch(id, before as MatchID));
+  }
+
+  moveScheduledPool(of: MatchID, before: MatchID | ''): Promise<boolean> {
+    return this.command(() => Backend.MoveScheduledPool(of, before as MatchID));
   }
 
   clearScore(id: MatchID): Promise<boolean> {

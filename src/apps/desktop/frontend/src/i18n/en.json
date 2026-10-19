@@ -91,7 +91,8 @@
     "SlotsSwapped": "Places swapped: {stage}",
     "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}",
     "SeedsSet": "Seeds ranked: {category}",
-    "ScheduleSet": "Schedule changed"
+    "ScheduleSet": "Schedule changed",
+    "ScheduleOrderSet": "Schedule order changed"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -128,7 +129,8 @@
     "SlotsSwapped": "swap in {stage}",
     "EntrantsImported": "import of {count} entrants",
     "SeedsSet": "seed ranking of {category}",
-    "ScheduleSet": "schedule change"
+    "ScheduleSet": "schedule change",
+    "ScheduleOrderSet": "change in the schedule order"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -204,7 +206,9 @@
     "FORMAT_LOCKED": "A match of this category already started: its format can no longer change.",
     "CLUB_NOT_FOUND": "This club is no longer in the list.",
     "INVALID_FILE": "This file cannot be read as a player list (CSV).",
-    "ALREADY_ENTERED": "Already entered."
+    "ALREADY_ENTERED": "Already entered.",
+    "NOTHING_TO_SCHEDULE": "No match is waiting: there is nothing to put in order yet.",
+    "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -825,13 +829,27 @@
     "pool": "Pool {name}",
     "round": "round {n}",
     "unknownPlayers": "players not known yet",
-    "order": "Order of the blocks",
-    "reset": "Back to automatic",
-    "autoHint": "Automatic: same pool in a row, pools with the most rounds left first, bracket rounds one after the other. Move a block to change the order.",
-    "manualHint": "Order set by hand: courts take the blocks in this order, as soon as their players are free.",
-    "blockMeta": "{n, plural, one {# match} other {# matches}} · {start}–{end}",
-    "toTop": "Play first",
+    "autoHint": "Automatic order: round by round, the pools with the most matches first, then the others in turn, so everyone waits about as long. Validate it to fix it and move matches.",
     "up": "Earlier",
-    "down": "Later"
+    "down": "Later",
+    "validate": "Validate the schedule",
+    "notValidated": "Not validated: automatic order",
+    "validatedAt": "Validated at {time}",
+    "recompute": "Recompute",
+    "recomputeConfirm": "Recompute? Moves will be lost",
+    "orderTab": "Order of matches",
+    "teamsTab": "Teams",
+    "dragMoves": "Dragging moves",
+    "oneMatch": "One match",
+    "wholePool": "The whole pool",
+    "validatedHint": "Courts take the matches in this order, as soon as both sides are free. Drag a row, or use the arrows, to move it.",
+    "poolRound": "Pool {name} · round {n}",
+    "when": "court {court} · {time}",
+    "left": "{n, plural, =0 {done} one {# left} other {# left}}",
+    "leftHint": "Matches this team has left in the stage, this one included",
+    "unrestedRow": "Under {rest} min of rest when it starts",
+    "teamsHint": "Matches each team has left in the stage, pool by pool.",
+    "onCourt": "on court",
+    "noTeams": "No team has a match left."
   }
 }

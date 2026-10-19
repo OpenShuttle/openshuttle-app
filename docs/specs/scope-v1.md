@@ -165,23 +165,26 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   finished match goes to the pending scores. Rest counts from the real end of
   the match, not from score entry.
 
-**Schedule** ([ADR 6](../adr/0006-schedule.md))
+**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md))
 
-- The schedule forecasts every match left, court by court, from the estimated
-  time on court of each win condition, and sets the order in which the desk
-  is offered matches.
-- A bracket round starts only once the previous round is over (no semi-final
-  while a quarter-final is still playing).
-- In a pools stage, the schedule decides which pool plays; the match itself
-  is chosen when called: the one whose two sides rested the longest, earliest
-  round first. A pool goes on as long as it can, and pools with the most
-  rounds left go first.
+- The schedule puts every waiting match in order and forecasts courts and
+  times from the estimated time on court of each win condition (2 sets of 21:
+  30 min, 2 sets of 15: 22 min, 1 set of 21: 15 min, editable).
+- **Automatic order**, so everyone waits about as long: round by round, the
+  pools with the most matches first, then the others in turn. With pools of
+  5, 5, 4, 4 (A, B, C, D): A, B, C, D for rounds 1 to 3, then A, B for
+  rounds 4 and 5. Brackets go round by round: no semi-final while a
+  quarter-final is still playing.
 - **Two categories** share the courts in one of two modes: *in turn* (round 1
   of one category, round 1 of the other, then round 2…) or *reserved courts*
   (each category keeps its courts until it is over).
-- When a rule cannot be followed because players have not rested enough, the
-  desk is warned: it calls the match anyway, or changes the order of the
-  blocks (pools, bracket rounds) in the schedule.
+- The desk **validates** the schedule once: the order is then fixed, and the
+  desk moves a single match or a whole pool by drag and drop. Recomputing
+  starts again from the automatic order.
+- Courts take the matches in that order, as soon as both sides are off court.
+  When players have not had their minimum rest, the desk is warned: it calls
+  the match anyway, or moves matches in the schedule.
+- The schedule shows how many matches each team has left in the stage.
 
 **Two categories at once**
 
@@ -272,7 +275,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
 | 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs" | Mark present in one click, add on the spot |
 | 7 | Draw | Control desk | One section per category, one column per pool, entrant cards, warning badges (same club), seed ranking | Drag and drop, redraw, confirm |
-| 8 | Schedule | Control desk | Timeline per court with estimated times, order of the blocks, how two categories share the courts | Move blocks up or down, back to automatic, reserve courts |
+| 8 | Schedule | Control desk | Timeline per court with estimated times, order of the matches, matches left per team, how two categories share the courts | Validate, move a match or a whole pool, recompute, reserve courts |
 | 9 | Control desk | Control desk | Dashboard above, with the score panel | Call, end, start next, enter a score, declare a forfeit, start and whistle a round |
 | 10 | Stages | Control desk | Category, then one tab per stage: pool standings or bracket tree | "Correction" mode to move, swap, edit; history |
 | 11 | Results | Control desk | Full standings per category | Export, archive |

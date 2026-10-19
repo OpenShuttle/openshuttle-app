@@ -61,17 +61,21 @@ const (
 	// pools stage to feed it.
 	CodeBracketIsFinal Code = "BRACKET_IS_FINAL"
 	// CodeFormatLocked: a match of the category started, its format is fixed.
-	CodeFormatLocked       Code = "FORMAT_LOCKED"
-	CodeClubNotFound       Code = "CLUB_NOT_FOUND"
-	CodeAlreadyEntered     Code = "ALREADY_ENTERED"
-	CodeInvalidFile        Code = "INVALID_FILE"
-	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
-	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
-	CodeBracketStarted     Code = "BRACKET_STARTED"
-	CodeBracketNotDrawn    Code = "BRACKET_NOT_DRAWN"
-	CodeInvalidSlot        Code = "INVALID_SLOT"
-	CodeMatchNotReady      Code = "MATCH_NOT_READY"
-	CodeBracketNextStarted Code = "BRACKET_NEXT_STARTED"
+	CodeFormatLocked   Code = "FORMAT_LOCKED"
+	CodeClubNotFound   Code = "CLUB_NOT_FOUND"
+	CodeAlreadyEntered Code = "ALREADY_ENTERED"
+	CodeInvalidFile    Code = "INVALID_FILE"
+	// Schedule: nothing waiting to put in order, or a move before the order
+	// is validated.
+	CodeNothingToSchedule    Code = "NOTHING_TO_SCHEDULE"
+	CodeScheduleNotValidated Code = "SCHEDULE_NOT_VALIDATED"
+	CodePoolsNotComplete     Code = "POOLS_NOT_COMPLETE"
+	CodeTieUnresolved        Code = "TIE_UNRESOLVED"
+	CodeBracketStarted       Code = "BRACKET_STARTED"
+	CodeBracketNotDrawn      Code = "BRACKET_NOT_DRAWN"
+	CodeInvalidSlot          Code = "INVALID_SLOT"
+	CodeMatchNotReady        Code = "MATCH_NOT_READY"
+	CodeBracketNextStarted   Code = "BRACKET_NEXT_STARTED"
 
 	CodeWriteFailed Code = "WRITE_FAILED"
 
