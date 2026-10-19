@@ -684,11 +684,22 @@ export interface ScheduleGroupView {
 }
 
 /**
- * ScheduleMatchView is a waiting match in schedule order, with the
- * forecast and the matches each side has left in the stage.
+ * ScheduleSlotView is a match of the schedule screen, on a court with its
+ * times: real for matches played or playing, estimated for the others.
  */
-export interface ScheduleMatchView {
+export interface ScheduleSlotView {
+    /**
+     * Key is the match's block: its pool ("MD/S1/A") or bracket round
+     * ("MD/S2/R1").
+     */
     "key": string;
+    "state": string;
+
+    /**
+     * Movable: the desk can drag it: its block before validation, the match
+     * itself after.
+     */
+    "movable": boolean;
     "category": engine$0.Category;
     "slot": number;
     "stage": string;
@@ -702,9 +713,11 @@ export interface ScheduleMatchView {
     "pool": string;
 
     /**
-     * Round is the round of the pool or of the bracket, from 1.
+     * Round is the round of the pool or of the bracket, from 1. RoundSize is,
+     * in a bracket, how many entrants the round starts with (8: quarter-finals).
      */
     "round": number;
+    "roundSize": number;
 
     /**
      * Match is nil in a stage not filled yet: who plays is not known.
@@ -717,43 +730,10 @@ export interface ScheduleMatchView {
 
     /**
      * LeftA and LeftB count the matches each side has not started in the
-     * stage, this one included.
+     * stage (a waiting match counts itself).
      */
     "leftA": number;
     "leftB": number;
-}
-
-/**
- * ScheduleSlotView is a match of the schedule screen, on a court with its
- * estimated times.
- */
-export interface ScheduleSlotView {
-    "key": string;
-    "category": engine$0.Category;
-    "slot": number;
-    "stage": string;
-    "stageName": string;
-    "stageKind": tournament$0.StageKind;
-    "entryStage": boolean;
-
-    /**
-     * Pool is "A", "B"… in a pools stage, "" in a bracket.
-     */
-    "pool": string;
-
-    /**
-     * Round is the round of the pool or of the bracket, from 1.
-     */
-    "round": number;
-
-    /**
-     * Match is nil in a stage not filled yet: who plays is not known.
-     */
-    "match": MatchView | null;
-    "court": number;
-    "start": string;
-    "end": string;
-    "unrested": boolean;
 }
 
 /**
@@ -780,21 +760,16 @@ export interface ScheduleView {
     "reserved": CourtReservation[] | null;
 
     /**
-     * Slots is the timeline: waiting matches and stand-ins of stages not
-     * filled yet, by start time.
+     * Slots is the timeline: matches played and playing, then waiting
+     * matches and stand-ins of stages not filled yet, by start time.
      */
     "slots": ScheduleSlotView[] | null;
 
     /**
      * ValidatedAt is when the desk validated the order; nil while it follows
-     * the rules. Only a validated order can be changed by hand.
+     * the blocks. Blocks move before validation, matches after.
      */
     "validatedAt": string | null;
-
-    /**
-     * Order lists the waiting matches in the order courts take them.
-     */
-    "order": ScheduleMatchView[] | null;
 
     /**
      * Groups lists the pools and brackets still playing, with the matches

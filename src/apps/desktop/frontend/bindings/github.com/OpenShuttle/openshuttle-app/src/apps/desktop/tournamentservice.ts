@@ -275,18 +275,18 @@ export function MoveEntrant(id: engine$0.EntrantID, pool: number): $CancellableP
 }
 
 /**
+ * MoveScheduledBlock moves a block (pool or bracket round) just before
+ * another one ("" at the end), before the schedule is validated.
+ */
+export function MoveScheduledBlock(key: string, before: string): $CancellablePromise<void> {
+    return $Call.ByID(1123755935, key, before);
+}
+
+/**
  * MoveScheduledMatch moves a match just before another one ("" at the end).
  */
 export function MoveScheduledMatch(id: tournament$0.MatchID, before: tournament$0.MatchID): $CancellablePromise<void> {
     return $Call.ByID(4116923883, id, before);
-}
-
-/**
- * MoveScheduledPool moves every waiting match of the pool of a match just
- * before another one ("" at the end).
- */
-export function MoveScheduledPool($of: tournament$0.MatchID, before: tournament$0.MatchID): $CancellablePromise<void> {
-    return $Call.ByID(2125977080, $of, before);
 }
 
 /**
@@ -444,6 +444,14 @@ export function SwapSlots(c: engine$0.Category, id: string, a: number, b: number
  */
 export function Undo(): $CancellablePromise<void> {
     return $Call.ByID(2401579636);
+}
+
+/**
+ * UnvalidateSchedule goes back to moving blocks, dropping the matches moved
+ * by hand.
+ */
+export function UnvalidateSchedule(): $CancellablePromise<void> {
+    return $Call.ByID(568858162);
 }
 
 /**

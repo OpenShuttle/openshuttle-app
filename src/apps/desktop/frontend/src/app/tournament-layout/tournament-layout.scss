@@ -16,6 +16,47 @@
   overflow: auto;
 }
 
+.collapse {
+  align-self: flex-end;
+  width: 28px;
+  height: 28px;
+  margin-bottom: -6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-weight: 800;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+// Collapsed: the step marks only, labels in tooltips.
+.nav.collapsed {
+  width: 64px;
+  padding: 18px 8px 14px;
+
+  .collapse {
+    align-self: center;
+    margin-bottom: 4px;
+  }
+
+  .group-label,
+  .item-text,
+  .file-name,
+  .file-saved {
+    display: none;
+  }
+
+  .item {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .file {
+    padding: 14px 0 0;
+  }
+}
+
 .group-label {
   font-size: 11px;
   font-weight: 700;

@@ -1,9 +1,24 @@
 <ng-container *transloco="let t">
-  <nav class="nav">
+  <nav class="nav" [class.collapsed]="panels.collapsed('nav')">
+    <button
+      type="button"
+      class="collapse"
+      [attr.aria-label]="t(panels.collapsed('nav') ? 'panels.expandMenu' : 'panels.collapseMenu')"
+      [attr.title]="t(panels.collapsed('nav') ? 'panels.expandMenu' : 'panels.collapseMenu')"
+      (click)="panels.toggle('nav')"
+    >
+      {{ panels.collapsed('nav') ? '»' : '«' }}
+    </button>
     @for (group of groups(); track group.key; let first = $first) {
       <span class="group-label" [class.first]="first">{{ t('nav.' + group.key) }}</span>
       @for (item of group.items; track item.key) {
-        <a class="item" [routerLink]="item.path" routerLinkActive="active" [class.current]="item.mark === 'current'">
+        <a
+          class="item"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [class.current]="item.mark === 'current'"
+          [attr.title]="panels.collapsed('nav') ? t('nav.' + item.key) : null"
+        >
           <span class="mark" [class]="'mark ' + item.mark">{{ item.mark === 'done' ? '✓' : '' }}</span>
           <span class="item-text">
             <span class="item-label">{{ t('nav.' + item.key) }}</span>
@@ -13,7 +28,7 @@
       }
     }
     <div class="file">
-      <a class="home" routerLink="/">{{ t('nav.home') }}</a>
+      <a class="home" routerLink="/" [attr.title]="t('nav.home')">{{ panels.collapsed('nav') ? '⌂' : t('nav.home') }}</a>
       <span class="file-name" [attr.title]="view().path">{{ fileName() }}</span>
       <span class="file-saved">{{ t('nav.autosaved', { time: time(clock.now()) }) }}</span>
     </div>

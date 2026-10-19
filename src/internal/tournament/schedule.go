@@ -17,11 +17,21 @@ const (
 	// TypeScheduleOrderSet records the validated order of the waiting
 	// matches, then every move the desk makes.
 	TypeScheduleOrderSet events.Type = "ScheduleOrderSet"
+	// TypeScheduleBlocksSet records the order of the blocks (pools, bracket
+	// rounds) the desk set before validating.
+	TypeScheduleBlocksSet events.Type = "ScheduleBlocksSet"
 )
+
+// ScheduleBlocksSet is the payload of TypeScheduleBlocksSet: block keys,
+// "MD/S1/A" for a pool, "MD/S2/R1" for a bracket round, first played first
+// within each wave.
+type ScheduleBlocksSet struct {
+	Order []string `json:"order"`
+}
 
 // ScheduleOrderSet is the payload of TypeScheduleOrderSet: the waiting
 // matches in the order the courts take them. Its event time is when the
-// schedule was validated or last changed.
+// schedule was validated or last changed. An empty order un-validates it.
 type ScheduleOrderSet struct {
 	Order []MatchID `json:"order"`
 }
@@ -143,6 +153,13 @@ func (s *State) applyScheduleSet(p ScheduleSet) {
 func (s *State) applyScheduleOrderSet(p ScheduleOrderSet, at time.Time) {
 	s.scheduleOrder = slices.Clone(p.Order)
 	s.scheduleFrozenAt = at
+	if len(p.Order) == 0 {
+		s.scheduleFrozenAt = time.Time{}
+	}
+}
+
+func (s *State) applyScheduleBlocksSet(p ScheduleBlocksSet) {
+	s.scheduleBlocks = slices.Clone(p.Order)
 }
 
 // ScheduleSlot is a match of the schedule: on a court, from Start to End.
@@ -155,6 +172,9 @@ type ScheduleSlot struct {
 	// Level is the round of the pool, or the round of the bracket (0 the
 	// first).
 	Level int
+	// RoundSize is, in a bracket, how many entrants the round starts with
+	// (8 for quarter-finals, 2 for a final).
+	RoundSize int
 	// Match is "" in a stage not filled yet: who plays is not known.
 	Match MatchID
 	A, B  engine.EntrantID
@@ -178,6 +198,9 @@ type Schedule struct {
 
 // schedItem is a match to place.
 type schedItem struct {
+	phase      int
+	stageIdx   int
+	roundSize  int
 	key        string
 	cat        engine.Category
 	stage      string
@@ -344,7 +367,7 @@ func (s State) Schedule(now time.Time) Schedule {
 		end := t.Add(time.Duration(pick.minutes) * time.Minute)
 		out.Slots = append(out.Slots, ScheduleSlot{
 			Key: pick.key, Category: pick.cat, Stage: pick.stage, Pool: pick.pool, Level: pick.level,
-			Match: pick.match, A: pick.a, B: pick.b, Court: c, Start: t, End: end,
+			RoundSize: pick.roundSize, Match: pick.match, A: pick.a, B: pick.b, Court: c, Start: t, End: end,
 			Unrested: !rested(pick.a, t) || !rested(pick.b, t),
 		})
 		pick.done = true
@@ -391,69 +414,153 @@ func (s State) orderedItems() []schedItem {
 			out = append(out, it)
 		}
 	}
+	// Stand-ins of stages not filled yet: phase by phase, wave by wave
+	// (round k of every stage of the phase), like the waiting matches.
+	order := s.categoryOrder(s.ScheduleSettings())
+	var stand []schedItem
 	for _, it := range all {
 		if it.match == "" {
-			out = append(out, it)
+			stand = append(stand, it)
 		}
 	}
-	return out
+	slices.SortStableFunc(stand, func(a, b schedItem) int {
+		return slices.Compare(
+			[]int{a.phase, a.level, order[a.cat], a.stageIdx, a.pool},
+			[]int{b.phase, b.level, order[b.cat], b.stageIdx, b.pool})
+	})
+	return append(out, stand...)
 }
 
-// AutoOrder is the order the rules give to the waiting matches. Per
-// category, stage by stage: in a pools stage, round by round, the pools
-// with the most matches first (on a tie, in pool order) each play their
-// next round, so everyone waits about as long; in a bracket, round by
-// round. With two categories, their rounds alternate: round 1 of the
-// category opening, round 1 of the other, round 2…
+// AutoOrder is the order of the waiting matches before the schedule is
+// validated. Per category, stage by stage, the matches go in waves: in a
+// pools stage, wave k holds round k of every pool; in a bracket, wave k is
+// round k. Waves of both categories go side by side (wave 1 of each, then
+// wave 2…), and within a wave the blocks (pools, bracket rounds) follow the
+// block order: by default the category opening first, then the pools with
+// the most matches (pool order on a tie), so everyone waits about as long.
 func (s State) AutoOrder() []MatchID {
-	settings := s.ScheduleSettings()
-	waves := map[engine.Category][][]MatchID{}
+	waves := s.categoryWaves()
+	rank := s.blockRanks(waves)
+	var out []MatchID
+	for k := 0; ; k++ {
+		var step []waveBlock
+		for _, c := range s.Categories {
+			if k < len(waves[c]) {
+				step = append(step, waves[c][k]...)
+			}
+		}
+		if step == nil {
+			return out
+		}
+		slices.SortStableFunc(step, func(a, b waveBlock) int { return rank[a.key] - rank[b.key] })
+		for _, b := range step {
+			out = append(out, b.matches...)
+		}
+	}
+}
+
+// categoryWaves cuts the waiting matches of each category into waves, phase
+// after phase. Stages of the same phase (a main bracket and pools for the
+// others, say) play side by side: wave k holds round k of each.
+func (s State) categoryWaves() map[engine.Category][][]waveBlock {
+	waves := map[engine.Category][][]waveBlock{}
 	for _, c := range s.Categories {
+		phases := Phases(s.StageConfigs(c))
+		byPhase := map[int][][]waveBlock{}
+		var order []int
 		for _, st := range s.Stages(c) {
 			if !st.Confirmed {
 				continue
 			}
-			waves[c] = append(waves[c], s.stageWaves(c, st)...)
-		}
-	}
-	order := s.categoryOrder(settings)
-	cats := slices.Clone(s.Categories)
-	slices.SortStableFunc(cats, func(a, b engine.Category) int { return order[a] - order[b] })
-	var out []MatchID
-	for k := 0; ; k++ {
-		more := false
-		for _, c := range cats {
-			if k < len(waves[c]) {
-				out = append(out, waves[c][k]...)
-				more = true
+			p := phases[st.ID]
+			if _, ok := byPhase[p]; !ok {
+				order = append(order, p)
+			}
+			for k, w := range s.stageWaves(c, st) {
+				for len(byPhase[p]) <= k {
+					byPhase[p] = append(byPhase[p], nil)
+				}
+				byPhase[p][k] = append(byPhase[p][k], w...)
 			}
 		}
-		if !more {
-			return out
+		slices.Sort(order)
+		for _, p := range order {
+			waves[c] = append(waves[c], byPhase[p]...)
 		}
 	}
+	return waves
+}
+
+// waveBlock is the part of a wave one block plays: a round of a pool, or a
+// bracket round.
+type waveBlock struct {
+	key     string
+	matches []MatchID
+}
+
+// blockRanks ranks the blocks: those the desk ordered first, in its order,
+// then the others in default order (the category opening first, then each
+// category's blocks as its waves bring them).
+func (s State) blockRanks(waves map[engine.Category][][]waveBlock) map[string]int {
+	order := s.categoryOrder(s.ScheduleSettings())
+	cats := slices.Clone(s.Categories)
+	slices.SortStableFunc(cats, func(a, b engine.Category) int { return order[a] - order[b] })
+	rank := map[string]int{}
+	for i, k := range s.scheduleBlocks {
+		rank[k] = i
+	}
+	n := len(s.scheduleBlocks)
+	for _, c := range cats {
+		for _, wave := range waves[c] {
+			for _, b := range wave {
+				if _, ok := rank[b.key]; !ok {
+					rank[b.key] = n
+					n++
+				}
+			}
+		}
+	}
+	return rank
+}
+
+// ScheduleBlocks lists the blocks with waiting matches, in block order.
+func (s State) ScheduleBlocks() []string {
+	waves := s.categoryWaves()
+	rank := s.blockRanks(waves)
+	var out []string
+	for _, ws := range waves {
+		for _, wave := range ws {
+			for _, b := range wave {
+				if !slices.Contains(out, b.key) {
+					out = append(out, b.key)
+				}
+			}
+		}
+	}
+	slices.SortFunc(out, func(a, b string) int { return rank[a] - rank[b] })
+	return out
 }
 
 // stageWaves cuts the waiting matches of a filled stage into waves: in
-// pools, wave k holds the k-th round left of every pool, biggest pools
-// first; in a bracket, wave k is round k.
-func (s State) stageWaves(c engine.Category, st Stage) [][]MatchID {
+// pools, wave k holds the k-th round left of every pool; in a bracket, wave
+// k is round k. Blocks are in pool order (ranked later).
+func (s State) stageWaves(c engine.Category, st Stage) [][]waveBlock {
 	waiting := func(m Match) bool {
 		return m.Category == c && m.Stage == st.ID && !m.ByeA && !m.ByeB && !m.Called() && !s.Decided(m)
 	}
 	if st.Kind == StageBracket {
-		var waves [][]MatchID
+		var waves [][]waveBlock
 		for _, m := range s.matches {
 			if !waiting(m) {
 				continue
 			}
 			l := s.bracketLevel(m)
 			for len(waves) <= l {
-				waves = append(waves, nil)
+				waves = append(waves, []waveBlock{{key: fmt.Sprintf("%s/%s/R%d", c, st.ID, len(waves)+1)}})
 			}
-			waves[l] = append(waves[l], m.ID)
+			waves[l][0].matches = append(waves[l][0].matches, m.ID)
 		}
-		return slices.DeleteFunc(waves, func(w []MatchID) bool { return len(w) == 0 })
+		return slices.DeleteFunc(waves, func(w []waveBlock) bool { return len(w[0].matches) == 0 })
 	}
 	total := map[int]int{}
 	rounds := map[int]map[int][]MatchID{} // pool → round → matches
@@ -470,6 +577,8 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]MatchID {
 		}
 		rounds[m.Pool][m.Round] = append(rounds[m.Pool][m.Round], m.ID)
 	}
+	// Default block order within the category: the pools with the most
+	// matches first, pool order on a tie.
 	pools := make([]int, 0, len(rounds))
 	for p := range rounds {
 		pools = append(pools, p)
@@ -487,12 +596,12 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]MatchID {
 		}
 		slices.Sort(left[p])
 	}
-	var waves [][]MatchID
+	var waves [][]waveBlock
 	for k := 0; ; k++ {
-		var wave []MatchID
+		var wave []waveBlock
 		for _, p := range pools {
 			if k < len(left[p]) {
-				wave = append(wave, rounds[p][left[p][k]]...)
+				wave = append(wave, waveBlock{key: fmt.Sprintf("%s/%s/%s", c, st.ID, engine.PoolName(p)), matches: rounds[p][left[p][k]]})
 			}
 		}
 		if wave == nil {
@@ -545,15 +654,44 @@ func (s State) ValidateSchedule() (Change, error) {
 }
 
 // MoveScheduledMatch moves a waiting match just before another one ("" at
-// the end) in the validated order.
+// the end) in the validated order: once validated, matches move one by one.
 func (s State) MoveScheduledMatch(id, before MatchID) (Change, error) {
 	return s.moveScheduled(func(m Match) bool { return m.ID == id }, before)
 }
 
-// MoveScheduledPool moves every waiting match of a pool, in their order,
-// just before another match ("" at the end) in the validated order.
-func (s State) MoveScheduledPool(c engine.Category, stage string, pool int, before MatchID) (Change, error) {
-	return s.moveScheduled(func(m Match) bool { return m.Category == c && m.Stage == stage && m.Pool == pool && pool >= 0 }, before)
+// MoveScheduledBlock moves a block (a pool, a bracket round) just before
+// another one ("" at the end) in the block order, before the schedule is
+// validated: within each wave, its matches then come before the other's.
+func (s State) MoveScheduledBlock(key, before string) (Change, error) {
+	if !s.scheduleFrozenAt.IsZero() {
+		return Change{}, engine.NewError(engine.CodeScheduleValidated)
+	}
+	blocks := s.ScheduleBlocks()
+	if !slices.Contains(blocks, key) || (before != "" && !slices.Contains(blocks, before)) {
+		return Change{}, engine.NewError(engine.CodeMatchNotFound)
+	}
+	if key == before {
+		return Change{}, nil
+	}
+	rest := slices.DeleteFunc(slices.Clone(blocks), func(k string) bool { return k == key })
+	at := len(rest)
+	if before != "" {
+		at = slices.Index(rest, before)
+	}
+	next := slices.Concat(rest[:at], []string{key}, rest[at:])
+	if slices.Equal(next, blocks) {
+		return Change{}, nil
+	}
+	return Change{TypeScheduleBlocksSet, ScheduleBlocksSet{Order: next}}, nil
+}
+
+// UnvalidateSchedule drops the validated order (and the matches moved by
+// hand): the order follows the blocks again.
+func (s State) UnvalidateSchedule() (Change, error) {
+	if s.scheduleFrozenAt.IsZero() {
+		return Change{}, nil
+	}
+	return Change{TypeScheduleOrderSet, ScheduleOrderSet{}}, nil
 }
 
 func (s State) moveScheduled(moved func(Match) bool, before MatchID) (Change, error) {
@@ -652,6 +790,7 @@ func (s State) scheduleItems() []schedItem {
 			}
 		}
 		preview := PreviewFormat(configs, n, filled)
+		phases := Phases(configs)
 		for i, st := range stages {
 			win := st.Win.EstimatedMinutes()
 			if st.Confirmed {
@@ -659,8 +798,8 @@ func (s State) scheduleItems() []schedItem {
 					if m.Category != c || m.Stage != st.ID || m.ByeA || m.ByeB || m.Called() || s.Decided(m) {
 						continue
 					}
-					it := schedItem{cat: c, stage: st.ID, pool: m.Pool, match: m.ID,
-						a: m.A, b: m.B, minutes: win}
+					it := schedItem{cat: c, stage: st.ID, phase: phases[st.ID], stageIdx: i, pool: m.Pool, match: m.ID,
+						a: m.A, b: m.B, minutes: win, roundSize: m.Size}
 					if m.IsBracket() {
 						it.level = s.bracketLevel(m)
 						it.key = fmt.Sprintf("%s/%s/R%d", c, st.ID, it.level+1)
@@ -681,7 +820,7 @@ func (s State) scheduleItems() []schedItem {
 					continue // nothing feeds it: nobody will play it
 				}
 			}
-			base := schedItem{cat: c, stage: st.ID, minutes: win, unfilledOn: after}
+			base := schedItem{cat: c, stage: st.ID, phase: phases[st.ID], stageIdx: i, minutes: win, unfilledOn: after}
 			if st.Kind == StagePools {
 				for pi, size := range p.Sizes {
 					for r, round := range engine.RoundRobinSchedule(size) {
@@ -710,7 +849,7 @@ func (s State) scheduleItems() []schedItem {
 						continue
 					}
 					it := base
-					it.pool, it.level = -1, level
+					it.pool, it.level, it.roundSize = -1, level, node.Size
 					it.key = fmt.Sprintf("%s/%s/R%d", c, st.ID, level+1)
 					items = append(items, it)
 				}
@@ -719,6 +858,18 @@ func (s State) scheduleItems() []schedItem {
 	}
 	return items
 }
+
+// MatchBlock is the schedule block of a match: its pool ("MD/S1/A") or its
+// bracket round ("MD/S2/R1").
+func (s State) MatchBlock(m Match) string {
+	if m.IsBracket() {
+		return fmt.Sprintf("%s/%s/R%d", m.Category, m.Stage, s.bracketLevel(m)+1)
+	}
+	return fmt.Sprintf("%s/%s/%s", m.Category, m.Stage, engine.PoolName(m.Pool))
+}
+
+// BracketLevel is the round of a bracket match: 0 for the first round.
+func (s State) BracketLevel(m Match) int { return s.bracketLevel(m) }
 
 // bracketLevel is the round of a bracket match: 0 for the first round.
 func (s State) bracketLevel(m Match) int {

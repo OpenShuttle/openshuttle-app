@@ -22,6 +22,8 @@ export function roundLabel(m: Pick<MatchView, 'placeFrom' | 'placeTo' | 'roundSi
       return { key: 'round.semi', params: {} };
     case 8:
       return { key: 'round.quarter', params: {} };
+    case 16:
+      return { key: 'round.eighth', params: {} };
     default:
       return { key: 'round.ofN', params: { n: m.roundSize } };
   }

@@ -38,6 +38,18 @@ team has left.
   condition.
 - The schedule view lists the matches left per team in each stage.
 
+## Amendment (same day)
+
+- Before validation the desk moves **blocks** (a pool, a bracket round) by
+  drag and drop on the timeline (`ScheduleBlocksSet`): within each wave,
+  blocks play in that order. After validation, only single matches move.
+  "Back to blocks" un-validates (an empty `ScheduleOrderSet`).
+- Stages of the same phase (a main bracket and pools for the others) share
+  their waves: round 1 of each, then round 2… Stand-ins of stages not filled
+  yet follow the same wave order.
+- The timeline also shows the matches played (greyed) and playing, at their
+  real court and times.
+
 ## Consequences
 
 - What the desk sees on the Schedule screen is what the courts will do.

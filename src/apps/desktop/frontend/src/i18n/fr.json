@@ -93,7 +93,8 @@
     "SeedsSet": "Têtes de série classées : {category}",
     "ScheduleSet": "Échéancier modifié",
     "ScheduleOrderSet": "Ordre de l'échéancier modifié",
-    "EntrantCheckedIn": "Pointé(e)s : {names}"
+    "EntrantCheckedIn": "Pointé(e)s : {names}",
+    "ScheduleBlocksSet": "Blocs de l'échéancier réordonnés"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -132,7 +133,8 @@
     "SeedsSet": "classement des têtes de série en {category}",
     "ScheduleSet": "modification de l'échéancier",
     "ScheduleOrderSet": "modification de l'ordre de l'échéancier",
-    "EntrantCheckedIn": "pointage de {names}"
+    "EntrantCheckedIn": "pointage de {names}",
+    "ScheduleBlocksSet": "réordonnancement des blocs de l'échéancier"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -210,7 +212,8 @@
     "INVALID_FILE": "Ce fichier ne se lit pas comme une liste de joueurs (CSV).",
     "ALREADY_ENTERED": "Déjà inscrit.",
     "NOTHING_TO_SCHEDULE": "Aucun match en attente : rien à ordonner pour l'instant.",
-    "SCHEDULE_NOT_VALIDATED": "Validez l'échéancier avant de déplacer des matchs."
+    "SCHEDULE_NOT_VALIDATED": "Validez l'échéancier avant de déplacer des matchs.",
+    "SCHEDULE_VALIDATED": "L'échéancier est validé : les matchs se déplacent maintenant un par un. Revenez aux blocs pour déplacer toute une poule."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -662,7 +665,8 @@
     "quarter": "Quarts de finale",
     "ofN": "Tour de {n}",
     "placeMatch": "Match pour la {place}{place, plural, =1 {re} other {e}} place",
-    "places": "Places {from} à {to}"
+    "places": "Places {from} à {to}",
+    "eighth": "Huitièmes de finale"
   },
   "results": {
     "title": "Résultats",
@@ -837,27 +841,27 @@
     "pool": "Poule {name}",
     "round": "tour {n}",
     "unknownPlayers": "joueurs pas encore connus",
-    "autoHint": "Ordre automatique : tour par tour, les poules avec le plus de matchs d'abord, puis les autres à tour de rôle, pour que tout le monde attende à peu près autant. Validez-le pour le figer et déplacer des matchs.",
-    "up": "Plus tôt",
-    "down": "Plus tard",
+    "autoHint": "Non validé : glissez un match pour déplacer toute sa poule ou tout son tour de tableau. À chaque tour, les blocs jouent dans cet ordre.",
     "validate": "Valider l'échéancier",
     "notValidated": "Non validé : ordre automatique",
     "validatedAt": "Validé à {time}",
     "recompute": "Recalculer",
     "recomputeConfirm": "Recalculer ? Les déplacements seront perdus",
-    "orderTab": "Ordre des matchs",
     "teamsTab": "Équipes",
-    "dragMoves": "Glisser déplace",
-    "oneMatch": "Un match",
-    "wholePool": "Toute la poule",
-    "validatedHint": "Les terrains prennent les matchs dans cet ordre, dès que les deux équipes sont libres. Glissez une ligne, ou utilisez les flèches, pour la déplacer.",
+    "validatedHint": "Validé : glissez un match sur un autre pour le jouer juste avant ; déposez-le sur un espace vide d'un terrain pour le jouer en dernier. Les matchs grisés sont passés.",
     "poolRound": "Poule {name} · tour {n}",
-    "when": "terrain {court} · {time}",
     "left": "{n, plural, =0 {terminé} one {# restant} other {# restants}}",
-    "leftHint": "Matchs restants de l'équipe dans la phase, celui-ci compris",
-    "unrestedRow": "Moins de {rest} min de repos au départ",
     "teamsHint": "Matchs restants de chaque équipe dans la phase, poule par poule.",
     "onCourt": "sur le terrain",
-    "noTeams": "Aucune équipe n'a de match restant."
+    "noTeams": "Aucune équipe n'a de match restant.",
+    "unvalidate": "Revenir aux blocs",
+    "unvalidateConfirm": "Revenir aux blocs ? Les matchs déplacés seront perdus",
+    "playing": "en cours"
+  },
+  "panels": {
+    "collapseMenu": "Replier le menu",
+    "expandMenu": "Déplier le menu",
+    "collapse": "Replier : {name}",
+    "expand": "Déplier : {name}"
   }
 }

@@ -96,6 +96,11 @@ export enum Code {
      */
     CodeNothingToSchedule = "NOTHING_TO_SCHEDULE",
     CodeScheduleNotValidated = "SCHEDULE_NOT_VALIDATED",
+
+    /**
+     * CodeScheduleValidated: blocks move before validation, matches after.
+     */
+    CodeScheduleValidated = "SCHEDULE_VALIDATED",
     CodePoolsNotComplete = "POOLS_NOT_COMPLETE",
     CodeTieUnresolved = "TIE_UNRESOLVED",
     CodeBracketStarted = "BRACKET_STARTED",

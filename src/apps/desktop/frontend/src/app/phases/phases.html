@@ -29,7 +29,7 @@
             <span class="knob"></span>
           </button>
         </span>
-        <button type="button" class="btn btn-sm" (click)="showHistory.set(!showHistory())">
+        <button type="button" class="btn btn-sm" (click)="toggleHistory()">
           {{ t(showHistory() ? 'phases.hideHistory' : 'phases.showHistory') }}
         </button>
       </div>

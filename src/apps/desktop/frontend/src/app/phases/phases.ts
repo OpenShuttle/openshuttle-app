@@ -15,6 +15,7 @@ import {
 import { Category } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
+import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
@@ -40,7 +41,13 @@ export class Phases {
   });
 
   protected readonly correction = signal(false);
-  protected readonly showHistory = signal(true);
+  private readonly panels = inject(Panels);
+  /** The history panel, shown unless folded (remembered on this PC). */
+  protected readonly showHistory = computed(() => !this.panels.collapsed('phases.history'));
+
+  protected toggleHistory(): void {
+    this.panels.toggle('phases.history');
+  }
   private readonly transloco = inject(TranslocoService);
   /** Stage shown; the first one by default. */
   private readonly stageKey = signal('');

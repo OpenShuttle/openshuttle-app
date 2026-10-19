@@ -4,6 +4,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 
 import { TournamentStore } from '../core/tournament.service';
 import { LanguageService } from '../core/language.service';
+import { Panels } from '../core/panels.service';
 import { Clock } from '../core/clock';
 
 /** done: ✓; current: the step the desk is on; todo: an empty ring. */
@@ -29,6 +30,7 @@ export class TournamentLayout {
   private readonly tournament = inject(TournamentStore);
   private readonly language = inject(LanguageService);
   protected readonly clock = inject(Clock);
+  protected readonly panels = inject(Panels);
   protected readonly view = this.tournament.view;
 
   /** File name without its folder. */

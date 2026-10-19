@@ -60,7 +60,6 @@ export type {
     RoundView,
     RoundsView,
     ScheduleGroupView,
-    ScheduleMatchView,
     ScheduleSlotView,
     ScheduleTeamView,
     ScheduleView,

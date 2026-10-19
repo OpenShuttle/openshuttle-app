@@ -4,19 +4,22 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { Category } from '@bindings/internal/engine';
 
+import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
+import { PanelToggle } from '../shared/panel-strip';
 
 const MAX_CATEGORIES = 2;
 
 /** Tournament info: name, categories, courts, rest and file. */
 @Component({
   selector: 'app-tournament-info',
-  imports: [TranslocoDirective, RouterLink],
+  imports: [TranslocoDirective, RouterLink, PanelToggle],
   templateUrl: './tournament-info.html',
   styleUrl: './tournament-info.scss',
 })
 export class TournamentInfo {
   protected readonly tournament = inject(TournamentStore);
+  protected readonly panels = inject(Panels);
   protected readonly name = signal('');
   protected readonly maxCategories = MAX_CATEGORIES;
   protected readonly allCategories: Category[] = ['MS', 'WS', 'MD', 'WD', 'XD'] as Category[];

@@ -225,8 +225,12 @@ export class TournamentStore {
     return this.command(() => Backend.MoveScheduledMatch(id, before as MatchID));
   }
 
-  moveScheduledPool(of: MatchID, before: MatchID | ''): Promise<boolean> {
-    return this.command(() => Backend.MoveScheduledPool(of, before as MatchID));
+  moveScheduledBlock(key: string, before: string): Promise<boolean> {
+    return this.command(() => Backend.MoveScheduledBlock(key, before));
+  }
+
+  unvalidateSchedule(): Promise<boolean> {
+    return this.command(() => Backend.UnvalidateSchedule());
   }
 
   clearScore(id: MatchID): Promise<boolean> {

@@ -69,13 +69,15 @@ const (
 	// is validated.
 	CodeNothingToSchedule    Code = "NOTHING_TO_SCHEDULE"
 	CodeScheduleNotValidated Code = "SCHEDULE_NOT_VALIDATED"
-	CodePoolsNotComplete     Code = "POOLS_NOT_COMPLETE"
-	CodeTieUnresolved        Code = "TIE_UNRESOLVED"
-	CodeBracketStarted       Code = "BRACKET_STARTED"
-	CodeBracketNotDrawn      Code = "BRACKET_NOT_DRAWN"
-	CodeInvalidSlot          Code = "INVALID_SLOT"
-	CodeMatchNotReady        Code = "MATCH_NOT_READY"
-	CodeBracketNextStarted   Code = "BRACKET_NEXT_STARTED"
+	// CodeScheduleValidated: blocks move before validation, matches after.
+	CodeScheduleValidated  Code = "SCHEDULE_VALIDATED"
+	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
+	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
+	CodeBracketStarted     Code = "BRACKET_STARTED"
+	CodeBracketNotDrawn    Code = "BRACKET_NOT_DRAWN"
+	CodeInvalidSlot        Code = "INVALID_SLOT"
+	CodeMatchNotReady      Code = "MATCH_NOT_READY"
+	CodeBracketNextStarted Code = "BRACKET_NEXT_STARTED"
 
 	CodeWriteFailed Code = "WRITE_FAILED"
 

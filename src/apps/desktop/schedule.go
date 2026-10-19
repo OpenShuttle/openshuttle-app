@@ -9,10 +9,23 @@ import (
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
+// Slot states on the schedule screen.
+const (
+	SlotPlayed  = "played"  // over on court: real times
+	SlotPlaying = "playing" // on court: real start, estimated end
+	SlotPlanned = "planned" // waiting: estimated times
+)
+
 // ScheduleSlotView is a match of the schedule screen, on a court with its
-// estimated times.
+// times: real for matches played or playing, estimated for the others.
 type ScheduleSlotView struct {
-	Key string `json:"key"`
+	// Key is the match's block: its pool ("MD/S1/A") or bracket round
+	// ("MD/S2/R1").
+	Key   string `json:"key"`
+	State string `json:"state"`
+	// Movable: the desk can drag it: its block before validation, the match
+	// itself after.
+	Movable bool `json:"movable"`
 	CategoryRef
 	Stage      string               `json:"stage"`
 	StageName  string               `json:"stageName"`
@@ -20,22 +33,18 @@ type ScheduleSlotView struct {
 	EntryStage bool                 `json:"entryStage"`
 	// Pool is "A", "B"… in a pools stage, "" in a bracket.
 	Pool string `json:"pool"`
-	// Round is the round of the pool or of the bracket, from 1.
-	Round int `json:"round"`
+	// Round is the round of the pool or of the bracket, from 1. RoundSize is,
+	// in a bracket, how many entrants the round starts with (8: quarter-finals).
+	Round     int `json:"round"`
+	RoundSize int `json:"roundSize"`
 	// Match is nil in a stage not filled yet: who plays is not known.
 	Match    *MatchView `json:"match"`
 	Court    int        `json:"court"`
 	Start    time.Time  `json:"start"`
 	End      time.Time  `json:"end"`
 	Unrested bool       `json:"unrested"`
-}
-
-// ScheduleMatchView is a waiting match in schedule order, with the
-// forecast and the matches each side has left in the stage.
-type ScheduleMatchView struct {
-	ScheduleSlotView
 	// LeftA and LeftB count the matches each side has not started in the
-	// stage, this one included.
+	// stage (a waiting match counts itself).
 	LeftA int `json:"leftA"`
 	LeftB int `json:"leftB"`
 }
@@ -78,14 +87,12 @@ type ScheduleView struct {
 	Courts     int                     `json:"courts"`
 	MinRest    int                     `json:"minRest"`
 	Reserved   []CourtReservation      `json:"reserved"`
-	// Slots is the timeline: waiting matches and stand-ins of stages not
-	// filled yet, by start time.
+	// Slots is the timeline: matches played and playing, then waiting
+	// matches and stand-ins of stages not filled yet, by start time.
 	Slots []ScheduleSlotView `json:"slots"`
 	// ValidatedAt is when the desk validated the order; nil while it follows
-	// the rules. Only a validated order can be changed by hand.
+	// the blocks. Blocks move before validation, matches after.
 	ValidatedAt *time.Time `json:"validatedAt"`
-	// Order lists the waiting matches in the order courts take them.
-	Order []ScheduleMatchView `json:"order"`
 	// Groups lists the pools and brackets still playing, with the matches
 	// each team has left.
 	Groups []ScheduleGroupView `json:"groups"`
@@ -121,16 +128,16 @@ func (s *TournamentService) MoveScheduledMatch(ctx context.Context, id, before t
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.MoveScheduledMatch(id, before) })
 }
 
-// MoveScheduledPool moves every waiting match of the pool of a match just
-// before another one ("" at the end).
-func (s *TournamentService) MoveScheduledPool(ctx context.Context, of, before tournament.MatchID) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) {
-		m, ok := st.Match(of)
-		if !ok || m.IsBracket() {
-			return tournament.Change{}, engine.NewError(engine.CodeMatchNotFound)
-		}
-		return st.MoveScheduledPool(m.Category, m.Stage, m.Pool, before)
-	})
+// MoveScheduledBlock moves a block (pool or bracket round) just before
+// another one ("" at the end), before the schedule is validated.
+func (s *TournamentService) MoveScheduledBlock(ctx context.Context, key, before string) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.MoveScheduledBlock(key, before) })
+}
+
+// UnvalidateSchedule goes back to moving blocks, dropping the matches moved
+// by hand.
+func (s *TournamentService) UnvalidateSchedule(ctx context.Context) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.UnvalidateSchedule() })
 }
 
 // GetScheduleView returns the schedule screen.
@@ -151,7 +158,7 @@ func (s *TournamentService) GetScheduleView() ScheduleView {
 	v := ScheduleView{
 		Now: now, Mode: settings.Mode, First: settings.First, Categories: refs, Courts: st.Courts(),
 		MinRest: st.MinRest(), Reserved: []CourtReservation{}, Slots: []ScheduleSlotView{},
-		Order: []ScheduleMatchView{}, Groups: []ScheduleGroupView{},
+		Groups: []ScheduleGroupView{},
 	}
 	if at := st.ScheduleValidatedAt(); !at.IsZero() {
 		v.ValidatedAt = &at
@@ -165,33 +172,6 @@ func (s *TournamentService) GetScheduleView() ScheduleView {
 			v.Reserved = append(v.Reserved, CourtReservation{Number: court, Category: c, Manual: manual})
 		}
 	}
-	slotView := func(slot tournament.ScheduleSlot) ScheduleSlotView {
-		stage, _ := st.Stage(slot.Category, slot.Stage)
-		sv := ScheduleSlotView{
-			Key: slot.Key, CategoryRef: CategoryRef{slot.Category, slots[slot.Category]},
-			Stage: slot.Stage, StageName: stage.Name, StageKind: stage.Kind,
-			EntryStage: st.Stages(slot.Category)[0].ID == slot.Stage,
-			Round:      slot.Level + 1, Court: slot.Court, Start: slot.Start, End: slot.End, Unrested: slot.Unrested,
-		}
-		if slot.Pool >= 0 {
-			sv.Pool = engine.PoolName(slot.Pool)
-		}
-		if m, ok := st.Match(slot.Match); ok && slot.Match != "" {
-			view := mv(m)
-			sv.Match = &view
-		}
-		return sv
-	}
-	planned := map[tournament.MatchID]tournament.ScheduleSlot{}
-	for _, slot := range sched.Slots {
-		if slot.Unrested {
-			v.Unrested++
-		}
-		v.Slots = append(v.Slots, slotView(slot))
-		if slot.Match != "" {
-			planned[slot.Match] = slot
-		}
-	}
 	left := map[string]map[engine.EntrantID]int{}
 	leftIn := func(c engine.Category, stage string) map[engine.EntrantID]int {
 		k := string(c) + "/" + stage
@@ -200,16 +180,58 @@ func (s *TournamentService) GetScheduleView() ScheduleView {
 		}
 		return left[k]
 	}
-	for _, id := range st.ScheduleOrder() {
-		m, _ := st.Match(id)
-		slot, ok := planned[id]
-		if !ok {
-			// Not placed by the forecast (its court never frees up for it):
-			// listed without times.
-			slot = tournament.ScheduleSlot{Category: m.Category, Stage: m.Stage, Pool: m.Pool, Level: m.Round, Match: id, A: m.A, B: m.B}
+	blocks := map[string]bool{}
+	for _, k := range st.ScheduleBlocks() {
+		blocks[k] = true
+	}
+	validated := v.ValidatedAt != nil
+	slotView := func(slot tournament.ScheduleSlot, state string) ScheduleSlotView {
+		stage, _ := st.Stage(slot.Category, slot.Stage)
+		sv := ScheduleSlotView{
+			Key: slot.Key, State: state, CategoryRef: CategoryRef{slot.Category, slots[slot.Category]},
+			Stage: slot.Stage, StageName: stage.Name, StageKind: stage.Kind,
+			EntryStage: st.Stages(slot.Category)[0].ID == slot.Stage,
+			Round:      slot.Level + 1, RoundSize: slot.RoundSize, Court: slot.Court, Start: slot.Start, End: slot.End,
+			Unrested: slot.Unrested,
 		}
-		l := leftIn(m.Category, m.Stage)
-		v.Order = append(v.Order, ScheduleMatchView{ScheduleSlotView: slotView(slot), LeftA: l[m.A], LeftB: l[m.B]})
+		if slot.Pool >= 0 {
+			sv.Pool = engine.PoolName(slot.Pool)
+		}
+		if m, ok := st.Match(slot.Match); ok && slot.Match != "" {
+			view := mv(m)
+			sv.Match = &view
+			l := leftIn(m.Category, m.Stage)
+			sv.LeftA, sv.LeftB = l[m.A], l[m.B]
+		}
+		if state == SlotPlanned {
+			sv.Movable = (validated && slot.Match != "") || (!validated && blocks[slot.Key])
+		}
+		return sv
+	}
+	// Matches played or playing, at their real court and times.
+	for _, m := range st.Matches() {
+		if !m.Called() || st.Walkover(m) {
+			continue
+		}
+		slot := tournament.ScheduleSlot{
+			Key: st.MatchBlock(m), Category: m.Category, Stage: m.Stage, Pool: m.Pool, Level: m.Round,
+			Match: m.ID, A: m.A, B: m.B, Court: m.Court, Start: m.CalledAt, End: m.EndedAt, RoundSize: m.Size,
+		}
+		state := SlotPlayed
+		if m.IsBracket() {
+			slot.Level = st.BracketLevel(m)
+		}
+		if !m.Ended() {
+			state = SlotPlaying
+			slot.End = later(now, m.CalledAt.Add(time.Duration(st.WinCondition(m).EstimatedMinutes())*time.Minute))
+		}
+		v.Slots = append(v.Slots, slotView(slot, state))
+	}
+	for _, slot := range sched.Slots {
+		if slot.Unrested {
+			v.Unrested++
+		}
+		v.Slots = append(v.Slots, slotView(slot, SlotPlanned))
 	}
 	// Teams with matches left, pool by pool (a bracket as one group).
 	side := sideViewer(st)
@@ -252,4 +274,11 @@ func (s *TournamentService) GetScheduleView() ScheduleView {
 		v.End = &end
 	}
 	return v
+}
+
+func later(a, b time.Time) time.Time {
+	if b.After(a) {
+		return b
+	}
+	return a
 }

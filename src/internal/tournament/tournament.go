@@ -87,6 +87,8 @@ type State struct {
 	schedule         ScheduleSet
 	scheduleOrder    []MatchID
 	scheduleFrozenAt time.Time
+	// scheduleBlocks is the block order set before validation.
+	scheduleBlocks []string
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -149,6 +151,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyFormatSet)
 	case TypeScheduleSet:
 		return decodeInto(e, s.applyScheduleSet)
+	case TypeScheduleBlocksSet:
+		return decodeInto(e, s.applyScheduleBlocksSet)
 	case TypeScheduleOrderSet:
 		return decodeInto(e, func(p ScheduleOrderSet) { s.applyScheduleOrderSet(p, e.At) })
 	case TypeSeedsSet:

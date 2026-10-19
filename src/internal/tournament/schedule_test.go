@@ -97,19 +97,36 @@ func TestAutoOrder(t *testing.T) {
 	}
 }
 
-func TestValidateAndMove(t *testing.T) {
+func TestMoveBlocksThenMatches(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	g.do(func(s State) (Change, error) { return s.SetCourts(1) })
-	g.confirmedPools(engine.MensSingles, 2, 8)
-	g.fails(engine.CodeScheduleNotValidated, func(s State) (Change, error) { return s.MoveScheduledMatch("MS-B1", "") })
-
-	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
-	if g.state().ScheduleValidatedAt().IsZero() {
-		t.Fatal("not validated")
+	g.confirmedPools(engine.MensSingles, 4, 18) // pools of 5, 5, 4, 4
+	pools := func() []string {
+		var out []string
+		for _, id := range g.state().ScheduleOrder() {
+			m, _ := g.state().Match(id)
+			out = append(out, engine.PoolName(m.Pool))
+		}
+		return out
 	}
-	order := g.state().ScheduleOrder()
 
-	// One match to the front.
+	// Before validation: blocks move. Pool D first: it opens every round.
+	g.fails(engine.CodeScheduleNotValidated, func(s State) (Change, error) { return s.MoveScheduledMatch("MS-A1", "") })
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/D", "MS/S1/A") })
+	if b := g.state().ScheduleBlocks(); !slices.Equal(b, []string{"MS/S1/D", "MS/S1/A", "MS/S1/B", "MS/S1/C"}) {
+		t.Errorf("blocks = %v", b)
+	}
+	round := []string{"D", "D", "A", "A", "B", "B", "C", "C"}
+	want := slices.Concat(round, round, round, []string{"A", "A", "B", "B"}, []string{"A", "A", "B", "B"})
+	if got := pools(); !slices.Equal(got, want) {
+		t.Errorf("order = %v\nwant    %v", got, want)
+	}
+	g.fails(engine.CodeMatchNotFound, func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/Z", "") })
+
+	// Validated: the order is fixed, matches move one by one.
+	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
+	g.fails(engine.CodeScheduleValidated, func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/A", "") })
+	order := g.state().ScheduleOrder()
 	last := order[len(order)-1]
 	g.do(func(s State) (Change, error) { return s.MoveScheduledMatch(last, order[0]) })
 	if got := g.state().ScheduleOrder(); got[0] != last || len(got) != len(order) {
@@ -118,27 +135,21 @@ func TestValidateAndMove(t *testing.T) {
 	if first := g.state().Schedule(t0).Slots[0]; first.Match != last {
 		t.Errorf("first match played = %s, want %s", first.Match, last)
 	}
-
-	// The whole pool B to the end, its matches in their order.
-	g.do(func(s State) (Change, error) { return s.MoveScheduledPool(engine.MensSingles, "S1", 1, "") })
-	got := g.state().ScheduleOrder()
-	for i, id := range got {
-		m, _ := g.state().Match(id)
-		if (i >= len(got)-6) != (m.Pool == 1) {
-			t.Fatalf("pool B not at the end: %v", got)
-		}
-	}
 	// Played matches leave the order; the moves stay.
+	got := g.state().ScheduleOrder()
 	g.do(func(s State) (Change, error) { return s.CallMatch(got[0], 1) })
 	if next := g.state().ScheduleOrder(); next[0] != got[1] {
 		t.Errorf("after the call = %v", next)
 	}
 	g.fails(engine.CodeMatchNotFound, func(s State) (Change, error) { return s.MoveScheduledMatch(got[0], "") })
 
-	// Validating again recomputes the order from the rules.
-	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
-	if !slices.Equal(g.state().ScheduleOrder(), g.state().AutoOrder()) {
-		t.Error("validating again kept the moves")
+	// Back to blocks: the match moves are dropped, the block order stays.
+	g.do(func(s State) (Change, error) { return s.UnvalidateSchedule() })
+	if !g.state().ScheduleValidatedAt().IsZero() || !slices.Equal(g.state().ScheduleOrder(), g.state().AutoOrder()) {
+		t.Error("still validated")
+	}
+	if p := pools(); p[0] != "D" {
+		t.Errorf("block order lost: %v", p)
 	}
 }
 

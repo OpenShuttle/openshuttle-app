@@ -93,7 +93,8 @@
     "SeedsSet": "Seeds ranked: {category}",
     "ScheduleSet": "Schedule changed",
     "ScheduleOrderSet": "Schedule order changed",
-    "EntrantCheckedIn": "Checked in: {names}"
+    "EntrantCheckedIn": "Checked in: {names}",
+    "ScheduleBlocksSet": "Schedule blocks reordered"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -132,7 +133,8 @@
     "SeedsSet": "seed ranking of {category}",
     "ScheduleSet": "schedule change",
     "ScheduleOrderSet": "change in the schedule order",
-    "EntrantCheckedIn": "check-in of {names}"
+    "EntrantCheckedIn": "check-in of {names}",
+    "ScheduleBlocksSet": "reordering of the schedule blocks"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -210,7 +212,8 @@
     "INVALID_FILE": "This file cannot be read as a player list (CSV).",
     "ALREADY_ENTERED": "Already entered.",
     "NOTHING_TO_SCHEDULE": "No match is waiting: there is nothing to put in order yet.",
-    "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches."
+    "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches.",
+    "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -662,7 +665,8 @@
     "quarter": "Quarter-finals",
     "ofN": "Round of {n}",
     "placeMatch": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} place match",
-    "places": "Places {from}–{to}"
+    "places": "Places {from}–{to}",
+    "eighth": "Round of 16"
   },
   "results": {
     "title": "Results",
@@ -837,27 +841,27 @@
     "pool": "Pool {name}",
     "round": "round {n}",
     "unknownPlayers": "players not known yet",
-    "autoHint": "Automatic order: round by round, the pools with the most matches first, then the others in turn, so everyone waits about as long. Validate it to fix it and move matches.",
-    "up": "Earlier",
-    "down": "Later",
+    "autoHint": "Not validated: drag a match to move its whole pool or bracket round. Within each round, blocks play in this order.",
     "validate": "Validate the schedule",
     "notValidated": "Not validated: automatic order",
     "validatedAt": "Validated at {time}",
     "recompute": "Recompute",
     "recomputeConfirm": "Recompute? Moves will be lost",
-    "orderTab": "Order of matches",
     "teamsTab": "Teams",
-    "dragMoves": "Dragging moves",
-    "oneMatch": "One match",
-    "wholePool": "The whole pool",
-    "validatedHint": "Courts take the matches in this order, as soon as both sides are free. Drag a row, or use the arrows, to move it.",
+    "validatedHint": "Validated: drag a match onto another to play it just before; drop it on an empty part of a court to play it last. Greyed matches are over.",
     "poolRound": "Pool {name} · round {n}",
-    "when": "court {court} · {time}",
     "left": "{n, plural, =0 {done} one {# left} other {# left}}",
-    "leftHint": "Matches this team has left in the stage, this one included",
-    "unrestedRow": "Under {rest} min of rest when it starts",
     "teamsHint": "Matches each team has left in the stage, pool by pool.",
     "onCourt": "on court",
-    "noTeams": "No team has a match left."
+    "noTeams": "No team has a match left.",
+    "unvalidate": "Back to blocks",
+    "unvalidateConfirm": "Back to blocks? Moved matches will be lost",
+    "playing": "on court"
+  },
+  "panels": {
+    "collapseMenu": "Fold the menu",
+    "expandMenu": "Unfold the menu",
+    "collapse": "Fold: {name}",
+    "expand": "Unfold: {name}"
   }
 }
