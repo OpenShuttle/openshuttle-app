@@ -63,6 +63,15 @@
   &.folded {
     grid-template-columns: minmax(0, 1fr) 44px;
   }
+
+  // Before validation, the block list comes first.
+  &.with-blocks {
+    grid-template-columns: 300px minmax(0, 1fr) 340px;
+
+    &.folded {
+      grid-template-columns: 300px minmax(0, 1fr) 44px;
+    }
+  }
   gap: 16px;
   align-items: start;
 }
@@ -367,5 +376,94 @@
 .drop-hint {
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--color-text-muted);
+}
+
+// Block list (before validation): rounds of pools and bracket rounds, the
+// first played first, reordered by drag and drop.
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  max-height: calc(100vh - 240px);
+  overflow: auto;
+  user-select: none;
+}
+
+.blocks-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.block-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--color-surface);
+  border: 1px solid #dcdee3;
+  border-left: 4px solid;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  touch-action: none;
+
+  &.carried {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid var(--color-brand-logo);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+    cursor: grabbing;
+  }
+
+  app-category-badge {
+    flex: none;
+  }
+}
+
+.block-n {
+  min-width: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.block-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.block-label {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.block-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.block-unrested {
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.grip {
   color: var(--color-text-muted);
 }

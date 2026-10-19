@@ -39,7 +39,7 @@ func TestScheduleView(t *testing.T) {
 	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
 
 	v = f.svc.GetScheduleView()
-	if len(v.Slots) != 12 || v.ValidatedAt != nil || v.Slots[0].Pool != "A" || v.Slots[0].LeftA != 3 || !v.Slots[0].Movable || len(v.Groups) != 2 {
+	if len(v.Slots) != 12 || v.ValidatedAt != nil || v.Slots[0].Pool != "A" || v.Slots[0].LeftA != 3 || v.Slots[0].Movable || len(v.Blocks) != 6 || len(v.Groups) != 2 {
 		t.Fatalf("schedule = %+v", v.Slots[0])
 	}
 	if g := v.Groups[0]; g.Pool != "A" || len(g.Teams) != 4 || g.Teams[0].Left != 3 {
@@ -49,7 +49,7 @@ func TestScheduleView(t *testing.T) {
 	wantCode(t, f.svc.MoveScheduledMatch(ctx, v.Slots[3].Match.ID, ""), engine.CodeScheduleNotValidated)
 	// The preview shows the move without saving it; a refused move previews as is.
 	version := f.svc.GetTournamentView().Version
-	if p := f.svc.PreviewScheduledBlockMove("MS/S1/B", "MS/S1/A"); p.Slots[0].Pool != "B" {
+	if p := f.svc.PreviewScheduledBlockMove("MS/S1/B/1", "MS/S1/A/1"); p.Slots[0].Pool != "B" {
 		t.Errorf("preview pool B first = %+v", p.Slots[0])
 	}
 	if p := f.svc.PreviewScheduledMatchMove(v.Slots[3].Match.ID, ""); p.Slots[0].Pool != "A" {
@@ -58,9 +58,9 @@ func TestScheduleView(t *testing.T) {
 	if f.svc.GetTournamentView().Version != version || f.svc.GetScheduleView().Slots[0].Pool != "A" {
 		t.Error("the preview was saved")
 	}
-	must(f.svc.MoveScheduledBlock(ctx, "MS/S1/B", "MS/S1/A"))
-	if v = f.svc.GetScheduleView(); v.Slots[0].Pool != "B" {
-		t.Errorf("pool B first = %+v", v.Slots[0])
+	must(f.svc.MoveScheduledBlock(ctx, "MS/S1/B/1", "MS/S1/A/1"))
+	if v = f.svc.GetScheduleView(); v.Slots[0].Pool != "B" || v.Blocks[0].Key != "MS/S1/B/1" || v.Blocks[0].Matches != 2 {
+		t.Errorf("pool B first = %+v, blocks %+v", v.Slots[0], v.Blocks)
 	}
 	if d := f.svc.GetControlDeskView(); d.Courts[0].Proposal == nil || d.Courts[0].Proposal.Pool != "B" {
 		t.Errorf("desk proposal = %+v", d.Courts[0].Proposal)
@@ -70,7 +70,7 @@ func TestScheduleView(t *testing.T) {
 	}
 	// Validated: matches move one by one, blocks no longer.
 	must(f.svc.ValidateSchedule(ctx))
-	wantCode(t, f.svc.MoveScheduledBlock(ctx, "MS/S1/A", ""), engine.CodeScheduleValidated)
+	wantCode(t, f.svc.MoveScheduledBlock(ctx, "MS/S1/A/1", ""), engine.CodeScheduleValidated)
 	v = f.svc.GetScheduleView()
 	lastMatch := v.Slots[len(v.Slots)-1].Match.ID
 	if p := f.svc.PreviewScheduledMatchMove(lastMatch, v.Slots[0].Match.ID); p.Slots[0].Match.ID != lastMatch {

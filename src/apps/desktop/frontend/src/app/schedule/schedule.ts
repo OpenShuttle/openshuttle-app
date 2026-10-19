@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, afterEveryRender, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { ScheduleGroupView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
+import { ScheduleBlockView, ScheduleGroupView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 import { MatchID, ScheduleMode } from '@bindings/internal/tournament';
 
@@ -34,8 +34,22 @@ function sameMove(a: Move | null, b: Move | null): boolean {
   return 'block' in a ? 'block' in b && a.block === b.block && a.before === b.before : 'match' in b && a.match === b.match && a.before === b.before;
 }
 
-/** What the pointer is over: a waiting match, the end of a court, outside the timeline (null), or nothing that changes the move. */
-type Hit = { on: ScheduleSlotView } | { end: true } | 'keep' | null;
+/**
+ * What the pointer is over: a place to drop (before a match or a block, ""
+ * at the end, with the words saying it), out of the board or list (null: no
+ * move), or nothing that changes the move.
+ */
+type Hit = { before: string; text: string } | 'keep' | null;
+
+/** What is dragged: a match of the validated schedule, or a block (a round of a pool, a bracket round) of the list. */
+interface DragItem {
+  kind: 'match' | 'block';
+  key: string;
+  match: MatchID | null;
+  category: Category;
+  slot: number;
+  label: string;
+}
 
 /** The time axis starts with the first match on court, or now. */
 function axisStart(v: ScheduleView): number {
@@ -51,6 +65,7 @@ const EMPTY: ScheduleView = {
   minRest: 0,
   reserved: [],
   slots: [],
+  blocks: [],
   validatedAt: null,
   groups: [],
   end: null,
@@ -154,7 +169,7 @@ export class Schedule {
   }
 
   /** "Pool A · round 2", "Main bracket · Quarter-finals" or "Places 5–8"; a group: "Pool A". */
-  protected label(b: ScheduleSlotView | ScheduleGroupView): string {
+  protected label(b: ScheduleSlotView | ScheduleBlockView | ScheduleGroupView): string {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
     const stage = stageLabel(this.transloco, { name: b.stageName, kind: b.stageKind });
     if (!('round' in b)) {
@@ -164,7 +179,7 @@ export class Schedule {
       return (b.entryStage ? '' : stage + ' · ') + t('schedule.poolRound', { name: b.pool, n: b.round });
     }
     // A bracket match known: its round and places; a stand-in: the round by its size.
-    const r = b.match ? roundLabel(b.match) : roundLabel({ placeFrom: 1, placeTo: 0, roundSize: b.roundSize });
+    const r = 'match' in b && b.match ? roundLabel(b.match) : roundLabel({ placeFrom: 1, placeTo: 0, roundSize: b.roundSize });
     return `${stage} · ${t(r.key, r.params)}`;
   }
 
@@ -202,24 +217,26 @@ export class Schedule {
 
   /**
    * Drag and drop with pointer events (HTML5 drag and drop is unreliable in
-   * webviews). While dragging, the timeline shows the preview of the drop and
-   * the pointer works on what is shown, like a sortable list: over a match,
-   * the moved ones go before it; over the moved ones, nothing changes. After
-   * each preview the board settles before the pointer moves anything again,
-   * so matches glide instead of bouncing.
+   * webviews). Before validation, blocks are reordered in the block list;
+   * once validated, matches move on the board. While dragging, the screen
+   * shows the preview of the drop and the pointer works on what is shown,
+   * like a sortable list: over an item, the dragged one goes before it (in a
+   * list, after it from its lower half); over the dragged one, nothing
+   * changes. After each preview the screen settles before the pointer moves
+   * anything again, so items glide instead of bouncing.
    */
-  protected readonly dragging = signal<ScheduleSlotView | null>(null);
+  protected readonly dragging = signal<DragItem | null>(null);
   /** While dragging, what the drop does, said above the timeline. */
-  protected readonly dropInfo = signal<{ slot: ScheduleSlotView; text: string } | null>(null);
-  /** Start of each waiting match when the drag began, to show how far the preview shifts it. */
+  protected readonly dropInfo = signal<{ item: DragItem; text: string } | null>(null);
+  /** Start of each waiting match and block when the drag began, to show how far the preview shifts it. */
   private baseStarts = new Map<string, number>();
-  private drag: { slot: ScheduleSlotView; validated: boolean; x: number; y: number; moved: boolean; move: Move | null } | null = null;
+  private drag: { item: DragItem; x: number; y: number; moved: boolean; move: Move | null } | null = null;
   private previewSeq = 0;
   private settleUntil = 0;
   private settleTimer: ReturnType<typeof setTimeout> | undefined;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  /** Where each match was drawn, within the grid (scrolling does not move it). */
+  /** Where each match and block was drawn, within its board or list (scrolling does not move it). */
   private positions = new Map<string, { x: number; y: number }>();
 
   constructor() {
@@ -267,11 +284,24 @@ export class Schedule {
   }
 
   protected onSlotDown(event: PointerEvent, slot: ScheduleSlotView): void {
-    if (slot.movable && event.button === 0) {
-      const base = this.live();
-      this.drag = { slot, validated: !!base.validatedAt, x: event.clientX, y: event.clientY, moved: false, move: null };
-      this.baseStarts = new Map((base.slots ?? []).filter((s) => s.match).map((s) => [s.match!.id, new Date(s.start).getTime()]));
+    if (slot.movable && slot.match && event.button === 0) {
+      this.startDrag(event, { kind: 'match', key: slot.key, match: slot.match.id, category: slot.category, slot: slot.slot, label: this.label(slot) });
     }
+  }
+
+  protected onBlockDown(event: PointerEvent, b: ScheduleBlockView): void {
+    if (event.button === 0) {
+      this.startDrag(event, { kind: 'block', key: b.key, match: null, category: b.category, slot: b.slot, label: this.label(b) });
+    }
+  }
+
+  private startDrag(event: PointerEvent, item: DragItem): void {
+    const base = this.live();
+    this.drag = { item, x: event.clientX, y: event.clientY, moved: false, move: null };
+    this.baseStarts = new Map([
+      ...(base.slots ?? []).filter((s) => s.match).map((s): [string, number] => [s.match!.id, new Date(s.start).getTime()]),
+      ...(base.blocks ?? []).map((b): [string, number] => ['b:' + b.key, new Date(b.start).getTime()]),
+    ]);
   }
 
   @HostListener('document:pointermove', ['$event'])
@@ -285,8 +315,8 @@ export class Schedule {
     drag.y = event.clientY;
     if (!drag.moved) {
       drag.moved = true;
-      this.dragging.set(drag.slot);
-      this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, null, null) });
+      this.dragging.set(drag.item);
+      this.dropInfo.set({ item: drag.item, text: this.transloco.translate('schedule.dropNone') });
     }
     this.retarget();
   }
@@ -306,7 +336,7 @@ export class Schedule {
     }
   }
 
-  /** Follows the pointer once the board has settled: a new move only when what is under it calls for one. */
+  /** Follows the pointer once the screen has settled: a new move only when what is under it calls for one. */
   private retarget(): void {
     const drag = this.drag;
     if (!drag?.moved) {
@@ -318,33 +348,35 @@ export class Schedule {
       this.settleTimer = setTimeout(() => this.retarget(), wait);
       return;
     }
-    const hit = this.hitAt(drag.x, drag.y);
+    const item = drag.item;
+    const hit = item.kind === 'block' ? this.hitList(item, drag.x, drag.y) : this.hitBoard(drag.x, drag.y);
     if (hit === 'keep') {
       return;
     }
-    const move = hit && this.moveTo(drag, hit);
-    if (hit && !move) {
-      return;
+    let move: Move | null = null;
+    if (hit) {
+      move = item.kind === 'block' ? { block: item.key, before: hit.before } : { match: item.match!, before: hit.before as MatchID | '' };
     }
     if (sameMove(move, drag.move)) {
       return;
     }
     drag.move = move;
-    this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, move, hit && 'on' in hit ? hit.on : null) });
+    this.dropInfo.set({ item, text: hit ? hit.text : this.transloco.translate('schedule.dropNone') });
     void this.showPreview(move);
   }
 
   /**
-   * What the pointer is over, on the board as shown. A match being moved, a
-   * match on court or played, or a gap between matches change nothing; the
-   * space below the last match of a court is the end of the order.
+   * What the pointer is over, on the board as shown: a waiting match takes
+   * the dragged one before it, the space below the last match of a court is
+   * the end. The dragged match, a match on court or played, a gap, the court
+   * names change nothing; out of the timeline, no move.
    */
-  private hitAt(x: number, y: number): Hit {
+  private hitBoard(x: number, y: number): Hit {
+    const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
     const el = document.elementFromPoint(x, y);
     if (!el?.closest('[data-timeline]')) {
       return null;
     }
-    // Court names, time axis, space between courts: the drop stays as it is.
     const lane = el.closest<HTMLElement>('[data-lane]');
     if (!lane) {
       return 'keep';
@@ -353,65 +385,70 @@ export class Schedule {
     const slotEl = el.closest<HTMLElement>('[data-slot-index]');
     if (slotEl) {
       const on = slots[Number(slotEl.dataset['slotIndex'])];
-      return !on || on.state !== 'planned' || this.carried(on) ? 'keep' : { on };
+      if (!on?.match || on.state !== 'planned' || this.carried(on)) {
+        return 'keep';
+      }
+      return { before: on.match.id, text: t('schedule.dropBefore', { label: this.withCategory(on.category, this.label(on)), court: on.court, time: this.time(on.start) }) };
     }
     const court = Number(lane.dataset['lane']);
     const at = y - lane.getBoundingClientRect().top;
-    return slots.filter((s) => s.court === court).every((s) => this.top(s) + this.slotHeight(s) <= at) ? { end: true } : 'keep';
+    const below = slots.filter((s) => s.court === court).every((s) => this.top(s) + this.slotHeight(s) <= at);
+    return below ? { before: '', text: t('schedule.dropLast') } : 'keep';
   }
 
-  /** The move a hit calls for: before validation the block goes before the hit's block; after, the match before the hit match. */
-  private moveTo(drag: { slot: ScheduleSlotView; validated: boolean }, hit: { on: ScheduleSlotView } | { end: true }): Move | null {
-    const on = 'on' in hit ? hit.on : null;
-    if (drag.validated) {
-      return drag.slot.match ? { match: drag.slot.match.id, before: (on?.match?.id ?? '') as MatchID | '' } : null;
-    }
-    const before = on?.movable ? on.key : '';
-    return before === drag.slot.key ? null : { block: drag.slot.key, before };
-  }
-
-  /** What the drop does, in words. */
-  private dropText(slot: ScheduleSlotView, move: Move | null, on: ScheduleSlotView | null): string {
+  /**
+   * What the pointer is over, in the block list as shown: the upper half of
+   * a block takes the dragged one before it, the lower half after it; below
+   * the last one, the end. The dragged block changes nothing; out of the
+   * list, no move.
+   */
+  private hitList(item: DragItem, x: number, y: number): Hit {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
-    if (!move) {
-      return t('schedule.dropNone');
+    const el = document.elementFromPoint(x, y);
+    const list = el?.closest<HTMLElement>('[data-blocks]');
+    if (!list) {
+      return null;
     }
-    if ('match' in move) {
-      return move.before && on
-        ? t('schedule.dropBefore', { label: this.withCategory(on, this.label(on)), court: on.court, time: this.time(on.start) })
-        : t('schedule.dropLast');
+    const blocks = this.view().blocks ?? [];
+    const before = (i: number): Hit => {
+      const b = blocks[i];
+      if (!b) {
+        return { before: '', text: t('schedule.dropBlockLast', { label: this.withCategory(item.category, item.label) }) };
+      }
+      return b.key === item.key
+        ? 'keep'
+        : { before: b.key, text: t('schedule.dropBlockBefore', { label: this.withCategory(item.category, item.label), before: this.withCategory(b.category, this.label(b)) }) };
+    };
+    const row = el?.closest<HTMLElement>('[data-block-index]');
+    if (!row) {
+      const rows = list.querySelectorAll<HTMLElement>('[data-block-index]');
+      const last = rows.item(rows.length - 1);
+      return last && y > last.getBoundingClientRect().bottom ? before(blocks.length) : 'keep';
     }
-    const label = this.withCategory(slot, this.blockLabel(slot));
-    return move.before && on
-      ? t('schedule.dropBlockBefore', { label, before: this.withCategory(on, this.blockLabel(on)) })
-      : t('schedule.dropBlockLast', { label });
+    const i = Number(row.dataset['blockIndex']);
+    if (blocks[i]?.key === item.key) {
+      return 'keep';
+    }
+    const r = row.getBoundingClientRect();
+    return before(y < r.top + r.height / 2 ? i : i + 1);
   }
 
   /** With two categories, "MD Pool A": both have a pool A. */
-  private withCategory(s: ScheduleSlotView, label: string): string {
-    return (this.view().categories ?? []).length > 1 ? `${this.transloco.translate('category.short.' + s.category)} ${label}` : label;
-  }
-
-  /** A block: its pool ("Pool A") or its bracket round. */
-  private blockLabel(s: ScheduleSlotView): string {
-    if (!s.pool) {
-      return this.label(s);
-    }
-    const { round: _, ...group } = s;
-    return this.label(group as unknown as ScheduleGroupView);
+  private withCategory(category: Category, label: string): string {
+    return (this.view().categories ?? []).length > 1 ? `${this.transloco.translate('category.short.' + category)} ${label}` : label;
   }
 
   /** Where the preview puts the dragged match: its court and start. */
   protected readonly landing = computed(() => {
     const d = this.dragging();
     const p = this.preview();
-    return d?.match && p?.validatedAt ? ((p.slots ?? []).find((s) => s.state === 'planned' && s.match?.id === d.match!.id) ?? null) : null;
+    return d?.match && p ? ((p.slots ?? []).find((s) => s.state === 'planned' && s.match?.id === d.match) ?? null) : null;
   });
 
-  /** How far the preview moves a match from where it was when the drag began, in minutes (0: not moved). */
-  protected shift(s: ScheduleSlotView): number {
-    const before = this.dragging() && this.preview() && s.state === 'planned' && s.match ? this.baseStarts.get(s.match.id) : undefined;
-    return before === undefined ? 0 : Math.round((new Date(s.start).getTime() - before) / 60_000);
+  /** How far the preview moves a match, or a block, from where it was when the drag began, in minutes (0: not moved). */
+  protected shift(key: string | undefined, start: string): number {
+    const before = this.dragging() && this.preview() && key ? this.baseStarts.get(key) : undefined;
+    return before === undefined ? 0 : Math.round((new Date(start).getTime() - before) / 60_000);
   }
 
   private async showPreview(move: Move | null): Promise<void> {
@@ -447,13 +484,13 @@ export class Schedule {
     }
   }
 
-  /** Slots carried by the drag: the match, or its whole block before validation. */
+  /** Matches carried by the drag: the dragged match, or the matches of the dragged block. */
   protected carried(s: ScheduleSlotView): boolean {
     const d = this.dragging();
     if (!d || s.state !== 'planned') {
       return false;
     }
-    return this.view().validatedAt ? s.match?.id === d.match?.id : s.key === d.key;
+    return d.match ? s.match?.id === d.match : s.key === d.key;
   }
 
   protected setMode(mode: ScheduleMode): void {

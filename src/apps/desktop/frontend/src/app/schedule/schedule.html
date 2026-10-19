@@ -89,8 +89,8 @@
         <p class="hint" [class.hidden]="dropInfo()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
         @if (dropInfo(); as d) {
           <p class="drop-info">
-            <app-category-badge [category]="d.slot.category" [slot]="d.slot.slot" />
-            <strong>{{ label(d.slot) }}</strong>
+            <app-category-badge [category]="d.item.category" [slot]="d.item.slot" />
+            <strong>{{ d.item.label }}</strong>
             <span>{{ d.text }}</span>
             @if (landing(); as l) {
               <span>{{ t('schedule.dropLands', { court: l.court, time: time(l.start) }) }}</span>
@@ -99,7 +99,41 @@
           </p>
         }
       </div>
-      <div class="layout" [class.folded]="panels.collapsed('schedule.teams')">
+      <div class="layout" [class.folded]="panels.collapsed('schedule.teams')" [class.with-blocks]="!view().validatedAt && (view().blocks ?? []).length > 0">
+        @if (!view().validatedAt && (view().blocks ?? []).length > 0) {
+          <aside class="card blocks" data-blocks>
+            <span class="blocks-title">{{ t('schedule.blocksTitle') }}</span>
+            <span class="hint">{{ t('schedule.blocksHint') }}</span>
+            <ol class="block-list">
+              @for (b of view().blocks; track b.key; let i = $index) {
+                <li
+                  class="block-row"
+                  [attr.data-flip]="'b:' + b.key"
+                  [attr.data-block-index]="i"
+                  [class.carried]="dragging()?.key === b.key"
+                  [style.border-left-color]="'var(--color-category-' + b.slot + ')'"
+                  (pointerdown)="onBlockDown($event, b)"
+                >
+                  <span class="block-n">{{ i + 1 }}</span>
+                  <app-category-badge [category]="b.category" [slot]="b.slot" />
+                  <span class="block-text">
+                    <span class="block-label">{{ label(b) }}</span>
+                    <span class="block-meta">
+                      {{ time(b.start) }} · {{ t('schedule.blockMatches', { n: b.matches }) }}
+                      @if (b.unrested > 0) {
+                        · <span class="block-unrested" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.blockUnrested', { n: b.unrested }) }}</span>
+                      }
+                    </span>
+                  </span>
+                  @if (shift('b:' + b.key, b.start); as d) {
+                    <span class="shift" [class.later]="d > 0">{{ t(d > 0 ? 'schedule.shiftLater' : 'schedule.shiftEarlier', { n: d > 0 ? d : -d }) }}</span>
+                  }
+                  <span class="grip" aria-hidden="true">⠿</span>
+                </li>
+              }
+            </ol>
+          </aside>
+        }
         <div class="card timeline" data-timeline>
           <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
             <span class="corner"></span>
@@ -146,7 +180,7 @@
                       @if (s.state === 'playing') {
                         <span class="slot-state">{{ t('schedule.playing') }}</span>
                       }
-                      @if (shift(s); as d) {
+                      @if (shift(s.match?.id, s.start); as d) {
                         <span class="shift" [class.later]="d > 0">{{ t(d > 0 ? 'schedule.shiftLater' : 'schedule.shiftEarlier', { n: d > 0 ? d : -d }) }}</span>
                       }
                     </span>

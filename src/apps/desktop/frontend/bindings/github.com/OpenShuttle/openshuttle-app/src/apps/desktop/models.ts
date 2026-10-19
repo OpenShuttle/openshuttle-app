@@ -669,6 +669,27 @@ export interface RoundsView {
 }
 
 /**
+ * ScheduleBlockView is a block of the order set before validation: a round
+ * of a pool, or a bracket round, with its matches' estimated times.
+ */
+export interface ScheduleBlockView {
+    "key": string;
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": string;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
+    "pool": string;
+    "round": number;
+    "roundSize": number;
+    "matches": number;
+    "start": string;
+    "end": string;
+    "unrested": number;
+}
+
+/**
  * ScheduleGroupView is a pool, or a bracket, of a stage still playing.
  */
 export interface ScheduleGroupView {
@@ -770,6 +791,12 @@ export interface ScheduleView {
      * the blocks. Blocks move before validation, matches after.
      */
     "validatedAt": string | null;
+
+    /**
+     * Blocks is the block order, the first played first: what the desk
+     * reorders before validation.
+     */
+    "blocks": ScheduleBlockView[] | null;
 
     /**
      * Groups lists the pools and brackets still playing, with the matches

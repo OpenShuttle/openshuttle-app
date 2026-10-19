@@ -51,6 +51,24 @@ type ScheduleSlotView struct {
 	LeftB int `json:"leftB"`
 }
 
+// ScheduleBlockView is a block of the order set before validation: a round
+// of a pool, or a bracket round, with its matches' estimated times.
+type ScheduleBlockView struct {
+	Key string `json:"key"`
+	CategoryRef
+	Stage      string               `json:"stage"`
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
+	Pool       string               `json:"pool"`
+	Round      int                  `json:"round"`
+	RoundSize  int                  `json:"roundSize"`
+	Matches    int                  `json:"matches"`
+	Start      time.Time            `json:"start"`
+	End        time.Time            `json:"end"`
+	Unrested   int                  `json:"unrested"`
+}
+
 // ScheduleTeamView is an entrant with the matches it has left in a stage.
 type ScheduleTeamView struct {
 	Entrant engine.EntrantID `json:"entrant"`
@@ -95,6 +113,9 @@ type ScheduleView struct {
 	// ValidatedAt is when the desk validated the order; nil while it follows
 	// the blocks. Blocks move before validation, matches after.
 	ValidatedAt *time.Time `json:"validatedAt"`
+	// Blocks is the block order, the first played first: what the desk
+	// reorders before validation.
+	Blocks []ScheduleBlockView `json:"blocks"`
 	// Groups lists the pools and brackets still playing, with the matches
 	// each team has left.
 	Groups []ScheduleGroupView `json:"groups"`
@@ -196,7 +217,7 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 	v := ScheduleView{
 		Now: now, Mode: settings.Mode, First: settings.First, Categories: refs, Courts: st.Courts(),
 		MinRest: st.MinRest(), Reserved: []CourtReservation{}, Slots: []ScheduleSlotView{},
-		Groups: []ScheduleGroupView{},
+		Blocks: []ScheduleBlockView{}, Groups: []ScheduleGroupView{},
 	}
 	if at := st.ScheduleValidatedAt(); !at.IsZero() {
 		v.ValidatedAt = &at
@@ -218,10 +239,6 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 		}
 		return left[k]
 	}
-	blocks := map[string]bool{}
-	for _, k := range st.ScheduleBlocks() {
-		blocks[k] = true
-	}
 	validated := v.ValidatedAt != nil
 	slotView := func(slot tournament.ScheduleSlot, state string) ScheduleSlotView {
 		stage, _ := st.Stage(slot.Category, slot.Stage)
@@ -241,9 +258,9 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 			l := leftIn(m.Category, m.Stage)
 			sv.LeftA, sv.LeftB = l[m.A], l[m.B]
 		}
-		if state == SlotPlanned {
-			sv.Movable = (validated && slot.Match != "") || (!validated && blocks[slot.Key])
-		}
+		// Matches move one by one once validated; before, blocks move in the
+		// block list.
+		sv.Movable = state == SlotPlanned && validated && slot.Match != ""
 		return sv
 	}
 	// Matches played or playing, at their real court and times.
@@ -265,11 +282,37 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 		}
 		v.Slots = append(v.Slots, slotView(slot, state))
 	}
+	blocks := map[string]*ScheduleBlockView{}
 	for _, slot := range sched.Slots {
 		if slot.Unrested {
 			v.Unrested++
 		}
-		v.Slots = append(v.Slots, slotView(slot, SlotPlanned))
+		sv := slotView(slot, SlotPlanned)
+		v.Slots = append(v.Slots, sv)
+		if slot.Match == "" {
+			continue // a stand-in: its stage is not filled yet
+		}
+		b := blocks[slot.Key]
+		if b == nil {
+			b = &ScheduleBlockView{
+				Key: sv.Key, CategoryRef: sv.CategoryRef, Stage: sv.Stage, StageName: sv.StageName, StageKind: sv.StageKind,
+				EntryStage: sv.EntryStage, Pool: sv.Pool, Round: sv.Round, RoundSize: sv.RoundSize, Start: slot.Start, End: slot.End,
+			}
+			blocks[slot.Key] = b
+		}
+		b.Matches++
+		if slot.Start.Before(b.Start) {
+			b.Start = slot.Start
+		}
+		b.End = later(b.End, slot.End)
+		if slot.Unrested {
+			b.Unrested++
+		}
+	}
+	for _, k := range st.ScheduleBlocks() {
+		if b := blocks[k]; b != nil {
+			v.Blocks = append(v.Blocks, *b)
+		}
 	}
 	// Teams with matches left, pool by pool (a bracket as one group).
 	side := sideViewer(st)

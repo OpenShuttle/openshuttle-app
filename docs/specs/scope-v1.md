@@ -165,7 +165,7 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   finished match goes to the pending scores. Rest counts from the real end of
   the match, not from score entry.
 
-**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md))
+**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md))
 
 - The schedule puts every waiting match in order and forecasts courts and
   times from the estimated time on court of each win condition (2 sets of 21:
@@ -178,8 +178,11 @@ Criteria use differences, never ratios, so walkovers stay neutral.
 - **Two categories** share the courts in one of two modes: *in turn* (round 1
   of one category, round 1 of the other, then round 2…) or *reserved courts*
   (each category keeps its courts until it is over).
+- Before validation, the desk reorders **rounds** (pool A round 1, pool B
+  round 1…, bracket rounds) in a list by drag and drop; the timeline beside
+  it shows the result live. The rounds of a pool always keep their order.
 - The desk **validates** the schedule once: the order is then fixed, and the
-  desk moves a single match or a whole pool by drag and drop. Recomputing
+  desk moves single matches on the timeline by drag and drop. Recomputing
   starts again from the automatic order.
 - Courts take the matches in that order, as soon as both sides are off court.
   When players have not had their minimum rest, the desk is warned: it calls
@@ -275,7 +278,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
 | 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs" | Mark present in one click, add on the spot |
 | 7 | Draw | Control desk | One section per category, one column per pool, entrant cards, warning badges (same club), seed ranking | Drag and drop, redraw, confirm |
-| 8 | Schedule | Control desk | Timeline per court with estimated times, order of the matches, matches left per team, how two categories share the courts | Validate, move a match or a whole pool, recompute, reserve courts |
+| 8 | Schedule | Control desk | Timeline per court with estimated times, order of the matches, matches left per team, how two categories share the courts | Order the rounds, validate, move a match, recompute, reserve courts |
 | 9 | Control desk | Control desk | Dashboard above, with the score panel | Call, end, start next, enter a score, declare a forfeit, start and whistle a round |
 | 10 | Stages | Control desk | Category, then one tab per stage: pool standings or bracket tree | "Correction" mode to move, swap, edit; history |
 | 11 | Results | Control desk | Full standings per category | Export, archive |

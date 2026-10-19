@@ -110,18 +110,26 @@ func TestMoveBlocksThenMatches(t *testing.T) {
 		return out
 	}
 
-	// Before validation: blocks move. Pool D first: it opens every round.
+	// Before validation: blocks (rounds of pools) move. Round 1 of pool D
+	// first; its other rounds stay where they were.
 	g.fails(engine.CodeScheduleNotValidated, func(s State) (Change, error) { return s.MoveScheduledMatch("MS-A1", "") })
-	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/D", "MS/S1/A") })
-	if b := g.state().ScheduleBlocks(); !slices.Equal(b, []string{"MS/S1/D", "MS/S1/A", "MS/S1/B", "MS/S1/C"}) {
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/D/1", "MS/S1/A/1") })
+	if b := g.state().ScheduleBlocks(); !slices.Equal(b[:6], []string{"MS/S1/D/1", "MS/S1/A/1", "MS/S1/B/1", "MS/S1/C/1", "MS/S1/A/2", "MS/S1/B/2"}) {
 		t.Errorf("blocks = %v", b)
 	}
-	round := []string{"D", "D", "A", "A", "B", "B", "C", "C"}
-	want := slices.Concat(round, round, round, []string{"A", "A", "B", "B"}, []string{"A", "A", "B", "B"})
+	round := []string{"A", "A", "B", "B", "C", "C", "D", "D"}
+	want := slices.Concat([]string{"D", "D", "A", "A", "B", "B", "C", "C"}, round, round, []string{"A", "A", "B", "B"}, []string{"A", "A", "B", "B"})
 	if got := pools(); !slices.Equal(got, want) {
 		t.Errorf("order = %v\nwant    %v", got, want)
 	}
-	g.fails(engine.CodeMatchNotFound, func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/Z", "") })
+	// A pool's rounds keep their order: round 3 of pool C moved first gives
+	// that place to round 1, round 1's to round 2, round 2's to round 3.
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/C/3", "MS/S1/D/1") })
+	b := g.state().ScheduleBlocks()
+	if b[0] != "MS/S1/C/1" || slices.Index(b, "MS/S1/C/2") > slices.Index(b, "MS/S1/C/3") {
+		t.Errorf("blocks = %v", b)
+	}
+	g.fails(engine.CodeMatchNotFound, func(s State) (Change, error) { return s.MoveScheduledBlock("MS/S1/Z/1", "") })
 
 	// Validated: the order is fixed, matches move one by one.
 	g.do(func(s State) (Change, error) { return s.ValidateSchedule() })
@@ -148,7 +156,7 @@ func TestMoveBlocksThenMatches(t *testing.T) {
 	if !g.state().ScheduleValidatedAt().IsZero() || !slices.Equal(g.state().ScheduleOrder(), g.state().AutoOrder()) {
 		t.Error("still validated")
 	}
-	if p := pools(); p[0] != "D" {
+	if p := pools(); p[0] != "C" {
 		t.Errorf("block order lost: %v", p)
 	}
 }
@@ -258,5 +266,26 @@ func TestScheduleLateMatch(t *testing.T) {
 		if m.Has(a1.A) || m.Has(a1.B) {
 			t.Errorf("court %d proposes %s with a player on court", court, p.Match)
 		}
+	}
+}
+
+// Files written before ordered whole pools: that order still applies within
+// each round.
+func TestOlderPoolOrder(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.do(func(s State) (Change, error) { return s.SetCourts(1) })
+	g.confirmedPools(engine.MensSingles, 4, 16)
+	g.append(Change{TypeScheduleBlocksSet, ScheduleBlocksSet{Order: []string{"MS/S1/D", "MS/S1/A", "MS/S1/B", "MS/S1/C"}}})
+	var pools []string
+	for _, id := range g.state().AutoOrder() {
+		m, _ := g.state().Match(id)
+		pools = append(pools, engine.PoolName(m.Pool))
+	}
+	round := []string{"D", "D", "A", "A", "B", "B", "C", "C"}
+	if want := slices.Concat(round, round, round); !slices.Equal(pools, want) {
+		t.Errorf("order = %v\nwant    %v", pools, want)
+	}
+	if b := g.state().ScheduleBlocks(); b[0] != "MS/S1/D/1" || b[4] != "MS/S1/D/2" {
+		t.Errorf("blocks = %v", b)
 	}
 }

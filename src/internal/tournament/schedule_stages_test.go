@@ -50,7 +50,7 @@ func TestSamePhaseStagesInterleave(t *testing.T) {
 			blocks = append(blocks, k)
 		}
 	}
-	want := []string{"MS/" + main + "/R1", "MS/" + others + "/A", "MS/" + main + "/R2", "MS/" + others + "/A"}
+	want := []string{"MS/" + main + "/R1", "MS/" + others + "/A/1", "MS/" + others + "/A/2", "MS/" + main + "/R2"}
 	if len(blocks) < 4 || !slices.Equal(blocks[:4], want) {
 		t.Errorf("blocks = %v, want %v…", blocks, want)
 	}

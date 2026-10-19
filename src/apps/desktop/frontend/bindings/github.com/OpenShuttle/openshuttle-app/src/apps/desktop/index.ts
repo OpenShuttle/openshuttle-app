@@ -59,6 +59,7 @@ export type {
     ResultsView,
     RoundView,
     RoundsView,
+    ScheduleBlockView,
     ScheduleGroupView,
     ScheduleSlotView,
     ScheduleTeamView,
