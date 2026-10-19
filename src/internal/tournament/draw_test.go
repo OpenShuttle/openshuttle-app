@@ -198,7 +198,9 @@ func TestSetSeeds(t *testing.T) {
 		return s.RegisterEntrant(engine.WomensSingles, []PlayerInput{{Name: "W"}})
 	}).Data.(EntrantRegistered).ID
 
-	g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[2], ids[0]}) })
+	g.do(func(s State) (Change, error) {
+		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[2], ids[0]})
+	})
 	if got := g.state().Seeds(engine.MensSingles); !slices.Equal(got, []engine.EntrantID{ids[2], ids[0]}) {
 		t.Errorf("seeds = %v", got)
 	}
