@@ -100,7 +100,7 @@
         }
       </div>
       <div class="layout" [class.folded]="panels.collapsed('schedule.teams')">
-        <div class="card timeline">
+        <div class="card timeline" data-timeline>
           <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
             <span class="corner"></span>
             @for (n of courts(); track n) {
@@ -127,6 +127,7 @@
                   <div
                     class="slot"
                     [attr.data-flip]="e.key"
+                    [attr.data-slot-index]="e.index"
                     [class.played]="s.state === 'played'"
                     [class.playing]="s.state === 'playing'"
                     [class.movable]="s.movable"

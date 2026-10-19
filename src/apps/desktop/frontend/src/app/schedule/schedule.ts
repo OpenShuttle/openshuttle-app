@@ -21,12 +21,21 @@ const PX_PER_MIN = 2.4;
 /** Pointer travel before a press becomes a drag, in pixels. */
 const DRAG_THRESHOLD = 5;
 
-/** What a drop lands on: a planned slot (its index in the view the drag started from), or the end of the order. */
-type DropTarget = { slot: number } | { end: true };
+/** Time the board takes to settle after a preview, before the pointer moves anything again, in ms. */
+const SETTLE_MS = 320;
 
-function sameTarget(a: DropTarget | null, b: DropTarget | null): boolean {
-  return a === b || (!!a && !!b && ('slot' in a ? 'slot' in b && a.slot === b.slot : 'end' in b));
+/** A move the drop would make: a block before another one, or a match before another one ("" at the end). */
+type Move = { block: string; before: string } | { match: MatchID; before: MatchID | '' };
+
+function sameMove(a: Move | null, b: Move | null): boolean {
+  if (!a || !b) {
+    return a === b;
+  }
+  return 'block' in a ? 'block' in b && a.block === b.block && a.before === b.before : 'match' in b && a.match === b.match && a.before === b.before;
 }
+
+/** What the pointer is over: a waiting match, the end of a court, outside the timeline (null), or nothing that changes the move. */
+type Hit = { on: ScheduleSlotView } | { end: true } | 'keep' | null;
 
 /** The time axis starts with the first match on court, or now. */
 function axisStart(v: ScheduleView): number {
@@ -193,18 +202,21 @@ export class Schedule {
 
   /**
    * Drag and drop with pointer events (HTML5 drag and drop is unreliable in
-   * webviews). While dragging, the timeline shows the preview of the drop, so
-   * the desk sees what shifts; the target is found on the schedule the drag
-   * started from, so the preview moving under the pointer never changes it.
+   * webviews). While dragging, the timeline shows the preview of the drop and
+   * the pointer works on what is shown, like a sortable list: over a match,
+   * the moved ones go before it; over the moved ones, nothing changes. After
+   * each preview the board settles before the pointer moves anything again,
+   * so matches glide instead of bouncing.
    */
   protected readonly dragging = signal<ScheduleSlotView | null>(null);
   /** While dragging, what the drop does, said above the timeline. */
   protected readonly dropInfo = signal<{ slot: ScheduleSlotView; text: string } | null>(null);
   /** Start of each waiting match when the drag began, to show how far the preview shifts it. */
   private baseStarts = new Map<string, number>();
-  private drag: { slot: ScheduleSlotView; base: ScheduleView; x: number; y: number; moved: boolean; target: DropTarget | null } | null =
-    null;
+  private drag: { slot: ScheduleSlotView; validated: boolean; x: number; y: number; moved: boolean; move: Move | null } | null = null;
   private previewSeq = 0;
+  private settleUntil = 0;
+  private settleTimer: ReturnType<typeof setTimeout> | undefined;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   /** Where each match was drawn, within the grid (scrolling does not move it). */
@@ -257,7 +269,7 @@ export class Schedule {
   protected onSlotDown(event: PointerEvent, slot: ScheduleSlotView): void {
     if (slot.movable && event.button === 0) {
       const base = this.live();
-      this.drag = { slot, base, x: event.clientX, y: event.clientY, moved: false, target: null };
+      this.drag = { slot, validated: !!base.validatedAt, x: event.clientX, y: event.clientY, moved: false, move: null };
       this.baseStarts = new Map((base.slots ?? []).filter((s) => s.match).map((s) => [s.match!.id, new Date(s.start).getTime()]));
     }
   }
@@ -268,81 +280,116 @@ export class Schedule {
     if (!drag || (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < DRAG_THRESHOLD)) {
       return;
     }
-    drag.moved = true;
     event.preventDefault();
-    this.dragging.set(drag.slot);
-    const target = this.targetAt(drag.base, event.clientX, event.clientY);
-    if (!this.dropInfo() || !sameTarget(target, drag.target)) {
-      drag.target = target;
-      void this.showPreview(drag.slot, drag.base, target);
-      this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, drag.base, target) });
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+    if (!drag.moved) {
+      drag.moved = true;
+      this.dragging.set(drag.slot);
+      this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, null, null) });
     }
+    this.retarget();
   }
 
   @HostListener('document:pointerup')
   protected onPointerUp(): void {
     const drag = this.drag;
     this.drag = null;
+    clearTimeout(this.settleTimer);
     this.dragging.set(null);
     this.dropInfo.set(null);
     this.previewSeq++;
-    if (drag?.moved && drag.target) {
-      void this.drop(drag.slot, drag.base, drag.target);
+    if (drag?.moved && drag.move) {
+      void this.drop(drag.move);
     } else {
       this.preview.set(null);
     }
   }
 
-  /**
-   * The slot of the starting schedule under the pointer: on the court under
-   * it, the first match not over at that time (a gap means before the next
-   * one); below the last one, the end of the order. Played and playing
-   * matches take nothing before them.
-   */
-  private targetAt(base: ScheduleView, x: number, y: number): DropTarget | null {
-    const lane = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-lane]');
-    if (!lane) {
-      return null;
+  /** Follows the pointer once the board has settled: a new move only when what is under it calls for one. */
+  private retarget(): void {
+    const drag = this.drag;
+    if (!drag?.moved) {
+      return;
     }
-    const court = Number(lane.dataset['lane']);
-    const start = axisStart(base);
-    const at = start + ((y - lane.getBoundingClientRect().top) / PX_PER_MIN) * 60_000;
-    const slots = base.slots ?? [];
-    let found = -1;
-    slots.forEach((s, i) => {
-      if (s.court === court && new Date(s.end).getTime() > at && (found < 0 || new Date(s.start) < new Date(slots[found].start))) {
-        found = i;
-      }
-    });
-    if (found < 0) {
-      return { end: true };
+    const wait = this.settleUntil - performance.now();
+    if (wait > 0) {
+      clearTimeout(this.settleTimer);
+      this.settleTimer = setTimeout(() => this.retarget(), wait);
+      return;
     }
-    return slots[found].state === 'planned' ? { slot: found } : null;
+    const hit = this.hitAt(drag.x, drag.y);
+    if (hit === 'keep') {
+      return;
+    }
+    const move = hit && this.moveTo(drag, hit);
+    if (hit && !move) {
+      return;
+    }
+    if (sameMove(move, drag.move)) {
+      return;
+    }
+    drag.move = move;
+    this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, move, hit && 'on' in hit ? hit.on : null) });
+    void this.showPreview(move);
   }
 
-  /** What the drop does: before validation the block moves before the target's block; after, the match before the target match. */
-  private move(slot: ScheduleSlotView, base: ScheduleView, target: DropTarget): { block: string; before: string } | { match: MatchID; before: MatchID | '' } | null {
-    const on = 'slot' in target ? (base.slots ?? [])[target.slot] : null;
-    if (base.validatedAt) {
-      return slot.match ? { match: slot.match.id, before: (on?.match?.id ?? '') as MatchID | '' } : null;
+  /**
+   * What the pointer is over, on the board as shown. A match being moved, a
+   * match on court or played, or a gap between matches change nothing; the
+   * space below the last match of a court is the end of the order.
+   */
+  private hitAt(x: number, y: number): Hit {
+    const el = document.elementFromPoint(x, y);
+    if (!el?.closest('[data-timeline]')) {
+      return null;
+    }
+    // Court names, time axis, space between courts: the drop stays as it is.
+    const lane = el.closest<HTMLElement>('[data-lane]');
+    if (!lane) {
+      return 'keep';
+    }
+    const slots = this.view().slots ?? [];
+    const slotEl = el.closest<HTMLElement>('[data-slot-index]');
+    if (slotEl) {
+      const on = slots[Number(slotEl.dataset['slotIndex'])];
+      return !on || on.state !== 'planned' || this.carried(on) ? 'keep' : { on };
+    }
+    const court = Number(lane.dataset['lane']);
+    const at = y - lane.getBoundingClientRect().top;
+    return slots.filter((s) => s.court === court).every((s) => this.top(s) + this.slotHeight(s) <= at) ? { end: true } : 'keep';
+  }
+
+  /** The move a hit calls for: before validation the block goes before the hit's block; after, the match before the hit match. */
+  private moveTo(drag: { slot: ScheduleSlotView; validated: boolean }, hit: { on: ScheduleSlotView } | { end: true }): Move | null {
+    const on = 'on' in hit ? hit.on : null;
+    if (drag.validated) {
+      return drag.slot.match ? { match: drag.slot.match.id, before: (on?.match?.id ?? '') as MatchID | '' } : null;
     }
     const before = on?.movable ? on.key : '';
-    return before === slot.key ? null : { block: slot.key, before };
+    return before === drag.slot.key ? null : { block: drag.slot.key, before };
   }
 
   /** What the drop does, in words. */
-  private dropText(slot: ScheduleSlotView, base: ScheduleView, target: DropTarget | null): string {
+  private dropText(slot: ScheduleSlotView, move: Move | null, on: ScheduleSlotView | null): string {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
-    const m = target && this.move(slot, base, target);
-    if (!m || !target) {
+    if (!move) {
       return t('schedule.dropNone');
     }
-    const on = 'slot' in target ? (base.slots ?? [])[target.slot] : null;
-    if ('match' in m) {
-      return on?.match ? t('schedule.dropBefore', { label: this.label(on), court: on.court, time: this.time(on.start) }) : t('schedule.dropLast');
+    if ('match' in move) {
+      return move.before && on
+        ? t('schedule.dropBefore', { label: this.withCategory(on, this.label(on)), court: on.court, time: this.time(on.start) })
+        : t('schedule.dropLast');
     }
-    const label = this.blockLabel(slot);
-    return m.before && on ? t('schedule.dropBlockBefore', { label, before: this.blockLabel(on) }) : t('schedule.dropBlockLast', { label });
+    const label = this.withCategory(slot, this.blockLabel(slot));
+    return move.before && on
+      ? t('schedule.dropBlockBefore', { label, before: this.withCategory(on, this.blockLabel(on)) })
+      : t('schedule.dropBlockLast', { label });
+  }
+
+  /** With two categories, "MD Pool A": both have a pool A. */
+  private withCategory(s: ScheduleSlotView, label: string): string {
+    return (this.view().categories ?? []).length > 1 ? `${this.transloco.translate('category.short.' + s.category)} ${label}` : label;
   }
 
   /** A block: its pool ("Pool A") or its bracket round. */
@@ -363,23 +410,24 @@ export class Schedule {
 
   /** How far the preview moves a match from where it was when the drag began, in minutes (0: not moved). */
   protected shift(s: ScheduleSlotView): number {
-    const before = this.preview() && s.state === 'planned' && s.match ? this.baseStarts.get(s.match.id) : undefined;
+    const before = this.dragging() && this.preview() && s.state === 'planned' && s.match ? this.baseStarts.get(s.match.id) : undefined;
     return before === undefined ? 0 : Math.round((new Date(s.start).getTime() - before) / 60_000);
   }
 
-  private async showPreview(slot: ScheduleSlotView, base: ScheduleView, target: DropTarget | null): Promise<void> {
+  private async showPreview(move: Move | null): Promise<void> {
     const seq = ++this.previewSeq;
-    const m = target && this.move(slot, base, target);
-    if (!m) {
+    if (!move) {
       this.preview.set(null);
+      this.settleUntil = performance.now() + SETTLE_MS;
       return;
     }
     try {
-      const v = await ('block' in m
-        ? TournamentService.PreviewScheduledBlockMove(m.block, m.before)
-        : TournamentService.PreviewScheduledMatchMove(m.match, m.before as MatchID));
+      const v = await ('block' in move
+        ? TournamentService.PreviewScheduledBlockMove(move.block, move.before)
+        : TournamentService.PreviewScheduledMatchMove(move.match, move.before as MatchID));
       if (seq === this.previewSeq) {
         this.preview.set(v);
+        this.settleUntil = performance.now() + SETTLE_MS;
       }
     } catch (err) {
       console.error('schedule preview', err);
@@ -389,15 +437,13 @@ export class Schedule {
     }
   }
 
-  private async drop(slot: ScheduleSlotView, base: ScheduleView, target: DropTarget): Promise<void> {
-    const m = this.move(slot, base, target);
-    const ok =
-      !!m && (await ('block' in m ? this.tournament.moveScheduledBlock(m.block, m.before) : this.tournament.moveScheduledMatch(m.match, m.before)));
-    // Keep showing the result until the live view catches up, never the old order.
-    const seq = this.previewSeq;
-    const fresh = ok ? await TournamentService.GetScheduleView() : null;
-    if (seq === this.previewSeq) {
-      this.preview.set(fresh);
+  private async drop(move: Move): Promise<void> {
+    const ok = await ('block' in move ? this.tournament.moveScheduledBlock(move.block, move.before) : this.tournament.moveScheduledMatch(move.match, move.before));
+    // Done: the preview stays until the new schedule from Go replaces it (never the old order in between).
+    if (!ok) {
+      this.preview.set(null);
+    } else {
+      setTimeout(() => !this.drag && this.preview.set(null), 2000);
     }
   }
 
