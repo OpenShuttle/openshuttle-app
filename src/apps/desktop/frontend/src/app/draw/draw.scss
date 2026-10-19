@@ -253,6 +253,7 @@
   border: 1px solid #ecedf0;
   border-radius: var(--radius-sm);
   touch-action: none;
+  user-select: none;
 
   &.movable {
     cursor: grab;

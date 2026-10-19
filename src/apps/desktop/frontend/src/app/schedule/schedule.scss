@@ -76,6 +76,7 @@
 .grid {
   display: grid;
   column-gap: 6px;
+  user-select: none; // dragging a match must not select text
 }
 
 .corner,
