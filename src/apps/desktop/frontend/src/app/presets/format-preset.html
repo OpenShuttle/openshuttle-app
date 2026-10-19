@@ -11,7 +11,6 @@
     (removed)="remove($event, editor)"
   >
     <div class="toolbar">
-      <a class="btn btn-sm back" routerLink="/presets">← {{ t('presets.title') }}</a>
       <div class="fields">
         <input class="input name" maxlength="60" [disabled]="readonly()" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="name()" (input)="name.set(value($event))" />
         <input class="input" maxlength="200" [disabled]="readonly()" [attr.aria-label]="t('presets.description')" [placeholder]="t('presets.description')" [value]="description()" (input)="description.set(value($event))" />
