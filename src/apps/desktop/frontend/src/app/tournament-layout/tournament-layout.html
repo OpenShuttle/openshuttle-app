@@ -11,15 +11,27 @@
     </button>
     @for (group of groups(); track group.key; let first = $first) {
       <span class="group-label" [class.first]="first">{{ t('nav.' + group.key) }}</span>
+      @if (!first) {
+        <span class="group-sep"></span>
+      }
       @for (item of group.items; track item.key) {
         <a
           class="item"
           [routerLink]="item.path"
           routerLinkActive="active"
           [class.current]="item.mark === 'current'"
-          [attr.title]="panels.collapsed('nav') ? t('nav.' + item.key) : null"
+          [attr.title]="panels.collapsed('nav') ? t('nav.' + item.key) + ' · ' + t(item.sub, item.params ?? {}) : null"
         >
-          <span class="mark" [class]="'mark ' + item.mark">{{ item.mark === 'done' ? '✓' : '' }}</span>
+          @if (panels.collapsed('nav')) {
+            <span class="step-icon" [class]="'step-icon ' + item.mark">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons[item.key]" /></svg>
+              @if (item.mark !== 'todo') {
+                <span class="step-badge">{{ item.mark === 'done' ? '✓' : '' }}</span>
+              }
+            </span>
+          } @else {
+            <span class="mark" [class]="'mark ' + item.mark">{{ item.mark === 'done' ? '✓' : '' }}</span>
+          }
           <span class="item-text">
             <span class="item-label">{{ t('nav.' + item.key) }}</span>
             <span class="item-sub">{{ t(item.sub, item.params ?? {}) }}</span>
