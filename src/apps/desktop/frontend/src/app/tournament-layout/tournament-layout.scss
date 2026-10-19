@@ -284,3 +284,18 @@
   font-size: 12px;
   opacity: 0.75;
 }
+
+// Folded: the home button is an icon like the steps.
+.home-icon {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav.collapsed .home {
+  height: 40px;
+}

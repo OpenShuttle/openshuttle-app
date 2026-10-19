@@ -33,7 +33,9 @@
               }
             </span>
           } @else {
-            <span class="mark" [class]="'mark ' + item.mark">{{ item.mark === 'done' ? '✓' : '' }}</span>
+            <span class="mark" [class]="'mark ' + item.mark">{{
+              item.mark === 'done' ? '✓' : ''
+            }}</span>
           }
           <span class="item-text">
             <span class="item-label">{{ t('nav.' + item.key) }}</span>
@@ -49,7 +51,15 @@
         [attr.aria-label]="t('nav.home')"
         (mouseenter)="showTip($event, t('nav.home'), '')"
         (mouseleave)="tip.set(null)"
-      >{{ panels.collapsed('nav') ? '⌂' : t('nav.home') }}</a>
+      >
+        @if (panels.collapsed('nav')) {
+          <svg class="home-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 10.5L12 3l9 7.5M5.5 8.5V20h13V8.5M10 20v-6h4v6" />
+          </svg>
+        } @else {
+          {{ t('nav.home') }}
+        }
+      </a>
       <span class="file-name" [attr.title]="view().path">{{ fileName() }}</span>
       <span class="file-saved">{{ t('nav.autosaved', { time: time(clock.now()) }) }}</span>
     </div>
