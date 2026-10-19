@@ -273,7 +273,7 @@
     "controlDesk": "Table de marque",
     "stages": "Phases",
     "results": "Résultats",
-    "home": "← Accueil · tous les tournois",
+    "home": "Accueil",
     "autosaved": "Enregistré automatiquement · {time}",
     "sub": {
       "info": "{courts, plural, one {# terrain} other {# terrains}} · repos {rest} min",
@@ -749,7 +749,6 @@
     "tiebreakOrders": "Ordres de départage",
     "builtIn": "Intégré",
     "delete": "Supprimer",
-    "applyTo": "Appliquer à {category}",
     "name": "Nom du preset",
     "description": "Description (facultative)",
     "save": "Enregistrer",

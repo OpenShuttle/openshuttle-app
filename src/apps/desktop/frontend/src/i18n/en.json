@@ -273,7 +273,7 @@
     "controlDesk": "Control desk",
     "stages": "Stages",
     "results": "Results",
-    "home": "← Home · all tournaments",
+    "home": "Home",
     "autosaved": "Saved automatically · {time}",
     "sub": {
       "info": "{courts, plural, one {# court} other {# courts}} · rest {rest} min",
@@ -749,7 +749,6 @@
     "tiebreakOrders": "Tiebreak orders",
     "builtIn": "Built in",
     "delete": "Delete",
-    "applyTo": "Apply to {category}",
     "name": "Preset name",
     "description": "Description (optional)",
     "save": "Save",

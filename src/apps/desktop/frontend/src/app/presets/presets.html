@@ -47,13 +47,6 @@
               {{ t(builtIn(p.id) ? 'presets.view' : 'presets.edit') }}
             </button>
             <button type="button" class="btn btn-sm" (click)="duplicate(p.id, formatName(p))">{{ t('presets.duplicate') }}</button>
-            @if (tournament.view().open) {
-              @for (c of tournament.view().categories ?? []; track c.category) {
-                <button type="button" class="btn btn-sm btn-primary" (click)="apply(p, c.category)">
-                  {{ t('presets.applyTo', { category: t('category.short.' + c.category) }) }}
-                </button>
-              }
-            }
             @if (!builtIn(p.id)) {
               <button type="button" class="btn-link delete" (click)="remove(p.id)">{{ t('presets.delete') }}</button>
             }

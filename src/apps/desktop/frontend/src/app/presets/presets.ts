@@ -2,11 +2,10 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { FormatPreset, PresetService } from '@bindings/apps/desktop';
-import { Category, Tiebreak, WinCondition, WinConditionKind } from '@bindings/internal/engine';
+import { Tiebreak, WinCondition, WinConditionKind } from '@bindings/internal/engine';
 import { StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { AppPresets } from '../core/presets.service';
-import { TournamentStore } from '../core/tournament.service';
 import { stageLabel, winSummary } from '../shared/stage-label';
 
 const ALL_TIEBREAKS: Tiebreak[] = ['wins', 'headToHead', 'setDifference', 'pointDifference', 'draw'] as Tiebreak[];
@@ -37,7 +36,6 @@ interface TiebreakDraft {
 })
 export class PresetsPage {
   protected readonly presets = inject(AppPresets);
-  protected readonly tournament = inject(TournamentStore);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   protected readonly kinds = WinConditionKind;
@@ -123,10 +121,6 @@ export class PresetsPage {
 
   protected remove(id: string): void {
     void this.presets.run(() => PresetService.DeletePreset(id));
-  }
-
-  protected apply(p: FormatPreset, category: Category): void {
-    void this.tournament.applyFormatPreset(category, p.id);
   }
 
   protected openFormat(id: string): void {
