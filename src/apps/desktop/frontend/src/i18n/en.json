@@ -863,5 +863,11 @@
     "expandMenu": "Unfold the menu",
     "collapse": "Fold: {name}",
     "expand": "Unfold: {name}"
+  },
+  "window": {
+    "minimise": "Minimise",
+    "maximise": "Maximise",
+    "restore": "Restore",
+    "close": "Close"
   }
 }

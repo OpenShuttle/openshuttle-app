@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, effect, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
+import { System, Window } from '@wailsio/runtime';
 
 import { DisplayScreenService } from '../core/display-screen.service';
 import { LanguageService } from '../core/language.service';
@@ -55,10 +56,18 @@ export class Shell implements OnInit {
     { key: 'settings', path: '/settings' },
   ];
 
-  /** Two letters standing for the tournament: "Plume d'automne" → PD. */
-  protected readonly mark = computed(() => initials(this.view().name));
+  // The top bar is the window's title bar (see main.go): it drags the
+  // window; on Windows and Linux it also holds the window buttons, on macOS
+  // the native traffic lights sit at its left.
+  protected readonly isMac = System.IsMac();
+  protected readonly maximised = signal(false);
 
   constructor() {
+    const refreshMaximised = () => void Window.IsMaximised().then((m) => this.maximised.set(m), () => undefined);
+    refreshMaximised();
+    window.addEventListener('resize', refreshMaximised);
+    inject(DestroyRef).onDestroy(() => window.removeEventListener('resize', refreshMaximised));
+
     // Closing the tournament leaves its screens.
     effect(() => {
       if (!this.view().open && this.url().startsWith('/tournament')) {
@@ -70,6 +79,25 @@ export class Shell implements OnInit {
   ngOnInit(): void {
     void this.display.refresh();
     void this.tournament.refresh();
+  }
+
+  protected minimise(): void {
+    void Window.Minimise();
+  }
+
+  protected toggleMaximise(): void {
+    void Window.ToggleMaximise();
+  }
+
+  protected close(): void {
+    void Window.Close();
+  }
+
+  /** Double-click on the bar, outside its controls, maximises or restores the window. */
+  protected onTitleDoubleClick(event: MouseEvent): void {
+    if (!(event.target as HTMLElement).closest('button, a, select, input')) {
+      this.toggleMaximise();
+    }
   }
 
   protected undo(): void {
@@ -108,10 +136,4 @@ export class Shell implements OnInit {
   protected toggleDisplay(): void {
     void (this.display.isOpen() ? this.display.close() : this.display.open(this.monitorId()));
   }
-}
-
-/** First letters of the first two words, digits skipped: "Plume d'automne 2026" → PD. */
-export function initials(name: string): string {
-  const words = name.split(/\s+/).filter((w) => /^\p{L}/u.test(w));
-  return words.slice(0, 2).map((w) => w[0].toUpperCase()).join('') || 'OS';
 }

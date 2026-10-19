@@ -205,6 +205,14 @@ The Claude Design mockup lives in `docs/tournoi-badminton-interactif/project/`
 structure. Colors are CSS custom properties in `frontend/src/styles.scss`, taken
 from the mockup. Category badges are colored by the category's slot in the
 tournament (`--color-category-1`, `--color-category-2`), not by type.
+The app logo is `frontend/public/logo.svg` (also `favicon.ico`); the app
+icons in `build/` (`appicon.png`, `windows/icon.ico`, `darwin/icons.icns`,
+DMG icon and background) are generated from it (`wails3 generate icons`).
+The main window has no native title bar on Windows and Linux (`Frameless`):
+the app's top bar drags the window (`--wails-draggable: drag`, controls
+`no-drag`), maximises on double-click and draws minimise / maximise / close;
+on macOS the native traffic lights sit over its left end
+(`MacTitleBarHiddenInset`). The display window keeps its native frame.
 Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,
 `.card`, `.btn`/`.btn-primary`/`.btn-sm`, `.seg`/`.seg-option`, `.stepper`,
 `.bib`, `.pill-*`): use them before adding component styles. Compare a screen

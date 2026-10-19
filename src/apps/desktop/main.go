@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -77,6 +78,14 @@ func main() {
 		// Matches the --color-bg token so there is no flash before Angular renders.
 		BackgroundColour: application.NewRGB(0xF3, 0xF4, 0xF6),
 		URL:              "/",
+		// The app's top bar is the title bar: frameless on Windows and Linux
+		// (it draws its own window buttons), native traffic lights over it on
+		// macOS. It drags the window and maximises on double-click.
+		Frameless: runtime.GOOS != "darwin",
+		Mac: application.MacWindow{
+			TitleBar:                application.MacTitleBarHiddenInset,
+			InvisibleTitleBarHeight: 64,
+		},
 	})
 	// Closing the control desk quits the app, display screen included.
 	mainWindow.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {

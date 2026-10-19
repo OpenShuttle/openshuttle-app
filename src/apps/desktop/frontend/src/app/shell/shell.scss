@@ -15,6 +15,57 @@
   padding: 0 20px;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
+  // The bar is the window's title bar: it drags the window, its controls do
+  // not.
+  --wails-draggable: drag;
+  user-select: none;
+
+  button,
+  a,
+  select,
+  input {
+    --wails-draggable: no-drag;
+  }
+
+  // macOS keeps its traffic lights over the bar's left end.
+  &.mac {
+    padding-left: 84px;
+  }
+}
+
+// Window buttons (Windows, Linux), flush with the window's top right corner.
+.window-buttons {
+  display: flex;
+  align-self: stretch;
+  margin: 0 -20px 0 4px;
+}
+
+.window-btn {
+  width: 46px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+
+  svg {
+    width: 10px;
+    height: 10px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+
+  &:hover {
+    background: var(--color-bg);
+  }
+
+  &.close:hover {
+    background: #c42b1c;
+    color: #fff;
+  }
 }
 
 .brand {
@@ -26,17 +77,14 @@
   flex: none;
 }
 
-.brand-mark {
-  width: 34px;
-  height: 34px;
+.brand-logo {
+  width: 36px;
+  height: 36px;
   flex: none;
-  border-radius: var(--radius-md);
-  background: var(--color-text);
-  color: var(--color-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 700 15px/1 var(--font-mono);
+  // The logo is drawn on white: a hairline keeps it visible on the white bar.
+  border-radius: 9px;
+  box-shadow: 0 0 0 1px var(--color-border);
+  -webkit-user-drag: none;
 }
 
 .brand-text {
@@ -154,6 +202,7 @@
 
 .topbar-right {
   flex: none;
+  align-self: stretch;
   margin-left: auto;
   display: flex;
   align-items: center;

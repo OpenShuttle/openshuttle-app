@@ -863,5 +863,11 @@
     "expandMenu": "Déplier le menu",
     "collapse": "Replier : {name}",
     "expand": "Déplier : {name}"
+  },
+  "window": {
+    "minimise": "Réduire",
+    "maximise": "Agrandir",
+    "restore": "Restaurer",
+    "close": "Fermer"
   }
 }
