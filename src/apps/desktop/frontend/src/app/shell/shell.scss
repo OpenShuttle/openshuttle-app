@@ -99,15 +99,6 @@
   text-overflow: ellipsis;
 }
 
-.brand-sub {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
 .last-action {
   flex: 1;
   min-width: 0;
@@ -170,30 +161,40 @@
 
 .tabs {
   display: flex;
-  gap: 4px;
+  gap: 22px;
   flex: 1;
   min-width: 0;
+  align-self: stretch;
 }
 
+// Text tabs underlined when active, flush with the bar's bottom edge.
 .tab {
-  height: 32px;
-  padding: 0 14px;
-  border-radius: var(--radius-md);
+  position: relative;
   display: flex;
   align-items: center;
-  color: var(--color-text);
+  color: var(--color-text-muted);
   font-weight: 700;
   font-size: 14px;
   white-space: nowrap;
   text-decoration: none;
 
-  &:hover:not(.active) {
-    background: var(--color-bg);
+  &:hover {
+    color: var(--color-text);
   }
 
   &.active {
-    background: var(--color-text);
-    color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  &.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--color-brand-logo);
   }
 }
 

@@ -5,19 +5,6 @@
         <img class="brand-logo" src="logo.svg" alt="" />
         <div class="brand-text">
           <span class="brand-name" [attr.title]="view().name">{{ view().name }}</span>
-          <span class="brand-sub">
-            @for (c of view().categories; track c.category; let last = $last) {
-              {{ t('category.name.' + c.category) }}{{ last ? '' : ' + ' }}
-            }
-            @if (view().progress.entrants > 0) {
-              ·
-              {{
-                t(view().progress.doubles ? 'topBar.pairs' : 'topBar.entrants', {
-                  count: view().progress.entrants,
-                })
-              }}
-            }
-          </span>
         </div>
       </div>
 
@@ -39,7 +26,6 @@
         <img class="brand-logo" src="logo.svg" alt="" />
         <div class="brand-text">
           <span class="brand-name">{{ t('app.name') }}</span>
-          <span class="brand-sub">{{ t('app.tagline') }}</span>
         </div>
       </div>
       <nav class="tabs">

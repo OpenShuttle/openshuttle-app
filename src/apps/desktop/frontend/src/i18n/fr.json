@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "OpenShuttle",
-    "tagline": "Table de marque · hors ligne"
+    "name": "OpenShuttle"
   },
   "common": {
     "cancel": "Annuler",
