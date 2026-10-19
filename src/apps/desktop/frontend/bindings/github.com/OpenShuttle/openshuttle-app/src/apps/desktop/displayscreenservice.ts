@@ -23,6 +23,13 @@ export function Close(): $CancellablePromise<void> {
 }
 
 /**
+ * IsFullscreen reports whether the display screen is open in full screen.
+ */
+export function IsFullscreen(): $CancellablePromise<boolean> {
+    return $Call.ByID(3043732398);
+}
+
+/**
  * IsOpen reports whether the display screen is open.
  */
 export function IsOpen(): $CancellablePromise<boolean> {
@@ -43,4 +50,12 @@ export function ListMonitors(): $CancellablePromise<$models.Monitor[] | null> {
  */
 export function Open(monitorID: string): $CancellablePromise<void> {
     return $Call.ByID(1005984399, monitorID);
+}
+
+/**
+ * SetFullscreen puts the open display screen in full screen, or back in a
+ * window (to move it, check it, or reach the desktop behind).
+ */
+export function SetFullscreen(on: boolean): $CancellablePromise<void> {
+    return $Call.ByID(3863877916, on);
 }

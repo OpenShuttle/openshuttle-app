@@ -210,7 +210,7 @@ icons in `build/` (`appicon.png`, `windows/icon.ico`, `darwin/icons.icns`,
 DMG icon and background) are generated from it (`wails3 generate icons`).
 The main window has no native title bar on Windows and Linux (`Frameless`):
 the app's top bar drags the window (`--wails-draggable: drag`, controls
-`no-drag`), maximises on double-click and draws minimise / maximise / close;
+`no-drag`), maximises on double-click and draws full screen / minimise / maximise / close;
 on macOS the native traffic lights sit over its left end
 (`MacTitleBarHiddenInset`). The display window keeps its native frame.
 Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,

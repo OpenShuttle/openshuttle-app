@@ -13,7 +13,10 @@
           <span class="last-action-time">
             {{ t('topBar.lastAction', { time: lastAction() ? time(lastAction()!.at) : '—' }) }}
           </span>
-          <span class="last-action-label" [attr.title]="lastAction() ? actionLabel(lastAction()!) : null">
+          <span
+            class="last-action-label"
+            [attr.title]="lastAction() ? actionLabel(lastAction()!) : null"
+          >
             {{ lastAction() ? actionLabel(lastAction()!) : t('topBar.nothingToUndo') }}
           </span>
         </div>
@@ -46,32 +49,84 @@
       @if (inTournament()) {
         <div class="display-box">
           <span class="display-dot" [class.on]="display.isOpen()"></span>
-          <span class="display-state">{{ t(display.isOpen() ? 'displayScreen.isOpen' : 'displayScreen.isClosed') }}</span>
+          <span class="display-state">{{
+            t(display.isOpen() ? 'displayScreen.isOpen' : 'displayScreen.isClosed')
+          }}</span>
           <select
             class="display-monitor"
             [attr.aria-label]="t('displayScreen.monitor')"
             (change)="onMonitor($event)"
             (focus)="display.refresh()"
           >
-            <option value="" [selected]="monitorId() === ''">{{ t('displayScreen.monitorAuto') }}</option>
+            <option value="" [selected]="monitorId() === ''">
+              {{ t('displayScreen.monitorAuto') }}
+            </option>
             @for (m of display.monitors(); track m.id) {
               <option [value]="m.id" [selected]="m.id === monitorId()">
-                {{ t('displayScreen.monitorLabel', { name: m.name, width: m.width, height: m.height }) }}
+                {{
+                  t('displayScreen.monitorLabel', {
+                    name: m.name,
+                    width: m.width,
+                    height: m.height,
+                  })
+                }}
               </option>
             }
           </select>
+          @if (display.isOpen()) {
+            <button
+              type="button"
+              class="display-fs"
+              [attr.aria-label]="
+                t(display.fullscreen() ? 'displayScreen.windowed' : 'displayScreen.fullscreen')
+              "
+              [attr.title]="
+                t(display.fullscreen() ? 'displayScreen.windowed' : 'displayScreen.fullscreen')
+              "
+              (click)="display.setFullscreen(!display.fullscreen())"
+            >
+              @if (display.fullscreen()) {
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M6 1v5H1M10 1v5h5M6 15v-5H1M10 15v-5h5" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M1 6V1h5M15 6V1h-5M1 10v5h5M15 10v5h-5" />
+                </svg>
+              }
+            </button>
+          }
           <button type="button" class="display-toggle" (click)="toggleDisplay()">
             {{ t(display.isOpen() ? 'displayScreen.closeShort' : 'displayScreen.openShort') }}
           </button>
         </div>
-      } @else if (view().open) {
-        <button type="button" class="resume" (click)="resume()">
-          {{ t('topBar.resume', { name: view().name }) }}
-        </button>
       }
-          @if (!isMac) {
-        <div class="window-buttons">
-          <button type="button" class="window-btn" [attr.aria-label]="t('window.minimise')" [attr.title]="t('window.minimise')" (click)="minimise()">
+      <div class="window-buttons" [class.mac]="isMac">
+        <button
+          type="button"
+          class="window-btn"
+          [attr.aria-label]="t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen')"
+          [attr.title]="t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen')"
+          (click)="toggleFullscreen()"
+        >
+          @if (fullscreen()) {
+            <svg viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M3.5 1v2.5H1M6.5 1v2.5H9M3.5 9V6.5H1M6.5 9V6.5H9" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M1 3.5V1h2.5M9 3.5V1H6.5M1 6.5V9h2.5M9 6.5V9H6.5" />
+            </svg>
+          }
+        </button>
+        @if (!isMac) {
+          <button
+            type="button"
+            class="window-btn"
+            [attr.aria-label]="t('window.minimise')"
+            [attr.title]="t('window.minimise')"
+            (click)="minimise()"
+          >
             <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5.5h8" /></svg>
           </button>
           <button
@@ -87,18 +142,31 @@
               <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1h8v8H1z" /></svg>
             }
           </button>
-          <button type="button" class="window-btn close" [attr.aria-label]="t('window.close')" [attr.title]="t('window.close')" (click)="close()">
+          <button
+            type="button"
+            class="window-btn close"
+            [attr.aria-label]="t('window.close')"
+            [attr.title]="t('window.close')"
+            (click)="close()"
+          >
             <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1l8 8M9 1l-8 8" /></svg>
           </button>
-        </div>
-      }
+        }
+      </div>
     </div>
   </header>
 
   @if (tournament.error(); as error) {
     <div class="error" role="alert">
       <span>{{ t(errorKey(error.code), error) }}</span>
-      <button type="button" class="error-close" (click)="tournament.error.set(null)" [attr.aria-label]="t('common.dismiss')">×</button>
+      <button
+        type="button"
+        class="error-close"
+        (click)="tournament.error.set(null)"
+        [attr.aria-label]="t('common.dismiss')"
+      >
+        ×
+      </button>
     </div>
   }
 

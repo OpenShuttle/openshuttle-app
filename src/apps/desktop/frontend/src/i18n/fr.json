@@ -37,8 +37,7 @@
     "undo": "Annuler",
     "pairs": "{count, plural, one {# paire} other {# paires}}",
     "entrants": "{count, plural, one {# inscrit} other {# inscrits}}",
-    "nothingToUndo": "Aucune action à annuler",
-    "resume": "Reprendre « {name} »"
+    "nothingToUndo": "Aucune action à annuler"
   },
   "tournamentInfo": {
     "title": "Infos du tournoi",
@@ -241,7 +240,9 @@
     "soon": "Bientôt : #{bib} {names}",
     "against": "contre #{bib} {names}",
     "rank": "Rang",
-    "points": "Points"
+    "points": "Points",
+    "fullscreen": "Écran d'appel en plein écran",
+    "windowed": "Écran d'appel en fenêtre"
   },
   "settings": {
     "language": "Langue"
@@ -867,6 +868,8 @@
     "minimise": "Réduire",
     "maximise": "Agrandir",
     "restore": "Restaurer",
-    "close": "Fermer"
+    "close": "Fermer",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran"
   }
 }

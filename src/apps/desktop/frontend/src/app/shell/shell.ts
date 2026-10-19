@@ -17,7 +17,7 @@ import { Clock } from '../core/clock';
 /**
  * Main window: the top bar, then the home screens (recent tournaments,
  * settings) or the open tournament. Going home keeps the tournament open:
- * the top bar offers to resume it.
+ * the home screen lists it first.
  */
 @Component({
   selector: 'app-shell',
@@ -61,9 +61,13 @@ export class Shell implements OnInit {
   // the native traffic lights sit at its left.
   protected readonly isMac = System.IsMac();
   protected readonly maximised = signal(false);
+  protected readonly fullscreen = signal(false);
 
   constructor() {
-    const refreshMaximised = () => void Window.IsMaximised().then((m) => this.maximised.set(m), () => undefined);
+    const refreshMaximised = () => {
+      void Window.IsMaximised().then((m) => this.maximised.set(m), () => undefined);
+      void Window.IsFullscreen().then((f) => this.fullscreen.set(f), () => undefined);
+    };
     refreshMaximised();
     window.addEventListener('resize', refreshMaximised);
     inject(DestroyRef).onDestroy(() => window.removeEventListener('resize', refreshMaximised));
@@ -89,6 +93,10 @@ export class Shell implements OnInit {
     void Window.ToggleMaximise();
   }
 
+  protected toggleFullscreen(): void {
+    void Window.ToggleFullscreen();
+  }
+
   protected close(): void {
     void Window.Close();
   }
@@ -102,10 +110,6 @@ export class Shell implements OnInit {
 
   protected undo(): void {
     void this.tournament.undo();
-  }
-
-  protected resume(): void {
-    void this.router.navigateByUrl('/tournament');
   }
 
   /** Translated label of a history entry. */

@@ -37,8 +37,7 @@
     "undo": "Undo",
     "pairs": "{count, plural, one {# pair} other {# pairs}}",
     "entrants": "{count, plural, one {# entrant} other {# entrants}}",
-    "nothingToUndo": "Nothing to undo",
-    "resume": "Resume “{name}”"
+    "nothingToUndo": "Nothing to undo"
   },
   "tournamentInfo": {
     "title": "Tournament info",
@@ -241,7 +240,9 @@
     "soon": "Next: #{bib} {names}",
     "against": "against #{bib} {names}",
     "rank": "Rank",
-    "points": "Points"
+    "points": "Points",
+    "fullscreen": "Display screen in full screen",
+    "windowed": "Display screen in a window"
   },
   "settings": {
     "language": "Language"
@@ -867,6 +868,8 @@
     "minimise": "Minimise",
     "maximise": "Maximise",
     "restore": "Restore",
-    "close": "Close"
+    "close": "Close",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
   }
 }
