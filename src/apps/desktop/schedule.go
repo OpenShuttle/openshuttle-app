@@ -39,6 +39,10 @@ type ScheduleSlotView struct {
 	// in a bracket, how many entrants the round starts with (8: quarter-finals).
 	Round     int `json:"round"`
 	RoundSize int `json:"roundSize"`
+	// PlaceFrom..PlaceTo are, in a bracket, the places its part of the
+	// bracket plays for (1..4: semi-finals; 5..8: places 5 to 8).
+	PlaceFrom int `json:"placeFrom"`
+	PlaceTo   int `json:"placeTo"`
 	// Match is nil in a stage not filled yet: who plays is not known.
 	Match    *MatchView `json:"match"`
 	Court    int        `json:"court"`
@@ -63,10 +67,15 @@ type ScheduleBlockView struct {
 	Pool       string               `json:"pool"`
 	Round      int                  `json:"round"`
 	RoundSize  int                  `json:"roundSize"`
-	Matches    int                  `json:"matches"`
-	Start      time.Time            `json:"start"`
-	End        time.Time            `json:"end"`
-	Unrested   int                  `json:"unrested"`
+	// PlaceFrom..PlaceTo are, in a bracket, the places its part plays for.
+	PlaceFrom int `json:"placeFrom"`
+	PlaceTo   int `json:"placeTo"`
+	// Pending: its stage is not filled yet, who plays is not known.
+	Pending  bool      `json:"pending"`
+	Matches  int       `json:"matches"`
+	Start    time.Time `json:"start"`
+	End      time.Time `json:"end"`
+	Unrested int       `json:"unrested"`
 }
 
 // ScheduleTeamView is an entrant with the matches it has left in a stage.
@@ -114,7 +123,8 @@ type ScheduleView struct {
 	// the blocks. Blocks move before validation, matches after.
 	ValidatedAt *time.Time `json:"validatedAt"`
 	// Blocks is the block order, the first played first: what the desk
-	// reorders before validation.
+	// reorders before validation. Blocks of stages not filled yet are
+	// pending.
 	Blocks []ScheduleBlockView `json:"blocks"`
 	// Groups lists the pools and brackets still playing, with the matches
 	// each team has left.
@@ -247,10 +257,13 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 			Stage: slot.Stage, StageName: stage.Name, StageKind: stage.Kind,
 			EntryStage: st.Stages(slot.Category)[0].ID == slot.Stage,
 			Round:      slot.Level + 1, RoundSize: slot.RoundSize, Court: slot.Court, Start: slot.Start, End: slot.End,
-			Unrested: slot.Unrested,
+			PlaceFrom: slot.PlaceFrom,
+			Unrested:  slot.Unrested,
 		}
 		if slot.Pool >= 0 {
 			sv.Pool = engine.PoolName(slot.Pool)
+		} else if slot.PlaceFrom > 0 {
+			sv.PlaceTo = slot.PlaceFrom + slot.RoundSize - 1
 		}
 		if m, ok := st.Match(slot.Match); ok && slot.Match != "" {
 			view := mv(m)
@@ -270,7 +283,7 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 		}
 		slot := tournament.ScheduleSlot{
 			Key: st.MatchBlock(m), Category: m.Category, Stage: m.Stage, Pool: m.Pool, Level: m.Round,
-			Match: m.ID, A: m.A, B: m.B, Court: m.Court, Start: m.CalledAt, End: m.EndedAt, RoundSize: m.Size,
+			Match: m.ID, A: m.A, B: m.B, Court: m.Court, Start: m.CalledAt, End: m.EndedAt, RoundSize: m.Size, PlaceFrom: m.Start,
 		}
 		state := SlotPlayed
 		if m.IsBracket() {
@@ -289,14 +302,12 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 		}
 		sv := slotView(slot, SlotPlanned)
 		v.Slots = append(v.Slots, sv)
-		if slot.Match == "" {
-			continue // a stand-in: its stage is not filled yet
-		}
 		b := blocks[slot.Key]
 		if b == nil {
 			b = &ScheduleBlockView{
 				Key: sv.Key, CategoryRef: sv.CategoryRef, Stage: sv.Stage, StageName: sv.StageName, StageKind: sv.StageKind,
-				EntryStage: sv.EntryStage, Pool: sv.Pool, Round: sv.Round, RoundSize: sv.RoundSize, Start: slot.Start, End: slot.End,
+				EntryStage: sv.EntryStage, Pool: sv.Pool, Round: sv.Round, RoundSize: sv.RoundSize, PlaceFrom: sv.PlaceFrom,
+				PlaceTo: sv.PlaceTo, Pending: slot.Match == "", Start: slot.Start, End: slot.End,
 			}
 			blocks[slot.Key] = b
 		}

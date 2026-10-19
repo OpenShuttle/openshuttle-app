@@ -178,8 +178,8 @@ export class Schedule {
     if (b.pool) {
       return (b.entryStage ? '' : stage + ' · ') + t('schedule.poolRound', { name: b.pool, n: b.round });
     }
-    // A bracket match known: its round and places; a stand-in: the round by its size.
-    const r = 'match' in b && b.match ? roundLabel(b.match) : roundLabel({ placeFrom: 1, placeTo: 0, roundSize: b.roundSize });
+    // A bracket match known: its round and places; a stand-in or a block: its part of the draw and its size.
+    const r = 'match' in b && b.match ? roundLabel(b.match) : roundLabel({ placeFrom: b.placeFrom || 1, placeTo: b.placeTo, roundSize: b.roundSize });
     return `${stage} · ${t(r.key, r.params)}`;
   }
 

@@ -69,7 +69,11 @@ func TestScheduleBracketRounds(t *testing.T) {
 		if s.Level == 1 {
 			want = t0.Add(semi)
 		}
-		if !s.Start.Equal(want) || s.Key != "MS/"+main+"/R"+string(rune('1'+s.Level)) {
+		key := "MS/" + main + "/R" + string(rune('1'+s.Level))
+		if s.PlaceFrom == 3 {
+			key += "/P3" // the third place: its own part of the draw
+		}
+		if !s.Start.Equal(want) || s.Key != key {
 			t.Errorf("slot %s level %d at %v (%s)", s.Match, s.Level, s.Start, s.Key)
 		}
 	}
@@ -287,5 +291,33 @@ func TestOlderPoolOrder(t *testing.T) {
 	}
 	if b := g.state().ScheduleBlocks(); b[0] != "MS/S1/D/1" || b[4] != "MS/S1/D/2" {
 		t.Errorf("blocks = %v", b)
+	}
+}
+
+// A bracket not filled yet brings its rounds to the block order, one block
+// per part of the draw; the desk orders them and the order holds once the
+// bracket is filled.
+func TestStandInBlocks(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 2, 8)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.route(engine.MensSingles, "S1", main, main)
+	r1, final, third := "MS/"+main+"/R1", "MS/"+main+"/R2", "MS/"+main+"/R2/P3"
+
+	b := g.state().ScheduleBlocks()
+	if !slices.Contains(b, r1) || slices.Index(b, final) > slices.Index(b, third) {
+		t.Fatalf("blocks = %v", b)
+	}
+	for _, sl := range g.state().Schedule(t0).Slots {
+		if sl.Key == third && (sl.PlaceFrom != 3 || sl.RoundSize != 2) {
+			t.Errorf("third place stand-in = %+v", sl)
+		}
+	}
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock(third, final) })
+	g.finishPools(engine.MensSingles)
+	g.fill(engine.MensSingles, main)
+	b = g.state().ScheduleBlocks()
+	if !slices.Equal(b, []string{r1, third, final}) {
+		t.Errorf("blocks once filled = %v", b)
 	}
 }

@@ -14,9 +14,14 @@ order, as a list.
 
 ## Decision
 
-- A **block** is one round of a pool (`MD/S1/A/2`) or one bracket round
-  (`MD/S2/R1`). `ScheduleBlocks` lists them in the order they are played;
-  the matches follow that order (`AutoOrder`).
+- A **block** is one round of a pool (`MD/S1/A/2`) or one round of a part
+  of a bracket: the main draw (`MD/S2/R2`, the semi-finals) or, with full
+  placement, the places below (`MD/S2/R2/P5`, places 5 to 8; `MD/S2/R3/P3`,
+  the match for third place). `ScheduleBlocks` lists them in the order they
+  are played; the matches follow that order (`AutoOrder`).
+- **Stages not filled yet** are in the list too, from their stand-ins
+  (players to come): the desk orders a bracket's rounds before the pools
+  feeding it are over, and the order holds once it is filled.
 - **Default order**: unchanged, wave by wave (round k of every pool and
   bracket of a phase, categories side by side, the category opening first,
   then the pools with the most matches).

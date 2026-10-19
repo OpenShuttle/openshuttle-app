@@ -28,7 +28,7 @@ func TestScheduleView(t *testing.T) {
 	}
 	// Before the draw: stand-ins for two pools of 4, then nothing called.
 	v := f.svc.GetScheduleView()
-	if len(v.Slots) != 12 || v.Slots[0].Match != nil || v.Slots[0].Movable || v.End == nil {
+	if len(v.Slots) != 12 || v.Slots[0].Match != nil || v.Slots[0].Movable || v.End == nil || len(v.Blocks) != 6 || !v.Blocks[0].Pending {
 		t.Fatalf("before draw = %+v", v)
 	}
 	for _, team := range f.svc.GetCheckInView().Teams {

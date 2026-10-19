@@ -418,6 +418,11 @@
   cursor: grab;
   touch-action: none;
 
+  // A stage not filled yet: who plays is not known.
+  &.pending {
+    background: repeating-linear-gradient(135deg, var(--color-surface), var(--color-surface) 6px, #f4f5f7 6px, #f4f5f7 12px);
+  }
+
   &.carried {
     position: relative;
     z-index: 1;
@@ -447,11 +452,9 @@
 }
 
 .block-label {
-  overflow: hidden;
   font-size: 13px;
   font-weight: 700;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .block-meta {

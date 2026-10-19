@@ -683,6 +683,17 @@ export interface ScheduleBlockView {
     "pool": string;
     "round": number;
     "roundSize": number;
+
+    /**
+     * PlaceFrom..PlaceTo are, in a bracket, the places its part plays for.
+     */
+    "placeFrom": number;
+    "placeTo": number;
+
+    /**
+     * Pending: its stage is not filled yet, who plays is not known.
+     */
+    "pending": boolean;
     "matches": number;
     "start": string;
     "end": string;
@@ -741,6 +752,13 @@ export interface ScheduleSlotView {
     "roundSize": number;
 
     /**
+     * PlaceFrom..PlaceTo are, in a bracket, the places its part of the
+     * bracket plays for (1..4: semi-finals; 5..8: places 5 to 8).
+     */
+    "placeFrom": number;
+    "placeTo": number;
+
+    /**
      * Match is nil in a stage not filled yet: who plays is not known.
      */
     "match": MatchView | null;
@@ -794,7 +812,8 @@ export interface ScheduleView {
 
     /**
      * Blocks is the block order, the first played first: what the desk
-     * reorders before validation.
+     * reorders before validation. Blocks of stages not filled yet are
+     * pending.
      */
     "blocks": ScheduleBlockView[] | null;
 

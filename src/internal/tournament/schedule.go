@@ -177,6 +177,9 @@ type ScheduleSlot struct {
 	// RoundSize is, in a bracket, how many entrants the round starts with
 	// (8 for quarter-finals, 2 for a final).
 	RoundSize int
+	// PlaceFrom is, in a bracket, the first place its part of the bracket
+	// plays for: 1 for the main draw, 5 for places 5 to 8 (0 in pools).
+	PlaceFrom int
 	// Match is "" in a stage not filled yet: who plays is not known.
 	Match MatchID
 	A, B  engine.EntrantID
@@ -203,6 +206,7 @@ type schedItem struct {
 	phase      int
 	stageIdx   int
 	roundSize  int
+	placeFrom  int
 	key        string
 	cat        engine.Category
 	stage      string
@@ -369,7 +373,7 @@ func (s State) Schedule(now time.Time) Schedule {
 		end := t.Add(time.Duration(pick.minutes) * time.Minute)
 		out.Slots = append(out.Slots, ScheduleSlot{
 			Key: pick.key, Category: pick.cat, Stage: pick.stage, Pool: pick.pool, Level: pick.level,
-			RoundSize: pick.roundSize, Match: pick.match, A: pick.a, B: pick.b, Court: c, Start: t, End: end,
+			RoundSize: pick.roundSize, PlaceFrom: pick.placeFrom, Match: pick.match, A: pick.a, B: pick.b, Court: c, Start: t, End: end,
 			Unrested: !rested(pick.a, t) || !rested(pick.b, t),
 		})
 		pick.done = true
@@ -416,20 +420,18 @@ func (s State) orderedItems() []schedItem {
 			out = append(out, it)
 		}
 	}
-	// Stand-ins of stages not filled yet: phase by phase, wave by wave
-	// (round k of every stage of the phase), like the waiting matches.
-	order := s.categoryOrder(s.ScheduleSettings())
+	// Stand-ins of stages not filled yet, in block order.
+	rank := map[string]int{}
+	for i, b := range s.blockOrder() {
+		rank[b.key] = i
+	}
 	var stand []schedItem
 	for _, it := range all {
 		if it.match == "" {
 			stand = append(stand, it)
 		}
 	}
-	slices.SortStableFunc(stand, func(a, b schedItem) int {
-		return slices.Compare(
-			[]int{a.phase, a.level, order[a.cat], a.stageIdx, a.pool},
-			[]int{b.phase, b.level, order[b.cat], b.stageIdx, b.pool})
-	})
+	slices.SortStableFunc(stand, func(a, b schedItem) int { return rank[a.key] - rank[b.key] })
 	return append(out, stand...)
 }
 
@@ -503,9 +505,10 @@ func (s State) blockOrder() []waveBlock {
 	return inRoundOrder(out)
 }
 
-// isRoundBlock tells a round of a pool ("MD/S1/A/2"), in an order set by
-// the desk, from a pool of older files ("MD/S1/A"), whose order applies
-// within each wave. Bracket rounds ("MD/S2/R1") are in both.
+// isRoundBlock tells a round of a pool ("MD/S1/A/2") or of a part of a
+// bracket ("MD/S2/R2/P5"), in an order set by the desk, from a pool of older
+// files ("MD/S1/A"), whose order applies within each wave. Main bracket
+// rounds ("MD/S2/R1") are in both.
 func isRoundBlock(key string) bool {
 	return strings.Count(key, "/") == 3
 }
@@ -534,22 +537,29 @@ func inRoundOrder(order []waveBlock) []waveBlock {
 
 // categoryWaves cuts the waiting matches of each category into waves, phase
 // after phase. Stages of the same phase (a main bracket and pools for the
-// others, say) play side by side: wave k holds round k of each.
+// others, say) play side by side: wave k holds round k of each. Stages not
+// filled yet bring the blocks of their stand-ins (no matches yet), so the
+// desk orders them too.
 func (s State) categoryWaves() map[engine.Category][][]waveBlock {
 	waves := map[engine.Category][][]waveBlock{}
+	standIns := s.standInWaves()
 	for _, c := range s.Categories {
 		phases := Phases(s.StageConfigs(c))
 		byPhase := map[int][][]waveBlock{}
 		var order []int
 		for _, st := range s.Stages(c) {
-			if !st.Confirmed {
+			p := phases[st.ID]
+			waves := standIns[string(c)+"/"+st.ID]
+			if st.Confirmed {
+				waves = s.stageWaves(c, st)
+			}
+			if len(waves) == 0 {
 				continue
 			}
-			p := phases[st.ID]
 			if _, ok := byPhase[p]; !ok {
 				order = append(order, p)
 			}
-			for k, w := range s.stageWaves(c, st) {
+			for k, w := range waves {
 				for len(byPhase[p]) <= k {
 					byPhase[p] = append(byPhase[p], nil)
 				}
@@ -572,8 +582,10 @@ type waveBlock struct {
 	group string
 	// series is the pool, or the bracket, whose rounds keep their order;
 	// round is the block's round in it.
-	series  string
-	round   int
+	series string
+	round  int
+	// place is, in a bracket, the first place its part plays for.
+	place   int
 	matches []MatchID
 }
 
@@ -613,6 +625,8 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]waveBlock {
 		return m.Category == c && m.Stage == st.ID && !m.ByeA && !m.ByeB && !m.Called() && !s.Decided(m)
 	}
 	if st.Kind == StageBracket {
+		// Wave k is round k; each part of the draw (the main draw, places 5
+		// to 8…) is a block, the main draw first.
 		var waves [][]waveBlock
 		for _, m := range s.matches {
 			if !waiting(m) {
@@ -620,12 +634,20 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]waveBlock {
 			}
 			l := s.bracketLevel(m)
 			for len(waves) <= l {
-				key := bracketBlock(c, st.ID, len(waves))
-				waves = append(waves, []waveBlock{{key: key, group: key, series: fmt.Sprintf("%s/%s", c, st.ID), round: len(waves)}})
+				waves = append(waves, nil)
 			}
-			waves[l][0].matches = append(waves[l][0].matches, m.ID)
+			key := bracketBlock(c, st.ID, l, m.Start)
+			i := slices.IndexFunc(waves[l], func(b waveBlock) bool { return b.key == key })
+			if i < 0 {
+				waves[l] = append(waves[l], waveBlock{key: key, group: key, series: fmt.Sprintf("%s/%s", c, st.ID), round: l, place: m.Start})
+				i = len(waves[l]) - 1
+			}
+			waves[l][i].matches = append(waves[l][i].matches, m.ID)
 		}
-		return slices.DeleteFunc(waves, func(w []waveBlock) bool { return len(w[0].matches) == 0 })
+		for _, w := range waves {
+			slices.SortStableFunc(w, func(a, b waveBlock) int { return a.place - b.place })
+		}
+		return slices.DeleteFunc(waves, func(w []waveBlock) bool { return len(w) == 0 })
 	}
 	total := map[int]int{}
 	rounds := map[int]map[int][]MatchID{} // pool → round → matches
@@ -678,13 +700,48 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]waveBlock {
 	}
 }
 
+// standInWaves cuts the stand-ins of each stage not filled yet into waves,
+// by "<cat>/<stage>": wave k holds round k of every pool, or bracket round
+// k (the main draw first). Blocks hold no matches.
+func (s State) standInWaves() map[string][][]waveBlock {
+	out := map[string][][]waveBlock{}
+	seen := map[string]bool{}
+	for _, it := range s.scheduleItems() {
+		if it.match != "" || seen[it.key] {
+			continue
+		}
+		seen[it.key] = true
+		k := string(it.cat) + "/" + it.stage
+		for len(out[k]) <= it.level {
+			out[k] = append(out[k], nil)
+		}
+		b := waveBlock{key: it.key, group: it.key, series: k, round: it.level, place: it.placeFrom}
+		if it.pool >= 0 {
+			b.group = fmt.Sprintf("%s/%s/%s", it.cat, it.stage, engine.PoolName(it.pool))
+			b.series, b.place = b.group, it.pool
+		}
+		out[k][it.level] = append(out[k][it.level], b)
+	}
+	for _, waves := range out {
+		for _, w := range waves {
+			slices.SortStableFunc(w, func(a, b waveBlock) int { return a.place - b.place })
+		}
+	}
+	return out
+}
+
 // poolBlock is the key of a round of a pool: "MD/S1/A/2" (round from 0).
 func poolBlock(c engine.Category, stage string, pool, round int) string {
 	return fmt.Sprintf("%s/%s/%s/%d", c, stage, engine.PoolName(pool), round+1)
 }
 
-// bracketBlock is the key of a bracket round: "MD/S2/R1" (level from 0).
-func bracketBlock(c engine.Category, stage string, level int) string {
+// bracketBlock is the key of a bracket round (level from 0): "MD/S2/R1"
+// for the main draw, "MD/S2/R2/P5" for the round of places 5 and below
+// starting at 5 (full placement).
+func bracketBlock(c engine.Category, stage string, level, placeFrom int) string {
+	if placeFrom > 1 {
+		return fmt.Sprintf("%s/%s/R%d/P%d", c, stage, level+1, placeFrom)
+	}
 	return fmt.Sprintf("%s/%s/R%d", c, stage, level+1)
 }
 
@@ -885,8 +942,8 @@ func (s State) scheduleItems() []schedItem {
 					it := schedItem{cat: c, stage: st.ID, phase: phases[st.ID], stageIdx: i, pool: m.Pool, match: m.ID,
 						a: m.A, b: m.B, minutes: win, roundSize: m.Size}
 					if m.IsBracket() {
-						it.level = s.bracketLevel(m)
-						it.key = bracketBlock(c, st.ID, it.level)
+						it.level, it.placeFrom = s.bracketLevel(m), m.Start
+						it.key = bracketBlock(c, st.ID, it.level, it.placeFrom)
 					} else {
 						it.level = m.Round
 						it.key = poolBlock(c, st.ID, m.Pool, m.Round)
@@ -933,8 +990,8 @@ func (s State) scheduleItems() []schedItem {
 						continue
 					}
 					it := base
-					it.pool, it.level, it.roundSize = -1, level, node.Size
-					it.key = bracketBlock(c, st.ID, level)
+					it.pool, it.level, it.roundSize, it.placeFrom = -1, level, node.Size, node.Start
+					it.key = bracketBlock(c, st.ID, level, node.Start)
 					items = append(items, it)
 				}
 			}
@@ -947,7 +1004,7 @@ func (s State) scheduleItems() []schedItem {
 // ("MD/S1/A/2") or its bracket round ("MD/S2/R1").
 func (s State) MatchBlock(m Match) string {
 	if m.IsBracket() {
-		return bracketBlock(m.Category, m.Stage, s.bracketLevel(m))
+		return bracketBlock(m.Category, m.Stage, s.bracketLevel(m), m.Start)
 	}
 	return poolBlock(m.Category, m.Stage, m.Pool, m.Round)
 }

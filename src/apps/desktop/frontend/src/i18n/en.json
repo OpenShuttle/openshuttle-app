@@ -865,7 +865,8 @@
     "blocksTitle": "Order of rounds",
     "blocksHint": "Drag a round to play it earlier or later. The rounds of a pool keep their order.",
     "blockMatches": "{n, plural, one {# match} other {# matches}}",
-    "blockUnrested": "{n} unrested"
+    "blockUnrested": "{n} unrested",
+    "blockPending": "to come"
   },
   "panels": {
     "collapseMenu": "Fold the menu",

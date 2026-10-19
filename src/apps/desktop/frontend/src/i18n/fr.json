@@ -865,7 +865,8 @@
     "blocksTitle": "Ordre des tours",
     "blocksHint": "Glissez un tour pour le jouer plus tôt ou plus tard. Les tours d'une poule restent dans l'ordre.",
     "blockMatches": "{n, plural, one {# match} other {# matchs}}",
-    "blockUnrested": "{n} sans repos"
+    "blockUnrested": "{n} sans repos",
+    "blockPending": "à venir"
   },
   "panels": {
     "collapseMenu": "Replier le menu",

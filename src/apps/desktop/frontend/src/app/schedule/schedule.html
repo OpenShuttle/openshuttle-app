@@ -111,6 +111,7 @@
                   [attr.data-flip]="'b:' + b.key"
                   [attr.data-block-index]="i"
                   [class.carried]="dragging()?.key === b.key"
+                  [class.pending]="b.pending"
                   [style.border-left-color]="'var(--color-category-' + b.slot + ')'"
                   (pointerdown)="onBlockDown($event, b)"
                 >
@@ -120,6 +121,9 @@
                     <span class="block-label">{{ label(b) }}</span>
                     <span class="block-meta">
                       {{ time(b.start) }} · {{ t('schedule.blockMatches', { n: b.matches }) }}
+                      @if (b.pending) {
+                        · {{ t('schedule.blockPending') }}
+                      }
                       @if (b.unrested > 0) {
                         · <span class="block-unrested" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.blockUnrested', { n: b.unrested }) }}</span>
                       }
