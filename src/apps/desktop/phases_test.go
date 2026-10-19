@@ -24,7 +24,7 @@ func TestPhasesAndHistory(t *testing.T) {
 	must(f.svc.AddCategory(ctx, engine.MensSingles))
 	for i := range 3 {
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: fmt.Sprint("C", i)},
+			{Name: fmt.Sprint("P N", i), Club: fmt.Sprint("C", i)},
 		}))
 	}
 	if v := f.svc.GetPhasesView(); v.Categories[0].Started {

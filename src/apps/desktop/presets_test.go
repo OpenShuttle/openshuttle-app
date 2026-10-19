@@ -124,3 +124,41 @@ func TestPresets(t *testing.T) {
 func ruleEq(a, b tournament.RouteRule) bool {
 	return a.Kind == b.Kind && a.To == b.To && a.Rank == b.Rank && a.Count == b.Count && slices.Equal(a.Ranks, b.Ranks)
 }
+
+func TestClubs(t *testing.T) {
+	f := newFixture(t)
+	presets := NewPresetService(f.app, f.rec.emit, func() time.Time { return f.clock })
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	clubs := func() []string {
+		p, err := presets.GetPresets(f.ctx)
+		must(err)
+		return p.Clubs
+	}
+	must(presets.SaveClub(f.ctx, "", "  BC  Lyon "))
+	must(presets.SaveClub(f.ctx, "", "Écully BC"))
+	must(presets.SaveClub(f.ctx, "", "bc lyon"))
+	if got := clubs(); !slices.Equal(got, []string{"BC Lyon", "Écully BC"}) {
+		t.Errorf("clubs = %v", got)
+	}
+	must(presets.SaveClub(f.ctx, "BC Lyon", "ASPTT"))
+	wantCode(t, presets.SaveClub(f.ctx, "Nope", "X"), engine.CodeClubNotFound)
+	wantCode(t, presets.SaveClub(f.ctx, "", " "), engine.CodeInvalidClub)
+	must(presets.DeleteClub(f.ctx, "Écully BC"))
+	wantCode(t, presets.DeleteClub(f.ctx, "Écully BC"), engine.CodeClubNotFound)
+
+	// Clubs typed for players join the list.
+	f.dialogs.save = filepath.Join(f.dir, "clubs")
+	if _, err := f.svc.CreateTournament(f.ctx, "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
+	must(f.svc.RegisterEntrant(f.ctx, engine.MensSingles, []tournament.PlayerInput{{Name: "Paul Zola", Club: "Badminton Villeurbanne"}}))
+	if got := clubs(); !slices.Equal(got, []string{"ASPTT", "Badminton Villeurbanne"}) {
+		t.Errorf("clubs = %v", got)
+	}
+}

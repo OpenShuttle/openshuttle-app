@@ -11,7 +11,7 @@ import { ScorePanel } from '../score-panel/score-panel';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
-import { clubs, shortNames } from '../shared/names';
+import { clubs, fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 
 /** Pending scores older than this are highlighted. */
@@ -103,7 +103,7 @@ export class ControlDesk {
   }
 
   protected short(side: SideView): string {
-    return shortNames(side);
+    return fullNames(side);
   }
 
   protected clubs(side: SideView): string {

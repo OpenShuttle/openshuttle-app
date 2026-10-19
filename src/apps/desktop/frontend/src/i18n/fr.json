@@ -197,7 +197,8 @@
     "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert.",
     "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format.",
     "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase.",
-    "FORMAT_LOCKED": "Un match de cette catégorie a déjà commencé : son format ne peut plus changer."
+    "FORMAT_LOCKED": "Un match de cette catégorie a déjà commencé : son format ne peut plus changer.",
+    "CLUB_NOT_FOUND": "Ce club n'est plus dans la liste."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -288,8 +289,6 @@
     "goToInfo": "Aller aux infos",
     "addPlayer": "Inscrire un joueur",
     "addPair": "Inscrire une paire",
-    "firstName": "Prénom",
-    "lastName": "Nom",
     "club": "Club",
     "add": "Inscrire",
     "empty": "Aucun inscrit pour l'instant : inscrivez-les avec le formulaire.",
@@ -305,7 +304,9 @@
     "present": "Présent · #{bib}",
     "partly": "{n} / {total} présents",
     "homonym": "Homonyme",
-    "playerN": "Joueur {n}"
+    "playerN": "Joueur {n}",
+    "name": "Nom",
+    "namePlaceholder": "Prénom et nom"
   },
   "checkIn": {
     "title": "Pointage",
@@ -754,5 +755,15 @@
     "duplicateToEdit": "Dupliquer pour modifier",
     "offered": "Proposé",
     "offeredHint": "Décoché, ce preset n'est plus proposé dans les tournois. Il reste ici."
+  },
+  "clubs": {
+    "title": "Clubs",
+    "hint": "Proposés à la saisie d'un joueur. Un club saisi pour un joueur rejoint la liste.",
+    "none": "Sans club",
+    "new": "Nouveau club…",
+    "newPlaceholder": "Nom du club",
+    "add": "Ajouter",
+    "rename": "Renommer",
+    "empty": "Aucun club pour l'instant."
   }
 }

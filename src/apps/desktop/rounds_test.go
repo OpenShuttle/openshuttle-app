@@ -24,7 +24,7 @@ func TestRoundsView(t *testing.T) {
 	must(f.svc.SetCourts(ctx, 2))
 	for i := range 4 {
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: fmt.Sprint("C", i)},
+			{Name: fmt.Sprint("P N", i), Club: fmt.Sprint("C", i)},
 		}))
 	}
 	for _, row := range f.svc.GetCheckInView().Rows {

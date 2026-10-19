@@ -6,7 +6,7 @@ import { Tiebreak, WinCondition, WinConditionKind } from '@bindings/internal/eng
 import { BackendError, backendError } from './backend-error';
 import { AppSettings } from './settings.service';
 
-const EMPTY: Presets = { win: [], tiebreaks: [], formats: [], disabled: [] };
+const EMPTY: Presets = { win: [], tiebreaks: [], formats: [], disabled: [], clubs: [] };
 
 /** Presets of this PC (win conditions, tiebreak orders, formats), kept in sync. */
 @Injectable({ providedIn: 'root' })

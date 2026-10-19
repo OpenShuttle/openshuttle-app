@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"encoding/json"
 	"slices"
 	"strings"
 	"testing"
@@ -51,14 +52,14 @@ func TestRegisterEntrant(t *testing.T) {
 		code     engine.Code
 		set      int
 	}{
-		{"singles", engine.MensSingles, []PlayerInput{{"Paul", "Durand", "BC Lyon"}}, "", 0},
-		{"pair", engine.WomensDoubles, []PlayerInput{{"Paul", "Durand", ""}, {"Léa", "Roux", "ASPTT"}}, "", 0},
-		{"pair in singles", engine.MensSingles, []PlayerInput{{"A", "B", ""}, {"C", "D", ""}}, engine.CodeWrongPlayerCount, 0},
-		{"one player in doubles", engine.WomensDoubles, []PlayerInput{{"A", "B", ""}}, engine.CodeWrongPlayerCount, 0},
-		{"category not played", engine.WomensSingles, []PlayerInput{{"A", "B", ""}}, engine.CodeCategoryNotFound, 0},
-		{"missing last name", engine.WomensDoubles, []PlayerInput{{"A", "B", ""}, {"Léa", "  ", ""}}, engine.CodeInvalidPlayerName, 2},
-		{"name too long", engine.MensSingles, []PlayerInput{{strings.Repeat("a", 51), "B", ""}}, engine.CodeInvalidPlayerName, 1},
-		{"club too long", engine.MensSingles, []PlayerInput{{"A", "B", strings.Repeat("c", 81)}}, engine.CodeInvalidClub, 1},
+		{"singles", engine.MensSingles, []PlayerInput{{"Paul Durand", "BC Lyon"}}, "", 0},
+		{"pair", engine.WomensDoubles, []PlayerInput{{"Paul Durand", ""}, {"Léa Roux", "ASPTT"}}, "", 0},
+		{"pair in singles", engine.MensSingles, []PlayerInput{{"A B", ""}, {"C D", ""}}, engine.CodeWrongPlayerCount, 0},
+		{"one player in doubles", engine.WomensDoubles, []PlayerInput{{"A B", ""}}, engine.CodeWrongPlayerCount, 0},
+		{"category not played", engine.WomensSingles, []PlayerInput{{"A B", ""}}, engine.CodeCategoryNotFound, 0},
+		{"missing name", engine.WomensDoubles, []PlayerInput{{"A B", ""}, {"  ", ""}}, engine.CodeInvalidPlayerName, 2},
+		{"name too long", engine.MensSingles, []PlayerInput{{strings.Repeat("a", 101), ""}}, engine.CodeInvalidPlayerName, 1},
+		{"club too long", engine.MensSingles, []PlayerInput{{"A B", strings.Repeat("c", 81)}}, engine.CodeInvalidClub, 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,7 +82,7 @@ func TestEntrantLifecycle(t *testing.T) {
 	g := newGame(t, engine.MixedDoubles)
 	id := g.do(func(s State) (Change, error) {
 		return s.RegisterEntrant(engine.MixedDoubles, []PlayerInput{
-			{"  Paul ", " Durand", "BC  Lyon"}, {"Léa", "Roux", ""},
+			{"  Paul   Durand", "BC  Lyon"}, {"Léa Roux", ""},
 		})
 	}).Data.(EntrantRegistered).ID
 
@@ -90,22 +91,22 @@ func TestEntrantLifecycle(t *testing.T) {
 	if id != "e3" || e.Players[0].ID != "p3.1" || e.Players[1].ID != "p3.2" {
 		t.Fatalf("ids = %s %s %s", id, e.Players[0].ID, e.Players[1].ID)
 	}
-	if e.Players[0].FirstName != "Paul" || e.Players[0].LastName != "Durand" || e.Players[0].Club != "BC Lyon" {
+	if e.Players[0].Name != "Paul Durand" || e.Players[0].Club != "BC Lyon" {
 		t.Errorf("player not normalized: %+v", e.Players[0])
 	}
 
 	// Update keeps IDs and check-in.
 	g.do(func(s State) (Change, error) { return s.CheckInPlayer("p3.2") })
 	g.do(func(s State) (Change, error) {
-		return s.UpdateEntrant(id, []PlayerInput{{"Paul", "Durand", "BC Lyon"}, {"Léa", "Roux-Petit", "ASPTT"}})
+		return s.UpdateEntrant(id, []PlayerInput{{"Paul Durand", "BC Lyon"}, {"Léa Roux-Petit", "ASPTT"}})
 	})
 	e = g.entrant(id)
-	if e.Players[1].ID != "p3.2" || e.Players[1].LastName != "Roux-Petit" || !e.Players[1].CheckedIn {
+	if e.Players[1].ID != "p3.2" || e.Players[1].Name != "Léa Roux-Petit" || !e.Players[1].CheckedIn {
 		t.Errorf("after update = %+v", e.Players[1])
 	}
 	// Same values: nothing to append.
 	if ch := g.do(func(s State) (Change, error) {
-		return s.UpdateEntrant(id, []PlayerInput{{"Paul", "Durand", "BC Lyon"}, {"Léa", "Roux-Petit", "ASPTT"}})
+		return s.UpdateEntrant(id, []PlayerInput{{"Paul Durand", "BC Lyon"}, {"Léa Roux-Petit", "ASPTT"}})
 	}); !ch.None() {
 		t.Errorf("unchanged update produced %+v", ch)
 	}
@@ -129,5 +130,18 @@ func TestDuplicatePlayers(t *testing.T) {
 	dup := g.state().DuplicatePlayers()
 	if len(dup) != 2 || !dup[g.entrant(a).Players[0].ID] || !dup[g.entrant(b).Players[0].ID] {
 		t.Errorf("duplicates = %v", dup)
+	}
+}
+
+func TestPlayerLegacyNames(t *testing.T) {
+	var p Player
+	if err := json.Unmarshal([]byte(`{"id":"p1.1","firstName":"Paul","lastName":"Durand","club":"BC Lyon"}`), &p); err != nil {
+		t.Fatal(err)
+	}
+	if p.Name != "Paul Durand" || p.Club != "BC Lyon" || p.ID != "p1.1" {
+		t.Errorf("legacy player = %+v", p)
+	}
+	if err := json.Unmarshal([]byte(`{"id":"p1.1","name":"Léa Roux"}`), &p); err != nil || p.Name != "Léa Roux" {
+		t.Errorf("player = %+v, %v", p, err)
 	}
 }

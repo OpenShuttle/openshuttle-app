@@ -197,7 +197,8 @@
     "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened.",
     "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format.",
     "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase.",
-    "FORMAT_LOCKED": "A match of this category already started: its format can no longer change."
+    "FORMAT_LOCKED": "A match of this category already started: its format can no longer change.",
+    "CLUB_NOT_FOUND": "This club is no longer in the list."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -288,8 +289,6 @@
     "goToInfo": "Go to Info",
     "addPlayer": "Add a player",
     "addPair": "Add a pair",
-    "firstName": "First name",
-    "lastName": "Last name",
     "club": "Club",
     "add": "Add",
     "empty": "No entrant yet: register them with the form.",
@@ -305,7 +304,9 @@
     "present": "Present · #{bib}",
     "partly": "{n} / {total} present",
     "homonym": "Homonym",
-    "playerN": "Player {n}"
+    "playerN": "Player {n}",
+    "name": "Name",
+    "namePlaceholder": "First and last name"
   },
   "checkIn": {
     "title": "Check-in",
@@ -754,5 +755,15 @@
     "duplicateToEdit": "Duplicate to edit",
     "offered": "Offered",
     "offeredHint": "Unchecked, this preset is no longer offered in tournaments. It stays here."
+  },
+  "clubs": {
+    "title": "Clubs",
+    "hint": "Offered when entering a player. A club typed for a player joins the list.",
+    "none": "No club",
+    "new": "New club…",
+    "newPlaceholder": "Club name",
+    "add": "Add",
+    "rename": "Rename",
+    "empty": "No club yet."
   }
 }

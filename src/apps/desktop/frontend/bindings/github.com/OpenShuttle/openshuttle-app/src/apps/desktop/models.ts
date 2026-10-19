@@ -62,8 +62,7 @@ export interface CategoryRef {
  */
 export interface CheckInRow {
     "id": tournament$0.PlayerID;
-    "firstName": string;
-    "lastName": string;
+    "name": string;
     "club": string;
     "checkedIn": boolean;
 
@@ -446,8 +445,7 @@ export interface PlaceView {
  */
 export interface PlayerView {
     "id": tournament$0.PlayerID;
-    "firstName": string;
-    "lastName": string;
+    "name": string;
     "club": string;
     "checkedIn": boolean;
 
@@ -509,6 +507,11 @@ export interface Presets {
     "tiebreaks": TiebreakPreset[] | null;
     "formats": FormatPreset[] | null;
     "disabled": string[] | null;
+
+    /**
+     * Clubs offered when entering a player, sorted by name.
+     */
+    "clubs": string[] | null;
 }
 
 /**

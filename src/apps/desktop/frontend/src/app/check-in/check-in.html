@@ -67,14 +67,14 @@
             <app-category-badge [category]="r.category" [slot]="r.slot" />
             <span class="bib-number">{{ r.bib || '–' }}</span>
             <span class="name">
-              <span class="name-text" [attr.title]="r.firstName + ' ' + r.lastName">{{ r.firstName }} {{ r.lastName }}</span>
+              <span class="name-text" [attr.title]="r.name">{{ r.name }}</span>
               @if (r.duplicate) {
                 <span class="pill pill-finished" [attr.title]="t('entrants.duplicate')">{{ t('entrants.homonym') }}</span>
               }
             </span>
             <span class="partner" [class.away]="r.partner && !r.partner.checkedIn">
               @if (r.partner; as p) {
-                {{ t('checkIn.withPartner', { name: p.firstName + ' ' + p.lastName }) }}
+                {{ t('checkIn.withPartner', { name: p.name }) }}
               }
             </span>
             <span class="club">{{ r.club }}</span>

@@ -309,7 +309,7 @@ func TestDuplicateAndSummaries(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := f.svc.RegisterEntrant(f.ctx, engine.MensDoubles, []tournament.PlayerInput{
-		{FirstName: "A", LastName: "A"}, {FirstName: "B", LastName: "B"},
+		{Name: "A A"}, {Name: "B B"},
 	}); err != nil {
 		t.Fatal(err)
 	}

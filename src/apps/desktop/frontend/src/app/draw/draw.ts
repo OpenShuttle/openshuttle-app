@@ -39,14 +39,9 @@ export class Draw {
   /** Pool hovered while dragging: "<category>:<index>". */
   protected readonly dropTarget = signal<string | null>(null);
 
+  /** Full names, always: initials leave the desk guessing who is who. */
   protected names(e: DrawEntrantView): string {
-    return (e.players ?? [])
-      .map((p) => (p.firstName ? `${p.firstName[0]}. ${p.lastName}` : p.lastName))
-      .join(' / ');
-  }
-
-  protected fullNames(e: DrawEntrantView): string {
-    return (e.players ?? []).map((p) => `${p.firstName} ${p.lastName}`).join(' / ');
+    return (e.players ?? []).map((p) => p.name).join(' / ');
   }
 
   /** Entrants sharing their pool with a club mate. */

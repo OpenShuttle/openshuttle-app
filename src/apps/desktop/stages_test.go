@@ -24,7 +24,7 @@ func TestStageViews(t *testing.T) {
 	must(f.svc.AddCategory(ctx, engine.MensSingles))
 	for i := range 4 {
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: fmt.Sprint("C", i)},
+			{Name: fmt.Sprint("P N", i), Club: fmt.Sprint("C", i)},
 		}))
 	}
 	for _, row := range f.svc.GetCheckInView().Rows {
@@ -112,7 +112,7 @@ func TestFormatPreview(t *testing.T) {
 	must(f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "p.openshuttle"), "Plume"))
 	must(f.svc.AddCategory(ctx, engine.MensSingles))
 	for i := range 11 {
-		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{{FirstName: "P", LastName: fmt.Sprint("N", i)}}))
+		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{{Name: fmt.Sprint("P N", i)}}))
 	}
 	sets := engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 30}
 	must(f.svc.AddStage(ctx, engine.MensSingles, tournament.StageBracket))

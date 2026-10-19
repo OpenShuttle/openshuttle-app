@@ -76,8 +76,7 @@ export type PlayerID = string;
  * PlayerInput is a player as typed at the desk.
  */
 export interface PlayerInput {
-    "firstName": string;
-    "lastName": string;
+    "name": string;
     "club": string;
 }
 

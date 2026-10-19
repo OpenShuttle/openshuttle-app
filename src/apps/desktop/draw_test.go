@@ -26,7 +26,7 @@ func TestFormatAndDraw(t *testing.T) {
 	for i := range 7 {
 		club := []string{"Lyon", "Paris"}[i%2]
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: club},
+			{Name: fmt.Sprint("P N", i), Club: club},
 		}))
 	}
 

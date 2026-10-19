@@ -25,11 +25,11 @@ func TestEntrantsAndCheckIn(t *testing.T) {
 	wantCode(t, f.svc.AddCategory(ctx, engine.MixedDoubles), engine.CodeTooManyCategories)
 
 	must(f.svc.RegisterEntrant(ctx, engine.MensDoubles, []tournament.PlayerInput{
-		{FirstName: "Paul", LastName: "Zola", Club: "BC Lyon"},
-		{FirstName: "Hugo", LastName: "Écuyer", Club: "BC Lyon"},
+		{Name: "Paul Zola", Club: "BC Lyon"},
+		{Name: "Hugo Écuyer", Club: "BC Lyon"},
 	}))
 	must(f.svc.RegisterEntrant(ctx, engine.WomensSingles, []tournament.PlayerInput{
-		{FirstName: "Léa", LastName: "durand", Club: ""},
+		{Name: "Léa durand", Club: ""},
 	}))
 
 	v := f.svc.GetTournamentView()
@@ -50,19 +50,19 @@ func TestEntrantsAndCheckIn(t *testing.T) {
 	if ci.Players != 3 || ci.Present != 1 {
 		t.Fatalf("totals = %d/%d", ci.Present, ci.Players)
 	}
-	// Sorted by last name, accents and case ignored: durand, Écuyer, Zola.
+	// Sorted by name, accents and case ignored: Hugo Écuyer, Léa durand, Paul Zola.
 	var order []string
 	for _, r := range ci.Rows {
-		order = append(order, r.LastName)
+		order = append(order, r.Name)
 	}
-	if order[0] != "durand" || order[1] != "Écuyer" || order[2] != "Zola" {
+	if order[0] != "Hugo Écuyer" || order[1] != "Léa durand" || order[2] != "Paul Zola" {
 		t.Errorf("order = %v", order)
 	}
-	hugo := ci.Rows[1]
-	if !hugo.CheckedIn || hugo.Bib != 1 || hugo.Partner == nil || hugo.Partner.FirstName != "Paul" || hugo.Slot != 1 {
+	hugo := ci.Rows[0]
+	if !hugo.CheckedIn || hugo.Bib != 1 || hugo.Partner == nil || hugo.Partner.Name != "Paul Zola" || hugo.Slot != 1 {
 		t.Errorf("hugo row = %+v", hugo)
 	}
-	if ci.Rows[0].Partner != nil || ci.Rows[0].Slot != 2 {
+	if ci.Rows[1].Partner != nil || ci.Rows[1].Slot != 2 {
 		t.Errorf("single row = %+v", ci.Rows[0])
 	}
 	if c := ci.Categories[0]; c.PlayersPresent != 1 || c.EntrantsComplete != 0 {

@@ -475,7 +475,7 @@ func (s *TournamentService) playerNameAt(id tournament.PlayerID, seq uint64) str
 	s.registrations(seq, func(_ engine.EntrantID, players []tournament.Player) bool {
 		for _, p := range players {
 			if p.ID == id {
-				name = p.FirstName + " " + p.LastName
+				name = p.Name
 				return false
 			}
 		}
@@ -487,7 +487,7 @@ func (s *TournamentService) playerNameAt(id tournament.PlayerID, seq uint64) str
 func playerNames(players []tournament.Player) string {
 	names := make([]string, len(players))
 	for i, p := range players {
-		names[i] = p.FirstName + " " + p.LastName
+		names[i] = p.Name
 	}
 	return strings.Join(names, " / ")
 }

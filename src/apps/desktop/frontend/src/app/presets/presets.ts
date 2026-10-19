@@ -45,6 +45,8 @@ export class PresetsPage {
 
   protected readonly winDraft = signal<WinDraft | null>(null);
   protected readonly tiebreakDraft = signal<TiebreakDraft | null>(null);
+  /** Club being added (old "") or renamed. */
+  protected readonly clubDraft = signal<{ old: string; name: string } | null>(null);
 
   protected builtIn(id: string): boolean {
     return id.startsWith('b-');
@@ -106,6 +108,17 @@ export class PresetsPage {
   protected setEnabled(id: string, event: Event): void {
     const enabled = (event.target as HTMLInputElement).checked;
     void this.presets.run(() => PresetService.SetPresetEnabled(id, enabled));
+  }
+
+  protected async saveClub(): Promise<void> {
+    const d = this.clubDraft();
+    if (d && (await this.presets.run(() => PresetService.SaveClub(d.old, d.name)))) {
+      this.clubDraft.set(null);
+    }
+  }
+
+  protected deleteClub(name: string): void {
+    void this.presets.run(() => PresetService.DeleteClub(name));
   }
 
   protected remove(id: string): void {

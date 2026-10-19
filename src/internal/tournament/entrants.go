@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -18,7 +19,7 @@ const (
 )
 
 const (
-	maxPlayerNameLength = 50
+	maxPlayerNameLength = 100
 	maxClubLength       = 80
 )
 
@@ -28,13 +29,33 @@ type PlayerID string
 // Player is a person entered in the tournament. Categories are disjoint, so a
 // player belongs to exactly one entrant.
 type Player struct {
-	ID        PlayerID `json:"id"`
-	FirstName string   `json:"firstName"`
-	LastName  string   `json:"lastName"`
-	Club      string   `json:"club"`
-	CheckedIn bool     `json:"-"`
+	ID PlayerID `json:"id"`
+	// Name is the full name, as typed: one field, first and last name
+	// together.
+	Name      string `json:"name"`
+	Club      string `json:"club"`
+	CheckedIn bool   `json:"-"`
 	// CheckedInAt is when the player was checked in, zero when absent.
 	CheckedInAt time.Time `json:"-"`
+}
+
+// UnmarshalJSON reads a player, joining the first and last names of events
+// written before players had a single name.
+func (p *Player) UnmarshalJSON(data []byte) error {
+	type player Player
+	var v struct {
+		player
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*p = Player(v.player)
+	if p.Name == "" {
+		p.Name = strings.TrimSpace(v.FirstName + " " + v.LastName)
+	}
+	return nil
 }
 
 // Entrant is a player in singles, a pair in doubles.
@@ -60,9 +81,8 @@ func (e Entrant) Complete() bool {
 
 // PlayerInput is a player as typed at the desk.
 type PlayerInput struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Club      string `json:"club"`
+	Name string `json:"name"`
+	Club string `json:"club"`
 }
 
 // EntrantRegistered is the payload of TypeEntrantRegistered.
@@ -143,8 +163,7 @@ func (s State) UpdateEntrant(id engine.EntrantID, inputs []PlayerInput) (Change,
 	for i := range players {
 		old := entrant.Players[i]
 		players[i].ID = old.ID
-		changed = changed || players[i].FirstName != old.FirstName ||
-			players[i].LastName != old.LastName || players[i].Club != old.Club
+		changed = changed || players[i].Name != old.Name || players[i].Club != old.Club
 	}
 	if !changed {
 		return Change{}, nil
@@ -174,14 +193,8 @@ func normalizePlayers(c engine.Category, inputs []PlayerInput) ([]Player, error)
 	}
 	players := make([]Player, len(inputs))
 	for i, in := range inputs {
-		p := Player{
-			FirstName: collapseSpaces(in.FirstName),
-			LastName:  collapseSpaces(in.LastName),
-			Club:      collapseSpaces(in.Club),
-		}
-		if p.FirstName == "" || p.LastName == "" ||
-			utf8.RuneCountInString(p.FirstName) > maxPlayerNameLength ||
-			utf8.RuneCountInString(p.LastName) > maxPlayerNameLength {
+		p := Player{Name: collapseSpaces(in.Name), Club: collapseSpaces(in.Club)}
+		if p.Name == "" || utf8.RuneCountInString(p.Name) > maxPlayerNameLength {
 			return nil, &engine.Error{Code: engine.CodeInvalidPlayerName, Set: i + 1}
 		}
 		if utf8.RuneCountInString(p.Club) > maxClubLength {
@@ -198,7 +211,7 @@ func (s State) DuplicatePlayers() map[PlayerID]bool {
 	byName := map[string][]PlayerID{}
 	for _, e := range s.Entrants {
 		for _, p := range e.Players {
-			key := strings.ToLower(p.FirstName + " " + p.LastName)
+			key := strings.ToLower(p.Name)
 			byName[key] = append(byName[key], p.ID)
 		}
 	}

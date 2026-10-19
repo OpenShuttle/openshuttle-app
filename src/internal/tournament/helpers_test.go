@@ -85,7 +85,7 @@ func (g *game) register(c engine.Category, names ...string) engine.EntrantID {
 	g.t.Helper()
 	var in []PlayerInput
 	for _, n := range names {
-		in = append(in, PlayerInput{FirstName: n, LastName: "Martin", Club: "BC Lyon"})
+		in = append(in, PlayerInput{Name: n + " Martin", Club: "BC Lyon"})
 	}
 	ch := g.do(func(s State) (Change, error) { return s.RegisterEntrant(c, in) })
 	return ch.Data.(EntrantRegistered).ID

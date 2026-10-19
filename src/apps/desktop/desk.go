@@ -270,7 +270,7 @@ func sideViewer(st tournament.State) func(engine.EntrantID) SideView {
 		e, _ := st.Entrant(id)
 		sv := SideView{Entrant: id, Bib: e.Bib, Names: []string{}, Clubs: e.Clubs(), Withdrawn: st.Withdrawn(id)}
 		for _, p := range e.Players {
-			sv.Names = append(sv.Names, p.FirstName+" "+p.LastName)
+			sv.Names = append(sv.Names, p.Name)
 		}
 		if sv.Clubs == nil {
 			sv.Clubs = []string{}
@@ -313,7 +313,7 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 	}
 }
 
-// matchLabel is "#3 Zola / Ecuyer – #7 Petit / Martin" for history entries.
+// matchLabel is "#3 Léa Zola / Tom Ecuyer – #7 …" for history entries.
 func matchLabel(st tournament.State, id tournament.MatchID) (a, b string) {
 	m, ok := st.Match(id)
 	if !ok {
@@ -323,7 +323,7 @@ func matchLabel(st tournament.State, id tournament.MatchID) (a, b string) {
 		e, _ := st.Entrant(eid)
 		names := make([]string, len(e.Players))
 		for i, p := range e.Players {
-			names[i] = p.LastName
+			names[i] = p.Name
 		}
 		prefix := ""
 		if e.Bib > 0 {

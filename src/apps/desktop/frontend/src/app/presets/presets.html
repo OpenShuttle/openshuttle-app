@@ -192,6 +192,42 @@
           </div>
         }
       </section>
+
+      <section class="card list">
+        <div class="list-head">
+          <h2 class="list-title">{{ t('clubs.title') }}</h2>
+          <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: '', name: '' })">+ {{ t('presets.new') }}</button>
+        </div>
+        <span class="order">{{ t('clubs.hint') }}</span>
+        @if (clubDraft(); as d) {
+          @if (d.old === '') {
+            <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
+              <input class="input" maxlength="80" [placeholder]="t('clubs.newPlaceholder')" [value]="d.name" (input)="clubDraft.set({ old: d.old, name: value($event) })" />
+              <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
+              <button type="submit" class="btn btn-xs btn-primary" [disabled]="!d.name.trim()">{{ t('presets.save') }}</button>
+            </form>
+          }
+        }
+        @for (c of presets.value().clubs ?? []; track c) {
+          @if (clubDraft()?.old === c) {
+            <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
+              <input class="input" maxlength="80" [value]="clubDraft()!.name" (input)="clubDraft.set({ old: c, name: value($event) })" />
+              <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
+              <button type="submit" class="btn btn-xs btn-primary" [disabled]="!clubDraft()!.name.trim()">{{ t('presets.save') }}</button>
+            </form>
+          } @else {
+            <div class="row">
+              <span class="row-text"><strong>{{ c }}</strong></span>
+              <span class="row-actions">
+                <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: c, name: c })">{{ t('clubs.rename') }}</button>
+                <button type="button" class="btn-link" (click)="deleteClub(c)">{{ t('presets.delete') }}</button>
+              </span>
+            </div>
+          }
+        } @empty {
+          <span class="order">{{ t('clubs.empty') }}</span>
+        }
+      </section>
     </div>
   </div>
 </ng-container>

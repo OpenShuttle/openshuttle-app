@@ -40,9 +40,8 @@
               <form class="row edit" (submit)="$event.preventDefault(); saveEdit()" (keydown.escape)="editing.set(null)">
                 @for (p of editDraft(); track $index; let i = $index) {
                   <div class="player-fields">
-                    <input class="input" [placeholder]="t('entrants.firstName')" [value]="p.firstName" maxlength="50" (input)="setEdit(i, 'firstName', value($event))" />
-                    <input class="input" [placeholder]="t('entrants.lastName')" [value]="p.lastName" maxlength="50" (input)="setEdit(i, 'lastName', value($event))" />
-                    <input class="input" [placeholder]="t('entrants.club')" [value]="p.club" maxlength="80" (input)="setEdit(i, 'club', value($event))" />
+                    <input class="input" [placeholder]="t('entrants.name')" [value]="p.name" maxlength="100" (input)="setEdit(i, 'name', value($event))" />
+                    <app-club-select [value]="p.club" (changed)="setEdit(i, 'club', $event)" />
                   </div>
                 }
                 <div class="edit-actions">
@@ -56,12 +55,20 @@
               <div class="row grid">
                 <span class="who">
                   <app-category-badge [category]="r.category" [slot]="r.slot" />
-                  <span class="names">{{ names(e) }}</span>
+                  <span class="names">
+                    @for (p of e.players ?? []; track p.id) {
+                      <span class="name" [attr.title]="p.name">{{ p.name }}</span>
+                    }
+                  </span>
                   @if (hasDuplicate(e)) {
                     <span class="pill pill-finished" [attr.title]="t('entrants.duplicate')">{{ t('entrants.homonym') }}</span>
                   }
                 </span>
-                <span class="club">{{ clubs(e) }}</span>
+                <span class="club">
+                  @for (p of e.players ?? []; track p.id) {
+                    <span class="name" [attr.title]="p.club">{{ p.club || '–' }}</span>
+                  }
+                </span>
                 <span>
                   @if (e.complete) {
                     <span class="pill pill-free">{{ t('entrants.present', { bib: e.bib }) }}</span>
@@ -96,30 +103,15 @@
                 @if (cat.doubles) {
                   <span class="field-label">{{ t('entrants.playerN', { n: i + 1 }) }}</span>
                 }
-                <div class="add-names">
-                  <input
-                    #firstField
-                    class="input"
-                    [placeholder]="t('entrants.firstName')"
-                    maxlength="50"
-                    [value]="draftValue(i, 'firstName')"
-                    (input)="setDraft(i, 'firstName', value($event))"
-                  />
-                  <input
-                    class="input"
-                    [placeholder]="t('entrants.lastName')"
-                    maxlength="50"
-                    [value]="draftValue(i, 'lastName')"
-                    (input)="setDraft(i, 'lastName', value($event))"
-                  />
-                </div>
                 <input
+                  #firstField
                   class="input"
-                  [placeholder]="t('entrants.club')"
-                  maxlength="80"
-                  [value]="draftValue(i, 'club')"
-                  (input)="setDraft(i, 'club', value($event))"
+                  [placeholder]="t('entrants.namePlaceholder')"
+                  maxlength="100"
+                  [value]="draftValue(i, 'name')"
+                  (input)="setDraft(i, 'name', value($event))"
                 />
+                <app-club-select [value]="draftValue(i, 'club')" (changed)="setDraft(i, 'club', $event)" />
               </div>
             }
             <button type="submit" class="btn btn-primary">{{ t('entrants.add') }}</button>

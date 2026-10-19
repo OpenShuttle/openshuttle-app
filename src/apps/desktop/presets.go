@@ -59,6 +59,8 @@ type Presets struct {
 	Tiebreaks []TiebreakPreset `json:"tiebreaks"`
 	Formats   []FormatPreset   `json:"formats"`
 	Disabled  []string         `json:"disabled"`
+	// Clubs offered when entering a player, sorted by name.
+	Clubs []string `json:"clubs"`
 }
 
 // builtInPresets are always there and cannot be deleted.
@@ -142,11 +144,12 @@ func readPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
 	all.Tiebreaks = append(all.Tiebreaks, user.Tiebreaks...)
 	all.Formats = append(all.Formats, user.Formats...)
 	all.Disabled = user.Disabled
+	all.Clubs = user.Clubs
 	return all, nil
 }
 
 func readUserPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
-	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}}
+	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}, Clubs: []string{}}
 	raw, ok, err := db.Setting(ctx, settingPresets)
 	if err != nil || !ok {
 		return p, err

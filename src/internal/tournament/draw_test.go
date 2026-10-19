@@ -17,7 +17,7 @@ func (g *game) presentSingles(c engine.Category, clubs []string, n int) []engine
 	var ids []engine.EntrantID
 	for i := range n {
 		ch := g.do(func(s State) (Change, error) {
-			return s.RegisterEntrant(c, []PlayerInput{{FirstName: "P", LastName: string(rune('A' + i)), Club: clubs[i%len(clubs)]}})
+			return s.RegisterEntrant(c, []PlayerInput{{Name: "P " + string(rune('A'+i)), Club: clubs[i%len(clubs)]}})
 		})
 		id := ch.Data.(EntrantRegistered).ID
 		ids = append(ids, id)
@@ -98,7 +98,7 @@ func TestDrawLifecycle(t *testing.T) {
 	ids := g.presentSingles(engine.MensSingles, []string{"Lyon", "Paris", "Nice"}, 7)
 	// One registered but absent entrant is not drawn.
 	g.do(func(s State) (Change, error) {
-		return s.RegisterEntrant(engine.MensSingles, []PlayerInput{{FirstName: "Late", LastName: "Comer", Club: "Lyon"}})
+		return s.RegisterEntrant(engine.MensSingles, []PlayerInput{{Name: "Late Comer", Club: "Lyon"}})
 	})
 	late := g.state().Entrants[len(g.state().Entrants)-1]
 

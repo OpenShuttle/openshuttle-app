@@ -22,6 +22,13 @@ import * as tournament$0 from "../../internal/tournament/models.js";
 import * as $models from "./models.js";
 
 /**
+ * DeleteClub removes a club from the list. Players keep their club.
+ */
+export function DeleteClub(name: string): $CancellablePromise<void> {
+    return $Call.ByID(3993301749, name);
+}
+
+/**
  * DeletePreset deletes a saved preset. Built-in presets cannot be deleted.
  */
 export function DeletePreset(id: string): $CancellablePromise<void> {
@@ -49,6 +56,14 @@ export function GetPresets(): $CancellablePromise<$models.Presets> {
  */
 export function PreviewFormat(stages: tournament$0.StageConfig[] | null, entrants: number): $CancellablePromise<tournament$0.FormatPreview> {
     return $Call.ByID(3100979853, stages, entrants);
+}
+
+/**
+ * SaveClub adds a club to the list offered when entering a player (old ""),
+ * or renames one. A club already listed (case ignored) is not added twice.
+ */
+export function SaveClub(old: string, name: string): $CancellablePromise<void> {
+    return $Call.ByID(1604392783, old, name);
 }
 
 /**

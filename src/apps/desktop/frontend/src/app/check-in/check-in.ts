@@ -55,7 +55,7 @@ export class CheckIn {
       (r) =>
         (category === 'all' || r.category === category) &&
         (this.presence() === 'all' || r.checkedIn === (this.presence() === 'present')) &&
-        matches([...ownText(r), r.partner?.firstName, r.partner?.lastName], words),
+        matches([...ownText(r), r.partner?.name], words),
     );
   });
 

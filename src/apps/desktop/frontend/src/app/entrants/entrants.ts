@@ -8,14 +8,15 @@ import { PlayerInput } from '@bindings/internal/tournament';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
+import { ClubSelect } from '../shared/club-select';
 
 const emptyPlayers = (count: number): PlayerInput[] =>
-  Array.from({ length: count }, () => ({ firstName: '', lastName: '', club: '' }));
+  Array.from({ length: count }, () => ({ name: '', club: '' }));
 
 /** Entrants: one tab per category, add, edit and remove players or pairs. */
 @Component({
   selector: 'app-entrants',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge],
+  imports: [TranslocoDirective, RouterLink, CategoryBadge, ClubSelect],
   templateUrl: './entrants.html',
   styleUrl: './entrants.scss',
 })
@@ -94,7 +95,7 @@ export class Entrants {
   protected edit(entrant: EntrantView): void {
     this.editing.set(entrant.id);
     this.editDraft.set(
-      (entrant.players ?? []).map((p) => ({ firstName: p.firstName, lastName: p.lastName, club: p.club })),
+      (entrant.players ?? []).map((p) => ({ name: p.name, club: p.club })),
     );
   }
 
@@ -111,14 +112,6 @@ export class Entrants {
     if (id && (await this.tournament.updateEntrant(id, this.editDraft()))) {
       this.editing.set(null);
     }
-  }
-
-  protected names(e: EntrantView): string {
-    return (e.players ?? []).map((p) => `${p.firstName} ${p.lastName}`.trim()).join(' / ');
-  }
-
-  protected clubs(e: EntrantView): string {
-    return [...new Set((e.players ?? []).map((p) => p.club).filter((c) => c))].join(' / ');
   }
 
   protected present(e: EntrantView): number {

@@ -11,8 +11,7 @@ import (
 // PlayerView is a player as shown on the entrants and check-in screens.
 type PlayerView struct {
 	ID        tournament.PlayerID `json:"id"`
-	FirstName string              `json:"firstName"`
-	LastName  string              `json:"lastName"`
+	Name      string              `json:"name"`
 	Club      string              `json:"club"`
 	CheckedIn bool                `json:"checkedIn"`
 	// CheckedInAt is when the player was checked in.
@@ -76,12 +75,30 @@ func (s *TournamentService) RemoveCategory(ctx context.Context, c engine.Categor
 
 // RegisterEntrant enters a player (singles) or a pair (doubles).
 func (s *TournamentService) RegisterEntrant(ctx context.Context, c engine.Category, players []tournament.PlayerInput) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RegisterEntrant(c, players) })
+	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RegisterEntrant(c, players) }); err != nil {
+		return err
+	}
+	s.rememberClubs(ctx, players)
+	return nil
 }
 
 // UpdateEntrant changes the names and clubs of an entrant's players.
 func (s *TournamentService) UpdateEntrant(ctx context.Context, id engine.EntrantID, players []tournament.PlayerInput) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.UpdateEntrant(id, players) })
+	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.UpdateEntrant(id, players) }); err != nil {
+		return err
+	}
+	s.rememberClubs(ctx, players)
+	return nil
+}
+
+// rememberClubs adds the clubs typed for players to the club list. The
+// list is a convenience: failing to update it never fails the entry.
+func (s *TournamentService) rememberClubs(ctx context.Context, players []tournament.PlayerInput) {
+	var clubs []string
+	for _, p := range players {
+		clubs = append(clubs, p.Club)
+	}
+	_ = updatePresets(ctx, s.app, s.emit, func(p *Presets) { p.Clubs = addClubs(p.Clubs, clubs...) })
 }
 
 // RemoveEntrant withdraws an entrant.
@@ -180,7 +197,7 @@ func checkInView(st tournament.State) CheckInView {
 
 func playerView(p tournament.Player, duplicate bool) PlayerView {
 	v := PlayerView{
-		ID: p.ID, FirstName: p.FirstName, LastName: p.LastName, Club: p.Club,
+		ID: p.ID, Name: p.Name, Club: p.Club,
 		CheckedIn: p.CheckedIn, Duplicate: duplicate,
 	}
 	if p.CheckedIn && !p.CheckedInAt.IsZero() {

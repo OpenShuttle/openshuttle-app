@@ -5,8 +5,7 @@ import { fold, matches, ownText } from './check-in-search';
 
 const row = (firstName: string, lastName: string, club = '', bib = 0): CheckInRow => ({
   id: 'p1',
-  firstName,
-  lastName,
+  name: `${firstName} ${lastName}`,
   club,
   checkedIn: false,
   checkedInAt: null,

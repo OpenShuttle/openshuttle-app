@@ -26,7 +26,7 @@ func TestControlDesk(t *testing.T) {
 	must(f.svc.SetCourts(ctx, 2))
 	for i := range 4 {
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: fmt.Sprint("C", i)},
+			{Name: fmt.Sprint("P N", i), Club: fmt.Sprint("C", i)},
 		}))
 	}
 	if v := f.svc.GetControlDeskView(); v.Started || len(v.Courts) != 2 {

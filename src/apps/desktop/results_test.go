@@ -26,7 +26,7 @@ func TestResultsExportAndArchive(t *testing.T) {
 	must(f.svc.AddCategory(ctx, engine.MensSingles))
 	for i := range 3 {
 		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{
-			{FirstName: "P", LastName: fmt.Sprint("N", i), Club: "C"},
+			{Name: fmt.Sprint("P N", i), Club: "C"},
 		}))
 	}
 	if r := f.svc.GetResultsView(); r.Categories[0].Started {

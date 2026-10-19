@@ -60,7 +60,7 @@
                       [class.conflict]="(p.entrant.sameClub ?? []).length > 0"
                       [class.picked]="swapping() === c.category + ':' + p.slot"
                       [disabled]="c.status === 'confirmed'"
-                      [attr.title]="fullNames(p.entrant)"
+                      [attr.title]="names(p.entrant)"
                       (click)="pickSlot(c, p.slot)"
                     >
                       <span class="entrant-top">
@@ -122,7 +122,7 @@
                     [class.conflict]="(e.sameClub ?? []).length > 0"
                     [class.movable]="c.status === 'draft'"
                     [class.dragging]="dragging() === e.id"
-                    [attr.title]="fullNames(e)"
+                    [attr.title]="names(e)"
                     (pointerdown)="onPointerDown($event, e.id, c.status === 'draft')"
                   >
                     <div class="entrant-top">
@@ -177,7 +177,7 @@
               @for (e of c.seeded; track e.id) {
                 <label class="seed-row">
                   <span class="bib">{{ e.bib || '–' }}</span>
-                  <span class="names">{{ fullNames(e) }}</span>
+                  <span class="names">{{ names(e) }}</span>
                   <select (change)="setSeed(e, $event)">
                     <option value="0" [selected]="!e.seed">–</option>
                     @for (n of seedOptions(c); track n) {

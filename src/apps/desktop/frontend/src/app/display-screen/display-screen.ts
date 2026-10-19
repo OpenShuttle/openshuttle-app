@@ -8,7 +8,7 @@ import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
 import { AppSettings } from '../core/settings.service';
 import { LanguageService } from '../core/language.service';
-import { shortNames } from '../shared/names';
+import { fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 
 /** Display screen: second window on the hall monitor. Read-only, read from 10 m. */
@@ -71,7 +71,7 @@ export class DisplayScreen {
   }
 
   protected short(side: SideView): string {
-    return shortNames(side);
+    return fullNames(side);
   }
 
   protected time(value: string | number | null | undefined): string {

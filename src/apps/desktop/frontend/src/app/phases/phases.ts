@@ -19,7 +19,7 @@ import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
 import { roundLabel } from '../shared/match-stage';
-import { shortNames } from '../shared/names';
+import { fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
 
 /** Phases: pool standings and matches, with a correction mode. */
@@ -76,7 +76,7 @@ export class Phases {
   }
 
   protected short(side: SideView): string {
-    return shortNames(side);
+    return fullNames(side);
   }
 
   protected toggleCorrection(): void {
@@ -104,7 +104,7 @@ export class Phases {
     if (!side.entrant) {
       return { key: 'phases.tbd' };
     }
-    return { text: `#${side.bib} ${shortNames(side)}` };
+    return { text: `#${side.bib} ${fullNames(side)}` };
   }
 
   protected place(from: number, to: number): string {

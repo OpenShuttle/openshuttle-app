@@ -7,7 +7,7 @@ import { backendError } from '../core/backend-error';
 import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
-import { shortNames } from '../shared/names';
+import { fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 import { StageKind } from '@bindings/internal/tournament';
 import { toCsv } from './csv';
@@ -48,7 +48,7 @@ export class Results {
   }
 
   protected short(row: ResultRow): string {
-    return shortNames(row.entrant);
+    return fullNames(row.entrant);
   }
 
   protected names(row: ResultRow): string {

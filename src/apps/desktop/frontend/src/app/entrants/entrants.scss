@@ -47,15 +47,24 @@
 
 .names {
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+// One line per player: full names, never cut short in a pair.
+.names,
 .club {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.who app-category-badge {
+  flex: none;
 }
 
 .none {
@@ -74,7 +83,7 @@
 
 .player-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 8px;
 }
 
@@ -109,8 +118,3 @@
   }
 }
 
-.add-names {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 6px;
-}

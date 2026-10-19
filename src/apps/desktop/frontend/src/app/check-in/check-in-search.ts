@@ -7,7 +7,7 @@ export function fold(s: string): string {
 
 /** The player's own searchable fields: name, club, bib. */
 export function ownText(r: CheckInRow): (string | number)[] {
-  return [r.firstName, r.lastName, r.club, r.bib || ''];
+  return [r.name, r.club, r.bib || ''];
 }
 
 /** True when every search word appears in the fields. */
