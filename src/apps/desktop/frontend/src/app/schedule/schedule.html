@@ -84,7 +84,9 @@
         <a class="btn btn-sm" routerLink="../format">{{ t('nav.format') }}</a>
       </div>
     } @else {
-      <p class="hint move-hint">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
+      <p class="hint move-hint" [class.previewing]="dragging()">
+        {{ t(dragging() ? 'schedule.previewHint' : view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}
+      </p>
       <div class="layout" [class.folded]="panels.collapsed('schedule.teams')">
         <div class="card timeline">
           <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
@@ -108,6 +110,11 @@
                   <span class="line" [style.top.px]="tick.top"></span>
                 }
                 <span class="now" [style.top.px]="nowTop()"></span>
+                @if (marker(); as mk) {
+                  @if (mk.court === n) {
+                    <span class="drop-marker" [style.top.px]="mk.top"></span>
+                  }
+                }
                 @for (e of slotsByCourt().get(n) ?? []; track e.slot.match?.id ?? 'i' + e.index) {
                   @let s = e.slot;
                   <div
@@ -129,6 +136,9 @@
                       <span class="slot-time">{{ time(s.start) }}</span>
                       @if (s.state === 'playing') {
                         <span class="slot-state">{{ t('schedule.playing') }}</span>
+                      }
+                      @if (shift(s); as d) {
+                        <span class="shift" [class.later]="d > 0">{{ t(d > 0 ? 'schedule.shiftLater' : 'schedule.shiftEarlier', { n: d > 0 ? d : -d }) }}</span>
                       }
                     </span>
                     <span class="slot-label">{{ label(s) }}</span>
@@ -176,4 +186,16 @@
       </div>
     }
   </div>
+  @if (ghost(); as g) {
+    <div class="ghost" [style.left.px]="g.x" [style.top.px]="g.y" [style.border-left-color]="'var(--color-category-' + g.slot.slot + ')'">
+      <span class="slot-head">
+        <app-category-badge [category]="g.slot.category" [slot]="g.slot.slot" />
+        <span class="slot-label">{{ label(g.slot) }}</span>
+      </span>
+      <span class="ghost-text">{{ g.text }}</span>
+      @if (landing(); as l) {
+        <span class="ghost-land">{{ t('schedule.dropLands', { court: l.court, time: time(l.start) }) }}</span>
+      }
+    </div>
+  }
 </ng-container>

@@ -326,3 +326,77 @@
   align-items: center;
   justify-content: space-between;
 }
+
+// Drag preview: where the drop inserts, how far each match shifts, and the
+// card following the pointer.
+.drop-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 3px;
+  margin-top: -3px;
+  border-radius: 2px;
+  background: var(--color-brand-logo);
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-brand-logo);
+  }
+}
+
+.shift {
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: #166534;
+  background: #dcfce7;
+
+  &.later {
+    color: #9a3412;
+    background: #ffedd5;
+  }
+}
+
+.move-hint.previewing {
+  color: var(--color-brand-logo);
+  font-weight: 700;
+}
+
+.ghost {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 300px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-brand-logo);
+  border-left: 4px solid;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ghost-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-brand-logo);
+}
+
+.ghost-land {
+  font-size: 12px;
+  color: var(--color-text);
+}

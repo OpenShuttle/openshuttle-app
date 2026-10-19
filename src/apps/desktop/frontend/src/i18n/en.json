@@ -852,7 +852,16 @@
     "noTeams": "No team has a match left.",
     "unvalidate": "Back to blocks",
     "unvalidateConfirm": "Back to blocks? Moved matches will be lost",
-    "playing": "on court"
+    "playing": "on court",
+    "dropBefore": "Before {label} (court {court}, {time})",
+    "dropLast": "Last, after every match",
+    "dropBlockBefore": "{label} plays before {before} in each round",
+    "dropBlockLast": "{label} plays last in each round",
+    "dropNone": "Nothing moves here",
+    "shiftLater": "+{n} min",
+    "shiftEarlier": "−{n} min",
+    "previewHint": "Preview: release to apply, or move out of the schedule to cancel.",
+    "dropLands": "→ plays on court {court} at {time}"
   },
   "panels": {
     "collapseMenu": "Fold the menu",

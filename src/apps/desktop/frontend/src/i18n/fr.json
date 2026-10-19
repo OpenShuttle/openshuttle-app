@@ -852,7 +852,16 @@
     "noTeams": "Aucune équipe n'a de match restant.",
     "unvalidate": "Revenir aux blocs",
     "unvalidateConfirm": "Revenir aux blocs ? Les matchs déplacés seront perdus",
-    "playing": "en cours"
+    "playing": "en cours",
+    "dropBefore": "Avant {label} (terrain {court}, {time})",
+    "dropLast": "En dernier, après tous les matchs",
+    "dropBlockBefore": "{label} joue avant {before} à chaque tour",
+    "dropBlockLast": "{label} joue en dernier à chaque tour",
+    "dropNone": "Rien ne bouge ici",
+    "shiftLater": "+{n} min",
+    "shiftEarlier": "−{n} min",
+    "previewHint": "Aperçu : relâchez pour appliquer, ou sortez de l'échéancier pour annuler.",
+    "dropLands": "→ joue sur le terrain {court} à {time}"
   },
   "panels": {
     "collapseMenu": "Replier le menu",
