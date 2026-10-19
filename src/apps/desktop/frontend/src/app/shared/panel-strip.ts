@@ -14,7 +14,7 @@ import { Panels } from '../core/panels.service';
     <ng-container *transloco="let t">
       @if (panels.collapsed(key())) {
         <button type="button" class="strip" [attr.aria-label]="t('panels.expand', { name: title() })" (click)="panels.toggle(key())">
-          <span class="arrow">«</span>
+          <span class="round"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
           <span class="vertical">{{ title() }}</span>
         </button>
       } @else {
@@ -25,21 +25,47 @@ import { Panels } from '../core/panels.service';
           [attr.title]="t('panels.collapse', { name: title() })"
           (click)="panels.toggle(key())"
         >
-          »
+          <span class="round right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
         </button>
       }
     </ng-container>
   `,
   styles: `
     .fold {
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      background: var(--color-surface);
-      font-weight: 800;
-      color: var(--color-text-muted);
+      padding: 0;
+      border: 0;
+      background: none;
       cursor: pointer;
+    }
+    /* Round chevron button, like the one folding the menu. */
+    .round {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--color-border-strong);
+      border-radius: 50%;
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .round svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .round.right svg {
+      transform: rotate(180deg);
+    }
+    .fold:hover .round,
+    .strip:hover .round {
+      color: var(--color-brand-logo);
+      border-color: var(--color-brand-logo);
     }
     .strip {
       width: 44px;
