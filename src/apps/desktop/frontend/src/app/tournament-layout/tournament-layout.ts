@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 
@@ -44,6 +44,17 @@ export class TournamentLayout {
   private readonly language = inject(LanguageService);
   protected readonly clock = inject(Clock);
   protected readonly icons = ICONS;
+
+  /** Tooltip of the folded menu: shown at once, beside the hovered step. */
+  protected readonly tip = signal<{ label: string; sub: string; top: number; left: number } | null>(null);
+
+  protected showTip(event: MouseEvent, label: string, sub: string): void {
+    if (!this.panels.collapsed('nav')) {
+      return;
+    }
+    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.tip.set({ label, sub, top: box.top + box.height / 2, left: box.right + 10 });
+  }
   protected readonly panels = inject(Panels);
   protected readonly view = this.tournament.view;
 

@@ -20,7 +20,10 @@
           [routerLink]="item.path"
           routerLinkActive="active"
           [class.current]="item.mark === 'current'"
-          [attr.title]="panels.collapsed('nav') ? t('nav.' + item.key) + ' · ' + t(item.sub, item.params ?? {}) : null"
+          [attr.aria-label]="panels.collapsed('nav') ? t('nav.' + item.key) : null"
+          (mouseenter)="showTip($event, t('nav.' + item.key), t(item.sub, item.params ?? {}))"
+          (mouseleave)="tip.set(null)"
+          (click)="tip.set(null)"
         >
           @if (panels.collapsed('nav')) {
             <span class="step-icon" [class]="'step-icon ' + item.mark">
@@ -40,11 +43,25 @@
       }
     }
     <div class="file">
-      <a class="home" routerLink="/" [attr.title]="t('nav.home')">{{ panels.collapsed('nav') ? '⌂' : t('nav.home') }}</a>
+      <a
+        class="home"
+        routerLink="/"
+        [attr.aria-label]="t('nav.home')"
+        (mouseenter)="showTip($event, t('nav.home'), '')"
+        (mouseleave)="tip.set(null)"
+      >{{ panels.collapsed('nav') ? '⌂' : t('nav.home') }}</a>
       <span class="file-name" [attr.title]="view().path">{{ fileName() }}</span>
       <span class="file-saved">{{ t('nav.autosaved', { time: time(clock.now()) }) }}</span>
     </div>
   </nav>
+  @if (tip(); as tp) {
+    <div class="tip" role="tooltip" [style.top.px]="tp.top" [style.left.px]="tp.left">
+      <span class="tip-label">{{ tp.label }}</span>
+      @if (tp.sub) {
+        <span class="tip-sub">{{ tp.sub }}</span>
+      }
+    </div>
+  }
   <section class="page">
     <router-outlet />
   </section>
