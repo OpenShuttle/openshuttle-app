@@ -217,12 +217,8 @@
     "monitor": "Moniteur",
     "monitorAuto": "Automatique",
     "monitorLabel": "{name} ({width} × {height})",
-    "isOpen": "Écran d'appel ouvert",
     "waiting": "En attente du premier appel",
     "standings": "classement",
-    "isClosed": "Écran d'appel fermé",
-    "openShort": "Ouvrir",
-    "closeShort": "Fermer",
     "round": "Rotation {n}",
     "roundPlaying": "{n, plural, one {# match} other {# matchs}} en jeu",
     "endsIn": "Fin dans",
@@ -242,7 +238,9 @@
     "rank": "Rang",
     "points": "Points",
     "fullscreen": "Écran d'appel en plein écran",
-    "windowed": "Écran d'appel en fenêtre"
+    "windowed": "Écran d'appel en fenêtre",
+    "openTitle": "Ouvrir l'écran d'appel",
+    "closeTitle": "Fermer l'écran d'appel"
   },
   "settings": {
     "language": "Langue"

@@ -46,16 +46,28 @@
 
     <div class="topbar-right">
       <span class="clock">{{ time(clock.now()) }}</span>
-      @if (inTournament()) {
-        <div class="display-box">
-          <span class="display-dot" [class.on]="display.isOpen()"></span>
-          <span class="display-state">{{
-            t(display.isOpen() ? 'displayScreen.isOpen' : 'displayScreen.isClosed')
-          }}</span>
+      <div class="window-buttons" [class.mac]="isMac">
+        @if (inTournament()) {
+          <button
+            type="button"
+            class="window-btn display-btn"
+            [attr.aria-label]="
+              t(display.isOpen() ? 'displayScreen.closeTitle' : 'displayScreen.openTitle')
+            "
+            [attr.title]="
+              t(display.isOpen() ? 'displayScreen.closeTitle' : 'displayScreen.openTitle')
+            "
+            (click)="toggleDisplay()"
+          >
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M1 1.5h10v7H1zM4 11h4M6 8.5V11" />
+            </svg>
+            <span class="status-dot" [class.on]="display.isOpen()"></span>
+          </button>
           @if (display.isOpen()) {
             <button
               type="button"
-              class="display-fs"
+              class="window-btn"
               [attr.aria-label]="
                 t(display.fullscreen() ? 'displayScreen.windowed' : 'displayScreen.fullscreen')
               "
@@ -64,23 +76,18 @@
               "
               (click)="display.setFullscreen(!display.fullscreen())"
             >
-              @if (display.fullscreen()) {
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M6 1v5H1M10 1v5h5M6 15v-5H1M10 15v-5h5" />
-                </svg>
-              } @else {
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M1 6V1h5M15 6V1h-5M1 10v5h5M15 10v5h-5" />
-                </svg>
-              }
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M1 1.5h10v7H1zM4 11h4M6 8.5V11" />
+                @if (display.fullscreen()) {
+                  <path d="M4.5 3.5h3v2h-3z" />
+                } @else {
+                  <path d="M3 3v1.5M3 3h1.5M9 3v1.5M9 3H7.5M3 7V5.5M9 7V5.5" />
+                }
+              </svg>
             </button>
           }
-          <button type="button" class="display-toggle" (click)="toggleDisplay()">
-            {{ t(display.isOpen() ? 'displayScreen.closeShort' : 'displayScreen.openShort') }}
-          </button>
-        </div>
-      }
-      <div class="window-buttons" [class.mac]="isMac">
+          <span class="window-sep"></span>
+        }
         <button
           type="button"
           class="window-btn"

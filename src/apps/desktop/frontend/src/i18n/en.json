@@ -217,12 +217,8 @@
     "monitor": "Monitor",
     "monitorAuto": "Automatic",
     "monitorLabel": "{name} ({width} × {height})",
-    "isOpen": "Display screen open",
     "waiting": "Waiting for the first match call",
     "standings": "standings",
-    "isClosed": "Display screen closed",
-    "openShort": "Open",
-    "closeShort": "Close",
     "round": "Round {n}",
     "roundPlaying": "{n, plural, one {# match} other {# matches}} on court",
     "endsIn": "Ends in",
@@ -242,7 +238,9 @@
     "rank": "Rank",
     "points": "Points",
     "fullscreen": "Display screen in full screen",
-    "windowed": "Display screen in a window"
+    "windowed": "Display screen in a window",
+    "openTitle": "Open the display screen",
+    "closeTitle": "Close the display screen"
   },
   "settings": {
     "language": "Language"

@@ -28,8 +28,9 @@ type Monitor struct {
 	IsPrimary bool   `json:"isPrimary"`
 }
 
-// DisplayScreenService opens and closes the display screen: the second,
-// full-screen window shown on the hall monitor or projector.
+// DisplayScreenService opens and closes the display screen: the second
+// window shown on the hall monitor or projector. It opens in a window, the
+// desk moves it if needed, then puts it in full screen.
 type DisplayScreenService struct {
 	mu         sync.Mutex
 	window     *application.WebviewWindow
@@ -63,9 +64,10 @@ func (s *DisplayScreenService) IsOpen() bool {
 	return s.window != nil
 }
 
-// Open shows the display screen full screen on the given monitor. An empty
-// or unknown monitorID picks the first non-primary screen, or the primary one
-// when there is a single screen. If the window is already open, it moves.
+// Open shows the display screen in a window, centred on the given monitor.
+// An empty or unknown monitorID picks the first non-primary screen, or the
+// primary one when there is a single screen. If the window is already open,
+// it comes to the front.
 func (s *DisplayScreenService) Open(monitorID string) {
 	app := application.Get()
 	screen := pickScreen(app.Screen.GetAll(), monitorID)
@@ -74,13 +76,8 @@ func (s *DisplayScreenService) Open(monitorID string) {
 	defer s.mu.Unlock()
 
 	if s.window != nil {
-		if screen != nil {
-			s.window.UnFullscreen()
-			s.window.SetScreen(screen)
-		}
-		s.window.Fullscreen()
 		s.window.Show()
-		s.setFullscreenLocked(true)
+		s.window.Focus()
 		return
 	}
 
@@ -88,20 +85,24 @@ func (s *DisplayScreenService) Open(monitorID string) {
 		Name:             DisplayWindowName,
 		Title:            "OpenShuttle",
 		Screen:           screen,
-		StartState:       application.WindowStateFullscreen,
+		Width:            1280,
+		Height:           720,
+		InitialPosition:  application.WindowCentered,
 		BackgroundColour: application.NewRGB(0x0B, 0x0D, 0x12),
 		URL:              "/display",
 	})
 	w.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {
 		s.mu.Lock()
 		s.window = nil
+		s.fullscreen = false
 		s.mu.Unlock()
 		app.Event.Emit(EventDisplayScreenChanged, false)
+		app.Event.Emit(EventDisplayFullscreenChanged, false)
 	})
 	s.window = w
-	s.fullscreen = true
+	s.fullscreen = false
 	app.Event.Emit(EventDisplayScreenChanged, true)
-	app.Event.Emit(EventDisplayFullscreenChanged, true)
+	app.Event.Emit(EventDisplayFullscreenChanged, false)
 }
 
 // IsFullscreen reports whether the display screen is open in full screen.

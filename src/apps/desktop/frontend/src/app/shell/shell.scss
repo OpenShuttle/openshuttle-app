@@ -46,6 +46,7 @@
 }
 
 .window-btn {
+  position: relative;
   width: 46px;
   border: none;
   background: transparent;
@@ -217,48 +218,6 @@
   letter-spacing: -0.02em;
 }
 
-.display-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 3px 3px 3px 12px;
-}
-
-.display-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #9ca3af;
-
-  &.on {
-    background: var(--color-free);
-  }
-}
-
-.display-state {
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.display-toggle {
-  height: 28px;
-  padding: 0 12px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--color-text);
-  color: var(--color-surface);
-  font-weight: 700;
-  font-size: 13px;
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--color-link);
-  }
-}
-
 .error {
   flex: none;
   display: flex;
@@ -287,30 +246,32 @@
   overflow: auto;
 }
 
-// Full-screen toggle of the display screen.
-.display-fs {
-  flex: none;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
 
-  svg {
-    width: 14px;
-    height: 14px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-  }
+// Display screen button: a monitor, and a dot for its state (green: open).
+.display-btn svg {
+  width: 13px;
+  height: 13px;
+}
 
-  &:hover {
-    background: var(--color-bg);
+.status-dot {
+  position: absolute;
+  top: 13px;
+  right: 11px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a1a6b0;
+  box-shadow: 0 0 0 2px var(--color-surface);
+
+  &.on {
+    background: #1f9d55;
   }
 }
 
+.window-sep {
+  align-self: center;
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: var(--color-border);
+}

@@ -212,7 +212,9 @@ The main window has no native title bar on Windows and Linux (`Frameless`):
 the app's top bar drags the window (`--wails-draggable: drag`, controls
 `no-drag`), maximises on double-click and draws full screen / minimise / maximise / close;
 on macOS the native traffic lights sit over its left end
-(`MacTitleBarHiddenInset`). The display window keeps its native frame.
+(`MacTitleBarHiddenInset`). The display window keeps its native frame; it opens
+in a window (monitor button with a status dot in the top bar) and goes full
+screen from its own button next to it.
 Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,
 `.card`, `.btn`/`.btn-primary`/`.btn-sm`, `.seg`/`.seg-option`, `.stepper`,
 `.bib`, `.pill-*`): use them before adding component styles. Compare a screen
