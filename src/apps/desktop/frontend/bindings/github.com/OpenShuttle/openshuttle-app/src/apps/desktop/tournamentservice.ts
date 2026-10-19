@@ -305,6 +305,23 @@ export function OpenTournamentDialog(): $CancellablePromise<string> {
 }
 
 /**
+ * PreviewScheduledBlockMove returns the schedule screen as it would be with
+ * a block moved just before another one: what the desk sees while dragging.
+ * Nothing is saved.
+ */
+export function PreviewScheduledBlockMove(key: string, before: string): $CancellablePromise<$models.ScheduleView> {
+    return $Call.ByID(576522307, key, before);
+}
+
+/**
+ * PreviewScheduledMatchMove returns the schedule screen as it would be with a
+ * match moved just before another one. Nothing is saved.
+ */
+export function PreviewScheduledMatchMove(id: tournament$0.MatchID, before: tournament$0.MatchID): $CancellablePromise<$models.ScheduleView> {
+    return $Call.ByID(2045626871, id, before);
+}
+
+/**
  * RecordScore records or corrects a score.
  */
 export function RecordScore(id: tournament$0.MatchID, score: engine$0.Score): $CancellablePromise<void> {

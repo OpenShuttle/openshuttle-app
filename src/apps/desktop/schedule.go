@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
@@ -144,8 +146,44 @@ func (s *TournamentService) UnvalidateSchedule(ctx context.Context) error {
 func (s *TournamentService) GetScheduleView() ScheduleView {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	st := s.state
+	return s.scheduleView(s.state, s.now())
+}
+
+// PreviewScheduledBlockMove returns the schedule screen as it would be with
+// a block moved just before another one: what the desk sees while dragging.
+// Nothing is saved.
+func (s *TournamentService) PreviewScheduledBlockMove(key, before string) ScheduleView {
+	return s.previewSchedule(func(st tournament.State) (tournament.Change, error) { return st.MoveScheduledBlock(key, before) })
+}
+
+// PreviewScheduledMatchMove returns the schedule screen as it would be with a
+// match moved just before another one. Nothing is saved.
+func (s *TournamentService) PreviewScheduledMatchMove(id, before tournament.MatchID) ScheduleView {
+	return s.previewSchedule(func(st tournament.State) (tournament.Change, error) { return st.MoveScheduledMatch(id, before) })
+}
+
+// previewSchedule projects the log with the command's event added, in memory
+// only. A refused or empty move previews the schedule as it is.
+func (s *TournamentService) previewSchedule(cmd func(tournament.State) (tournament.Change, error)) ScheduleView {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	now := s.now()
+	st := s.state
+	if s.file == nil {
+		return s.scheduleView(st, now)
+	}
+	if ch, err := cmd(st); err == nil && !ch.None() {
+		if d, err := events.NewDraft(ch.Type, ch.Data, now, ""); err == nil {
+			log := append(slices.Clone(s.log), events.Event{Seq: st.Version + 1, Type: d.Type, Data: d.Data, At: d.At})
+			if p, err := tournament.Project(log); err == nil {
+				st = p
+			}
+		}
+	}
+	return s.scheduleView(st, now)
+}
+
+func (s *TournamentService) scheduleView(st tournament.State, now time.Time) ScheduleView {
 	settings := st.ScheduleSettings()
 	sched := st.Schedule(now)
 	mv := s.matchViewer(st)

@@ -47,6 +47,17 @@ func TestScheduleView(t *testing.T) {
 	}
 	// Before validation, blocks move: pool B first, the desk proposes it.
 	wantCode(t, f.svc.MoveScheduledMatch(ctx, v.Slots[3].Match.ID, ""), engine.CodeScheduleNotValidated)
+	// The preview shows the move without saving it; a refused move previews as is.
+	version := f.svc.GetTournamentView().Version
+	if p := f.svc.PreviewScheduledBlockMove("MS/S1/B", "MS/S1/A"); p.Slots[0].Pool != "B" {
+		t.Errorf("preview pool B first = %+v", p.Slots[0])
+	}
+	if p := f.svc.PreviewScheduledMatchMove(v.Slots[3].Match.ID, ""); p.Slots[0].Pool != "A" {
+		t.Errorf("refused preview = %+v", p.Slots[0])
+	}
+	if f.svc.GetTournamentView().Version != version || f.svc.GetScheduleView().Slots[0].Pool != "A" {
+		t.Error("the preview was saved")
+	}
 	must(f.svc.MoveScheduledBlock(ctx, "MS/S1/B", "MS/S1/A"))
 	if v = f.svc.GetScheduleView(); v.Slots[0].Pool != "B" {
 		t.Errorf("pool B first = %+v", v.Slots[0])
@@ -62,6 +73,9 @@ func TestScheduleView(t *testing.T) {
 	wantCode(t, f.svc.MoveScheduledBlock(ctx, "MS/S1/A", ""), engine.CodeScheduleValidated)
 	v = f.svc.GetScheduleView()
 	lastMatch := v.Slots[len(v.Slots)-1].Match.ID
+	if p := f.svc.PreviewScheduledMatchMove(lastMatch, v.Slots[0].Match.ID); p.Slots[0].Match.ID != lastMatch {
+		t.Errorf("preview match first = %+v", p.Slots[0])
+	}
 	must(f.svc.MoveScheduledMatch(ctx, lastMatch, v.Slots[0].Match.ID))
 	if v = f.svc.GetScheduleView(); v.ValidatedAt == nil || v.Slots[0].Match.ID != lastMatch {
 		t.Errorf("after the move = %+v", v.Slots[0])

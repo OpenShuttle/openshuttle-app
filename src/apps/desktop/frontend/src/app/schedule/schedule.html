@@ -103,27 +103,25 @@
               }
             </div>
             @for (n of courts(); track n) {
-              <div class="lane" data-lane [style.height.px]="height()">
+              <div class="lane" [attr.data-lane]="n" [style.height.px]="height()">
                 @for (tick of ticks(); track tick.top) {
                   <span class="line" [style.top.px]="tick.top"></span>
                 }
                 <span class="now" [style.top.px]="nowTop()"></span>
-                @for (e of slotsByCourt().get(n) ?? []; track e.index) {
+                @for (e of slotsByCourt().get(n) ?? []; track e.slot.match?.id ?? 'i' + e.index) {
                   @let s = e.slot;
                   <div
                     class="slot"
-                    [attr.data-slot-index]="s.state === 'planned' ? e.index : null"
                     [class.played]="s.state === 'played'"
                     [class.playing]="s.state === 'playing'"
                     [class.movable]="s.movable"
                     [class.unrested]="s.unrested && s.state === 'planned'"
                     [class.unknown]="!s.match"
                     [class.carried]="carried(s)"
-                    [class.drop-on]="isDropOn(e.index)"
                     [style.top.px]="top(s)"
                     [style.height.px]="slotHeight(s)"
                     [style.border-left-color]="'var(--color-category-' + s.slot + ')'"
-                    [attr.title]="title(s)"
+                    [attr.title]="dragging() ? null : title(s)"
                     (pointerdown)="onSlotDown($event, s)"
                   >
                     <span class="slot-head">

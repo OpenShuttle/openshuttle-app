@@ -133,6 +133,7 @@
   padding: 3px 6px;
   overflow: hidden;
   text-align: left;
+  transition: top 0.15s ease; // matches glide to their new place in a drag preview
   background: var(--color-surface);
   border: 1px solid #dcdee3;
   border-left: 4px solid;
@@ -163,13 +164,11 @@
     background: #eef3fd;
   }
 
+  // The matches being moved, at the place the drop would give them.
   &.carried {
-    opacity: 0.4;
-    outline: 2px dashed var(--color-text);
-  }
-
-  &.drop-on {
-    box-shadow: 0 -3px 0 var(--color-text);
+    z-index: 1;
+    outline: 2px solid var(--color-brand-logo);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
   }
 }
 
