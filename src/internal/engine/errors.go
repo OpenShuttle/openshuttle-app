@@ -59,7 +59,9 @@ const (
 	CodeInvalidRouting Code = "INVALID_ROUTING"
 	// CodeBracketIsFinal: a bracket routes nobody on, and a new stage needs a
 	// pools stage to feed it.
-	CodeBracketIsFinal     Code = "BRACKET_IS_FINAL"
+	CodeBracketIsFinal Code = "BRACKET_IS_FINAL"
+	// CodeFormatLocked: a match of the category started, its format is fixed.
+	CodeFormatLocked       Code = "FORMAT_LOCKED"
 	CodePoolsNotComplete   Code = "POOLS_NOT_COMPLETE"
 	CodeTieUnresolved      Code = "TIE_UNRESOLVED"
 	CodeBracketStarted     Code = "BRACKET_STARTED"

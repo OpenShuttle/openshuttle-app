@@ -309,6 +309,11 @@ export interface FormatCategory {
      */
     "ranked": number;
     "ties": boolean;
+
+    /**
+     * Locked: a match was called or scored, the format no longer changes.
+     */
+    "locked": boolean;
 }
 
 /**

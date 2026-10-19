@@ -20,6 +20,7 @@
       [ties]="fc.ties"
       [entrants]="fc.registered"
       [courts]="tournament.view().courts"
+      [readonly]="fc.locked"
       (changed)="change($event)"
       (added)="add($event)"
       (removed)="remove($event)"
@@ -32,29 +33,78 @@
         @if ((view().categories ?? []).length > 1) {
           <div class="seg seg-sm categories">
             @for (c of view().categories; track c.category) {
-              <button type="button" class="seg-option" [class.active]="c.category === fc.category" (click)="selectCategory(c.category)">
+              <button
+                type="button"
+                class="seg-option"
+                [class.active]="c.category === fc.category"
+                (click)="selectCategory(c.category)"
+              >
                 {{ t('category.name.' + c.category) }} · {{ c.registered }}
               </button>
             }
           </div>
         }
         <div class="toolbar-actions">
-          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StagePools)">+ {{ t('format.addPools') }}</button>
-          <button type="button" class="btn btn-sm" [disabled]="!canAdd()" [attr.title]="canAdd() ? null : t('format.addNeedsPools')" (click)="add(stageKinds.StageBracket)">+ {{ t('format.addBracket') }}</button>
-          <select class="preset-select" [attr.aria-label]="t('format.applyPreset')" (change)="applyFormatPreset($event)">
-            <option value="">{{ t('format.applyPreset') }}</option>
-            @for (p of presets.offered().formats ?? []; track p.id) {
-              <option [value]="p.id">{{ formatPresetLabel(p) }}</option>
-            }
-          </select>
-          <button type="button" class="btn btn-sm btn-primary" (click)="openSave()">{{ t('format.saveAsPreset') }}</button>
+          @if (fc.locked) {
+            <span class="pill pill-muted" [attr.title]="t('format.lockedHint')">{{
+              t('format.locked')
+            }}</span>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-sm"
+              [disabled]="!canAdd()"
+              [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
+              (click)="add(stageKinds.StagePools)"
+            >
+              + {{ t('format.addPools') }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [disabled]="!canAdd()"
+              [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
+              (click)="add(stageKinds.StageBracket)"
+            >
+              + {{ t('format.addBracket') }}
+            </button>
+            <select
+              class="preset-select"
+              [attr.aria-label]="t('format.applyPreset')"
+              (change)="applyFormatPreset($event)"
+            >
+              <option value="">{{ t('format.applyPreset') }}</option>
+              @for (p of presets.offered().formats ?? []; track p.id) {
+                <option [value]="p.id">{{ formatPresetLabel(p) }}</option>
+              }
+            </select>
+          }
+          <button type="button" class="btn btn-sm btn-primary" (click)="openSave()">
+            {{ t('format.saveAsPreset') }}
+          </button>
         </div>
         @if (saving()) {
           <form class="save-form" (submit)="$event.preventDefault(); savePreset()">
-            <input class="input" maxlength="60" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
-            <input class="input wide" maxlength="200" [placeholder]="t('presets.description')" [value]="presetDescription()" (input)="presetDescription.set(value($event))" />
-            <button type="button" class="btn btn-sm" (click)="saving.set(false)">{{ t('common.cancel') }}</button>
-            <button type="submit" class="btn btn-sm btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
+            <input
+              class="input"
+              maxlength="60"
+              [placeholder]="t('presets.name')"
+              [value]="presetName()"
+              (input)="presetName.set(value($event))"
+            />
+            <input
+              class="input wide"
+              maxlength="200"
+              [placeholder]="t('presets.description')"
+              [value]="presetDescription()"
+              (input)="presetDescription.set(value($event))"
+            />
+            <button type="button" class="btn btn-sm" (click)="saving.set(false)">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" class="btn btn-sm btn-primary" [disabled]="!presetName().trim()">
+              {{ t('presets.save') }}
+            </button>
           </form>
         }
       </div>

@@ -196,7 +196,8 @@
     "PRESET_READ_ONLY": "Les presets intégrés ne peuvent pas être supprimés.",
     "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert.",
     "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format.",
-    "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase."
+    "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase.",
+    "FORMAT_LOCKED": "Un match de cette catégorie a déjà commencé : son format ne peut plus changer."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -329,7 +330,7 @@
   },
   "format": {
     "title": "Format",
-    "lead": "Un format indépendant par catégorie · modifiable jusqu'à la clôture",
+    "lead": "Un format indépendant par catégorie · figé dès son premier match",
     "poolCount": "Nombre de poules",
     "fewerPools": "Une poule de moins",
     "morePools": "Une poule de plus",
@@ -428,7 +429,9 @@
     "keptCount": "{n, plural, =0 {Personne ne garde ici son classement final.} one {# participant garde ici son classement final.} other {# participants gardent ici leur classement final.}}",
     "nobodyHere": "Personne avec cette simulation",
     "bracketIsFinal": "Un tableau classe tous ses participants : personne ne passe à une autre phase.",
-    "addNeedsPools": "Seules des poules peuvent envoyer des participants vers une nouvelle phase : un tableau est toujours la dernière."
+    "addNeedsPools": "Seules des poules peuvent envoyer des participants vers une nouvelle phase : un tableau est toujours la dernière.",
+    "locked": "Verrouillé : matchs commencés",
+    "lockedHint": "Un match de cette catégorie a été appelé ou saisi : son format ne peut plus changer."
   },
   "tiebreak": {
     "wins": "Victoires",

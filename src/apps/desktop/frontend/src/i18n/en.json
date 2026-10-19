@@ -196,7 +196,8 @@
     "PRESET_READ_ONLY": "Built-in presets cannot be deleted.",
     "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened.",
     "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format.",
-    "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase."
+    "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase.",
+    "FORMAT_LOCKED": "A match of this category already started: its format can no longer change."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -329,7 +330,7 @@
   },
   "format": {
     "title": "Format",
-    "lead": "One format per category · can be changed until the tournament is archived",
+    "lead": "One format per category · fixed once its first match starts",
     "poolCount": "Number of pools",
     "fewerPools": "One pool less",
     "morePools": "One pool more",
@@ -428,7 +429,9 @@
     "keptCount": "{n, plural, =0 {Nobody keeps a final rank here.} one {# entrant keeps a final rank here.} other {# entrants keep a final rank here.}}",
     "nobodyHere": "Nobody with this simulation",
     "bracketIsFinal": "A bracket ranks every entrant it receives: nobody goes on to another phase.",
-    "addNeedsPools": "Only pools can send entrants to a new phase: a bracket is always the last one."
+    "addNeedsPools": "Only pools can send entrants to a new phase: a bracket is always the last one.",
+    "locked": "Locked: matches started",
+    "lockedHint": "A match of this category was called or scored: its format can no longer change."
   },
   "tiebreak": {
     "wins": "Wins",

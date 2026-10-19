@@ -33,6 +33,8 @@ type FormatCategory struct {
 	// some of them share a rank.
 	Ranked int  `json:"ranked"`
 	Ties   bool `json:"ties"`
+	// Locked: a match was called or scored, the format no longer changes.
+	Locked bool `json:"locked"`
 }
 
 // FormatView is the format screen.
@@ -76,6 +78,7 @@ func (s *TournamentService) GetFormatView() FormatView {
 			CategoryRef:  ref,
 			TimedAllowed: len(st.Categories) == 1,
 			Present:      len(st.Present(ref.Category)),
+			Locked:       st.FormatLocked(ref.Category),
 		}
 		for _, e := range st.Entrants {
 			if e.Category == ref.Category {

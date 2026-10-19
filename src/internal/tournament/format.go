@@ -241,6 +241,8 @@ func (s State) RemoveStage(c engine.Category, id string) (Change, error) {
 		return Change{}, engine.NewError(engine.CodeStageNotFound)
 	case len(s.formats[c]) == 1:
 		return Change{}, engine.NewError(engine.CodeInvalidFormat)
+	case s.FormatLocked(c):
+		return Change{}, engine.NewError(engine.CodeFormatLocked)
 	case st.Filled():
 		return Change{}, engine.NewError(engine.CodeStageFilled)
 	}
@@ -298,6 +300,9 @@ func renumberFormat(stages []StageConfig) ([]StageConfig, error) {
 
 // formatChange validates a new format against the current one.
 func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, error) {
+	if s.FormatLocked(c) {
+		return Change{}, engine.NewError(engine.CodeFormatLocked)
+	}
 	stages = slices.Clone(stages)
 	position := map[string]int{}
 	for i, st := range stages {
@@ -495,6 +500,12 @@ func (s State) hasTimedStage() bool {
 
 // stageStarted reports whether a match of the stage was called or decided on
 // court (byes do not count).
+// FormatLocked reports whether a match of the category was called or
+// scored: its format can no longer change.
+func (s State) FormatLocked(c engine.Category) bool {
+	return slices.ContainsFunc(s.formats[c], func(st *Stage) bool { return s.stageStarted(c, st.ID) })
+}
+
 func (s State) stageStarted(c engine.Category, id string) bool {
 	return slices.ContainsFunc(s.matches, func(m Match) bool {
 		return m.Category == c && m.Stage == id && (m.Called() || m.Score != nil)

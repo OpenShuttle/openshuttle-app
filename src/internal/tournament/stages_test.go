@@ -209,13 +209,14 @@ func TestBracketFullPlacement(t *testing.T) {
 	})
 	g.fails(engine.CodeBracketStarted, func(s State) (Change, error) { return s.FillStage(engine.MensSingles, main) })
 	g.fails(engine.CodeBracketStarted, func(s State) (Change, error) { return s.SwapSlots(engine.MensSingles, main, 0, 1) })
-	// A filled stage keeps its kind and its feeding ranks.
-	g.fails(engine.CodeStageFilled, func(s State) (Change, error) {
+	// Matches started: the format is locked.
+	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
 		stages[0].Routing = RanksRules(main)
 		return s.SetFormat(engine.MensSingles, stages)
 	})
-	g.fails(engine.CodeStageFilled, func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, main) })
+	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, main) })
+	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) { return s.AddStage(engine.MensSingles, StagePools) })
 
 	g.win(final.ID, engine.SideB)
 	g.win(third.ID, engine.SideA)
@@ -290,23 +291,30 @@ func TestBracketForfeitKeepsPoolResults(t *testing.T) {
 }
 
 func TestDrawBracketPreconditions(t *testing.T) {
-	g := newGame(t, engine.MensSingles)
-	g.confirmedPools(engine.MensSingles, 1, 3)
-	p := g.addStage(engine.MensSingles, StageBracket, "P", false)
-	// A perfect three-way tie in the pool.
-	for _, m := range g.state().Matches() {
-		score := engine.Score{Sets: []engine.SetScore{{A: 21, B: 10}, {A: 21, B: 10}}}
-		if m.ID == "MS-A2" {
-			score = engine.Score{Sets: []engine.SetScore{{A: 10, B: 21}, {A: 10, B: 21}}}
+	// A perfect three-way tie in the pool; the bracket takes the given ranks.
+	setup := func(routing ...string) (*game, string) {
+		g := newGame(t, engine.MensSingles)
+		g.confirmedPools(engine.MensSingles, 1, 3)
+		p := g.addStage(engine.MensSingles, StageBracket, "P", false)
+		g.route(engine.MensSingles, "S1", slices.Repeat([]string{p}, len(routing))...)
+		for _, m := range g.state().Matches() {
+			score := engine.Score{Sets: []engine.SetScore{{A: 21, B: 10}, {A: 21, B: 10}}}
+			if m.ID == "MS-A2" {
+				score = engine.Score{Sets: []engine.SetScore{{A: 10, B: 21}, {A: 10, B: 21}}}
+			}
+			g.do(func(s State) (Change, error) { return s.RecordScore(m.ID, score) })
 		}
-		g.do(func(s State) (Change, error) { return s.RecordScore(m.ID, score) })
+		return g, p
 	}
-	g.route(engine.MensSingles, "S1", p)
+
+	g, p := setup("winner")
 	g.fails(engine.CodeTieUnresolved, func(s State) (Change, error) { return s.FillStage(engine.MensSingles, p) })
 	g.do(func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, "S1", 0, rng()) })
 	// Only the pool winner is routed: not enough for a bracket.
 	g.fails(engine.CodeNotEnoughEntrants, func(s State) (Change, error) { return s.FillStage(engine.MensSingles, p) })
-	g.route(engine.MensSingles, "S1", p, p)
+
+	g, p = setup("winner", "runner-up")
+	g.do(func(s State) (Change, error) { return s.DrawLots(engine.MensSingles, "S1", 0, rng()) })
 	g.fill(engine.MensSingles, p)
 	g.do(func(s State) (Change, error) { return s.SwapSlots(engine.MensSingles, p, 0, 1) })
 	g.fails(engine.CodeInvalidSlot, func(s State) (Change, error) { return s.SwapSlots(engine.MensSingles, p, 0, 5) })
