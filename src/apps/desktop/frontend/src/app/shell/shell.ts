@@ -8,7 +8,6 @@ import { System, Window } from '@wailsio/runtime';
 import { DisplayScreenService } from '../core/display-screen.service';
 import { LanguageService } from '../core/language.service';
 import { AppSettings } from '../core/settings.service';
-import { SettingsService } from '@bindings/apps/desktop';
 import { TournamentStore } from '../core/tournament.service';
 import { ActionView } from '@bindings/apps/desktop';
 import { ActionLabels } from '../core/action-label';
@@ -127,14 +126,6 @@ export class Shell implements OnInit {
   protected errorKey(code: string): string {
     const key = `errors.${code}`;
     return this.transloco.translate(key) === key ? 'errors.INTERNAL' : key;
-  }
-
-  protected onMonitor(event: Event): void {
-    const id = (event.target as HTMLSelectElement).value;
-    void this.settings.run(() => SettingsService.SetMonitor(id));
-    if (this.display.isOpen()) {
-      void this.display.open(id);
-    }
   }
 
   protected toggleDisplay(): void {

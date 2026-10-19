@@ -52,27 +52,6 @@
           <span class="display-state">{{
             t(display.isOpen() ? 'displayScreen.isOpen' : 'displayScreen.isClosed')
           }}</span>
-          <select
-            class="display-monitor"
-            [attr.aria-label]="t('displayScreen.monitor')"
-            (change)="onMonitor($event)"
-            (focus)="display.refresh()"
-          >
-            <option value="" [selected]="monitorId() === ''">
-              {{ t('displayScreen.monitorAuto') }}
-            </option>
-            @for (m of display.monitors(); track m.id) {
-              <option [value]="m.id" [selected]="m.id === monitorId()">
-                {{
-                  t('displayScreen.monitorLabel', {
-                    name: m.name,
-                    width: m.width,
-                    height: m.height,
-                  })
-                }}
-              </option>
-            }
-          </select>
           @if (display.isOpen()) {
             <button
               type="button"
