@@ -84,7 +84,7 @@ func main() {
 		Frameless: runtime.GOOS != "darwin",
 		Mac: application.MacWindow{
 			TitleBar:                application.MacTitleBarHiddenInset,
-			InvisibleTitleBarHeight: 64,
+			InvisibleTitleBarHeight: 48,
 		},
 	})
 	// Closing the control desk quits the app, display screen included.

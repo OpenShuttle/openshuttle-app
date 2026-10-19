@@ -1,7 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -20 2277 2348" width="512" height="528">
-  <g id="fond">
-    <rect x="58" y="33" width="2141" height="2240" rx="485" ry="485" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="90"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="328 229 1608 1886" width="512" height="600">
   <g id="plumes" fill="#076167">
     <g transform="translate(0,2304) scale(0.1,-0.1)">
       <path d="M9205 20416 c-71 -34 -111 -68 -211 -186 -49 -57 -119 -136 -156

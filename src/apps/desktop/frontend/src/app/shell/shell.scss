@@ -7,7 +7,7 @@
 }
 
 .topbar {
-  height: 64px;
+  height: 48px;
   flex: none;
   display: flex;
   align-items: center;
@@ -78,12 +78,9 @@
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 30px;
   flex: none;
-  // The logo is drawn on white: a hairline keeps it visible on the white bar.
-  border-radius: 9px;
-  box-shadow: 0 0 0 1px var(--color-border);
   -webkit-user-drag: none;
 }
 
@@ -96,14 +93,14 @@
 
 .brand-name {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .brand-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--color-text-muted);
   overflow: hidden;
   display: -webkit-box;
@@ -121,7 +118,7 @@
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 6px 6px 6px 14px;
+  padding: 3px 4px 3px 12px;
 }
 
 .last-action-text {
@@ -141,7 +138,7 @@
 }
 
 .last-action-label {
-  font-size: 14px;
+  font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -152,7 +149,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: 30px;
   padding: 0 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border-strong);
@@ -179,7 +176,7 @@
 }
 
 .tab {
-  height: 38px;
+  height: 32px;
   padding: 0 14px;
   border-radius: var(--radius-md);
   display: flex;
@@ -210,7 +207,7 @@
 }
 
 .clock {
-  font: 700 24px/1 var(--font-mono);
+  font: 700 20px/1 var(--font-mono);
   letter-spacing: -0.02em;
 }
 
@@ -220,7 +217,7 @@
   gap: 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 4px 4px 4px 12px;
+  padding: 3px 3px 3px 12px;
 }
 
 .display-dot {
@@ -241,7 +238,7 @@
 }
 
 .display-monitor {
-  height: 32px;
+  height: 28px;
   max-width: 180px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -251,7 +248,7 @@
 }
 
 .display-toggle {
-  height: 32px;
+  height: 28px;
   padding: 0 12px;
   border-radius: var(--radius-sm);
   border: none;
@@ -267,7 +264,7 @@
 }
 
 .resume {
-  height: 38px;
+  height: 32px;
   padding: 0 16px;
   border-radius: var(--radius-md);
   border: none;

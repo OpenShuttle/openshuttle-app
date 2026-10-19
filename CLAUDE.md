@@ -205,7 +205,7 @@ The Claude Design mockup lives in `docs/tournoi-badminton-interactif/project/`
 structure. Colors are CSS custom properties in `frontend/src/styles.scss`, taken
 from the mockup. Category badges are colored by the category's slot in the
 tournament (`--color-category-1`, `--color-category-2`), not by type.
-The app logo is `frontend/public/logo.svg` (also `favicon.ico`); the app
+The app logo is `frontend/public/logo.svg` (the shuttle alone, transparent; also `favicon.ico`); the app
 icons in `build/` (`appicon.png`, `windows/icon.ico`, `darwin/icons.icns`,
 DMG icon and background) are generated from it (`wails3 generate icons`).
 The main window has no native title bar on Windows and Linux (`Frameless`):
