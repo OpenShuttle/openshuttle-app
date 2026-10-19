@@ -1,8 +1,10 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { PresetService, Presets } from '@bindings/apps/desktop';
+import { Tiebreak, WinCondition, WinConditionKind } from '@bindings/internal/engine';
 
 import { BackendError, backendError } from './backend-error';
+import { AppSettings } from './settings.service';
 
 const EMPTY: Presets = { win: [], tiebreaks: [], formats: [], disabled: [] };
 
@@ -11,6 +13,25 @@ const EMPTY: Presets = { win: [], tiebreaks: [], formats: [], disabled: [] };
 export class AppPresets {
   readonly value = signal<Presets>(EMPTY);
   readonly error = signal<BackendError | null>(null);
+  private readonly settings = inject(AppSettings);
+
+  /** The win condition of a new stage or format: the default preset of the settings. */
+  readonly defaultWin = computed<WinCondition>(
+    () =>
+      (this.value().win ?? []).find((p) => p.id === this.settings.value()?.defaultWin)?.win ?? {
+        kind: WinConditionKind.WinBySets,
+        setsToWin: 2,
+        pointsPerSet: 15,
+        cap: 21,
+      },
+  );
+
+  /** The tiebreak order of a new pools stage: the default preset of the settings. */
+  readonly defaultTiebreaks = computed<Tiebreak[]>(() => [
+    ...((this.value().tiebreaks ?? []).find((p) => p.id === this.settings.value()?.defaultTiebreaks)?.tiebreaks ??
+      this.value().tiebreaks?.[0]?.tiebreaks ??
+      []),
+  ]);
 
   /** The presets offered in the tournament screens: the disabled ones left out. */
   readonly offered = computed<Presets>(() => {

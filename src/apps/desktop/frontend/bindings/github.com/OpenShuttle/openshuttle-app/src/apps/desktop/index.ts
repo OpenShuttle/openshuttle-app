@@ -14,6 +14,10 @@ export {
     TournamentService
 };
 
+export {
+    PresetKind
+} from "./models.js";
+
 export type {
     ActionView,
     AppInfo,

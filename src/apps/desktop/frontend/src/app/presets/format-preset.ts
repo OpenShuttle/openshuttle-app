@@ -2,31 +2,27 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { FormatPreset, PresetService, StageView } from '@bindings/apps/desktop';
-import { CrossPool, Tiebreak, WinConditionKind } from '@bindings/internal/engine';
+import { CrossPool, Tiebreak, WinCondition } from '@bindings/internal/engine';
 import { FormatPreview, StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { backendError, BackendError } from '../core/backend-error';
 import { AppPresets } from '../core/presets.service';
 import { FormatEditor, LAST_STAGE, canAddStage } from '../format-editor/format-editor';
 
-const DEFAULT_TIEBREAKS = ['wins', 'headToHead', 'setDifference', 'pointDifference', 'draw'] as Tiebreak[];
-
-/** A new format: pools of 4 (else 5) and nothing after. */
-function newFormat(): StageConfig[] {
-  return [
-    {
-      id: 'S1',
-      name: '',
-      kind: StageKind.StagePools,
-      win: { kind: WinConditionKind.WinBySets, setsToWin: 2, pointsPerSet: 21, cap: 30 },
-      pools: 0,
-      poolSizes: [4, 5],
-      tiebreaks: [...DEFAULT_TIEBREAKS],
-      crossPool: CrossPool.CrossPoolSameMatches,
-      fullPlacement: false,
-      routing: [],
-    },
-  ];
+/** A new pools stage: pools of 4 (else 5), with the default win condition and tiebreaks. */
+function newPoolsStage(id: string, win: WinCondition, tiebreaks: Tiebreak[]): StageConfig {
+  return {
+    id,
+    name: '',
+    kind: StageKind.StagePools,
+    win,
+    pools: 0,
+    poolSizes: [4, 5],
+    tiebreaks,
+    crossPool: CrossPool.CrossPoolSameMatches,
+    fullPlacement: false,
+    routing: [],
+  };
 }
 
 /**
@@ -50,7 +46,7 @@ export class FormatPresetPage {
 
   protected readonly name = signal('');
   protected readonly description = signal('');
-  protected readonly stages = signal<StageConfig[]>(newFormat());
+  protected readonly stages = signal<StageConfig[]>([]);
   protected readonly entrants = signal(16);
   protected readonly preview = signal<FormatPreview | null>(null);
   protected readonly error = signal<BackendError | null>(null);
@@ -83,7 +79,9 @@ export class FormatPresetPage {
       if (this.loaded() || (this.id() !== 'new' && !p)) {
         return;
       }
-      if (p) {
+      if (!p) {
+        this.stages.set([newPoolsStage('S1', this.presets.defaultWin(), this.presets.defaultTiebreaks())]);
+      } else {
         this.name.set(p.name || this.transloco.translate('presets.format.' + p.key + '.name'));
         this.description.set(p.description || (p.key ? this.transloco.translate('presets.format.' + p.key + '.description') : ''));
         this.stages.set(structuredClone(p.stages ?? []));
@@ -121,8 +119,8 @@ export class FormatPresetPage {
     const last = stages[stages.length - 1];
     const stage: StageConfig =
       kind === StageKind.StagePools
-        ? { ...newFormat()[0], id: `S${next}`, win: last?.win ?? newFormat()[0].win }
-        : { id: `S${next}`, name: '', kind, win: last?.win ?? newFormat()[0].win, fullPlacement: true, routing: [] };
+        ? newPoolsStage(`S${next}`, last?.win ?? this.presets.defaultWin(), this.presets.defaultTiebreaks())
+        : { id: `S${next}`, name: '', kind, win: last?.win ?? this.presets.defaultWin(), fullPlacement: true, routing: [] };
     this.stages.set([...stages, stage]);
     editor.selectedID.set(LAST_STAGE);
   }

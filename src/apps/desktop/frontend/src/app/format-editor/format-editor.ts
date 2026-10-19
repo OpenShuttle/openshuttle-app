@@ -229,7 +229,7 @@ export class FormatEditor {
             kind,
             pools: 0,
             poolSizes: [4, 5],
-            tiebreaks: [...(this.presets.value().tiebreaks?.[0]?.tiebreaks ?? [])],
+            tiebreaks: this.presets.defaultTiebreaks(),
             crossPool: CrossPool.CrossPoolSameMatches,
             fullPlacement: false,
           }

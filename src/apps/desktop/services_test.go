@@ -66,7 +66,28 @@ type fixture struct {
 	svc      *TournamentService
 }
 
+// newFixture is a fixture whose new categories start with the engine's
+// default format (2 pools, 2 sets of 21), which most tests build on.
 func newFixture(t *testing.T) *fixture {
+	t.Helper()
+	f := newBareFixture(t)
+	presets := NewPresetService(f.app, func(string, any) {}, func() time.Time { return f.clock })
+	if err := presets.SaveFormatPreset(f.ctx, "", "Classic", "", []tournament.StageConfig{tournament.DefaultPoolsStage("S1")}); err != nil {
+		t.Fatal(err)
+	}
+	p, err := presets.GetPresets(f.ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := f.settings.SetDefaultPreset(f.ctx, PresetKindFormat, p.Formats[len(p.Formats)-1].ID); err != nil {
+		t.Fatal(err)
+	}
+	f.rec.events = nil
+	return f
+}
+
+// newBareFixture is a fixture with the app's own defaults.
+func newBareFixture(t *testing.T) *fixture {
 	t.Helper()
 	ctx := context.Background()
 	dir := t.TempDir()
@@ -113,10 +134,11 @@ func wantCode(t *testing.T, err error, code engine.Code) {
 }
 
 func TestSettings(t *testing.T) {
-	f := newFixture(t)
+	f := newBareFixture(t)
 	s, err := f.settings.GetSettings(f.ctx)
 	if err != nil || s.Language != "" || s.RotationSeconds != 8 || s.DefaultCourts != 4 ||
-		s.DefaultMinRest != 10 || s.DefaultPoolWin != "sets" || s.TournamentsDir == "" {
+		s.DefaultMinRest != 10 || s.TournamentsDir == "" ||
+		s.DefaultFormat != "b-pools" || s.DefaultWin != "b-sets-2x15" || s.DefaultTiebreaks != "b-standard" {
 		t.Fatalf("default settings = %+v, %v", s, err)
 	}
 	if err := f.settings.SetLanguage(f.ctx, "fr"); err != nil {
@@ -138,11 +160,14 @@ func TestSettings(t *testing.T) {
 	must(f.settings.SetRotationSeconds(f.ctx, 12))
 	must(f.settings.SetDefaultCourts(f.ctx, 6))
 	must(f.settings.SetDefaultMinRest(f.ctx, 0))
-	must(f.settings.SetDefaultPoolWin(f.ctx, "timed"))
+	must(f.settings.SetDefaultPreset(f.ctx, PresetKindFormat, "b-pools-main"))
+	must(f.settings.SetDefaultPreset(f.ctx, PresetKindWin, "b-timed-10"))
+	must(f.settings.SetDefaultPreset(f.ctx, PresetKindTiebreaks, "b-differences-first"))
 	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 3), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultMinRest(f.ctx, 61), engine.CodeInvalidSetting)
-	wantCode(t, f.settings.SetDefaultPoolWin(f.ctx, "golf"), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetDefaultPreset(f.ctx, "golf", "b-pools"), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetDefaultPreset(f.ctx, PresetKindWin, "b-pools"), engine.CodePresetNotFound)
 
 	// Folder: cancelled, then chosen; dialogs open there.
 	if dir, err := f.settings.ChooseTournamentsDir(f.ctx); err != nil || dir != "" {
@@ -154,7 +179,8 @@ func TestSettings(t *testing.T) {
 	}
 	s, _ = f.settings.GetSettings(f.ctx)
 	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 12,
-		DefaultCourts: 6, DefaultMinRest: 0, DefaultPoolWin: "timed", TournamentsDir: f.dir}
+		DefaultCourts: 6, DefaultMinRest: 0, TournamentsDir: f.dir,
+		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first"}
 	if s != want {
 		t.Errorf("settings = %+v, want %+v", s, want)
 	}
@@ -170,9 +196,16 @@ func TestSettings(t *testing.T) {
 	if v := f.svc.GetTournamentView(); v.Courts != 6 || v.MinRest != 0 {
 		t.Errorf("tournament = %d courts, %d min rest", v.Courts, v.MinRest)
 	}
+	// A new category starts with the default format.
 	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
-	if fc := f.svc.GetFormatView().Categories[0]; fc.Stages[0].Win.Kind != engine.WinByTime {
-		t.Errorf("default pool win = %+v", fc.Stages[0].Win)
+	if fc := f.svc.GetFormatView().Categories[0]; len(fc.Stages) != 2 || fc.Stages[1].Kind != tournament.StageBracket ||
+		fc.Stages[0].Win != (engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 2, PointsPerSet: 15, Cap: 21}) {
+		t.Errorf("default format = %+v", fc.Stages)
+	}
+	// One undo removes the category and its format together.
+	must(f.svc.Undo(f.ctx))
+	if v := f.svc.GetFormatView(); len(v.Categories) != 0 {
+		t.Errorf("categories after undo = %+v", v.Categories)
 	}
 }
 

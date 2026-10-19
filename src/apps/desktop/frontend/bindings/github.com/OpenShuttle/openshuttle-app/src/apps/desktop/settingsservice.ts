@@ -44,11 +44,11 @@ export function SetDefaultMinRest(minutes: number): $CancellablePromise<void> {
 }
 
 /**
- * SetDefaultPoolWin sets the pool win condition of new tournaments: "sets"
- * or "timed" (timed applies while a single category plays).
+ * SetDefaultPreset chooses the default format, win condition or tiebreak
+ * order among the presets.
  */
-export function SetDefaultPoolWin(kind: string): $CancellablePromise<void> {
-    return $Call.ByID(686581943, kind);
+export function SetDefaultPreset(kind: $models.PresetKind, id: string): $CancellablePromise<void> {
+    return $Call.ByID(2730214602, kind, id);
 }
 
 /**

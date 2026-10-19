@@ -15,9 +15,12 @@ const (
 // MaxCategories is the most categories a v1 tournament runs at once.
 const MaxCategories = 2
 
-// CategoryAdded is the payload of TypeCategoryAdded.
+// CategoryAdded is the payload of TypeCategoryAdded. Stages is the format
+// the category starts with (the app's default format); without it, the
+// engine's default.
 type CategoryAdded struct {
 	Category engine.Category `json:"category"`
+	Stages   []StageConfig   `json:"stages,omitempty"`
 }
 
 // CategoryRemoved is the payload of TypeCategoryRemoved.
@@ -30,8 +33,10 @@ func (s State) HasCategory(c engine.Category) bool {
 	return slices.Contains(s.Categories, c)
 }
 
-// AddCategory adds a category: at most two, each type once.
-func (s State) AddCategory(c engine.Category) (Change, error) {
+// AddCategory adds a category: at most two, each type once. It starts with
+// the given format when that format is valid with the new category count
+// (a timed one is not with two categories), else with the engine's default.
+func (s State) AddCategory(c engine.Category, stages ...StageConfig) (Change, error) {
 	switch {
 	case !c.Valid():
 		return Change{}, engine.NewError(engine.CodeInvalidCategory)
@@ -46,7 +51,15 @@ func (s State) AddCategory(c engine.Category) (Change, error) {
 		// Timed rounds start and end together on every court: a single category only.
 		return Change{}, engine.NewError(engine.CodeTimedNeedsOneCategory)
 	}
-	return Change{TypeCategoryAdded, CategoryAdded{Category: c}}, nil
+	added := CategoryAdded{Category: c}
+	if len(stages) > 0 {
+		if renumbered, err := renumberFormat(stages); err == nil {
+			if valid, err := validFormat(renumbered, len(s.Categories)+1); err == nil {
+				added.Stages = valid
+			}
+		}
+	}
+	return Change{TypeCategoryAdded, added}, nil
 }
 
 // AvailableCategories returns the categories that can still be added, in
@@ -79,6 +92,9 @@ func (s *State) applyCategoryAdded(p CategoryAdded) {
 	if !s.HasCategory(p.Category) {
 		s.Categories = append(s.Categories, p.Category)
 		s.newFormat(p.Category)
+		if len(p.Stages) > 0 {
+			s.applyFormatSet(FormatSet{Category: p.Category, Stages: p.Stages})
+		}
 	}
 }
 

@@ -67,7 +67,7 @@ func builtInPresets() Presets {
 		return engine.WinCondition{Kind: engine.WinBySets, SetsToWin: n, PointsPerSet: points, Cap: cap}
 	}
 	timed := func(m int) engine.WinCondition { return engine.WinCondition{Kind: engine.WinByTime, Minutes: m} }
-	std := sets(2, 21, 30)
+	std := sets(2, 15, 21)
 	// Pools of 4 when possible, else of 5: the number of pools follows the
 	// number of entrants.
 	pools := func(id string, routing ...tournament.RouteRule) tournament.StageConfig {
@@ -83,10 +83,10 @@ func builtInPresets() Presets {
 	}
 	return Presets{
 		Win: []WinPreset{
-			{ID: "b-sets-2x21", Win: std},
-			{ID: "b-sets-1x21", Win: sets(1, 21, 30)},
-			{ID: "b-sets-2x15", Win: sets(2, 15, 21)},
+			{ID: "b-sets-2x15", Win: std},
 			{ID: "b-sets-1x15", Win: sets(1, 15, 21)},
+			{ID: "b-sets-2x21", Win: sets(2, 21, 30)},
+			{ID: "b-sets-1x21", Win: sets(1, 21, 30)},
 			{ID: "b-sets-3x11", Win: sets(3, 11, 15)},
 			{ID: "b-timed-10", Win: timed(10)},
 			{ID: "b-timed-12", Win: timed(12)},
@@ -116,6 +116,19 @@ func builtInPresets() Presets {
 			}},
 		},
 	}
+}
+
+// has reports whether a preset of that kind exists.
+func (p Presets) has(kind PresetKind, id string) bool {
+	switch kind {
+	case PresetKindFormat:
+		return slices.ContainsFunc(p.Formats, func(x FormatPreset) bool { return x.ID == id })
+	case PresetKindWin:
+		return slices.ContainsFunc(p.Win, func(x WinPreset) bool { return x.ID == id })
+	case PresetKindTiebreaks:
+		return slices.ContainsFunc(p.Tiebreaks, func(x TiebreakPreset) bool { return x.ID == id })
+	}
+	return false
 }
 
 // readPresets returns the built-in presets, then the saved ones.
@@ -317,9 +330,7 @@ func (s *PresetService) SetPresetEnabled(ctx context.Context, id string, enabled
 	if err != nil {
 		return err
 	}
-	if !slices.ContainsFunc(all.Win, func(x WinPreset) bool { return x.ID == id }) &&
-		!slices.ContainsFunc(all.Tiebreaks, func(x TiebreakPreset) bool { return x.ID == id }) &&
-		!slices.ContainsFunc(all.Formats, func(x FormatPreset) bool { return x.ID == id }) {
+	if !all.has(PresetKindWin, id) && !all.has(PresetKindTiebreaks, id) && !all.has(PresetKindFormat, id) {
 		return engine.NewError(engine.CodePresetNotFound)
 	}
 	return s.update(ctx, func(p *Presets) {

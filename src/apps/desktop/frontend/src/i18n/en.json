@@ -672,14 +672,17 @@
     "operator": "Operator name",
     "operatorHint": "Shown in the history, with every action.",
     "defaults": "Defaults for new tournaments",
-    "poolWin": "Pool win condition",
-    "poolWinHint": "Timed only applies while a single category plays.",
     "files": "Files",
     "folder": "Tournaments folder",
     "change": "Change…",
     "autosave": "Automatic saving",
     "autosaveHint": "Every action is written to the tournament file as it happens.",
-    "always": "Always on"
+    "always": "Always on",
+    "defaultFormat": "Format of a new category",
+    "defaultFormatHint": "A new category starts with this format preset.",
+    "defaultWin": "Win condition",
+    "defaultWinHint": "Used by new stages and new formats.",
+    "defaultTiebreaks": "Tiebreak order"
   },
   "homeTabs": {
     "home": "Home",

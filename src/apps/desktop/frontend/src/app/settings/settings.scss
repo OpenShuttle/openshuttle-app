@@ -76,7 +76,8 @@ section:first-of-type .name {
 
 select {
   flex: none;
-  width: 240px;
+  width: 300px;
+  max-width: 50%;
 }
 
 .operator {

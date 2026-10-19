@@ -65,7 +65,8 @@ type CheckInView struct {
 
 // AddCategory adds a category (MS, WS, MD, WD, XD) to the tournament.
 func (s *TournamentService) AddCategory(ctx context.Context, c engine.Category) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddCategory(c) })
+	stages := s.defaultFormat(ctx)
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddCategory(c, stages...) })
 }
 
 // RemoveCategory removes a category that has no entrant.
@@ -187,4 +188,23 @@ func playerView(p tournament.Player, duplicate bool) PlayerView {
 		v.CheckedInAt = &at
 	}
 	return v
+}
+
+// defaultFormat is the format a new category starts with: the default
+// format preset of the settings.
+func (s *TournamentService) defaultFormat(ctx context.Context) []tournament.StageConfig {
+	settings, err := loadSettings(ctx, s.app)
+	if err != nil {
+		return nil
+	}
+	presets, err := readPresets(ctx, s.app)
+	if err != nil {
+		return nil
+	}
+	for _, f := range presets.Formats {
+		if f.ID == settings.DefaultFormat {
+			return f.Stages
+		}
+	}
+	return nil
 }

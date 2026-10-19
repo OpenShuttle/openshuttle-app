@@ -265,8 +265,17 @@ func (s State) ApplyFormat(c engine.Category, stages []StageConfig) (Change, err
 	if e := s.entry(c); e != nil && e.Confirmed {
 		return Change{}, engine.NewError(engine.CodeDrawConfirmed)
 	}
+	renumbered, err := renumberFormat(stages)
+	if err != nil {
+		return Change{}, err
+	}
+	return s.formatChange(c, renumbered)
+}
+
+// renumberFormat numbers the stages of a format from S1, routing included.
+func renumberFormat(stages []StageConfig) ([]StageConfig, error) {
 	if len(stages) == 0 || len(stages) > MaxStages {
-		return Change{}, engine.NewError(engine.CodeInvalidFormat)
+		return nil, engine.NewError(engine.CodeInvalidFormat)
 	}
 	ids := map[string]string{"": ""}
 	renumbered := make([]StageConfig, len(stages))
@@ -279,12 +288,12 @@ func (s State) ApplyFormat(c engine.Category, stages []StageConfig) (Change, err
 		for j, r := range renumbered[i].Routing {
 			id, ok := ids[r.To]
 			if !ok {
-				return Change{}, engine.NewError(engine.CodeInvalidRouting)
+				return nil, engine.NewError(engine.CodeInvalidRouting)
 			}
 			renumbered[i].Routing[j].To = id
 		}
 	}
-	return s.formatChange(c, renumbered)
+	return renumbered, nil
 }
 
 // formatChange validates a new format against the current one.
@@ -349,6 +358,11 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 // ValidateFormat checks a format on its own, as a preset: its stages and
 // routing, for a tournament of one category.
 func ValidateFormat(stages []StageConfig) ([]StageConfig, error) {
+	return validFormat(stages, 1)
+}
+
+// validFormat checks a format for a tournament of that many categories.
+func validFormat(stages []StageConfig, categories int) ([]StageConfig, error) {
 	if len(stages) == 0 || len(stages) > MaxStages {
 		return nil, engine.NewError(engine.CodeInvalidFormat)
 	}
@@ -361,7 +375,7 @@ func ValidateFormat(stages []StageConfig) ([]StageConfig, error) {
 		position[st.ID] = i + 1
 	}
 	for i, st := range stages {
-		st, err := validStage(st, 1)
+		st, err := validStage(st, categories)
 		if err != nil {
 			return nil, err
 		}

@@ -672,14 +672,17 @@
     "operator": "Nom de l'opérateur",
     "operatorHint": "Affiché dans l'historique, à chaque action.",
     "defaults": "Valeurs par défaut des nouveaux tournois",
-    "poolWin": "Condition de victoire des poules",
-    "poolWinHint": "Le match au temps ne s'applique qu'avec une seule catégorie.",
     "files": "Fichiers",
     "folder": "Dossier des tournois",
     "change": "Changer…",
     "autosave": "Enregistrement automatique",
     "autosaveHint": "À chaque action, dans le fichier du tournoi.",
-    "always": "Toujours actif"
+    "always": "Toujours actif",
+    "defaultFormat": "Format d'une nouvelle catégorie",
+    "defaultFormatHint": "Une nouvelle catégorie démarre avec ce preset de format.",
+    "defaultWin": "Condition de victoire",
+    "defaultWinHint": "Utilisée par les nouvelles phases et les nouveaux formats.",
+    "defaultTiebreaks": "Ordre de départage"
   },
   "homeTabs": {
     "home": "Accueil",

@@ -601,7 +601,6 @@ func (s *TournamentService) createdWithDefaults(ctx context.Context, name string
 	}
 	rest := settings.DefaultMinRest
 	c.Courts, c.MinRest = settings.DefaultCourts, &rest
-	c.TimedPools = settings.DefaultPoolWin == string(engine.WinByTime)
 	return c
 }
 

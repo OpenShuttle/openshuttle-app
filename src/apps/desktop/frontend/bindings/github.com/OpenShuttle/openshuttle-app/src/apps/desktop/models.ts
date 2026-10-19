@@ -482,6 +482,20 @@ export interface PoolRefView {
 }
 
 /**
+ * PresetKind names a list of presets.
+ */
+export enum PresetKind {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    PresetKindFormat = "format",
+    PresetKindWin = "win",
+    PresetKindTiebreaks = "tiebreaks",
+};
+
+/**
  * Presets lists every preset, built-in ones first. Disabled presets (any
  * kind, built-in ones included) stay listed but are not offered.
  */
@@ -671,9 +685,12 @@ export interface Settings {
     "defaultMinRest": number;
 
     /**
-     * "sets" or "timed"
+     * Default presets: the format a new category starts with, and the win
+     * condition and tiebreak order of a new stage or format.
      */
-    "defaultPoolWin": string;
+    "defaultFormat": string;
+    "defaultWin": string;
+    "defaultTiebreaks": string;
 
     /**
      * TournamentsDir is where the file dialogs open.

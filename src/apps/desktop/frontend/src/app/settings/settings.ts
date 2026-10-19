@@ -1,10 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { TranslocoDirective } from '@jsverse/transloco';
-import { AppInfo, AppService, SettingsService } from '@bindings/apps/desktop';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { AppInfo, AppService, PresetKind, SettingsService } from '@bindings/apps/desktop';
+import { WinCondition } from '@bindings/internal/engine';
 
 import { DisplayScreenService } from '../core/display-screen.service';
 import { Language, LanguageService } from '../core/language.service';
+import { AppPresets } from '../core/presets.service';
 import { AppSettings } from '../core/settings.service';
+import { winSummary } from '../shared/stage-label';
 
 /** Settings: stored on this PC, for every tournament. */
 @Component({
@@ -17,6 +20,9 @@ export class SettingsPage {
   protected readonly settings = inject(AppSettings);
   protected readonly language = inject(LanguageService);
   protected readonly display = inject(DisplayScreenService);
+  protected readonly presets = inject(AppPresets);
+  private readonly transloco = inject(TranslocoService);
+  protected readonly presetKinds = PresetKind;
   protected readonly app = signal<AppInfo | null>(null);
 
   constructor() {
@@ -61,8 +67,13 @@ export class SettingsPage {
     }
   }
 
-  protected setPoolWin(kind: 'sets' | 'timed'): void {
-    void this.settings.run(() => SettingsService.SetDefaultPoolWin(kind));
+  protected setDefault(kind: PresetKind, event: Event): void {
+    const id = (event.target as HTMLSelectElement).value;
+    void this.settings.run(() => SettingsService.SetDefaultPreset(kind, id));
+  }
+
+  protected win(w: WinCondition): string {
+    return winSummary(this.transloco, w);
   }
 
   protected chooseFolder(): void {

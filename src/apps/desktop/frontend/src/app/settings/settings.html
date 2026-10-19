@@ -93,17 +93,35 @@
       </div>
       <div class="row">
         <div class="label">
-          <span class="name">{{ t('settingsPage.poolWin') }}</span>
-          <span class="hint">{{ t('settingsPage.poolWinHint') }}</span>
+          <span class="name">{{ t('settingsPage.defaultFormat') }}</span>
+          <span class="hint">{{ t('settingsPage.defaultFormatHint') }}</span>
         </div>
-        <div class="seg">
-          <button type="button" class="seg-option" [class.active]="s.defaultPoolWin === 'timed'" (click)="setPoolWin('timed')">
-            {{ t('format.byTime') }}
-          </button>
-          <button type="button" class="seg-option" [class.active]="s.defaultPoolWin === 'sets'" (click)="setPoolWin('sets')">
-            {{ t('format.bySets') }}
-          </button>
+        <select (change)="setDefault(presetKinds.PresetKindFormat, $event)">
+          @for (p of presets.value().formats ?? []; track p.id) {
+            <option [value]="p.id" [selected]="p.id === s.defaultFormat">{{ p.name || t('presets.format.' + p.key + '.name') }}</option>
+          }
+        </select>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.defaultWin') }}</span>
+          <span class="hint">{{ t('settingsPage.defaultWinHint') }}</span>
         </div>
+        <select (change)="setDefault(presetKinds.PresetKindWin, $event)">
+          @for (p of presets.value().win ?? []; track p.id) {
+            <option [value]="p.id" [selected]="p.id === s.defaultWin">{{ p.name || win(p.win) }}</option>
+          }
+        </select>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.defaultTiebreaks') }}</span>
+        </div>
+        <select (change)="setDefault(presetKinds.PresetKindTiebreaks, $event)">
+          @for (p of presets.value().tiebreaks ?? []; track p.id) {
+            <option [value]="p.id" [selected]="p.id === s.defaultTiebreaks">{{ p.name || t('presets.tiebreaks.' + p.key) }}</option>
+          }
+        </select>
       </div>
     </section>
 

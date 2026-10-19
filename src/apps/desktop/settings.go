@@ -20,7 +20,9 @@ const (
 	settingRotationSeconds = "rotationSeconds"
 	settingDefaultCourts   = "defaultCourts"
 	settingDefaultMinRest  = "defaultMinRest"
-	settingDefaultPoolWin  = "defaultPoolWin"
+	settingDefaultFormat   = "defaultFormat"
+	settingDefaultWin      = "defaultWin"
+	settingDefaultTiebrk   = "defaultTiebreaks"
 	settingTournamentsDir  = "tournamentsDir"
 
 	// EventSettingsChanged is emitted after a setting changes, so every
@@ -51,9 +53,13 @@ type Settings struct {
 	// view before the next one.
 	RotationSeconds int `json:"rotationSeconds"`
 	// Defaults of new tournaments.
-	DefaultCourts  int    `json:"defaultCourts"`
-	DefaultMinRest int    `json:"defaultMinRest"`
-	DefaultPoolWin string `json:"defaultPoolWin"` // "sets" or "timed"
+	DefaultCourts  int `json:"defaultCourts"`
+	DefaultMinRest int `json:"defaultMinRest"`
+	// Default presets: the format a new category starts with, and the win
+	// condition and tiebreak order of a new stage or format.
+	DefaultFormat    string `json:"defaultFormat"`
+	DefaultWin       string `json:"defaultWin"`
+	DefaultTiebreaks string `json:"defaultTiebreaks"`
 	// TournamentsDir is where the file dialogs open.
 	TournamentsDir string `json:"tournamentsDir"`
 }
@@ -121,13 +127,39 @@ func (s *SettingsService) SetDefaultMinRest(ctx context.Context, minutes int) er
 	return s.setInt(ctx, settingDefaultMinRest, minutes, 0, tournament.MaxMinRest)
 }
 
-// SetDefaultPoolWin sets the pool win condition of new tournaments: "sets"
-// or "timed" (timed applies while a single category plays).
-func (s *SettingsService) SetDefaultPoolWin(ctx context.Context, kind string) error {
-	if kind != string(engine.WinBySets) && kind != string(engine.WinByTime) {
+// PresetKind names a list of presets.
+type PresetKind string
+
+const (
+	PresetKindFormat    PresetKind = "format"
+	PresetKindWin       PresetKind = "win"
+	PresetKindTiebreaks PresetKind = "tiebreaks"
+)
+
+// Built-in defaults, also used when a chosen default preset was deleted.
+const (
+	defaultFormatPreset    = "b-pools"
+	defaultWinPreset       = "b-sets-2x15"
+	defaultTiebreaksPreset = "b-standard"
+)
+
+// SetDefaultPreset chooses the default format, win condition or tiebreak
+// order among the presets.
+func (s *SettingsService) SetDefaultPreset(ctx context.Context, kind PresetKind, id string) error {
+	presets, err := readPresets(ctx, s.db)
+	if err != nil {
+		return err
+	}
+	key := map[PresetKind]string{
+		PresetKindFormat: settingDefaultFormat, PresetKindWin: settingDefaultWin, PresetKindTiebreaks: settingDefaultTiebrk,
+	}[kind]
+	if key == "" {
 		return engine.NewError(engine.CodeInvalidSetting)
 	}
-	return s.set(ctx, settingDefaultPoolWin, kind)
+	if !presets.has(kind, id) {
+		return engine.NewError(engine.CodePresetNotFound)
+	}
+	return s.set(ctx, key, id)
 }
 
 // ChooseTournamentsDir asks for the folder where file dialogs open. It
@@ -170,7 +202,8 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 	raw := map[string]string{}
 	for _, key := range []string{
 		settingLanguage, settingOperator, settingMonitor, settingRotationSeconds,
-		settingDefaultCourts, settingDefaultMinRest, settingDefaultPoolWin, settingTournamentsDir,
+		settingDefaultCourts, settingDefaultMinRest, settingTournamentsDir,
+		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk,
 	} {
 		v, _, err := db.Setting(ctx, key)
 		if err != nil {
@@ -191,12 +224,21 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		RotationSeconds: number(settingRotationSeconds, DefaultRotationSeconds),
 		DefaultCourts:   number(settingDefaultCourts, tournament.DefaultCourts),
 		DefaultMinRest:  number(settingDefaultMinRest, tournament.DefaultMinRest),
-		DefaultPoolWin:  raw[settingDefaultPoolWin],
 		TournamentsDir:  raw[settingTournamentsDir],
 	}
-	if s.DefaultPoolWin == "" {
-		s.DefaultPoolWin = string(engine.WinBySets)
+	presets, err := readPresets(ctx, db)
+	if err != nil {
+		return Settings{}, err
 	}
+	preset := func(kind PresetKind, key, def string) string {
+		if id := raw[key]; presets.has(kind, id) {
+			return id
+		}
+		return def
+	}
+	s.DefaultFormat = preset(PresetKindFormat, settingDefaultFormat, defaultFormatPreset)
+	s.DefaultWin = preset(PresetKindWin, settingDefaultWin, defaultWinPreset)
+	s.DefaultTiebreaks = preset(PresetKindTiebreaks, settingDefaultTiebrk, defaultTiebreaksPreset)
 	if info, err := os.Stat(s.TournamentsDir); s.TournamentsDir == "" || err != nil || !info.IsDir() {
 		s.TournamentsDir = documentsDir()
 	}
