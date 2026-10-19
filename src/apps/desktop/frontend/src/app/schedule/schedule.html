@@ -84,9 +84,21 @@
         <a class="btn btn-sm" routerLink="../format">{{ t('nav.format') }}</a>
       </div>
     } @else {
-      <p class="hint move-hint" [class.previewing]="dragging()">
-        {{ t(dragging() ? 'schedule.previewHint' : view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}
-      </p>
+      <!-- Both lines share one cell: switching to the drop info never moves the timeline. -->
+      <div class="move-hint">
+        <p class="hint" [class.hidden]="dropInfo()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
+        @if (dropInfo(); as d) {
+          <p class="drop-info">
+            <app-category-badge [category]="d.slot.category" [slot]="d.slot.slot" />
+            <strong>{{ label(d.slot) }}</strong>
+            <span>{{ d.text }}</span>
+            @if (landing(); as l) {
+              <span>{{ t('schedule.dropLands', { court: l.court, time: time(l.start) }) }}</span>
+            }
+            <span class="drop-hint">{{ t('schedule.previewHint') }}</span>
+          </p>
+        }
+      </div>
       <div class="layout" [class.folded]="panels.collapsed('schedule.teams')">
         <div class="card timeline">
           <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
@@ -110,15 +122,11 @@
                   <span class="line" [style.top.px]="tick.top"></span>
                 }
                 <span class="now" [style.top.px]="nowTop()"></span>
-                @if (marker(); as mk) {
-                  @if (mk.court === n) {
-                    <span class="drop-marker" [style.top.px]="mk.top"></span>
-                  }
-                }
-                @for (e of slotsByCourt().get(n) ?? []; track e.slot.match?.id ?? 'i' + e.index) {
+                @for (e of slotsByCourt().get(n) ?? []; track e.key) {
                   @let s = e.slot;
                   <div
                     class="slot"
+                    [attr.data-flip]="e.key"
                     [class.played]="s.state === 'played'"
                     [class.playing]="s.state === 'playing'"
                     [class.movable]="s.movable"
@@ -186,16 +194,4 @@
       </div>
     }
   </div>
-  @if (ghost(); as g) {
-    <div class="ghost" [style.left.px]="g.x" [style.top.px]="g.y" [style.border-left-color]="'var(--color-category-' + g.slot.slot + ')'">
-      <span class="slot-head">
-        <app-category-badge [category]="g.slot.category" [slot]="g.slot.slot" />
-        <span class="slot-label">{{ label(g.slot) }}</span>
-      </span>
-      <span class="ghost-text">{{ g.text }}</span>
-      @if (landing(); as l) {
-        <span class="ghost-land">{{ t('schedule.dropLands', { court: l.court, time: time(l.start) }) }}</span>
-      }
-    </div>
-  }
 </ng-container>

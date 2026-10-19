@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, ElementRef, HostListener, afterEveryRender, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ScheduleGroupView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
@@ -17,9 +17,6 @@ import { stageLabel } from '../shared/stage-label';
 
 /** Pixels per minute on the time axis. */
 const PX_PER_MIN = 2.4;
-
-/** Width of the card following the pointer while dragging, in pixels. */
-const GHOST_WIDTH = 300;
 
 /** Pointer travel before a press becomes a drag, in pixels. */
 const DRAG_THRESHOLD = 5;
@@ -102,11 +99,22 @@ export class Schedule {
     return out;
   });
 
-  /** Slots per court, each with its index in the view (drop targets). */
+  /**
+   * Slots per court, each with its index in the view and the key that
+   * follows it from one view to the next (its match, or for a stand-in its
+   * block, round and rank), so a moved match glides to its new place.
+   */
   protected readonly slotsByCourt = computed(() => {
-    const out = new Map<number, { slot: ScheduleSlotView; index: number }[]>();
+    const out = new Map<number, { slot: ScheduleSlotView; index: number; key: string }[]>();
+    const seen = new Map<string, number>();
     (this.view().slots ?? []).forEach((slot, index) => {
-      out.set(slot.court, [...(out.get(slot.court) ?? []), { slot, index }]);
+      let key = slot.match?.id as string | undefined;
+      if (!key) {
+        const block = `${slot.key}#${slot.round}`;
+        seen.set(block, (seen.get(block) ?? 0) + 1);
+        key = `${block}#${seen.get(block)}`;
+      }
+      out.set(slot.court, [...(out.get(slot.court) ?? []), { slot, index, key }]);
     });
     return out;
   });
@@ -190,15 +198,17 @@ export class Schedule {
    * started from, so the preview moving under the pointer never changes it.
    */
   protected readonly dragging = signal<ScheduleSlotView | null>(null);
-  /** The card following the pointer, saying where the drop puts the match. */
-  protected readonly ghost = signal<{ x: number; y: number; slot: ScheduleSlotView; text: string } | null>(null);
-  /** Where the drop inserts, on the time axis of a court. */
-  protected readonly marker = signal<{ court: number; top: number } | null>(null);
+  /** While dragging, what the drop does, said above the timeline. */
+  protected readonly dropInfo = signal<{ slot: ScheduleSlotView; text: string } | null>(null);
   /** Start of each waiting match when the drag began, to show how far the preview shifts it. */
   private baseStarts = new Map<string, number>();
   private drag: { slot: ScheduleSlotView; base: ScheduleView; x: number; y: number; moved: boolean; target: DropTarget | null } | null =
     null;
   private previewSeq = 0;
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** Where each match was drawn, within the grid (scrolling does not move it). */
+  private positions = new Map<string, { x: number; y: number }>();
 
   constructor() {
     // A new schedule from Go replaces the preview of the last drop.
@@ -206,6 +216,42 @@ export class Schedule {
       this.live();
       untracked(() => !this.drag && this.preview.set(null));
     });
+    afterEveryRender(() => this.glide());
+  }
+
+  /**
+   * Every match moved by the last render glides from where it was drawn to
+   * its new place, from one court to another included (FLIP): while dragging,
+   * the desk sees the others take the freed places and the moved matches
+   * take theirs.
+   */
+  private glide(): void {
+    const next = new Map<string, { x: number; y: number }>();
+    for (const el of this.host.nativeElement.querySelectorAll<HTMLElement>('[data-flip]')) {
+      const lane = el.offsetParent as HTMLElement | null;
+      const at = { x: el.offsetLeft + (lane?.offsetLeft ?? 0), y: el.offsetTop + (lane?.offsetTop ?? 0) };
+      const key = el.dataset['flip'] ?? '';
+      next.set(key, at);
+      const was = this.positions.get(key);
+      if (!was || (was.x === at.x && was.y === at.y)) {
+        continue;
+      }
+      // Start from where it is seen, halfway through a glide included.
+      let dx = was.x - at.x;
+      let dy = was.y - at.y;
+      const running = el.getAnimations();
+      if (running.length > 0) {
+        const m = new DOMMatrix(getComputedStyle(el).transform);
+        dx += m.e;
+        dy += m.f;
+        running.forEach((a) => a.cancel());
+      }
+      el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }], {
+        duration: 280,
+        easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      });
+    }
+    this.positions = next;
   }
 
   protected onSlotDown(event: PointerEvent, slot: ScheduleSlotView): void {
@@ -226,15 +272,11 @@ export class Schedule {
     event.preventDefault();
     this.dragging.set(drag.slot);
     const target = this.targetAt(drag.base, event.clientX, event.clientY);
-    if (!this.ghost() || !sameTarget(target, drag.target)) {
+    if (!this.dropInfo() || !sameTarget(target, drag.target)) {
       drag.target = target;
       void this.showPreview(drag.slot, drag.base, target);
-      const on = target && 'slot' in target ? (drag.base.slots ?? [])[target.slot] : null;
-      this.marker.set(on ? { court: on.court, top: ((new Date(on.start).getTime() - axisStart(drag.base)) / 60_000) * PX_PER_MIN } : null);
+      this.dropInfo.set({ slot: drag.slot, text: this.dropText(drag.slot, drag.base, target) });
     }
-    // The card sits right of the pointer, or left of it near the window's edge.
-    const x = event.clientX + 14 + GHOST_WIDTH > window.innerWidth ? event.clientX - 14 - GHOST_WIDTH : event.clientX + 14;
-    this.ghost.set({ x, y: event.clientY + 14, slot: drag.slot, text: this.dropText(drag.slot, drag.base, target) });
   }
 
   @HostListener('document:pointerup')
@@ -242,8 +284,7 @@ export class Schedule {
     const drag = this.drag;
     this.drag = null;
     this.dragging.set(null);
-    this.ghost.set(null);
-    this.marker.set(null);
+    this.dropInfo.set(null);
     this.previewSeq++;
     if (drag?.moved && drag.target) {
       void this.drop(drag.slot, drag.base, drag.target);
@@ -289,7 +330,7 @@ export class Schedule {
     return before === slot.key ? null : { block: slot.key, before };
   }
 
-  /** What the ghost card says the drop does. */
+  /** What the drop does, in words. */
   private dropText(slot: ScheduleSlotView, base: ScheduleView, target: DropTarget | null): string {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
     const m = target && this.move(slot, base, target);
