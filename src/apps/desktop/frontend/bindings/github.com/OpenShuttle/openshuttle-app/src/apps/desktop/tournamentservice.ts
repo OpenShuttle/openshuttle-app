@@ -367,10 +367,11 @@ export function SetMinRest(minutes: number): $CancellablePromise<void> {
 }
 
 /**
- * SetSeed seeds an entrant, or clears its seed with 0.
+ * SetSeeds ranks the seeds of a category, top seed first; the entrants
+ * left out are not seeded.
  */
-export function SetSeed(id: engine$0.EntrantID, seed: number): $CancellablePromise<void> {
-    return $Call.ByID(932998391, id, seed);
+export function SetSeeds(c: engine$0.Category, ranking: engine$0.EntrantID[] | null): $CancellablePromise<void> {
+    return $Call.ByID(255775692, c, ranking);
 }
 
 /**

@@ -184,3 +184,39 @@ func TestCheckDrawSameClubAndSeeds(t *testing.T) {
 		t.Errorf("same club not reported: %+v", check.Pools[0])
 	}
 }
+
+func TestSetSeeds(t *testing.T) {
+	g := newGame(t, engine.MensSingles, engine.WomensSingles)
+	var ids []engine.EntrantID
+	for _, n := range []string{"A", "B", "C"} {
+		ch := g.do(func(s State) (Change, error) {
+			return s.RegisterEntrant(engine.MensSingles, []PlayerInput{{Name: n}})
+		})
+		ids = append(ids, ch.Data.(EntrantRegistered).ID)
+	}
+	other := g.do(func(s State) (Change, error) {
+		return s.RegisterEntrant(engine.WomensSingles, []PlayerInput{{Name: "W"}})
+	}).Data.(EntrantRegistered).ID
+
+	g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[2], ids[0]}) })
+	if got := g.state().Seeds(engine.MensSingles); !slices.Equal(got, []engine.EntrantID{ids[2], ids[0]}) {
+		t.Errorf("seeds = %v", got)
+	}
+	// Reordering and dropping a seed: the one left out is no longer seeded.
+	g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[0]}) })
+	if e, _ := g.state().Entrant(ids[2]); e.Seed != 0 {
+		t.Errorf("dropped seed = %d", e.Seed)
+	}
+	if e, _ := g.state().Entrant(ids[0]); e.Seed != 1 {
+		t.Errorf("top seed = %d", e.Seed)
+	}
+	if ch, err := g.state().SetSeeds(engine.MensSingles, []engine.EntrantID{ids[0]}); err != nil || !ch.None() {
+		t.Errorf("same ranking = %+v, %v", ch, err)
+	}
+	g.fails(engine.CodeEntrantNotFound, func(s State) (Change, error) {
+		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{other})
+	})
+	g.fails(engine.CodeInvalidSeed, func(s State) (Change, error) {
+		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[0], ids[0]})
+	})
+}

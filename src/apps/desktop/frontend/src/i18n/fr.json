@@ -91,7 +91,8 @@
     "EntryDrawn": "Tirage : {category}",
     "StageFilled": "{stage} rempli : {category}",
     "SlotsSwapped": "Places échangées : {stage}",
-    "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}"
+    "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}",
+    "SeedsSet": "Têtes de série classées : {category}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -126,7 +127,8 @@
     "EntryDrawn": "tirage {category}",
     "StageFilled": "remplissage de {stage}",
     "SlotsSwapped": "échange dans {stage}",
-    "EntrantsImported": "import de {count} inscriptions"
+    "EntrantsImported": "import de {count} inscriptions",
+    "SeedsSet": "classement des têtes de série en {category}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -481,7 +483,6 @@
     "absent": "N'est plus pointé",
     "unplaced": "Pointés après le tirage : glissez-les dans une poule",
     "seedsTitle": "Têtes de série",
-    "seedsHint": "Les têtes de série sont réparties d'abord : TS1 en poule A, TS2 en B… puis retour.",
     "lead": "Poules par catégorie, têtes de série d'abord, puis séparation par club.",
     "presentCount": "{n, plural, one {# participant présent} other {# participants présents}}",
     "entrantsCount": "{n, plural, one {# participant} other {# participants}}",
@@ -490,7 +491,16 @@
     "sameClubRound": "Même club au 1er tour : #{bibs}",
     "slotsHint": "Cliquez deux places pour les échanger.",
     "unplacedBracket": "{n, plural, one {# présent pointé} other {# présents pointés}} après le tirage : relancez le tirage pour les placer.",
-    "summaryBracket": "{present, plural, one {# présent} other {# présents}} · tableau direct."
+    "summaryBracket": "{present, plural, one {# présent} other {# présents}} · tableau direct.",
+    "seedsRankingHint": "Classez les têtes de série, la meilleure en premier : glissez-les ou utilisez les flèches. Elles sont réparties dans les poules en serpent (A, B, C, C, B, A…).",
+    "seedRanking": "Classement des têtes de série ({n})",
+    "unseeded": "Autres participants présents ({n})",
+    "seedUp": "Monter",
+    "seedDown": "Descendre",
+    "seedRemove": "Retirer des têtes de série",
+    "seedAdd": "Tête de série",
+    "noSeeds": "Aucune tête de série : glissez un participant ici, ou utilisez « Tête de série ».",
+    "noSplit": "{n} présents ne se répartissent pas en poules de {sizes} : changez les tailles de poule dans le format."
   },
   "desk": {
     "title": "Table de marque",

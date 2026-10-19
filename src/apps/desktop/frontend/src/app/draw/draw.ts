@@ -23,6 +23,30 @@ function poolAt(x: number, y: number): string | null {
   return el?.dataset['pool'] ?? null;
 }
 
+/** Where a dragged seed lands: before a ranking row, at the end of the ranking, or out of it. */
+interface SeedTarget {
+  category: string;
+  list: 'ranking' | 'others';
+  index: number;
+}
+
+function seedTargetAt(x: number, y: number): SeedTarget | null {
+  const el = document.elementFromPoint(x, y);
+  const row = el?.closest<HTMLElement>('[data-rank]');
+  if (row) {
+    const [category, index] = (row.dataset['rank'] ?? '').split(':');
+    const box = row.getBoundingClientRect();
+    // The lower half of a row drops after it.
+    return { category, list: 'ranking', index: Number(index) + (y > box.top + box.height / 2 ? 1 : 0) };
+  }
+  const end = el?.closest<HTMLElement>('[data-rank-end]');
+  if (end) {
+    return { category: end.dataset['rankEnd'] ?? '', list: 'ranking', index: Number.MAX_SAFE_INTEGER };
+  }
+  const others = el?.closest<HTMLElement>('[data-unseeded]');
+  return others ? { category: others.dataset['unseeded'] ?? '', list: 'others', index: -1 } : null;
+}
+
 /** Draw: pools of each category, seeds, drag and drop, validation. */
 @Component({
   selector: 'app-draw',
@@ -38,6 +62,7 @@ export class Draw {
 
   /** Pool hovered while dragging: "<category>:<index>". */
   protected readonly dropTarget = signal<string | null>(null);
+  protected readonly Math = Math;
 
   /** Full names, always: initials leave the desk guessing who is who. */
   protected names(e: DrawEntrantView): string {
@@ -89,13 +114,57 @@ export class Draw {
     return out;
   }
 
-  protected setSeed(e: DrawEntrantView, event: Event): void {
-    const seed = Number((event.target as HTMLSelectElement).value);
-    void this.tournament.setSeed(e.id, seed);
+  // Seeds: a ranking, top seed first. Every change sends the whole ranking.
+  private ranking(c: DrawCategory): EntrantID[] {
+    return (c.ranking ?? []).map((e) => e.id);
   }
 
-  protected seedOptions(c: DrawCategory): number[] {
-    return Array.from({ length: Math.min(32, (c.seeded ?? []).length) }, (_, i) => i + 1);
+  protected moveSeed(c: DrawCategory, index: number, delta: number): void {
+    const ids = this.ranking(c);
+    const [id] = ids.splice(index, 1);
+    ids.splice(index + delta, 0, id);
+    void this.tournament.setSeeds(c.category, ids);
+  }
+
+  protected removeSeed(c: DrawCategory, index: number): void {
+    void this.tournament.setSeeds(c.category, this.ranking(c).filter((_, i) => i !== index));
+  }
+
+  protected addSeed(c: DrawCategory, id: EntrantID): void {
+    void this.tournament.setSeeds(c.category, [...this.ranking(c), id]);
+  }
+
+  /** Entrant dragged in the seed lists, and where it would land. */
+  protected readonly seedDragging = signal<EntrantID | null>(null);
+  protected readonly seedTarget = signal<SeedTarget | null>(null);
+  private seedDrag: (Drag & { category: DrawCategory }) | null = null;
+
+  protected onSeedDown(event: PointerEvent, c: DrawCategory, id: EntrantID): void {
+    if (event.button === 0 && !(event.target as HTMLElement).closest('button')) {
+      this.seedDrag = { id, category: c, x: event.clientX, y: event.clientY, moved: false };
+    }
+  }
+
+  private dropSeed(c: DrawCategory, id: EntrantID, target: SeedTarget): void {
+    const ids = this.ranking(c);
+    const from = ids.indexOf(id);
+    if (target.list === 'others') {
+      if (from >= 0) {
+        void this.tournament.setSeeds(c.category, ids.filter((x) => x !== id));
+      }
+      return;
+    }
+    let to = Math.min(target.index, ids.length);
+    if (from >= 0) {
+      ids.splice(from, 1);
+      if (from < to) {
+        to--;
+      }
+    }
+    ids.splice(to, 0, id);
+    if (ids.length <= 32) {
+      void this.tournament.setSeeds(c.category, ids);
+    }
   }
 
   /**
@@ -113,6 +182,17 @@ export class Draw {
 
   @HostListener('document:pointermove', ['$event'])
   protected onPointerMove(event: PointerEvent): void {
+    const seed = this.seedDrag;
+    if (seed) {
+      if (!seed.moved && Math.hypot(event.clientX - seed.x, event.clientY - seed.y) < DRAG_THRESHOLD) {
+        return;
+      }
+      seed.moved = true;
+      event.preventDefault();
+      this.seedDragging.set(seed.id);
+      this.seedTarget.set(seedTargetAt(event.clientX, event.clientY));
+      return;
+    }
     const drag = this.drag;
     if (!drag) {
       return;
@@ -128,6 +208,17 @@ export class Draw {
 
   @HostListener('document:pointerup', ['$event'])
   protected onPointerUp(event: PointerEvent): void {
+    const seed = this.seedDrag;
+    if (seed) {
+      this.seedDrag = null;
+      this.seedDragging.set(null);
+      this.seedTarget.set(null);
+      const target = seed.moved ? seedTargetAt(event.clientX, event.clientY) : null;
+      if (target && target.category === seed.category.category) {
+        this.dropSeed(seed.category, seed.id, target);
+      }
+      return;
+    }
     const drag = this.drag;
     this.drag = null;
     this.dragging.set(null);

@@ -49,12 +49,17 @@ type DrawCategory struct {
 	Pools   []DrawPoolView       `json:"pools"`
 	Planned int                  `json:"planned"` // pools in the format
 	Present int                  `json:"present"`
-	// CanDraw is false when there are fewer than two present entrants per pool.
-	CanDraw bool `json:"canDraw"`
+	// CanDraw is false below two present entrants, or when no pool split
+	// fits the present entrants (NoSplit, with the allowed PoolSizes).
+	CanDraw   bool  `json:"canDraw"`
+	NoSplit   bool  `json:"noSplit"`
+	PoolSizes []int `json:"poolSizes"`
 	// Unplaced are present entrants missing from the draw.
 	Unplaced []DrawEntrantView `json:"unplaced"`
-	// Seeded lists every present entrant with its seed, to set seeds before drawing.
-	Seeded []DrawEntrantView `json:"seeded"`
+	// Ranking lists the seeds, top seed first; Unseeded the present
+	// entrants not seeded, to pick seeds from.
+	Ranking  []DrawEntrantView `json:"ranking"`
+	Unseeded []DrawEntrantView `json:"unseeded"`
 }
 
 // DrawView is the draw screen.
@@ -62,9 +67,10 @@ type DrawView struct {
 	Categories []DrawCategory `json:"categories"`
 }
 
-// SetSeed seeds an entrant, or clears its seed with 0.
-func (s *TournamentService) SetSeed(ctx context.Context, id engine.EntrantID, seed int) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetSeed(id, seed) })
+// SetSeeds ranks the seeds of a category, top seed first; the entrants
+// left out are not seeded.
+func (s *TournamentService) SetSeeds(ctx context.Context, c engine.Category, ranking []engine.EntrantID) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetSeeds(c, ranking) })
 }
 
 // DrawEntry draws (or redraws) the entry stage of a category: its pools, or
@@ -113,13 +119,21 @@ func (s *TournamentService) GetDrawView() DrawView {
 	for _, ref := range categoryRefs(st) {
 		present := st.Present(ref.Category)
 		entry := st.Stages(ref.Category)[0]
+		sizes := entry.PoolSizesFor(len(present))
 		dc := DrawCategory{
-			CategoryRef: ref, Kind: entry.Kind, Stage: entry.ID, Status: DrawNone, Planned: entry.Pools,
-			Present: len(present), CanDraw: len(present) >= max(2, 2*entry.Pools), Pools: []DrawPoolView{},
-			Unplaced: []DrawEntrantView{}, Seeded: []DrawEntrantView{},
+			CategoryRef: ref, Kind: entry.Kind, Stage: entry.ID, Status: DrawNone, Planned: len(sizes),
+			Present: len(present), CanDraw: len(present) >= 2 && (entry.Kind == tournament.StageBracket || sizes != nil),
+			Pools: []DrawPoolView{}, Unplaced: []DrawEntrantView{}, Ranking: []DrawEntrantView{}, Unseeded: []DrawEntrantView{},
+			NoSplit:   entry.Kind == tournament.StagePools && len(present) >= 2 && sizes == nil,
+			PoolSizes: append([]int{}, entry.PoolSizes...),
+		}
+		for _, id := range st.Seeds(ref.Category) {
+			dc.Ranking = append(dc.Ranking, card(id))
 		}
 		for _, e := range present {
-			dc.Seeded = append(dc.Seeded, card(e.ID))
+			if e.Seed == 0 {
+				dc.Unseeded = append(dc.Unseeded, card(e.ID))
+			}
 		}
 		if d, ok := st.Draw(ref.Category); ok {
 			dc.Status = DrawDraft

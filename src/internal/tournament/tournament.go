@@ -136,6 +136,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyCheckInCancelled)
 	case TypeFormatSet:
 		return decodeInto(e, s.applyFormatSet)
+	case TypeSeedsSet:
+		return decodeInto(e, s.applySeedsSet)
 	case TypeEntrantSeeded:
 		return decodeInto(e, s.applyEntrantSeeded)
 	case TypeEntryDrawn:

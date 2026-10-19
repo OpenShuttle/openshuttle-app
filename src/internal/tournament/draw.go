@@ -11,6 +11,7 @@ import (
 
 const (
 	TypeEntrantSeeded events.Type = "EntrantSeeded"
+	TypeSeedsSet      events.Type = "SeedsSet"
 	TypeEntryDrawn    events.Type = "EntryDrawn"
 	TypeEntrantMoved  events.Type = "EntrantMoved"
 	TypeDrawConfirmed events.Type = "DrawConfirmed"
@@ -37,6 +38,13 @@ type Draw struct {
 type EntrantSeeded struct {
 	ID   engine.EntrantID `json:"id"`
 	Seed int              `json:"seed"`
+}
+
+// SeedsSet is the payload of TypeSeedsSet: the seeds of a category as a
+// ranking, top seed first. Entrants not listed are not seeded.
+type SeedsSet struct {
+	Category engine.Category    `json:"category"`
+	Entrants []engine.EntrantID `json:"entrants"`
 }
 
 // EntryDrawn is the payload of TypeEntryDrawn: the entry stage as drawn,
@@ -94,6 +102,46 @@ func (s State) SetSeed(id engine.EntrantID, seed int) (Change, error) {
 		return Change{}, nil
 	}
 	return Change{TypeEntrantSeeded, EntrantSeeded{ID: id, Seed: seed}}, nil
+}
+
+// SetSeeds ranks the seeds of a category, top seed first; the entrants left
+// out are not seeded.
+func (s State) SetSeeds(c engine.Category, ranking []engine.EntrantID) (Change, error) {
+	if !s.HasCategory(c) {
+		return Change{}, engine.NewError(engine.CodeCategoryNotFound)
+	}
+	if len(ranking) > MaxSeed {
+		return Change{}, engine.NewError(engine.CodeInvalidSeed)
+	}
+	for i, id := range ranking {
+		e, ok := s.Entrant(id)
+		if !ok || e.Category != c {
+			return Change{}, engine.NewError(engine.CodeEntrantNotFound)
+		}
+		if slices.Contains(ranking[:i], id) {
+			return Change{}, engine.NewError(engine.CodeInvalidSeed)
+		}
+	}
+	if slices.Equal(ranking, s.Seeds(c)) {
+		return Change{}, nil
+	}
+	return Change{TypeSeedsSet, SeedsSet{Category: c, Entrants: slices.Clone(ranking)}}, nil
+}
+
+// Seeds returns the seeded entrants of a category, top seed first.
+func (s State) Seeds(c engine.Category) []engine.EntrantID {
+	var seeded []Entrant
+	for _, e := range s.Entrants {
+		if e.Category == c && e.Seed > 0 {
+			seeded = append(seeded, e)
+		}
+	}
+	slices.SortStableFunc(seeded, func(a, b Entrant) int { return a.Seed - b.Seed })
+	out := []engine.EntrantID{}
+	for _, e := range seeded {
+		out = append(out, e.ID)
+	}
+	return out
 }
 
 // DrawEntry draws the entry stage of a category among present entrants:
@@ -217,6 +265,14 @@ func (s *State) applyEntrantSeeded(p EntrantSeeded) {
 		}
 	}
 	s.Entrants[i].Seed = p.Seed
+}
+
+func (s *State) applySeedsSet(p SeedsSet) {
+	for i := range s.Entrants {
+		if s.Entrants[i].Category == p.Category {
+			s.Entrants[i].Seed = slices.Index(p.Entrants, s.Entrants[i].ID) + 1
+		}
+	}
 }
 
 func (s *State) applyEntryDrawn(p EntryDrawn) {

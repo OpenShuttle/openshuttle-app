@@ -383,7 +383,7 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	switch e.Type {
 	case tournament.TypeCreated, tournament.TypeRenamed:
 		v.Params["name"] = p.Name
-	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypeFormatSet,
+	case tournament.TypeCategoryAdded, tournament.TypeCategoryRemoved, tournament.TypeFormatSet, tournament.TypeSeedsSet,
 		tournament.TypeEntryDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
 	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded, tournament.TypeScoreCleared:

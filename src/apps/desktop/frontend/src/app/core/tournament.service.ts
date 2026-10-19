@@ -158,8 +158,8 @@ export class TournamentStore {
     return this.command(() => Backend.SaveFormatPreset(category, name, description));
   }
 
-  setSeed(id: EntrantID, seed: number): Promise<boolean> {
-    return this.command(() => Backend.SetSeed(id, seed));
+  setSeeds(category: Category, ranking: EntrantID[]): Promise<boolean> {
+    return this.command(() => Backend.SetSeeds(category, ranking));
   }
 
   drawEntry(category: Category): Promise<boolean> {

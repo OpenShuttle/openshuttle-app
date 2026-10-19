@@ -217,9 +217,12 @@ export interface DrawCategory {
     "present": number;
 
     /**
-     * CanDraw is false when there are fewer than two present entrants per pool.
+     * CanDraw is false below two present entrants, or when no pool split
+     * fits the present entrants (NoSplit, with the allowed PoolSizes).
      */
     "canDraw": boolean;
+    "noSplit": boolean;
+    "poolSizes": number[] | null;
 
     /**
      * Unplaced are present entrants missing from the draw.
@@ -227,9 +230,11 @@ export interface DrawCategory {
     "unplaced": DrawEntrantView[] | null;
 
     /**
-     * Seeded lists every present entrant with its seed, to set seeds before drawing.
+     * Ranking lists the seeds, top seed first; Unseeded the present
+     * entrants not seeded, to pick seeds from.
      */
-    "seeded": DrawEntrantView[] | null;
+    "ranking": DrawEntrantView[] | null;
+    "unseeded": DrawEntrantView[] | null;
 }
 
 /**

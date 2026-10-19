@@ -30,7 +30,11 @@
               <a routerLink="../format">{{ t('draw.changeFormat') }}</a>
             }
             @if (!c.canDraw && c.status !== 'confirmed') {
-              <span class="warn">{{ t('draw.notEnough', { min: c.kind === 'bracket' ? 2 : c.planned * 2 }) }}</span>
+              @if (c.noSplit) {
+                <span class="warn">{{ t('draw.noSplit', { n: c.present, sizes: (c.poolSizes ?? []).join(' / ') }) }}</span>
+              } @else {
+                <span class="warn">{{ t('draw.notEnough', { min: c.kind === 'bracket' ? 2 : Math.max(2, c.planned * 2) }) }}</span>
+              }
             }
           </span>
           <span class="cat-actions">
@@ -127,7 +131,11 @@
                   >
                     <div class="entrant-top">
                       <span class="bib">{{ e.bib || '–' }}</span>
-                      <span class="names">{{ names(e) }}</span>
+                      <span class="names">
+                        @for (p of e.players ?? []; track p.id) {
+                          <span class="player">{{ p.name }}</span>
+                        }
+                      </span>
                       @if (e.seed) {
                         <span class="seed">{{ t('draw.seedShort', { n: e.seed }) }}</span>
                       }
@@ -169,23 +177,60 @@
           }
         }
 
-        @if (c.status !== 'confirmed' && (c.seeded ?? []).length > 0) {
+        @if (c.status !== 'confirmed' && (c.ranking ?? []).length + (c.unseeded ?? []).length > 0) {
           <details class="card seeds" [open]="c.status === 'none'">
             <summary>{{ t('draw.seedsTitle') }}</summary>
-            <p class="seeds-hint">{{ t('draw.seedsHint') }}</p>
-            <div class="seed-list">
-              @for (e of c.seeded; track e.id) {
-                <label class="seed-row">
-                  <span class="bib">{{ e.bib || '–' }}</span>
-                  <span class="names">{{ names(e) }}</span>
-                  <select (change)="setSeed(e, $event)">
-                    <option value="0" [selected]="!e.seed">–</option>
-                    @for (n of seedOptions(c); track n) {
-                      <option [value]="n" [selected]="e.seed === n">{{ t('draw.seedShort', { n }) }}</option>
-                    }
-                  </select>
-                </label>
-              }
+            <p class="seeds-hint">{{ t('draw.seedsRankingHint') }}</p>
+            <div class="seed-columns">
+              <div class="seed-col">
+                <span class="field-label">{{ t('draw.seedRanking', { n: (c.ranking ?? []).length }) }}</span>
+                <ol class="ranking" [attr.data-rank-end]="c.category" [class.over]="seedTarget()?.list === 'ranking' && seedTarget()?.category === c.category">
+                  @for (e of c.ranking; track e.id; let i = $index; let first = $first; let last = $last) {
+                    <li
+                      class="seed-row movable"
+                      [attr.data-rank]="c.category + ':' + i"
+                      [class.dragging]="seedDragging() === e.id"
+                      [class.drop-before]="seedTarget()?.category === c.category && seedTarget()?.index === i && seedDragging() !== e.id"
+                      (pointerdown)="onSeedDown($event, c, e.id)"
+                    >
+                      <span class="rank">{{ i + 1 }}</span>
+                      <span class="who">
+                        <span class="names" [attr.title]="names(e)">{{ names(e) }}</span>
+                        <span class="club">{{ (e.clubs ?? []).join(' · ') || t('clubs.none') }}</span>
+                      </span>
+                      @if (e.absent) {
+                        <span class="tag alert">{{ t('draw.absent') }}</span>
+                      }
+                      <span class="seed-actions">
+                        <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('draw.seedUp')" (click)="moveSeed(c, i, -1)">↑</button>
+                        <button type="button" class="icon-btn" [disabled]="last" [attr.aria-label]="t('draw.seedDown')" (click)="moveSeed(c, i, 1)">↓</button>
+                        <button type="button" class="icon-btn" [attr.aria-label]="t('draw.seedRemove')" (click)="removeSeed(c, i)">×</button>
+                      </span>
+                    </li>
+                  } @empty {
+                    <li class="seeds-empty">{{ t('draw.noSeeds') }}</li>
+                  }
+                </ol>
+              </div>
+              <div class="seed-col">
+                <span class="field-label">{{ t('draw.unseeded', { n: (c.unseeded ?? []).length }) }}</span>
+                <ul class="others" [attr.data-unseeded]="c.category" [class.over]="seedTarget()?.list === 'others' && seedTarget()?.category === c.category">
+                  @for (e of c.unseeded; track e.id) {
+                    <li class="seed-row movable" [class.dragging]="seedDragging() === e.id" (pointerdown)="onSeedDown($event, c, e.id)">
+                      <span class="bib">{{ e.bib || '–' }}</span>
+                      <span class="who">
+                        <span class="names" [attr.title]="names(e)">{{ names(e) }}</span>
+                        <span class="club">{{ (e.clubs ?? []).join(' · ') || t('clubs.none') }}</span>
+                      </span>
+                      <span class="seed-actions">
+                        <button type="button" class="btn btn-xs" [disabled]="(c.ranking ?? []).length >= 32" (click)="addSeed(c, e.id)">
+                          + {{ t('draw.seedAdd') }}
+                        </button>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              </div>
             </div>
           </details>
         }

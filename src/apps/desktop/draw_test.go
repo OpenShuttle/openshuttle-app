@@ -52,8 +52,15 @@ func TestFormatAndDraw(t *testing.T) {
 	for _, row := range f.svc.GetCheckInView().Rows {
 		must(f.svc.CheckInPlayer(ctx, row.ID))
 	}
-	first := f.svc.GetDrawView().Categories[0].Seeded[0].ID
-	must(f.svc.SetSeed(ctx, first, 1))
+	if dv = f.svc.GetDrawView().Categories[0]; !dv.CanDraw || dv.Planned != 2 || len(dv.Unseeded) != 7 || len(dv.Ranking) != 0 {
+		t.Fatalf("draw view after check-in = %+v", dv)
+	}
+	first, second := dv.Unseeded[3].ID, dv.Unseeded[5].ID
+	must(f.svc.SetSeeds(ctx, engine.MensSingles, []engine.EntrantID{second, first}))
+	must(f.svc.SetSeeds(ctx, engine.MensSingles, []engine.EntrantID{first, second}))
+	if dv = f.svc.GetDrawView().Categories[0]; len(dv.Ranking) != 2 || dv.Ranking[0].ID != first || len(dv.Unseeded) != 5 {
+		t.Fatalf("seeds = %+v", dv.Ranking)
+	}
 	must(f.svc.DrawEntry(ctx, engine.MensSingles))
 
 	dv = f.svc.GetDrawView().Categories[0]

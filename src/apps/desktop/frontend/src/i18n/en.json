@@ -91,7 +91,8 @@
     "EntryDrawn": "Draw: {category}",
     "StageFilled": "{stage} filled: {category}",
     "SlotsSwapped": "Places swapped: {stage}",
-    "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}"
+    "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}",
+    "SeedsSet": "Seeds ranked: {category}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -126,7 +127,8 @@
     "EntryDrawn": "draw {category}",
     "StageFilled": "filling of {stage}",
     "SlotsSwapped": "swap in {stage}",
-    "EntrantsImported": "import of {count} entrants"
+    "EntrantsImported": "import of {count} entrants",
+    "SeedsSet": "seed ranking of {category}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -481,7 +483,6 @@
     "absent": "No longer checked in",
     "unplaced": "Checked in after the draw: drag them into a pool",
     "seedsTitle": "Seeds",
-    "seedsHint": "Seeds are spread first: S1 in pool A, S2 in B… then back.",
     "lead": "Pools per category, seeds first, then club separation.",
     "presentCount": "{n, plural, one {# entrant present} other {# entrants present}}",
     "entrantsCount": "{n, plural, one {# entrant} other {# entrants}}",
@@ -490,7 +491,16 @@
     "sameClubRound": "Same club in round 1: #{bibs}",
     "slotsHint": "Click two places to swap them.",
     "unplacedBracket": "{n, plural, one {# entrant} other {# entrants}} checked in after the draw: redraw to place them.",
-    "summaryBracket": "{present, plural, one {# present} other {# present}} · straight bracket."
+    "summaryBracket": "{present, plural, one {# present} other {# present}} · straight bracket.",
+    "seedsRankingHint": "Rank the seeds, the best first: drag them, or use the arrows. Seeds are spread over the pools in a snake (A, B, C, C, B, A…).",
+    "seedRanking": "Seed ranking ({n})",
+    "unseeded": "Other present entrants ({n})",
+    "seedUp": "Move up",
+    "seedDown": "Move down",
+    "seedRemove": "Remove from the seeds",
+    "seedAdd": "Seed",
+    "noSeeds": "No seed: drag an entrant here, or use \"Seed\".",
+    "noSplit": "{n} present entrants do not split into pools of {sizes}: change the pool sizes in the format."
   },
   "desk": {
     "title": "Control desk",
