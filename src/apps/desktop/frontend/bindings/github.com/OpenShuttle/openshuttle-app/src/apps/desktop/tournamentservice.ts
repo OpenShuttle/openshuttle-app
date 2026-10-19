@@ -229,6 +229,13 @@ export function GetResultsView(): $CancellablePromise<$models.ResultsView> {
 }
 
 /**
+ * GetScheduleView returns the schedule screen.
+ */
+export function GetScheduleView(): $CancellablePromise<$models.ScheduleView> {
+    return $Call.ByID(2034878754);
+}
+
+/**
  * GetTournamentView returns the current tournament, or Open=false.
  */
 export function GetTournamentView(): $CancellablePromise<$models.TournamentView> {
@@ -339,10 +346,10 @@ export function SaveFormatPreset(c: engine$0.Category, name: string, description
 }
 
 /**
- * SetCourtPriority sets "balanced" or the category played first.
+ * SetCourtCategory reserves a court for a category ("" for the default share).
  */
-export function SetCourtPriority(priority: string): $CancellablePromise<void> {
-    return $Call.ByID(5921109, priority);
+export function SetCourtCategory(court: number, c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(3782271309, court, c);
 }
 
 /**
@@ -364,6 +371,28 @@ export function SetFormat(c: engine$0.Category, stages: tournament$0.StageConfig
  */
 export function SetMinRest(minutes: number): $CancellablePromise<void> {
     return $Call.ByID(3469076232, minutes);
+}
+
+/**
+ * SetScheduleFirst chooses the category opening each round in alternate mode.
+ */
+export function SetScheduleFirst(c: engine$0.Category): $CancellablePromise<void> {
+    return $Call.ByID(1540816543, c);
+}
+
+/**
+ * SetScheduleMode chooses how two categories share the courts: "alternate"
+ * or "reserved".
+ */
+export function SetScheduleMode(mode: tournament$0.ScheduleMode): $CancellablePromise<void> {
+    return $Call.ByID(2033836052, mode);
+}
+
+/**
+ * SetSchedulePins sets the blocks played first, in order.
+ */
+export function SetSchedulePins(keys: string[] | null): $CancellablePromise<void> {
+    return $Call.ByID(2521546563, keys);
 }
 
 /**

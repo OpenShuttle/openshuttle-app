@@ -165,6 +165,7 @@ export class FormatPresetPage {
 function emptyPreview() {
   return {
     phase: 1,
+    estimate: 0,
     entrants: 0,
     sizes: [],
     noSplit: false,

@@ -210,6 +210,12 @@ export interface WinCondition {
      * Timed stages: the duration of a round, in minutes.
      */
     "minutes"?: number;
+
+    /**
+     * Estimate is the expected time a match takes on court, changeover
+     * included, in minutes, for the schedule. 0 uses DefaultEstimate.
+     */
+    "estimate"?: number;
 }
 
 /**

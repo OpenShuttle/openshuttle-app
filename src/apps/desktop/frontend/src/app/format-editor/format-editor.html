@@ -252,6 +252,15 @@
               </div>
               <span class="note">{{ t('format.goldenPoint') }}</span>
             }
+            <div class="line">
+              <span class="text">{{ t('format.estimate') }}</span>
+              <div class="stepper">
+                <button type="button" [disabled]="s.estimate <= 1" (click)="stepEstimate(s, -1)">−</button>
+                <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: s.estimate }) }}</span>
+                <button type="button" [disabled]="s.estimate >= 180" (click)="stepEstimate(s, 1)">+</button>
+              </div>
+            </div>
+            <span class="note">{{ t(s.win.estimate ? 'format.estimateSet' : 'format.estimateAuto') }}</span>
           </div>
 
           @if (s.kind === stageKinds.StagePools) {

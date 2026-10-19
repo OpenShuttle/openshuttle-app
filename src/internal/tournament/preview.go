@@ -16,7 +16,10 @@ type RankCount struct {
 // StagePreview is what a stage gives for a number of entrants, in the
 // order of the format's stages.
 type StagePreview struct {
-	Phase    int `json:"phase"`
+	Phase int `json:"phase"`
+	// Estimate is the expected time of a match on court, in minutes: the
+	// win condition's estimate, or its default.
+	Estimate int `json:"estimate"`
 	Entrants int `json:"entrants"`
 	// Pools: their sizes; NoSplit when the allowed sizes cannot split the
 	// entrants.
@@ -54,7 +57,7 @@ func PreviewFormat(stages []StageConfig, n int, actual map[string][]int) FormatP
 	out := FormatPreview{Stages: make([]StagePreview, len(stages))}
 	order := map[string][]previewEntrant{}
 	for i, st := range stages {
-		p := StagePreview{Phase: phases[st.ID], Entrants: reach[st.ID], Sizes: []int{}, Ranks: []RankCount{}, Rules: make([]int, len(st.Routing))}
+		p := StagePreview{Phase: phases[st.ID], Estimate: st.Win.EstimatedMinutes(), Entrants: reach[st.ID], Sizes: []int{}, Ranks: []RankCount{}, Rules: make([]int, len(st.Routing))}
 		if i == 0 {
 			p.Entrants = n
 		}

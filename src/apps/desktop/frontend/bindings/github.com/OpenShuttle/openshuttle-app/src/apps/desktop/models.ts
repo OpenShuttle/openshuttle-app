@@ -111,7 +111,6 @@ export interface ControlDeskView {
      * StagesToFill lists the later stages ready to be filled.
      */
     "stagesToFill": StageRefView[] | null;
-    "priority": string;
     "minRest": number;
     "categories": CategoryRef[] | null;
 
@@ -123,6 +122,19 @@ export interface ControlDeskView {
 }
 
 /**
+ * CourtReservation is the category a court plays in reserved mode.
+ */
+export interface CourtReservation {
+    "number": number;
+    "category": engine$0.Category;
+
+    /**
+     * Manual: reserved by hand, else by the default share.
+     */
+    "manual": boolean;
+}
+
+/**
  * CourtView is a court card: its match and the next match proposed.
  */
 export interface CourtView {
@@ -130,6 +142,13 @@ export interface CourtView {
     "state": tournament$0.CourtState;
     "match": MatchView | null;
     "proposal": MatchView | null;
+
+    /**
+     * ProposalUnrested warns that the proposal's players have not had their
+     * minimum rest: no rested match fitted the schedule rules. The desk calls
+     * it anyway or changes the schedule.
+     */
+    "proposalUnrested": boolean;
 }
 
 /**
@@ -666,6 +685,88 @@ export interface RoundsView {
 }
 
 /**
+ * ScheduleBlockView is a block the desk can move up: a pool, or a round of
+ * a bracket, with when its matches are expected.
+ */
+export interface ScheduleBlockView {
+    "key": string;
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": string;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
+    "pool": string;
+    "round": number;
+    "matches": number;
+    "start": string;
+    "end": string;
+
+    /**
+     * position among the pinned blocks, from 1; 0 if not pinned
+     */
+    "pinned": number;
+}
+
+/**
+ * ScheduleSlotView is a match of the schedule screen, on a court with its
+ * estimated times.
+ */
+export interface ScheduleSlotView {
+    "key": string;
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": string;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
+
+    /**
+     * Pool is "A", "B"… in a pools stage, "" in a bracket.
+     */
+    "pool": string;
+
+    /**
+     * Round is the round of the pool or of the bracket, from 1.
+     */
+    "round": number;
+
+    /**
+     * Match is nil in a stage not filled yet: who plays is not known.
+     */
+    "match": MatchView | null;
+    "court": number;
+    "start": string;
+    "end": string;
+    "unrested": boolean;
+}
+
+/**
+ * ScheduleView is the schedule screen: the forecast of every match left.
+ */
+export interface ScheduleView {
+    "now": string;
+    "mode": tournament$0.ScheduleMode;
+    "first": engine$0.Category;
+    "categories": CategoryRef[] | null;
+    "courts": number;
+    "minRest": number;
+    "reserved": CourtReservation[] | null;
+    "slots": ScheduleSlotView[] | null;
+
+    /**
+     * Blocks in the order they start.
+     */
+    "blocks": ScheduleBlockView[] | null;
+
+    /**
+     * End is when the last match is expected to end; nil with nothing left.
+     */
+    "end": string | null;
+    "unrested": number;
+}
+
+/**
  * Settings are the app settings stored in app.db, for every tournament.
  */
 export interface Settings {
@@ -835,6 +936,12 @@ export interface StageView {
      */
     "routing"?: tournament$0.RouteRule[] | null;
     "phase": number;
+
+    /**
+     * Estimate is the expected time of a match on court, in minutes: the
+     * win condition's estimate, or its default.
+     */
+    "estimate": number;
     "entrants": number;
 
     /**
@@ -950,7 +1057,6 @@ export interface TournamentView {
     "availableCategories": engine$0.Category[] | null;
     "courts": number;
     "minRest": number;
-    "priority": string;
     "progress": ProgressView;
 }
 

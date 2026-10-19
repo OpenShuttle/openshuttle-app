@@ -54,6 +54,10 @@ type CourtView struct {
 	State    tournament.CourtState `json:"state"`
 	Match    *MatchView            `json:"match"`
 	Proposal *MatchView            `json:"proposal"`
+	// ProposalUnrested warns that the proposal's players have not had their
+	// minimum rest: no rested match fitted the schedule rules. The desk calls
+	// it anyway or changes the schedule.
+	ProposalUnrested bool `json:"proposalUnrested"`
 }
 
 // QueueView is a match waiting to be called, with why it is not ready.
@@ -90,7 +94,6 @@ type ControlDeskView struct {
 	Complete []PoolRefView `json:"complete"`
 	// StagesToFill lists the later stages ready to be filled.
 	StagesToFill []StageRefView `json:"stagesToFill"`
-	Priority     string         `json:"priority"`
 	MinRest      int            `json:"minRest"`
 	Categories   []CategoryRef  `json:"categories"`
 	// Started is false until a draw is confirmed: there is nothing to call yet.
@@ -163,11 +166,6 @@ func (s *TournamentService) SetMinRest(ctx context.Context, minutes int) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetMinRest(minutes) })
 }
 
-// SetCourtPriority sets "balanced" or the category played first.
-func (s *TournamentService) SetCourtPriority(ctx context.Context, priority string) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetCourtPriority(priority) })
-}
-
 // GetControlDeskView returns the control desk.
 func (s *TournamentService) GetControlDeskView() ControlDeskView {
 	s.mu.Lock()
@@ -178,7 +176,7 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 
 	v := ControlDeskView{
 		Now: now, Courts: []CourtView{}, Pending: []MatchView{}, Queue: []QueueView{}, Complete: []PoolRefView{},
-		Priority: st.CourtPriority(), MinRest: st.MinRest(), Categories: categoryRefs(st),
+		MinRest: st.MinRest(), Categories: categoryRefs(st),
 		Started: len(st.Matches()) > 0,
 	}
 	v.Rounds = s.roundsView(st)
@@ -190,8 +188,10 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 			cv.Match = &m
 		}
 		if p, ok := proposals[c.Number]; ok {
-			m := mv(p)
-			cv.Proposal = &m
+			if pm, ok := st.Match(p.Match); ok {
+				m := mv(pm)
+				cv.Proposal, cv.ProposalUnrested = &m, p.Unrested
+			}
 		}
 		v.Courts = append(v.Courts, cv)
 	}
@@ -249,8 +249,10 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 		if c.State == tournament.CourtPlaying {
 			playing = append(playing, *c.Match)
 		} else if p, ok := proposals[c.Number]; ok {
-			m := mv(p)
-			dc.Proposal = &m
+			if pm, ok := st.Match(p.Match); ok {
+				m := mv(pm)
+				dc.Proposal = &m
+			}
 		}
 		v.Courts = append(v.Courts, dc)
 	}

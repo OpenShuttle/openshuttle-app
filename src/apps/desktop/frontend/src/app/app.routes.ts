@@ -47,6 +47,10 @@ export const routes: Routes = [
             loadComponent: () => import('./draw/draw').then((m) => m.Draw),
           },
           {
+            path: 'schedule',
+            loadComponent: () => import('./schedule/schedule').then((m) => m.Schedule),
+          },
+          {
             path: 'control-desk',
             loadComponent: () => import('./control-desk/control-desk').then((m) => m.ControlDesk),
           },

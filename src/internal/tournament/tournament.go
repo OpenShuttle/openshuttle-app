@@ -82,6 +82,11 @@ type State struct {
 
 	places map[string][]Place // "<category>/<stage>"
 	rounds []Round
+	// schedule is the schedule setup (mode, reserved courts, pinned blocks).
+	schedule ScheduleSet
+	// lastAt is the time of the latest event in effect: "now" for orders
+	// that need one without a clock.
+	lastAt time.Time
 	// defaultTimed makes timed pools the default while a single category plays.
 	defaultTimed bool
 }
@@ -100,6 +105,7 @@ func Project(log []events.Event) (State, error) {
 		if err := s.apply(e); err != nil {
 			return State{}, err
 		}
+		s.lastAt = later(s.lastAt, e.At)
 	}
 	s.refreshBrackets()
 	return s, nil
@@ -136,6 +142,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applyCheckInCancelled)
 	case TypeFormatSet:
 		return decodeInto(e, s.applyFormatSet)
+	case TypeScheduleSet:
+		return decodeInto(e, s.applyScheduleSet)
 	case TypeSeedsSet:
 		return decodeInto(e, s.applySeedsSet)
 	case TypeEntrantSeeded:

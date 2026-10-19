@@ -152,6 +152,27 @@ export interface RouteRule {
 }
 
 /**
+ * ScheduleMode is how two categories share the courts.
+ */
+export enum ScheduleMode {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * ScheduleAlternate plays the categories in turn: round 1 of the first
+     * category, round 1 of the other, round 2 of the first…
+     */
+    ScheduleAlternate = "alternate",
+
+    /**
+     * ScheduleReserved gives each category its own courts until it is over.
+     */
+    ScheduleReserved = "reserved",
+};
+
+/**
  * StageConfig is a stage as the format editor sets it. It is stored in
  * FormatSet events and in presets: keep the JSON names.
  */
@@ -215,6 +236,12 @@ export enum StageKind {
  */
 export interface StagePreview {
     "phase": number;
+
+    /**
+     * Estimate is the expected time of a match on court, in minutes: the
+     * win condition's estimate, or its default.
+     */
+    "estimate": number;
     "entrants": number;
 
     /**

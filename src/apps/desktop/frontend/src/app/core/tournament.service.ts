@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { MatchID, PlayerID, PlayerInput, StageConfig, StageKind } from '@bindings/internal/tournament';
+import { MatchID, PlayerID, PlayerInput, ScheduleMode, StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -18,7 +18,6 @@ const CLOSED: TournamentView = {
   availableCategories: [],
   courts: 4,
   minRest: 10,
-  priority: 'balanced',
   progress: {
     entrants: 0,
     doubles: false,
@@ -202,8 +201,20 @@ export class TournamentStore {
     return this.command(() => Backend.SetMinRest(minutes));
   }
 
-  setCourtPriority(priority: string): Promise<boolean> {
-    return this.command(() => Backend.SetCourtPriority(priority));
+  setScheduleMode(mode: ScheduleMode): Promise<boolean> {
+    return this.command(() => Backend.SetScheduleMode(mode));
+  }
+
+  setScheduleFirst(category: Category): Promise<boolean> {
+    return this.command(() => Backend.SetScheduleFirst(category));
+  }
+
+  setCourtCategory(court: number, category: Category | ''): Promise<boolean> {
+    return this.command(() => Backend.SetCourtCategory(court, category as Category));
+  }
+
+  setSchedulePins(keys: string[]): Promise<boolean> {
+    return this.command(() => Backend.SetSchedulePins(keys));
   }
 
   clearScore(id: MatchID): Promise<boolean> {

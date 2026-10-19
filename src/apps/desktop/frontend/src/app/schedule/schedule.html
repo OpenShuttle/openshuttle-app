@@ -1,0 +1,153 @@
+<ng-container *transloco="let t">
+  <div class="page-body schedule">
+    <div class="page-head">
+      <div class="page-title">
+        <h1>{{ t('schedule.title') }}</h1>
+        <span class="page-sub">
+          @if (view().end; as end) {
+            {{ t('schedule.summary', { n: (view().slots ?? []).length, end: time(end), rest: view().minRest }) }}
+          } @else {
+            {{ t('schedule.nothingLeft') }}
+          }
+        </span>
+      </div>
+      @if (view().unrested > 0) {
+        <span class="pill pill-finished" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.unrested', { n: view().unrested }) }}</span>
+      }
+    </div>
+
+    @if ((view().categories ?? []).length > 1) {
+      <div class="card setup">
+        <div class="setup-row">
+          <span class="field-label">{{ t('schedule.sharing') }}</span>
+          <div class="seg seg-sm">
+            <button type="button" class="seg-option" [class.active]="view().mode === modes.ScheduleAlternate" (click)="setMode(modes.ScheduleAlternate)">
+              {{ t('schedule.alternate') }}
+            </button>
+            <button type="button" class="seg-option" [class.active]="view().mode === modes.ScheduleReserved" (click)="setMode(modes.ScheduleReserved)">
+              {{ t('schedule.reserved') }}
+            </button>
+          </div>
+          <span class="hint">{{ t(view().mode === modes.ScheduleReserved ? 'schedule.reservedHint' : 'schedule.alternateHint') }}</span>
+        </div>
+        @if (view().mode === modes.ScheduleAlternate) {
+          <div class="setup-row">
+            <span class="field-label">{{ t('schedule.first') }}</span>
+            <div class="seg seg-sm">
+              @for (c of view().categories; track c.category) {
+                <button type="button" class="seg-option" [class.active]="view().first === c.category" (click)="setFirst(c.category)">
+                  {{ t('category.name.' + c.category) }}
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="setup-row courts-row">
+            <span class="field-label">{{ t('schedule.courts') }}</span>
+            <div class="court-picks">
+              @for (n of courts(); track n) {
+                <label class="court-pick">
+                  <span>{{ t('schedule.court', { n }) }}</span>
+                  <select (change)="reserve(n, $event)">
+                    <option value="" [selected]="!reservedFor(n)?.manual">{{ t('schedule.auto', { category: reservedFor(n) ? t('category.short.' + reservedFor(n)!.category) : '–' }) }}</option>
+                    @for (c of view().categories; track c.category) {
+                      <option [value]="c.category" [selected]="reservedFor(n)?.manual && reservedFor(n)?.category === c.category">
+                        {{ t('category.name.' + c.category) }}
+                      </option>
+                    }
+                  </select>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if ((view().slots ?? []).length === 0) {
+      <div class="card empty">
+        <span>{{ t('schedule.empty') }}</span>
+        <a class="btn btn-sm" routerLink="../format">{{ t('nav.format') }}</a>
+      </div>
+    } @else {
+      <div class="layout">
+        <div class="card timeline">
+          <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
+            <span class="corner"></span>
+            @for (n of courts(); track n) {
+              <span class="court-head">
+                {{ t('schedule.court', { n }) }}
+                @if (reservedFor(n); as r) {
+                  <app-category-badge [category]="r.category" [slot]="r.slot" />
+                }
+              </span>
+            }
+            <div class="axis" [style.height.px]="height()">
+              @for (tick of ticks(); track tick.top) {
+                <span class="tick" [style.top.px]="tick.top">{{ tick.label }}</span>
+              }
+            </div>
+            @for (n of courts(); track n) {
+              <div class="lane" [style.height.px]="height()">
+                @for (tick of ticks(); track tick.top) {
+                  <span class="line" [style.top.px]="tick.top"></span>
+                }
+                @for (s of slotsByCourt().get(n) ?? []; track $index) {
+                  <button
+                    type="button"
+                    class="slot"
+                    [class.unrested]="s.unrested"
+                    [class.unknown]="!s.match"
+                    [class.dim]="selected() && selected() !== s.key"
+                    [style.top.px]="top(s)"
+                    [style.height.px]="slotHeight(s)"
+                    [style.border-left-color]="'var(--color-category-' + s.slot + ')'"
+                    [attr.title]="time(s.start) + ' – ' + time(s.end) + ' · ' + blockLabel(s) + ' · ' + sides(s)"
+                    (click)="selected.set(selected() === s.key ? null : s.key)"
+                  >
+                    <span class="slot-head">
+                      <app-category-badge [category]="s.category" [slot]="s.slot" />
+                      <span class="slot-time">{{ time(s.start) }}</span>
+                    </span>
+                    <span class="slot-label">{{ blockLabel(s) }}</span>
+                    @if (slotHeight(s) > 54) {
+                      <span class="slot-sides">{{ s.match ? bibs(s) : t('schedule.unknownPlayers') }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <aside class="card order">
+          <div class="order-head">
+            <span class="order-title">{{ t('schedule.order') }}</span>
+            @if (manual()) {
+              <button type="button" class="btn btn-xs" (click)="reset()">{{ t('schedule.reset') }}</button>
+            }
+          </div>
+          <span class="hint">{{ t(manual() ? 'schedule.manualHint' : 'schedule.autoHint') }}</span>
+          <ol class="blocks">
+            @for (b of view().blocks; track b.key; let i = $index; let first = $first; let last = $last) {
+              <li class="block" [class.selected]="selected() === b.key" (click)="selected.set(selected() === b.key ? null : b.key)">
+                <span class="block-main">
+                  <span class="block-title">
+                    <app-category-badge [category]="b.category" [slot]="b.slot" />
+                    <span class="block-label">{{ blockLabel(b) }}</span>
+                  </span>
+                  <span class="block-meta">{{ t('schedule.blockMeta', { n: b.matches, start: time(b.start), end: time(b.end) }) }}</span>
+                </span>
+                <span class="block-actions" (click)="$event.stopPropagation()">
+                  <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('schedule.toTop')" [attr.title]="t('schedule.toTop')" (click)="toTop(i)">⤒</button>
+                  <button type="button" class="icon-btn" [disabled]="first" [attr.aria-label]="t('schedule.up')" (click)="move(i, -1)">↑</button>
+                  <button type="button" class="icon-btn" [disabled]="last" [attr.aria-label]="t('schedule.down')" (click)="move(i, 1)">↓</button>
+                </span>
+              </li>
+            }
+          </ol>
+        </aside>
+      </div>
+    }
+  </div>
+</ng-container>

@@ -128,8 +128,8 @@ func TestQueueRestAndProposals(t *testing.T) {
 		t.Fatalf("queue = %+v", q)
 	}
 	props := g.state().Proposals(t0)
-	if props[1].ID != "MS-A1" || props[2].ID != "MS-A2" {
-		t.Fatalf("proposals = %v %v", props[1].ID, props[2].ID)
+	if props[1].Match != "MS-A1" || props[2].Match != "MS-A2" {
+		t.Fatalf("proposals = %v %v", props[1].Match, props[2].Match)
 	}
 
 	g.do(func(s State) (Change, error) { return s.CallMatch("MS-A1", 1) })
@@ -148,8 +148,8 @@ func TestQueueRestAndProposals(t *testing.T) {
 	if q[1].Reason != ReasonResting || !q[1].RestingSince.Equal(at(15)) {
 		t.Fatalf("resting = %+v", q[1])
 	}
-	if p := g.state().Proposals(at(20)); p[1].ID != "MS-A2" || p[2].ID != "" {
-		t.Errorf("proposals while resting = %v / %v", p[1].ID, p[2].ID)
+	if p := g.state().Proposals(at(20)); p[1].Match != "MS-A2" || p[2].Match != "" {
+		t.Errorf("proposals while resting = %v / %v", p[1].Match, p[2].Match)
 	}
 	// Rest is a warning: the desk can still force the call.
 	if _, err := g.state().CallMatch(q[1].Match.ID, 2); err != nil {
@@ -171,29 +171,6 @@ func TestQueueRestAndProposals(t *testing.T) {
 	if q = g.state().Queue(at(26)); q[1].Reason != ReasonAbsent {
 		t.Errorf("absent = %+v", q[1])
 	}
-}
-
-func TestCourtPriority(t *testing.T) {
-	g := newGame(t, engine.MensSingles, engine.WomensSingles)
-	g.confirmedPools(engine.MensSingles, 1, 4) // 6 matches
-	g.confirmedPools(engine.WomensSingles, 1, 3)
-
-	cats := func(n int) []engine.Category {
-		var out []engine.Category
-		for _, q := range g.state().Queue(t0)[:n] {
-			out = append(out, q.Match.Category)
-		}
-		return out
-	}
-	// Balanced: shares 0/6 vs 0/3 tie, MS first by slot; then WS (0/3 < 1/6)…
-	if got := cats(4); !slices.Equal(got, []engine.Category{"MS", "WS", "MS", "MS"}) {
-		t.Errorf("balanced = %v", got)
-	}
-	g.do(func(s State) (Change, error) { return s.SetCourtPriority("WS") })
-	if got := cats(4); !slices.Equal(got, []engine.Category{"WS", "WS", "WS", "MS"}) {
-		t.Errorf("WS first = %v", got)
-	}
-	g.fails(engine.CodeInvalidPriority, func(s State) (Change, error) { return s.SetCourtPriority("XD") })
 }
 
 func TestWithdrawal(t *testing.T) {

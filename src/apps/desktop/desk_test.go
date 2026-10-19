@@ -90,7 +90,7 @@ func TestControlDesk(t *testing.T) {
 	if v = f.svc.GetControlDeskView(); v.Courts[0].State != tournament.CourtFree || len(v.Pending) != 0 {
 		t.Errorf("after score = %+v", v.Courts[0])
 	}
-	if tv := f.svc.GetTournamentView(); tv.Courts != 2 || tv.MinRest != 10 || tv.Priority != "balanced" {
+	if tv := f.svc.GetTournamentView(); tv.Courts != 2 || tv.MinRest != 10 {
 		t.Errorf("settings = %+v", tv)
 	}
 }

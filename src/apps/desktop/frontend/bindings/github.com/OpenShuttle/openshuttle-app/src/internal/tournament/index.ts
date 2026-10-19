@@ -5,6 +5,7 @@ export {
     CourtState,
     NotReady,
     RouteKind,
+    ScheduleMode,
     StageKind
 } from "./models.js";
 

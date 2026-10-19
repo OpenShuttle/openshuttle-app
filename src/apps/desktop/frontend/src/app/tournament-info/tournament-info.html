@@ -41,23 +41,6 @@
           <span class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</span>
         </div>
 
-        @if ((tournament.view().categories ?? []).length > 1) {
-          <div class="field wide">
-            <span class="field-label">{{ t('tournamentInfo.priority') }}</span>
-            <div class="seg seg-sm">
-              <button type="button" class="seg-option" [class.active]="tournament.view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
-                {{ t('priority.balanced') }}
-              </button>
-              @for (c of tournament.view().categories; track c.category) {
-                <button type="button" class="seg-option" [class.active]="tournament.view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
-                  {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
-                </button>
-              }
-            </div>
-            <span class="hint">{{ t('tournamentInfo.priorityHint') }}</span>
-          </div>
-        }
-
         <div class="step">
           <span class="field-label">{{ t('tournamentInfo.courts') }}</span>
           <div class="stepper">

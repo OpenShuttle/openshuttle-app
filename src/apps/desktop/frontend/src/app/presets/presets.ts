@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { FormatPreset, PresetService } from '@bindings/apps/desktop';
@@ -150,9 +150,34 @@ export class PresetsPage {
   protected setWinKind(kind: WinConditionKind): void {
     this.setWin(
       kind === WinConditionKind.WinByTime
-        ? { kind, minutes: 12, setsToWin: 0, pointsPerSet: 0, cap: 0 }
-        : { kind, setsToWin: 2, pointsPerSet: 21, cap: 30, minutes: 0 },
+        ? { kind, minutes: 12, setsToWin: 0, pointsPerSet: 0, cap: 0, estimate: 0 }
+        : { kind, setsToWin: 2, pointsPerSet: 21, cap: 30, minutes: 0, estimate: 0 },
     );
+  }
+
+  /** What the schedule uses for the win condition being edited. */
+  protected readonly draftEstimate = signal(0);
+  /** Default estimates of the listed win conditions without one set. */
+  protected readonly estimates = signal<Record<string, number>>({});
+
+  constructor() {
+    // Go knows the default estimates: ask for the draft and the list.
+    effect(() => {
+      const d = this.winDraft();
+      if (d) {
+        void PresetService.EstimateMinutes(d.win).then((n) => this.draftEstimate.set(n));
+      }
+    });
+    effect(() => {
+      const list = this.presets.value().win ?? [];
+      void Promise.all(list.map((p) => PresetService.EstimateMinutes(p.win))).then((ns) =>
+        this.estimates.set(Object.fromEntries(list.map((p, i) => [p.id, ns[i]]))),
+      );
+    });
+  }
+
+  protected stepEstimate(delta: number): void {
+    this.setWin({ estimate: Math.max(1, this.draftEstimate() + delta) });
   }
 
   protected stepWin(field: 'setsToWin' | 'pointsPerSet' | 'cap' | 'minutes', delta: number): void {

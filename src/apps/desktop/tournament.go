@@ -36,7 +36,6 @@ type TournamentView struct {
 	AvailableCategories []engine.Category `json:"availableCategories"`
 	Courts              int               `json:"courts"`
 	MinRest             int               `json:"minRest"`
-	Priority            string            `json:"priority"`
 	Progress            ProgressView      `json:"progress"`
 }
 
@@ -293,7 +292,6 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 		AvailableCategories: s.state.AvailableCategories(),
 		Courts:              s.state.Courts(),
 		MinRest:             s.state.MinRest(),
-		Priority:            s.state.CourtPriority(),
 		Progress:            progressOf(s.state),
 	}
 	if len(s.log) > 0 {

@@ -24,7 +24,6 @@ const EMPTY: ControlDeskView = {
   queue: [],
   complete: [],
   stagesToFill: [],
-  priority: 'balanced',
   minRest: 10,
   categories: [],
   started: false,
@@ -152,6 +151,11 @@ export class ControlDesk {
       this.launching.set(null);
     }
   }
+
+  /** Courts whose proposal has not had its rest: the desk forces or reorders. */
+  protected readonly unrestedCourts = computed(() =>
+    (this.view().courts ?? []).filter((c) => c.proposal && c.proposalUnrested && !this.view().rounds.active).map((c) => c.number),
+  );
 
   protected call(court: CourtView): void {
     if (court.proposal) {

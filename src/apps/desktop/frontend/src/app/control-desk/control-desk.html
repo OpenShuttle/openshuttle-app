@@ -7,27 +7,19 @@
           <span class="page-sub">{{ t('desk.sub', { courts: (view().courts ?? []).length, rest: view().minRest }) }}</span>
         </div>
         <div class="head-right">
-          @if ((view().categories ?? []).length > 1) {
-            <span class="priority">
-              <span class="priority-label">{{ t('desk.priority') }}</span>
-              <span class="seg seg-sm priority-seg">
-                <button type="button" class="seg-option" [class.active]="view().priority === 'balanced'" (click)="tournament.setCourtPriority('balanced')">
-                  {{ t('priority.balanced') }}
-                </button>
-                @for (c of view().categories; track c.category) {
-                  <button type="button" class="seg-option" [class.active]="view().priority === c.category" (click)="tournament.setCourtPriority(c.category)">
-                    {{ t('priority.first', { category: t('category.short.' + c.category) }) }}
-                  </button>
-                }
-              </span>
-            </span>
-          }
+          <a class="btn btn-sm" routerLink="../schedule">{{ t('nav.schedule') }}</a>
           <span class="count playing"><span class="swatch"></span>{{ t('desk.countPlaying', { n: counts().playing }) }}</span>
           <span class="count free"><span class="swatch"></span>{{ t('desk.countFree', { n: counts().free }) }}</span>
           <span class="count finished"><span class="swatch"></span>{{ t('desk.countPending', { n: counts().pending }) }}</span>
         </div>
       </div>
 
+      @if (unrestedCourts().length > 0) {
+        <div class="card rest-alert" role="alert">
+          <span>{{ t('desk.unrestedAlert', { courts: unrestedCourts().join(', '), n: unrestedCourts().length, rest: view().minRest }) }}</span>
+          <a class="btn btn-sm" routerLink="../schedule">{{ t('desk.openSchedule') }}</a>
+        </div>
+      }
       @if (!view().started) {
         <div class="card not-started">
           <span>{{ t('desk.notStarted') }}</span>
@@ -126,6 +118,9 @@
                 @if (!view().rounds.active && c.proposal; as p) {
                   <div class="next">
                     <span class="kicker">{{ t('desk.nextProposed', { id: p.id }) }}</span>
+                    @if (c.proposalUnrested) {
+                      <span class="rest-warn">{{ t('desk.unrested', { rest: view().minRest }) }}</span>
+                    }
                     <span class="line"><span class="bib bib-outline">{{ p.a.bib }}</span><span class="line-names">{{ short(p.a) }}</span></span>
                     <span class="line"><span class="bib bib-outline">{{ p.b.bib }}</span><span class="line-names">{{ short(p.b) }}</span></span>
                   </div>
@@ -156,6 +151,9 @@
                 @if (c.proposal; as p) {
                   <div class="court-body">
                     <span class="kicker">{{ t('desk.proposed', { id: p.id }) }}</span>
+                    @if (c.proposalUnrested) {
+                      <span class="rest-warn">{{ t('desk.unrested', { rest: view().minRest }) }}</span>
+                    }
                     <div class="side">
                       <span class="bib bib-lg bib-outline">{{ p.a.bib }}</span>
                       <span class="side-text"><span class="side-names">{{ short(p.a) }}</span><span class="side-club">{{ clubs(p.a) }}</span></span>
@@ -166,8 +164,8 @@
                     </div>
                   </div>
                   <div class="court-foot">
-                    <button type="button" class="call-btn" (click)="call(c)">
-                      {{ t('desk.call') }}<span class="key">{{ c.number }}</span>
+                    <button type="button" class="call-btn" [class.forced]="c.proposalUnrested" (click)="call(c)">
+                      {{ t(c.proposalUnrested ? 'desk.callAnyway' : 'desk.call') }}<span class="key">{{ c.number }}</span>
                     </button>
                   </div>
                 } @else {

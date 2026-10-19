@@ -96,7 +96,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Categories are disjoint**: a player cannot be entered in both. No cross-category rest or conflict handling.
 - **Two categories never share a sex**: one men's (MS or MD) and one women's (WS or WD); mixed doubles (XD) always runs alone (`CATEGORIES_SHARE_SEX`). Go lists the categories still allowed (`AvailableCategories`).
 - **One independent format per category**: its own stages, win conditions, advancement rules, full standings.
-- **Courts are shared**, with a per-tournament court priority: `Balanced` (the least advanced category goes first, by share of matches played), or one category first. Priority only reorders proposals, it never reserves a court.
+- **Courts are shared**. The schedule (ADR 6) decides who plays where: *alternate* mode (round 1 of each category in turn, then round 2…, `First` opens) or *reserved* courts per category until it is over.
 - **Bib numbers are unique across the tournament.** Pool names stay A, B, C… within each category.
 - **Check-in is per player**: each player is checked in once. A pair is complete when both players are present. The bib is assigned at the first check-in of the pair.
 - **The draw is per category.** Moving an entrant to a pool of the other category is refused (impossible action, not a warning).
@@ -116,7 +116,8 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - **Drag and drop** uses pointer events, not HTML5 drag and drop (unreliable across WebKitGTK, WebView2 and WKWebView).
 - **Pool matches are derived, not stored**: confirming a draw generates the round-robin matches (circle method, rounds interleaved across pools, IDs like `MD-A3`). Events record what happens to them: `MatchCalled`, `MatchEnded`, `ScoreRecorded`, `EntrantWithdrawn`. Event times are the call and end times. Once a match has started, the draw cannot be reopened and entrants cannot be removed (declare a forfeit).
 - **Calling is refused only when impossible**: a match already in progress on that court, or an entrant already on another court. Resting is shown in the queue, never enforced: any waiting match of the queue can be called on a court with no match in progress ("Force" when an entrant rests or is absent).
-- **Proposals** give each free or finished court the next ready match in queue order (round order, categories merged by court priority), never two proposals sharing an entrant. The view depends on the time, so the control desk refetches every 15 s.
+- **Schedule** (ADR 6): `State.Schedule(now)` simulates the rest of the tournament with each win condition's `Estimate` (0: default from the win condition). Courts take the next match as they free up. Hard rules: a bracket round waits for the previous one, a stage not filled yet for its sources (stand-in matches), pinned blocks first (`ScheduleSet.Pinned`: pools `MD/S1/A`, bracket rounds `MD/S2/R1`), alternate rounds or reserved courts. Soft rules: same pool in a row, pools with most rounds left, then the pairing with the longest average rest. Rest is never waited for: the best unrested match is flagged `Unrested` and the desk warned ("call anyway" or reorder).
+- **Proposals** are the schedule's matches starting now on free or finished courts, never with a player on court. The queue follows the schedule order. The view depends on the time, so the control desk refetches every 15 s.
 - **Corrections** (Stages screen, correction mode): edit or clear a score, declare or cancel a forfeit, swap two waiting matches, draw lots for a complete pool still tied after every other criterion (`LotsDrawn` stores the lots). A forfeit takes a second click and stays out of the Tab order of the score panel: Enter there always means "save the score".
 - **Later stages** are filled (`StageFilled`) once every stage feeding them is complete with no tie left: pools by a snake over ranks keeping entrants of the same group apart, brackets with the seeding below (byes as `""`). Refilling is possible until a match of the stage starts. A bracket as entry stage is drawn with seeds on their standard slots, the others at random, then first-round club mates pulled apart. Seeding: pool rank, then pool; within a rank, each entrant takes the slot where it meets its pool mates as late as possible (never in round 1 when avoidable, winner and runner-up in opposite halves); byes go to the top seeds. Bracket matches are derived per sub-bracket (Start, Size): winners go on to places Start..Start+Size/2-1, losers (full placement only) to the rest. Without full placement, losers of a round share their places. Match IDs: `MD-A3` in the entry stage's pools, `MD-S2-A3` in a later pools stage, `MD-S2-5` in a bracket stage.
 - **Forfeit scope**: a forfeit is recorded with the latest stage the entrant plays; every match of that stage and the later ones becomes a walkover, earlier stages keep their results.
@@ -154,7 +155,9 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 | Terrain | Court |
 | Rotation | Round |
 | Score en attente | PendingScore |
-| Priorité des terrains | CourtPriority |
+| Priorité des terrains | CourtPriority (older files; now `ScheduleSet.First`) |
+| Échéancier | Schedule |
+| Terrains réservés | ScheduleReserved |
 
 Use these names everywhere: types, functions, events, i18n keys, UI labels.
 

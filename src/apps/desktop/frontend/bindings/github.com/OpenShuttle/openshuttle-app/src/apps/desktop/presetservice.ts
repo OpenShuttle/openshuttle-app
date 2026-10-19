@@ -44,6 +44,14 @@ export function DuplicatePreset(id: string, name: string): $CancellablePromise<v
 }
 
 /**
+ * EstimateMinutes is the expected time of a match on court with this win
+ * condition: its estimate, or the default one.
+ */
+export function EstimateMinutes(win: engine$0.WinCondition): $CancellablePromise<number> {
+    return $Call.ByID(843034253, win);
+}
+
+/**
  * GetPresets lists every preset.
  */
 export function GetPresets(): $CancellablePromise<$models.Presets> {

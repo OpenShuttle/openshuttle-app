@@ -110,6 +110,14 @@
                 </div>
               </div>
             }
+            <div class="line">
+              <span>{{ t('format.estimate') }} <span class="hint">{{ t(d.win.estimate ? 'format.estimateSet' : 'format.estimateAuto') }}</span></span>
+              <div class="stepper">
+                <button type="button" [disabled]="draftEstimate() <= 1" (click)="stepEstimate(-1)">−</button>
+                <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: draftEstimate() }) }}</span>
+                <button type="button" [disabled]="draftEstimate() >= 180" (click)="stepEstimate(1)">+</button>
+              </div>
+            </div>
             <span class="hint">{{ win(d.win) }}</span>
             <div class="form-actions">
               <button type="button" class="btn btn-sm" (click)="winDraft.set(null)">{{ t('common.cancel') }}</button>
@@ -121,9 +129,7 @@
           <div class="row" [class.off]="!presets.enabled(p.id)">
             <span class="row-text">
               <strong>{{ p.name || win(p.win) }}</strong>
-              @if (p.name) {
-                <span class="order">{{ win(p.win) }}</span>
-              }
+              <span class="order">{{ p.name ? win(p.win) + ' · ' : '' }}{{ t('format.estimateShort', { n: p.win.estimate || estimates()[p.id] || '…' }) }}</span>
             </span>
             <span class="row-actions">
               <label class="offer" [attr.title]="t('presets.offeredHint')"><input type="checkbox" [checked]="presets.enabled(p.id)" (change)="setEnabled(p.id, $event)" /><span>{{ t('presets.offered') }}</span></label>

@@ -260,6 +260,12 @@ func (s *PresetService) DuplicatePreset(ctx context.Context, id, name string) er
 	return engine.NewError(engine.CodePresetNotFound)
 }
 
+// EstimateMinutes is the expected time of a match on court with this win
+// condition: its estimate, or the default one.
+func (s *PresetService) EstimateMinutes(win engine.WinCondition) int {
+	return win.EstimatedMinutes()
+}
+
 // PreviewFormat shows what a format gives for a number of entrants, before
 // saving it: pools, routing, brackets, matches and final places.
 func (s *PresetService) PreviewFormat(stages []tournament.StageConfig, entrants int) (tournament.FormatPreview, error) {

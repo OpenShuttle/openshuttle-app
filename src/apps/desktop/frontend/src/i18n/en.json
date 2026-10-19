@@ -52,8 +52,6 @@
     "minRest": "Minimum rest between two matches",
     "minutes": "{n} min",
     "lead": "Can be changed until the tournament is archived.",
-    "priority": "Court priority",
-    "priorityHint": "Balanced: the least advanced category goes first. Timed matches are not available with two categories.",
     "minRestShort": "Minimum rest",
     "fileHint": "Saved automatically at every action, with a backup copy every 5 minutes.",
     "openFormat": "Open the format"
@@ -92,7 +90,8 @@
     "StageFilled": "{stage} filled: {category}",
     "SlotsSwapped": "Places swapped: {stage}",
     "EntrantsImported": "Import: {count, plural, one {# entrant} other {# entrants}}",
-    "SeedsSet": "Seeds ranked: {category}"
+    "SeedsSet": "Seeds ranked: {category}",
+    "ScheduleSet": "Schedule changed"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -128,7 +127,8 @@
     "StageFilled": "filling of {stage}",
     "SlotsSwapped": "swap in {stage}",
     "EntrantsImported": "import of {count} entrants",
-    "SeedsSet": "seed ranking of {category}"
+    "SeedsSet": "seed ranking of {category}",
+    "ScheduleSet": "schedule change"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -286,8 +286,10 @@
       "stages": "{played} / {total} matches",
       "resultsLater": "After the last match",
       "final": "Final standings",
-      "archived": "Archived"
-    }
+      "archived": "Archived",
+      "schedule": "Forecast and match order"
+    },
+    "schedule": "Schedule"
   },
   "entrants": {
     "title": "Entrants",
@@ -451,7 +453,11 @@
     "bracketIsFinal": "A bracket ranks every entrant it receives: nobody goes on to another phase.",
     "addNeedsPools": "Only pools can send entrants to a new phase: a bracket is always the last one.",
     "locked": "Locked: matches started",
-    "lockedHint": "A match of this category was called or scored: its format can no longer change."
+    "lockedHint": "A match of this category was called or scored: its format can no longer change.",
+    "estimate": "Time on court",
+    "estimateAuto": "Estimated from the win condition, changeover included: used by the schedule.",
+    "estimateSet": "Set by hand, changeover included: used by the schedule.",
+    "estimateShort": "≈ {n} min on court"
   },
   "tiebreak": {
     "wins": "Wins",
@@ -507,7 +513,6 @@
     "countPlaying": "{n} playing",
     "countFree": "{n} free",
     "countPending": "{n, plural, one {# score pending} other {# scores pending}}",
-    "priority": "Court priority",
     "notStarted": "No match yet: confirm a draw to generate the pool matches.",
     "goToDraw": "Go to the draw",
     "court": "Court",
@@ -582,7 +587,11 @@
     "launchHint": "Choose the court",
     "forceHint": "Call anyway: the rest or presence is only a warning",
     "fillStageTitle": "{stage}: ready to fill",
-    "fillStage": "The phases feeding it are over: fill it to go on."
+    "fillStage": "The phases feeding it are over: fill it to go on.",
+    "unrested": "Under {rest} min of rest",
+    "callAnyway": "Call anyway",
+    "unrestedAlert": "{n, plural, one {Court {courts}: the next match} other {Courts {courts}: the next matches}} would start before the {rest} min of rest. Call anyway, or change the order in the schedule.",
+    "openSchedule": "Open the schedule"
   },
   "priority": {
     "balanced": "Balanced",
@@ -799,5 +808,33 @@
     "WRONG_PLAYER_COUNT": "wrong number of players for the category",
     "INVALID_PLAYER_NAME": "missing or too long name",
     "INVALID_CLUB": "club name too long"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "summary": "{n, plural, one {# match} other {# matches}} left · expected end around {end} · minimum rest {rest} min",
+    "nothingLeft": "No match left to play.",
+    "empty": "Nothing to schedule yet: enter players and set a format.",
+    "unrested": "{n, plural, one {# match without its rest} other {# matches without their rest}}",
+    "unrestedHint": "No rested match fitted the rules there: the desk calls it anyway, or changes the order of the blocks.",
+    "sharing": "Two categories",
+    "alternate": "In turn",
+    "reserved": "Reserved courts",
+    "alternateHint": "Round 1 of one category, round 1 of the other, then round 2…",
+    "reservedHint": "Each category keeps its courts until it is over; its courts then go to the other.",
+    "first": "Opening each round",
+    "courts": "Courts",
+    "court": "Court {n}",
+    "auto": "Auto ({category})",
+    "pool": "Pool {name}",
+    "round": "round {n}",
+    "unknownPlayers": "players not known yet",
+    "order": "Order of the blocks",
+    "reset": "Back to automatic",
+    "autoHint": "Automatic: same pool in a row, pools with the most rounds left first, bracket rounds one after the other. Move a block to change the order.",
+    "manualHint": "Order set by hand: courts take the blocks in this order, as soon as their players are free.",
+    "blockMeta": "{n, plural, one {# match} other {# matches}} · {start}–{end}",
+    "toTop": "Play first",
+    "up": "Earlier",
+    "down": "Later"
   }
 }

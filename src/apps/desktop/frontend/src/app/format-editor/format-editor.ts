@@ -280,6 +280,11 @@ export class FormatEditor {
     this.edit(stage, { win: { ...stage.win, [field]: (stage.win[field] ?? 0) + delta } });
   }
 
+  /** Changes the estimated match time from what the schedule uses now. */
+  protected stepEstimate(stage: StageView, delta: number): void {
+    this.edit(stage, { win: { ...stage.win, estimate: Math.max(1, stage.estimate + delta) } });
+  }
+
   protected setPoints(stage: StageView, points: number): void {
     this.edit(stage, { win: { ...stage.win, pointsPerSet: points } });
   }

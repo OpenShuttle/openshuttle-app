@@ -52,8 +52,6 @@
     "minRest": "Repos minimum entre deux matchs",
     "minutes": "{n} min",
     "lead": "Modifiables jusqu'à la clôture.",
-    "priority": "Priorité des terrains",
-    "priorityHint": "Équilibrée : la catégorie la moins avancée passe en premier. Le match au temps n'est pas disponible avec deux catégories.",
     "minRestShort": "Repos minimum",
     "fileHint": "Enregistré automatiquement à chaque action, avec une copie de sauvegarde toutes les 5 minutes.",
     "openFormat": "Ouvrir le format"
@@ -92,7 +90,8 @@
     "StageFilled": "{stage} rempli : {category}",
     "SlotsSwapped": "Places échangées : {stage}",
     "EntrantsImported": "Import : {count, plural, one {# inscription} other {# inscriptions}}",
-    "SeedsSet": "Têtes de série classées : {category}"
+    "SeedsSet": "Têtes de série classées : {category}",
+    "ScheduleSet": "Échéancier modifié"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -128,7 +127,8 @@
     "StageFilled": "remplissage de {stage}",
     "SlotsSwapped": "échange dans {stage}",
     "EntrantsImported": "import de {count} inscriptions",
-    "SeedsSet": "classement des têtes de série en {category}"
+    "SeedsSet": "classement des têtes de série en {category}",
+    "ScheduleSet": "modification de l'échéancier"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -286,8 +286,10 @@
       "stages": "{played} / {total} matchs",
       "resultsLater": "Après le dernier match",
       "final": "Classement final",
-      "archived": "Archivé"
-    }
+      "archived": "Archivé",
+      "schedule": "Prévision et ordre des matchs"
+    },
+    "schedule": "Échéancier"
   },
   "entrants": {
     "title": "Inscrits",
@@ -451,7 +453,11 @@
     "bracketIsFinal": "Un tableau classe tous ses participants : personne ne passe à une autre phase.",
     "addNeedsPools": "Seules des poules peuvent envoyer des participants vers une nouvelle phase : un tableau est toujours la dernière.",
     "locked": "Verrouillé : matchs commencés",
-    "lockedHint": "Un match de cette catégorie a été appelé ou saisi : son format ne peut plus changer."
+    "lockedHint": "Un match de cette catégorie a été appelé ou saisi : son format ne peut plus changer.",
+    "estimate": "Durée sur le terrain",
+    "estimateAuto": "Estimée d'après la condition de victoire, changement compris : sert à l'échéancier.",
+    "estimateSet": "Fixée à la main, changement compris : sert à l'échéancier.",
+    "estimateShort": "≈ {n} min sur le terrain"
   },
   "tiebreak": {
     "wins": "Victoires",
@@ -507,7 +513,6 @@
     "countPlaying": "{n} en cours",
     "countFree": "{n} {n, plural, one {libre} other {libres}}",
     "countPending": "{n, plural, one {# score en attente} other {# scores en attente}}",
-    "priority": "Priorité terrains",
     "notStarted": "Aucun match : validez un tirage pour générer les matchs de poules.",
     "goToDraw": "Aller au tirage",
     "court": "Terrain",
@@ -582,7 +587,11 @@
     "launchHint": "Choisir le terrain",
     "forceHint": "Lancer quand même : le repos ou l'absence n'est qu'un avertissement",
     "fillStageTitle": "{stage} : prêt à remplir",
-    "fillStage": "Les phases qui l'alimentent sont terminées : remplissez-la pour continuer."
+    "fillStage": "Les phases qui l'alimentent sont terminées : remplissez-la pour continuer.",
+    "unrested": "Moins de {rest} min de repos",
+    "callAnyway": "Lancer quand même",
+    "unrestedAlert": "{n, plural, one {Terrain {courts} : le prochain match} other {Terrains {courts} : les prochains matchs}} démarreraient avant les {rest} min de repos. Lancez quand même, ou changez l'ordre dans l'échéancier.",
+    "openSchedule": "Ouvrir l'échéancier"
   },
   "priority": {
     "balanced": "Équilibrée",
@@ -799,5 +808,33 @@
     "WRONG_PLAYER_COUNT": "mauvais nombre de joueurs pour la catégorie",
     "INVALID_PLAYER_NAME": "nom manquant ou trop long",
     "INVALID_CLUB": "nom de club trop long"
+  },
+  "schedule": {
+    "title": "Échéancier",
+    "summary": "{n, plural, one {# match restant} other {# matchs restants}} · fin estimée vers {end} · repos minimum {rest} min",
+    "nothingLeft": "Plus aucun match à jouer.",
+    "empty": "Rien à planifier : inscrivez des joueurs et choisissez un format.",
+    "unrested": "{n, plural, one {# match sans son repos} other {# matchs sans leur repos}}",
+    "unrestedHint": "Aucun match reposé ne respectait les règles à cet endroit : la table de marque le lance quand même, ou change l'ordre des blocs.",
+    "sharing": "Deux catégories",
+    "alternate": "À tour de rôle",
+    "reserved": "Terrains réservés",
+    "alternateHint": "Tour 1 d'une catégorie, tour 1 de l'autre, puis tour 2…",
+    "reservedHint": "Chaque catégorie garde ses terrains jusqu'à la fin ; ils passent ensuite à l'autre.",
+    "first": "Ouvre chaque tour",
+    "courts": "Terrains",
+    "court": "Terrain {n}",
+    "auto": "Auto ({category})",
+    "pool": "Poule {name}",
+    "round": "tour {n}",
+    "unknownPlayers": "joueurs pas encore connus",
+    "order": "Ordre des blocs",
+    "reset": "Revenir à l'automatique",
+    "autoHint": "Automatique : une même poule à la suite, les poules avec le plus de tours restants d'abord, les tours de tableau l'un après l'autre. Déplacez un bloc pour changer l'ordre.",
+    "manualHint": "Ordre fixé à la main : les terrains prennent les blocs dans cet ordre, dès que leurs joueurs sont libres.",
+    "blockMeta": "{n, plural, one {# match} other {# matchs}} · {start}–{end}",
+    "toTop": "Jouer en premier",
+    "up": "Plus tôt",
+    "down": "Plus tard"
   }
 }

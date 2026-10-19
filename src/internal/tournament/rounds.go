@@ -96,7 +96,7 @@ func (s State) NextRound() []RoundCall {
 	}
 
 	var candidates []Match
-	for _, m := range s.orderedWaiting() {
+	for _, m := range s.orderedWaiting(s.lastAt) {
 		if !s.Timed(m) || playing[m.A] || playing[m.B] {
 			continue
 		}

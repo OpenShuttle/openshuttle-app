@@ -104,7 +104,7 @@ func (s State) Queue(now time.Time) []QueueItem {
 	rest := time.Duration(s.MinRest()) * time.Minute
 
 	var out []QueueItem
-	for _, m := range s.orderedWaiting() {
+	for _, m := range s.orderedWaiting(now) {
 		q := QueueItem{Match: m}
 		for _, id := range []engine.EntrantID{m.A, m.B} {
 			e, _ := s.Entrant(id)
@@ -125,80 +125,28 @@ func (s State) Queue(now time.Time) []QueueItem {
 	return out
 }
 
-// Proposals assigns the next ready match to every free or finished court,
-// in court order. Two proposals never share an entrant.
-func (s State) Proposals(now time.Time) map[int]Match {
-	taken := map[engine.EntrantID]bool{}
-	queue := s.Queue(now)
-	out := map[int]Match{}
-	for _, c := range s.CourtStates() {
-		if c.State == CourtPlaying {
-			continue
+// orderedWaiting returns the matches not called nor decided, in schedule
+// order. Matches the schedule leaves out (none in practice) come last.
+func (s State) orderedWaiting(now time.Time) []Match {
+	return s.waitingIn(s.Schedule(now))
+}
+
+// waitingIn orders the waiting matches as a schedule plays them.
+func (s State) waitingIn(sched Schedule) []Match {
+	var out []Match
+	seen := map[MatchID]bool{}
+	for _, slot := range sched.Slots {
+		if m, ok := s.Match(slot.Match); ok && slot.Match != "" && !seen[m.ID] && s.Playable(m) {
+			out = append(out, m)
+			seen[m.ID] = true
 		}
-		for _, q := range queue {
-			m := q.Match
-			// Timed matches are called by rounds, never one court at a time.
-			if q.Ready() && !s.Timed(m) && !taken[m.A] && !taken[m.B] {
-				out[c.Number] = m
-				taken[m.A], taken[m.B] = true, true
-				break
-			}
+	}
+	for _, m := range s.matches {
+		if !seen[m.ID] && !m.ByeA && !m.ByeB && !m.Called() && !s.Decided(m) && s.Playable(m) {
+			out = append(out, m)
 		}
 	}
 	return out
-}
-
-// orderedWaiting returns the matches not called nor decided, merged across
-// categories by court priority.
-func (s State) orderedWaiting() []Match {
-	waiting := map[engine.Category][]Match{}
-	total := map[engine.Category]int{}
-	done := map[engine.Category]int{}
-	for _, m := range s.matches {
-		if m.ByeA || m.ByeB {
-			continue // byes are never played
-		}
-		total[m.Category]++
-		if m.Called() || s.Decided(m) {
-			done[m.Category]++
-			continue
-		}
-		if s.Playable(m) {
-			waiting[m.Category] = append(waiting[m.Category], m)
-		}
-	}
-
-	priority := s.CourtPriority()
-	var out []Match
-	if priority != PriorityBalanced {
-		first := engine.Category(priority)
-		out = append(out, waiting[first]...)
-		for _, c := range s.Categories {
-			if c != first {
-				out = append(out, waiting[c]...)
-			}
-		}
-		return out
-	}
-	// Balanced: the category with the smallest share of matches started goes
-	// next. Shares are compared as fractions to stay exact.
-	for {
-		best := engine.Category("")
-		for _, c := range s.Categories {
-			if len(waiting[c]) == 0 {
-				continue
-			}
-			if best == "" || done[c]*total[best] < done[best]*total[c] {
-				best = c
-			}
-		}
-		if best == "" {
-			return out
-		}
-		out = append(out, waiting[best][0])
-		waiting[best] = waiting[best][1:]
-		done[best]++
-	}
 }
 
 // PoolRef names a pool of a stage.

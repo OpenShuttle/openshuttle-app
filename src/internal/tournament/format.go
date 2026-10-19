@@ -409,7 +409,7 @@ func validStage(st StageConfig, categories int) (StageConfig, error) {
 		if categories > 1 {
 			return st, engine.NewError(engine.CodeTimedNeedsOneCategory)
 		}
-		st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: st.Win.Minutes}
+		st.Win = engine.WinCondition{Kind: engine.WinByTime, Minutes: st.Win.Minutes, Estimate: st.Win.Estimate}
 	} else {
 		st.Win.Minutes = 0
 	}

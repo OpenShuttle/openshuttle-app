@@ -76,6 +76,12 @@ export class TournamentLayout {
         params: { time: p.drawConfirmedAt ? this.time(p.drawConfirmedAt) : '' },
       },
       {
+        key: 'schedule',
+        path: 'schedule',
+        mark: p.final ? 'done' : 'todo',
+        sub: 'nav.sub.schedule',
+      },
+      {
         key: 'controlDesk',
         path: 'control-desk',
         mark: p.final ? 'done' : p.started ? 'current' : 'todo',
