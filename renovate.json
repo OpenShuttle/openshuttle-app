@@ -7,6 +7,8 @@
     ":timezone(Europe/Paris)",
     "helpers:pinGitHubActionDigests"
   ],
+  "gitAuthor": "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
   "schedule": ["before 6am on monday"],
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
