@@ -26,6 +26,11 @@
   },
   "packageRules": [
     {
+      "description": "Pinning keeps the code already in use: no waiting.",
+      "matchUpdateTypes": ["pin", "pinDigest"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "Wails: the Go module, the npm runtime and the CLI used by the release must move together.",
       "matchPackageNames": ["github.com/wailsapp/wails/v3", "@wailsio/runtime"],
       "groupName": "wails",
