@@ -70,7 +70,11 @@
 }
 
 .place {
-  width: 44px;
+  // Tied places read "7 ex." / "7 tie": the badge grows, never wraps.
+  min-width: 44px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  white-space: nowrap;
   height: 36px;
   border-radius: var(--radius-sm);
   background: var(--color-bg);
