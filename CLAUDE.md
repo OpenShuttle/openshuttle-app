@@ -207,7 +207,9 @@ from the mockup. Category badges are colored by the category's slot in the
 tournament (`--color-category-1`, `--color-category-2`), not by type.
 The app logo is `frontend/public/logo.svg` (the shuttle alone, transparent; also `favicon.ico`); the app
 icons in `build/` (`appicon.png`, `windows/icon.ico`, `darwin/icons.icns`,
-DMG icon and background) are generated from it (`wails3 generate icons`).
+DMG icon and background) are generated from it (`wails3 generate icons`);
+`windows/appicon.ico`, a copy of `icon.ico`, is the icon of `.openshuttle` files
+the NSIS installer registers (`fileAssociations` in `build/config.yml`).
 The main window has no native title bar on Windows and Linux (`Frameless`):
 the app's top bar drags the window (`--wails-draggable: drag`, controls
 `no-drag`), maximises on double-click and draws full screen / minimise / maximise / close;
