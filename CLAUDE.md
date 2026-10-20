@@ -176,7 +176,7 @@ Use these names everywhere: types, functions, events, i18n keys, UI labels.
 
 Prerequisites: Go (version in `src/go.mod`), Node 24, the Wails CLI pinned to the
 same version as `src/go.mod`:
-`go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.30`.
+`go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.33`.
 On Linux: `libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev`.
 
 ```
