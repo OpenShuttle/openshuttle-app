@@ -47,6 +47,24 @@ breaking changes (`feat!:` or a `BREAKING CHANGE:` footer) come first. So the
 commit subject is what users read: write it for them. Preview the next notes
 with `npx git-cliff@2.14.2 --unreleased`.
 
+### Website
+
+Every desktop release updates the website
+([OpenShuttle/website](https://github.com/OpenShuttle/website)) in the same
+breath:
+
+- **Changelog** (`/nouveautes/`, `/en/changelog/`): a new section for the
+  version, written by hand for users, in French and English, linking to the
+  GitHub release for the details. The generated release notes are not
+  copied: they speak commits, the changelog speaks features.
+- **Screenshots**: when a screen changed, retake the guide's captures
+  (`src/assets/guide/`, 1920×1080, both languages, same demo tournaments
+  and states as the previous ones) and add one for a new screen.
+- **Guide and FAQ**: update every step whose behaviour changed.
+
+Publish the site once the release is out, so the changelog never announces a
+version that cannot be downloaded yet.
+
 A wrong tag fails the workflow before building: delete it (`git push origin
 :refs/tags/desktop-vX.Y.Z`), fix, tag again.
 
