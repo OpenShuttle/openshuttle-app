@@ -1,0 +1,20 @@
+{
+  "name": "Tournoi de printemps",
+  "archived": false,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1,
+      "started": false,
+      "complete": false,
+      "rows": []
+    },
+    {
+      "category": "WD",
+      "slot": 2,
+      "started": false,
+      "complete": false,
+      "rows": []
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "win": [
+    {
+      "id": "b-sets-2x15",
+      "name": "",
+      "win": {
+        "kind": "sets",
+        "setsToWin": 2,
+        "pointsPerSet": 15,
+        "cap": 21
+      }
+    },
+    {
+      "id": "b-sets-1x15",
+      "name": "",
+      "win": {
+        "kind": "sets",
+        "setsToWin": 1,
+        "pointsPerSet": 15,
+        "cap": 21
+      }
+    },
+    {
+      "id": "b-sets-2x21",
+      "name": "",
+      "win": {
+        "kind": "sets",
+        "setsToWin": 2,
+        "pointsPerSet": 21,
+        "cap": 30
+      }
+    },
+    {
+      "id": "b-sets-1x21",
+      "name": "",
+      "win": {
+        "kind": "sets",
+        "setsToWin": 1,
+        "pointsPerSet": 21,
+        "cap": 30
+      }
+    },
+    {
+      "id": "b-sets-3x11",
+      "name": "",
+      "win": {
+        "kind": "sets",
+        "setsToWin": 3,
+        "pointsPerSet": 11,
+        "cap": 15
+      }
+    },
+    {
+      "id": "b-timed-10",
+      "name": "",
+      "win": {
+        "kind": "timed",
+        "minutes": 10
+      }
+    },
+    {
+      "id": "b-timed-12",
+      "name": "",
+      "win": {
+        "kind": "timed",
+        "minutes": 12
+      }
+    }
+  ],
+  "tiebreaks": [
+    {
+      "id": "b-standard",
+      "key": "standard",
+      "name": "",
+      "tiebreaks": [
+        "wins",
+        "headToHead",
+        "setDifference",
+        "pointDifference",
+        "draw"
+      ]
+    },
+    {
+      "id": "b-differences-first",
+      "key": "differencesFirst",
+      "name": "",
+      "tiebreaks": [
+        "wins",
+        "setDifference",
+        "pointDifference",
+        "headToHead",
+        "draw"
+      ]
+    }
+  ],
+  "formats": [
+    {
+      "id": "b-pools",
+      "key": "pools",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches"
+        }
+      ]
+    },
+    {
+      "id": "b-pools-main",
+      "key": "poolsMain",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches",
+          "routing": [
+            {
+              "kind": "ranks",
+              "to": "S2",
+              "ranks": [
+                1,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        }
+      ]
+    },
+    {
+      "id": "b-pools-main-consolation",
+      "key": "poolsMainConsolation",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches",
+          "routing": [
+            {
+              "kind": "ranks",
+              "to": "S2",
+              "ranks": [
+                1,
+                2
+              ]
+            },
+            {
+              "kind": "rest",
+              "to": "S3"
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        },
+        {
+          "id": "S3",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        }
+      ]
+    },
+    {
+      "id": "b-pools-best16",
+      "key": "poolsBest16",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches",
+          "routing": [
+            {
+              "kind": "best",
+              "to": "S2",
+              "count": 16
+            },
+            {
+              "kind": "rest",
+              "to": "S3"
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        },
+        {
+          "id": "S3",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        }
+      ]
+    },
+    {
+      "id": "b-bracket",
+      "key": "bracket",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        }
+      ]
+    },
+    {
+      "id": "b-two-pool-rounds",
+      "key": "twoPoolRounds",
+      "name": "",
+      "description": "",
+      "stages": [
+        {
+          "id": "S1",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches",
+          "routing": [
+            {
+              "kind": "ranks",
+              "to": "S2",
+              "ranks": [
+                1,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "name": "",
+          "kind": "pools",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "poolSizes": [
+            4,
+            5
+          ],
+          "tiebreaks": [
+            "wins",
+            "headToHead",
+            "setDifference",
+            "pointDifference",
+            "draw"
+          ],
+          "crossPool": "sameMatches",
+          "routing": [
+            {
+              "kind": "ranks",
+              "to": "S3",
+              "ranks": [
+                1,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "S3",
+          "name": "",
+          "kind": "bracket",
+          "win": {
+            "kind": "sets",
+            "setsToWin": 2,
+            "pointsPerSet": 15,
+            "cap": 21
+          },
+          "fullPlacement": true
+        }
+      ]
+    }
+  ],
+  "disabled": [],
+  "clubs": [
+    "AS Belvédère",
+    "BC Rive Droite",
+    "Plumes du Lac",
+    "Volant des Monts"
+  ]
+}

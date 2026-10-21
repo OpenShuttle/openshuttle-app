@@ -1,0 +1,442 @@
+{
+  "name": "Tournoi d'été",
+  "archived": false,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1,
+      "started": true,
+      "complete": true,
+      "rows": [
+        {
+          "rank": 1,
+          "tied": false,
+          "entrant": {
+            "entrant": "e8",
+            "bib": 16,
+            "names": [
+              "Victor Moreau",
+              "Kevin Henry"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 1
+        },
+        {
+          "rank": 2,
+          "tied": false,
+          "entrant": {
+            "entrant": "e4",
+            "bib": 9,
+            "names": [
+              "Lucas Perrin",
+              "Hugo Mathieu"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 2
+        },
+        {
+          "rank": 3,
+          "tied": false,
+          "entrant": {
+            "entrant": "e13",
+            "bib": 20,
+            "names": [
+              "Nathan Morin",
+              "Simon Laurent"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 3
+        },
+        {
+          "rank": 4,
+          "tied": false,
+          "entrant": {
+            "entrant": "e7",
+            "bib": 19,
+            "names": [
+              "Nathan Brun",
+              "Simon Fournier"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 4
+        },
+        {
+          "rank": 5,
+          "tied": false,
+          "entrant": {
+            "entrant": "e15",
+            "bib": 7,
+            "names": [
+              "Mathis Dumont",
+              "Félix Blanc"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 5
+        },
+        {
+          "rank": 6,
+          "tied": false,
+          "entrant": {
+            "entrant": "e14",
+            "bib": 15,
+            "names": [
+              "Victor Lambert",
+              "Kevin André"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 6
+        },
+        {
+          "rank": 7,
+          "tied": true,
+          "entrant": {
+            "entrant": "e12",
+            "bib": 18,
+            "names": [
+              "Louis Moreau",
+              "Théo Henry"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 3
+        },
+        {
+          "rank": 7,
+          "tied": true,
+          "entrant": {
+            "entrant": "e9",
+            "bib": 8,
+            "names": [
+              "Mathis Morin",
+              "Félix Laurent"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 3
+        },
+        {
+          "rank": 7,
+          "tied": true,
+          "entrant": {
+            "entrant": "e10",
+            "bib": 10,
+            "names": [
+              "Lucas Lopez",
+              "Hugo Simon"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 3
+        },
+        {
+          "rank": 10,
+          "tied": true,
+          "entrant": {
+            "entrant": "e5",
+            "bib": 14,
+            "names": [
+              "Paul Masson",
+              "Jules Gauthier"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 4
+        },
+        {
+          "rank": 10,
+          "tied": true,
+          "entrant": {
+            "entrant": "e11",
+            "bib": 13,
+            "names": [
+              "Paul Brun",
+              "Jules Fournier"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 4
+        },
+        {
+          "rank": 10,
+          "tied": true,
+          "entrant": {
+            "entrant": "e6",
+            "bib": 17,
+            "names": [
+              "Louis Lopez",
+              "Théo Simon"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 4
+        }
+      ]
+    },
+    {
+      "category": "WD",
+      "slot": 2,
+      "started": true,
+      "complete": true,
+      "rows": [
+        {
+          "rank": 1,
+          "tied": false,
+          "entrant": {
+            "entrant": "e18",
+            "bib": 12,
+            "names": [
+              "Jade Morin",
+              "Manon Laurent"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 1
+        },
+        {
+          "rank": 2,
+          "tied": false,
+          "entrant": {
+            "entrant": "e22",
+            "bib": 6,
+            "names": [
+              "Élise Masson",
+              "Lou Gauthier"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 2
+        },
+        {
+          "rank": 3,
+          "tied": false,
+          "entrant": {
+            "entrant": "e17",
+            "bib": 3,
+            "names": [
+              "Camille Moreau",
+              "Léa Henry"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 3
+        },
+        {
+          "rank": 4,
+          "tied": false,
+          "entrant": {
+            "entrant": "e21",
+            "bib": 1,
+            "names": [
+              "Alice Perrin",
+              "Océane Mathieu"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 4
+        },
+        {
+          "rank": 5,
+          "tied": true,
+          "entrant": {
+            "entrant": "e24",
+            "bib": 11,
+            "names": [
+              "Jade Dumont",
+              "Manon Blanc"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 3
+        },
+        {
+          "rank": 5,
+          "tied": true,
+          "entrant": {
+            "entrant": "e20",
+            "bib": 5,
+            "names": [
+              "Emma Dumont",
+              "Clara Blanc"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 3
+        },
+        {
+          "rank": 7,
+          "tied": true,
+          "entrant": {
+            "entrant": "e19",
+            "bib": 4,
+            "names": [
+              "Inès Lambert",
+              "Chloé André"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 4
+        },
+        {
+          "rank": 7,
+          "tied": true,
+          "entrant": {
+            "entrant": "e23",
+            "bib": 2,
+            "names": [
+              "Camille Lambert",
+              "Léa André"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S1",
+          "stageName": "",
+          "stageKind": "pools",
+          "entryStage": true,
+          "stageRank": 4
+        }
+      ]
+    }
+  ]
+}

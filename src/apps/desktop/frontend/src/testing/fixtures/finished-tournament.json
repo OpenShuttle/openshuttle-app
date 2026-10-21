@@ -1,0 +1,46 @@
+{
+  "open": true,
+  "path": "/tmp/TestWriteFrontendFixtures913324246/003/Tournoi d'été.openshuttle",
+  "name": "Tournoi d'été",
+  "version": 177,
+  "lastAction": {
+    "seq": 177,
+    "type": "ScoreRecorded",
+    "at": "2026-10-17T14:15:09Z",
+    "operator": "",
+    "params": {
+      "a": "#7 Mathis Dumont / Félix Blanc",
+      "b": "#15 Victor Lambert / Kevin André",
+      "court": "3",
+      "score": "15-11 15-9"
+    }
+  },
+  "canUndo": true,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1
+    },
+    {
+      "category": "WD",
+      "slot": 2
+    }
+  ],
+  "archived": false,
+  "availableCategories": [],
+  "courts": 7,
+  "minRest": 10,
+  "progress": {
+    "entrants": 20,
+    "doubles": true,
+    "players": 40,
+    "playersPresent": 40,
+    "drawsConfirmed": 2,
+    "drawConfirmedAt": "2026-10-17T09:00:54Z",
+    "started": true,
+    "matches": 41,
+    "played": 41,
+    "final": true,
+    "stage": "dayOf"
+  }
+}

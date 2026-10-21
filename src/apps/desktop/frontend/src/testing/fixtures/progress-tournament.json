@@ -1,0 +1,45 @@
+{
+  "open": true,
+  "path": "/tmp/TestWriteFrontendFixtures913324246/002/Tournoi d'automne.openshuttle",
+  "name": "Tournoi d'automne",
+  "version": 102,
+  "lastAction": {
+    "seq": 102,
+    "type": "MatchEnded",
+    "at": "2026-10-17T10:18:48Z",
+    "operator": "",
+    "params": {
+      "a": "#15 Victor Lambert / Kevin André",
+      "b": "#20 Nathan Morin / Simon Laurent",
+      "court": "1"
+    }
+  },
+  "canUndo": true,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1
+    },
+    {
+      "category": "WD",
+      "slot": 2
+    }
+  ],
+  "archived": false,
+  "availableCategories": [],
+  "courts": 7,
+  "minRest": 10,
+  "progress": {
+    "entrants": 20,
+    "doubles": true,
+    "players": 40,
+    "playersPresent": 40,
+    "drawsConfirmed": 2,
+    "drawConfirmedAt": "2026-10-17T09:00:54Z",
+    "started": true,
+    "matches": 30,
+    "played": 14,
+    "final": false,
+    "stage": "dayOf"
+  }
+}

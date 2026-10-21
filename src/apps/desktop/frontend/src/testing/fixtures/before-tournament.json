@@ -1,0 +1,43 @@
+{
+  "open": true,
+  "path": "/tmp/TestWriteFrontendFixtures913324246/001/Tournoi de printemps.openshuttle",
+  "name": "Tournoi de printemps",
+  "version": 45,
+  "lastAction": {
+    "seq": 45,
+    "type": "EntryDrawn",
+    "at": "2026-10-17T09:00:47Z",
+    "operator": "",
+    "params": {
+      "category": "MD"
+    }
+  },
+  "canUndo": true,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1
+    },
+    {
+      "category": "WD",
+      "slot": 2
+    }
+  ],
+  "archived": false,
+  "availableCategories": [],
+  "courts": 4,
+  "minRest": 10,
+  "progress": {
+    "entrants": 20,
+    "doubles": true,
+    "players": 40,
+    "playersPresent": 28,
+    "drawsConfirmed": 0,
+    "drawConfirmedAt": null,
+    "started": false,
+    "matches": 0,
+    "played": 0,
+    "final": false,
+    "stage": "preparation"
+  }
+}

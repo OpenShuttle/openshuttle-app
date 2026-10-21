@@ -29,6 +29,8 @@ src/go.mod               single Go module for all Go code
 src/internal/engine/     pure domain logic: formats, stages, standings, tiebreaks, advancement, scheduling
 src/internal/events/     event log: event types, append, replay, undo
 src/internal/store/      SQLite access, schema migrations, backups
+src/internal/tournament/ event types, projection, commands; pure sub-packages:
+                         forecast/ (schedule simulation), blocks/ (round order)
 src/apps/desktop/        Wails app: main.go, services (bound to the frontend), windows
 src/apps/desktop/frontend/  Angular app (main window + display window routes)
 src/apps/relay/          v2 relay server, empty for now (will serve src/apps/web via go:embed)
@@ -186,7 +188,16 @@ cd src/apps/desktop && wails3 generate bindings -clean=true -ts -i   # after cha
 cd src && go test ./...                       # all Go tests (build the frontend first: the desktop package embeds frontend/dist)
 cd src/apps/desktop/frontend && npm test      # frontend unit tests (Vitest)
 cd src/apps/desktop/frontend && npm run i18n:check   # en.json and fr.json must share the same keys
+cd src/apps/desktop && OPENSHUTTLE_FIXTURES=$PWD/frontend/src/testing/fixtures go test -run TestWriteFrontendFixtures .   # after changing a view
 ```
+
+Frontend tests render each screen with Go faked: `src/testing/backend.ts`
+(`FakeBackend`: a Wails transport answering each binding, by name, and recording
+the calls) and `src/testing/render.ts` (real translations, `click`, `clickAll`,
+`drag`…). Views come from `src/testing/fixtures/*.json`, written by the Go test
+above from demo tournaments (fixed clock, seeded draw): regenerate them when a
+view changes. Every screen has a spec; coverage counts every file of `src/app`
+(Sonar wants 80 % on new code).
 
 Generated bindings (`frontend/bindings`) are committed. Import them through the
 `@bindings/*` path alias (`@bindings/apps/desktop`, `@bindings/internal/engine`…).
@@ -220,5 +231,7 @@ screen from its own window: a button that shows only while the mouse moves
 over it (hidden from the hall), or a double-click.
 Shared building blocks live in `styles.scss` (`.page-body`, `.page-head`,
 `.card`, `.btn`/`.btn-primary`/`.btn-sm`, `.seg`/`.seg-option`, `.stepper`,
-`.bib`, `.pill-*`): use them before adding component styles. Compare a screen
+`.bib`, `.pill-*`, `.empty`, `.empty-line`, `.alert`, `.columns`): use them before adding
+component styles. Repeated patterns are mixins (`src/styles/_mixins.scss`:
+`ellipsis`, `stack($gap)`, `row($gap, $wrap)`; `@use 'mixins' as *;`). Compare a screen
 with the mockup by rendering both (the mockup opens in any browser).

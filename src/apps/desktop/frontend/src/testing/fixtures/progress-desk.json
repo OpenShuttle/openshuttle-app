@@ -1,0 +1,1033 @@
+{
+  "now": "2026-10-17T10:18:49Z",
+  "courts": [
+    {
+      "number": 1,
+      "state": "finished",
+      "match": {
+        "id": "MD-A5",
+        "category": "MD",
+        "slot": 1,
+        "pool": "A",
+        "round": 3,
+        "a": {
+          "entrant": "e14",
+          "bib": 15,
+          "names": [
+            "Victor Lambert",
+            "Kevin André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e13",
+          "bib": 20,
+          "names": [
+            "Nathan Morin",
+            "Simon Laurent"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "court": 1,
+        "calledAt": "2026-10-17T10:09:40Z",
+        "endedAt": "2026-10-17T10:18:48Z",
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": {
+        "id": "WD-A4",
+        "category": "WD",
+        "slot": 2,
+        "pool": "A",
+        "round": 2,
+        "a": {
+          "entrant": "e21",
+          "bib": 1,
+          "names": [
+            "Alice Perrin",
+            "Océane Mathieu"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e19",
+          "bib": 4,
+          "names": [
+            "Inès Lambert",
+            "Chloé André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposalUnrested": false
+    },
+    {
+      "number": 2,
+      "state": "playing",
+      "match": {
+        "id": "MD-A6",
+        "category": "MD",
+        "slot": 1,
+        "pool": "A",
+        "round": 3,
+        "a": {
+          "entrant": "e12",
+          "bib": 18,
+          "names": [
+            "Louis Moreau",
+            "Théo Henry"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e11",
+          "bib": 13,
+          "names": [
+            "Paul Brun",
+            "Jules Fournier"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 2,
+        "calledAt": "2026-10-17T10:09:41Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 3,
+      "state": "playing",
+      "match": {
+        "id": "MD-B5",
+        "category": "MD",
+        "slot": 1,
+        "pool": "B",
+        "round": 3,
+        "a": {
+          "entrant": "e15",
+          "bib": 7,
+          "names": [
+            "Mathis Dumont",
+            "Félix Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e10",
+          "bib": 10,
+          "names": [
+            "Lucas Lopez",
+            "Hugo Simon"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "court": 3,
+        "calledAt": "2026-10-17T10:09:42Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 4,
+      "state": "playing",
+      "match": {
+        "id": "MD-B6",
+        "category": "MD",
+        "slot": 1,
+        "pool": "B",
+        "round": 3,
+        "a": {
+          "entrant": "e5",
+          "bib": 14,
+          "names": [
+            "Paul Masson",
+            "Jules Gauthier"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e8",
+          "bib": 16,
+          "names": [
+            "Victor Moreau",
+            "Kevin Henry"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "court": 4,
+        "calledAt": "2026-10-17T10:09:43Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 5,
+      "state": "playing",
+      "match": {
+        "id": "MD-C5",
+        "category": "MD",
+        "slot": 1,
+        "pool": "C",
+        "round": 3,
+        "a": {
+          "entrant": "e4",
+          "bib": 9,
+          "names": [
+            "Lucas Perrin",
+            "Hugo Mathieu"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e7",
+          "bib": 19,
+          "names": [
+            "Nathan Brun",
+            "Simon Fournier"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 5,
+        "calledAt": "2026-10-17T10:09:44Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 6,
+      "state": "playing",
+      "match": {
+        "id": "MD-C6",
+        "category": "MD",
+        "slot": 1,
+        "pool": "C",
+        "round": 3,
+        "a": {
+          "entrant": "e9",
+          "bib": 8,
+          "names": [
+            "Mathis Morin",
+            "Félix Laurent"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e6",
+          "bib": 17,
+          "names": [
+            "Louis Lopez",
+            "Théo Simon"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "court": 6,
+        "calledAt": "2026-10-17T10:09:45Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 7,
+      "state": "playing",
+      "match": {
+        "id": "WD-A3",
+        "category": "WD",
+        "slot": 2,
+        "pool": "A",
+        "round": 2,
+        "a": {
+          "entrant": "e18",
+          "bib": 12,
+          "names": [
+            "Jade Morin",
+            "Manon Laurent"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e20",
+          "bib": 5,
+          "names": [
+            "Emma Dumont",
+            "Clara Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 7,
+        "calledAt": "2026-10-17T10:09:46Z",
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "proposal": null,
+      "proposalUnrested": false
+    }
+  ],
+  "pending": [
+    {
+      "id": "MD-A5",
+      "category": "MD",
+      "slot": 1,
+      "pool": "A",
+      "round": 3,
+      "a": {
+        "entrant": "e14",
+        "bib": 15,
+        "names": [
+          "Victor Lambert",
+          "Kevin André"
+        ],
+        "clubs": [
+          "Plumes du Lac"
+        ],
+        "withdrawn": false
+      },
+      "b": {
+        "entrant": "e13",
+        "bib": 20,
+        "names": [
+          "Nathan Morin",
+          "Simon Laurent"
+        ],
+        "clubs": [
+          "BC Rive Droite"
+        ],
+        "withdrawn": false
+      },
+      "court": 1,
+      "calledAt": "2026-10-17T10:09:40Z",
+      "endedAt": "2026-10-17T10:18:48Z",
+      "score": null,
+      "walkover": false,
+      "win": {
+        "kind": "sets",
+        "setsToWin": 2,
+        "pointsPerSet": 15,
+        "cap": 21
+      },
+      "stage": "S1",
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "placeFrom": 0,
+      "placeTo": 0,
+      "roundSize": 0,
+      "byeA": false,
+      "byeB": false
+    }
+  ],
+  "queue": [
+    {
+      "match": {
+        "id": "WD-A4",
+        "category": "WD",
+        "slot": 2,
+        "pool": "A",
+        "round": 2,
+        "a": {
+          "entrant": "e21",
+          "bib": 1,
+          "names": [
+            "Alice Perrin",
+            "Océane Mathieu"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e19",
+          "bib": 4,
+          "names": [
+            "Inès Lambert",
+            "Chloé André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B1",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 1,
+        "a": {
+          "entrant": "e23",
+          "bib": 2,
+          "names": [
+            "Camille Lambert",
+            "Léa André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e24",
+          "bib": 11,
+          "names": [
+            "Jade Dumont",
+            "Manon Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B2",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 1,
+        "a": {
+          "entrant": "e22",
+          "bib": 6,
+          "names": [
+            "Élise Masson",
+            "Lou Gauthier"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e17",
+          "bib": 3,
+          "names": [
+            "Camille Moreau",
+            "Léa Henry"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-A5",
+        "category": "WD",
+        "slot": 2,
+        "pool": "A",
+        "round": 3,
+        "a": {
+          "entrant": "e18",
+          "bib": 12,
+          "names": [
+            "Jade Morin",
+            "Manon Laurent"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e21",
+          "bib": 1,
+          "names": [
+            "Alice Perrin",
+            "Océane Mathieu"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "playing",
+      "court": 7,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-A6",
+        "category": "WD",
+        "slot": 2,
+        "pool": "A",
+        "round": 3,
+        "a": {
+          "entrant": "e20",
+          "bib": 5,
+          "names": [
+            "Emma Dumont",
+            "Clara Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e19",
+          "bib": 4,
+          "names": [
+            "Inès Lambert",
+            "Chloé André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "playing",
+      "court": 7,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B3",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 2,
+        "a": {
+          "entrant": "e23",
+          "bib": 2,
+          "names": [
+            "Camille Lambert",
+            "Léa André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e17",
+          "bib": 3,
+          "names": [
+            "Camille Moreau",
+            "Léa Henry"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B4",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 2,
+        "a": {
+          "entrant": "e22",
+          "bib": 6,
+          "names": [
+            "Élise Masson",
+            "Lou Gauthier"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e24",
+          "bib": 11,
+          "names": [
+            "Jade Dumont",
+            "Manon Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B5",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 3,
+        "a": {
+          "entrant": "e23",
+          "bib": 2,
+          "names": [
+            "Camille Lambert",
+            "Léa André"
+          ],
+          "clubs": [
+            "Plumes du Lac"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e22",
+          "bib": 6,
+          "names": [
+            "Élise Masson",
+            "Lou Gauthier"
+          ],
+          "clubs": [
+            "BC Rive Droite"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    },
+    {
+      "match": {
+        "id": "WD-B6",
+        "category": "WD",
+        "slot": 2,
+        "pool": "B",
+        "round": 3,
+        "a": {
+          "entrant": "e17",
+          "bib": 3,
+          "names": [
+            "Camille Moreau",
+            "Léa Henry"
+          ],
+          "clubs": [
+            "Volant des Monts"
+          ],
+          "withdrawn": false
+        },
+        "b": {
+          "entrant": "e24",
+          "bib": 11,
+          "names": [
+            "Jade Dumont",
+            "Manon Blanc"
+          ],
+          "clubs": [
+            "AS Belvédère"
+          ],
+          "withdrawn": false
+        },
+        "court": 0,
+        "calledAt": null,
+        "endedAt": null,
+        "score": null,
+        "walkover": false,
+        "win": {
+          "kind": "sets",
+          "setsToWin": 2,
+          "pointsPerSet": 15,
+          "cap": 21
+        },
+        "stage": "S1",
+        "stageName": "",
+        "stageKind": "pools",
+        "entryStage": true,
+        "placeFrom": 0,
+        "placeTo": 0,
+        "roundSize": 0,
+        "byeA": false,
+        "byeB": false
+      },
+      "reason": "",
+      "court": 0,
+      "restingSince": null
+    }
+  ],
+  "complete": [],
+  "stagesToFill": [],
+  "minRest": 10,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1
+    },
+    {
+      "category": "WD",
+      "slot": 2
+    }
+  ],
+  "started": true,
+  "rounds": {
+    "active": false,
+    "current": null,
+    "next": [],
+    "played": 0
+  }
+}

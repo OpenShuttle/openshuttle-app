@@ -1,0 +1,55 @@
+{
+  "now": "2026-10-17T09:00:49Z",
+  "courts": [
+    {
+      "number": 1,
+      "state": "free",
+      "match": null,
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 2,
+      "state": "free",
+      "match": null,
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 3,
+      "state": "free",
+      "match": null,
+      "proposal": null,
+      "proposalUnrested": false
+    },
+    {
+      "number": 4,
+      "state": "free",
+      "match": null,
+      "proposal": null,
+      "proposalUnrested": false
+    }
+  ],
+  "pending": [],
+  "queue": [],
+  "complete": [],
+  "stagesToFill": [],
+  "minRest": 10,
+  "categories": [
+    {
+      "category": "MD",
+      "slot": 1
+    },
+    {
+      "category": "WD",
+      "slot": 2
+    }
+  ],
+  "started": false,
+  "rounds": {
+    "active": false,
+    "current": null,
+    "next": [],
+    "played": 0
+  }
+}

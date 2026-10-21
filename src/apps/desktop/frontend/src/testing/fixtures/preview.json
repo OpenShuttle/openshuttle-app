@@ -1,0 +1,100 @@
+{
+  "stages": [
+    {
+      "phase": 1,
+      "estimate": 22,
+      "entrants": 22,
+      "sizes": [
+        8,
+        7,
+        7
+      ],
+      "noSplit": false,
+      "byes": 0,
+      "matches": 70,
+      "rounds": 7,
+      "ranks": [
+        {
+          "rank": 1,
+          "count": 3
+        },
+        {
+          "rank": 2,
+          "count": 3
+        },
+        {
+          "rank": 3,
+          "count": 3
+        },
+        {
+          "rank": 4,
+          "count": 3
+        },
+        {
+          "rank": 5,
+          "count": 3
+        },
+        {
+          "rank": 6,
+          "count": 3
+        },
+        {
+          "rank": 7,
+          "count": 3
+        },
+        {
+          "rank": 8,
+          "count": 1
+        }
+      ],
+      "rules": [
+        6
+      ],
+      "kept": 16,
+      "placeFrom": 7,
+      "placeTo": 22
+    },
+    {
+      "phase": 2,
+      "estimate": 22,
+      "entrants": 6,
+      "sizes": [],
+      "noSplit": false,
+      "byes": 2,
+      "matches": 7,
+      "rounds": 3,
+      "ranks": [
+        {
+          "rank": 1,
+          "count": 1
+        },
+        {
+          "rank": 2,
+          "count": 1
+        },
+        {
+          "rank": 3,
+          "count": 1
+        },
+        {
+          "rank": 4,
+          "count": 1
+        },
+        {
+          "rank": 5,
+          "count": 1
+        },
+        {
+          "rank": 6,
+          "count": 1
+        }
+      ],
+      "rules": [],
+      "kept": 6,
+      "placeFrom": 1,
+      "placeTo": 6
+    }
+  ],
+  "ranked": 22,
+  "ties": true
+}
