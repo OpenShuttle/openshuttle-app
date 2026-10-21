@@ -35,4 +35,20 @@ describe('Home', () => {
     go.on('TournamentService.DuplicateTournament', '');
     await clickAll(await render(Home));
   });
+
+  it('builds the sample tournament and opens its control desk', async () => {
+    go.on('TournamentService.CreateSampleTournament', '/home/julie/Tournoi d\'exemple.openshuttle');
+    const f = await render(Home);
+    await click(f, 'Try with a sample tournament');
+    expect(go.argsOf('TournamentService.CreateSampleTournament')).toEqual([['Sample tournament']]);
+  });
+
+  it('offers the sample tournament and the guide on first launch', async () => {
+    go.on('TournamentService.ListRecentTournaments', []);
+    const f = await render(Home, { lang: 'fr' });
+    expect(text(f)).toContain("Essayer avec un tournoi d'exemple");
+    await click(f, 'Lire le guide');
+    await click(f, "Essayer avec un tournoi d'exemple");
+    expect(go.argsOf('TournamentService.CreateSampleTournament')).toEqual([["Tournoi d'exemple"]]);
+  });
 });

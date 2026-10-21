@@ -2,6 +2,7 @@ import { Component, ElementRef, computed, effect, inject, signal, viewChild } fr
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
+import { openGuide } from '../core/guide';
 import { LanguageService } from '../core/language.service';
 import { AppSettings } from '../core/settings.service';
 import { TournamentStore } from '../core/tournament.service';
@@ -44,6 +45,22 @@ export class Home {
       this.creating.set(false);
       void this.router.navigateByUrl('/tournament');
     }
+  }
+
+  /** Building the sample tournament takes a moment: the button waits. */
+  protected readonly preparingSample = signal(false);
+
+  protected async trySample(): Promise<void> {
+    this.preparingSample.set(true);
+    const done = await this.tournament.createSample(this.transloco.translate('home.sampleName'));
+    this.preparingSample.set(false);
+    if (done) {
+      void this.router.navigateByUrl('/tournament/control-desk');
+    }
+  }
+
+  protected guide(): void {
+    void openGuide(this.language.active);
   }
 
   protected async openDialog(): Promise<void> {

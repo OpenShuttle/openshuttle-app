@@ -30,7 +30,11 @@
     "resume": "Reprendre",
     "open": "Ouvrir",
     "folder": "Dossier : {folder}.",
-    "duplicateHint": "Dupliquer reprend les catégories, le format et les terrains, sans les inscrits."
+    "duplicateHint": "Dupliquer reprend les catégories, le format et les terrains, sans les inscrits.",
+    "trySample": "Essayer avec un tournoi d'exemple",
+    "sampleName": "Tournoi d'exemple",
+    "sampleHint": "Des paires fictives, un tournoi déjà commencé : explorez chaque écran sans rien saisir.",
+    "readGuide": "Lire le guide"
   },
   "topBar": {
     "lastAction": "Dernière action · {time}",
@@ -880,6 +884,7 @@
     "restore": "Restaurer",
     "close": "Fermer",
     "fullscreen": "Plein écran",
-    "exitFullscreen": "Quitter le plein écran"
+    "exitFullscreen": "Quitter le plein écran",
+    "guide": "Guide : un tournoi en 10 étapes (ouvre le site)"
   }
 }

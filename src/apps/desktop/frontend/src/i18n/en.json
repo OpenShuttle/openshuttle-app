@@ -30,7 +30,11 @@
     "resume": "Resume",
     "open": "Open",
     "folder": "Folder: {folder}.",
-    "duplicateHint": "Duplicate keeps the categories, the format and the courts, without the entrants."
+    "duplicateHint": "Duplicate keeps the categories, the format and the courts, without the entrants.",
+    "trySample": "Try with a sample tournament",
+    "sampleName": "Sample tournament",
+    "sampleHint": "Fictional pairs, a tournament already under way: explore every screen without typing anything.",
+    "readGuide": "Read the guide"
   },
   "topBar": {
     "lastAction": "Last action · {time}",
@@ -880,6 +884,7 @@
     "restore": "Restore",
     "close": "Close",
     "fullscreen": "Full screen",
-    "exitFullscreen": "Exit full screen"
+    "exitFullscreen": "Exit full screen",
+    "guide": "Guide: a tournament in 10 steps (opens the website)"
   }
 }

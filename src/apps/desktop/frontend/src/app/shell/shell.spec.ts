@@ -60,4 +60,11 @@ describe('Shell', () => {
     await click(f, 'Undo');
     expect(text(f)).toBeTruthy();
   });
+
+  it('opens the guide on the website, in the UI language', async () => {
+    const f = await inTournament();
+    const guide = f.nativeElement.querySelector('.guide-btn') as HTMLButtonElement;
+    expect(guide.getAttribute('aria-label')).toContain('Guide');
+    guide.click();
+  });
 });
