@@ -36,6 +36,17 @@ The [Release desktop](../.github/workflows/release-desktop.yml) workflow then:
   | `openshuttle-desktop-<v>-macos-arm64.zip` | macOS app (Apple Silicon), ad-hoc signed |
   | `SHA256SUMS.txt` | Checksums |
 
+### Release notes
+
+The release description is generated from the commits since the previous
+`desktop-v…` tag by [git-cliff](https://git-cliff.org) (`cliff.toml`): no
+changelog file to maintain. Commits are grouped by their Conventional Commits
+type (Features, Bug fixes, Performance, Refactoring, Documentation,
+Dependencies; `chore`, `ci`, `build`, `test` and `style` are left out), and
+breaking changes (`feat!:` or a `BREAKING CHANGE:` footer) come first. So the
+commit subject is what users read: write it for them. Preview the next notes
+with `npx git-cliff@2.14.2 --unreleased`.
+
 A wrong tag fails the workflow before building: delete it (`git push origin
 :refs/tags/desktop-vX.Y.Z`), fix, tag again.
 

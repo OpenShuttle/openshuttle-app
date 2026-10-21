@@ -14,6 +14,8 @@ env:
   # renovate: datasource=go depName=github.com/wailsapp/wails/v3
   WAILS_VERSION: v3.0.0-beta.30
   NODE_VERSION: "24"
+  # renovate: datasource=npm depName=git-cliff
+  GIT_CLIFF_VERSION: "2.14.2"
 
 jobs:
   check:
@@ -136,6 +138,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      # The release notes come from the commits since the previous desktop tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Release notes
+        # Conventional Commits grouped by type, breaking changes first (cliff.toml).
+        run: npx --yes "git-cliff@${GIT_CLIFF_VERSION}" --current --strip all --output release-notes.md
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: dist
@@ -152,7 +164,7 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "OpenShuttle desktop $VERSION" \
-            --generate-notes
+            --notes-file release-notes.md
       - name: Update the download links
         # openshuttle.app/download/<platform> (and /telecharger/<platform>)
         # redirect to this release's files through a Cloudflare Bulk

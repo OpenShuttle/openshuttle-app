@@ -1,0 +1,48 @@
+# Release notes generated from the Conventional Commits between two release
+# tags, by git-cliff in .github/workflows/release-desktop.yml. Nothing to
+# maintain by hand: write good commit messages (see CONTRIBUTING.md).
+# Preview locally: npx git-cliff@2.14.2 --unreleased
+
+[changelog]
+header = ""
+body = """
+{% if version %}\
+## OpenShuttle desktop {{ version | trim_start_matches(pat="desktop-v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
+{% else %}\
+## Unreleased
+{% endif %}\
+{% set breaking = commits | filter(attribute="breaking", value=true) %}\
+{% if breaking | length > 0 %}
+### ⚠ Breaking changes
+{% for commit in breaking %}
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.breaking_description | default(value=commit.message) | upper_first }} ({{ commit.id | truncate(length=7, end="") }})\
+{% endfor %}
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})\
+{% endfor %}
+{% endfor %}
+"""
+trim = true
+footer = ""
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+# Releases of the desktop app only: relay-v… and web-v… tags have their own notes.
+tag_pattern = "desktop-v[0-9]+\\.[0-9]+\\.[0-9]+"
+sort_commits = "oldest"
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^refactor", group = "<!-- 3 -->Refactoring" },
+  { message = "^docs", group = "<!-- 4 -->Documentation" },
+  { message = "^chore\\(deps\\)", group = "<!-- 5 -->Dependencies" },
+  { message = "^(chore|ci|build|test|style)", skip = true },
+]
