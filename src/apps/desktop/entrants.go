@@ -227,35 +227,77 @@ func (s *TournamentService) defaultFormat(ctx context.Context) []tournament.Stag
 	return nil
 }
 
-// ImportEntrants asks for a player list (CSV, the layout of the entrants
-// export) and enters its rows, in one undoable action. Rows without a
-// category go to fallback. It reports what was added and skipped; a
-// cancelled dialog reports nothing.
-func (s *TournamentService) ImportEntrants(ctx context.Context, fallback engine.Category) (tournament.ImportReport, error) {
-	report := tournament.ImportReport{Skipped: []tournament.ImportSkip{}}
+// ImportFile is a player list chosen for import: its path, its lines and
+// the mapping guessed from them, for the frontend to show and adjust.
+type ImportFile struct {
+	Path    string                   `json:"path"`
+	Lines   []tournament.ImportLine  `json:"lines"`
+	Mapping tournament.ImportMapping `json:"mapping"`
+}
+
+// ChooseImportFile asks for a player list (CSV from OpenShuttle, a club
+// registration tool such as HelloAsso or a spreadsheet) and reads it. Lines
+// without category go to fallback. A cancelled dialog gives an empty path.
+func (s *TournamentService) ChooseImportFile(ctx context.Context, fallback engine.Category) (ImportFile, error) {
 	path, err := s.dialogs.OpenCSV(s.tournamentsDir(ctx))
 	if err != nil || path == "" {
-		return report, err
+		return ImportFile{Lines: []tournament.ImportLine{}}, err
 	}
+	lines, err := readImportFile(path)
+	if err != nil {
+		return ImportFile{Lines: []tournament.ImportLine{}}, err
+	}
+	return ImportFile{Path: path, Lines: lines, Mapping: tournament.GuessImportMapping(lines, fallback)}, nil
+}
+
+func readImportFile(path string) ([]tournament.ImportLine, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return report, engine.NewError(engine.CodeInvalidFile)
+		return nil, engine.NewError(engine.CodeInvalidFile)
 	}
-	rows, err := tournament.ParseEntrantsCSV(data)
+	return tournament.ReadImportTable(data)
+}
+
+// PreviewImport is what importing the file with this mapping would do,
+// nothing saved.
+func (s *TournamentService) PreviewImport(path string, m tournament.ImportMapping) (tournament.ImportPreview, error) {
+	lines, err := readImportFile(path)
+	if err != nil {
+		return tournament.ImportPreview{}, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.file == nil {
+		return tournament.ImportPreview{}, engine.NewError(engine.CodeNoTournament)
+	}
+	return s.state.PreviewImport(lines, m), nil
+}
+
+// ImportEntrants enters the lines of a player list read with a mapping, in
+// one undoable action. It reports what was added, skipped and ignored.
+func (s *TournamentService) ImportEntrants(ctx context.Context, path string, m tournament.ImportMapping) (tournament.ImportReport, error) {
+	report := tournament.ImportReport{Skipped: []tournament.ImportSkip{}}
+	lines, err := readImportFile(path)
 	if err != nil {
 		return report, err
 	}
+	var added []tournament.EntrantRegistered
 	err = s.execute(ctx, func(st tournament.State) (tournament.Change, error) {
-		ch, r, err := st.ImportEntrants(rows, fallback)
+		ch, r, err := st.ImportEntrants(lines, m)
 		report = r
+		if imp, ok := ch.Data.(tournament.EntrantsImported); ok {
+			added = imp.Entrants
+		}
 		return ch, err
 	})
 	if err != nil {
 		return report, err
 	}
 	var players []tournament.PlayerInput
-	for _, r := range rows {
-		players = append(players, r.Players...)
+	for _, e := range added {
+		for _, p := range e.Players {
+			players = append(players, tournament.PlayerInput{Name: p.Name, Club: p.Club})
+		}
 	}
 	s.rememberClubs(ctx, players)
 	return report, nil

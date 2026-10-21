@@ -24,6 +24,15 @@ export enum CourtState {
 };
 
 /**
+ * EntrantRegistered is the payload of TypeEntrantRegistered.
+ */
+export interface EntrantRegistered {
+    "id": engine$0.EntrantID;
+    "category": engine$0.Category;
+    "players": Player[] | null;
+}
+
+/**
  * FormatPreview is what a format gives for a number of entrants: each stage,
  * then how many entrants the full standings place and whether some share a
  * rank.
@@ -35,11 +44,61 @@ export interface FormatPreview {
 }
 
 /**
- * ImportReport says what an import did.
+ * ImportLine is a non-blank line of a player list: its number in the file
+ * and its cells, spaces collapsed.
+ */
+export interface ImportLine {
+    "line": number;
+    "cells": string[] | null;
+}
+
+/**
+ * ImportMapping says what the columns of a player list hold.
+ * 
+ * The category of a line comes from its value in the Category column:
+ * Categories maps a value to a category ("" leaves the line out on
+ * purpose); other values are guessed (codes such as "DH", words such as
+ * "Double hommes"). Without category column or value, Fallback.
+ */
+export interface ImportMapping {
+    "header": boolean;
+    "category": number;
+    "categories": { [_ in string]?: engine$0.Category } | null;
+    "fallback": engine$0.Category;
+    "players": ImportPlayerColumns[] | null;
+}
+
+/**
+ * ImportPlayerColumns says where a player is in a line: a full name column,
+ * or first and last name columns, and a club column. Indexes from 0;
+ * NoColumn for none.
+ */
+export interface ImportPlayerColumns {
+    "name": number;
+    "first": number;
+    "last": number;
+    "club": number;
+}
+
+/**
+ * ImportPreview is what an import would do, nothing saved: the report, the
+ * entrants it would add, and the values of the category column.
+ */
+export interface ImportPreview {
+    "report": ImportReport;
+    "entrants": EntrantRegistered[] | null;
+    "values": ImportValue[] | null;
+}
+
+/**
+ * ImportReport says what an import did: entrants added, lines skipped
+ * because they cannot be entered, lines ignored on purpose (their category
+ * value is mapped to none).
  */
 export interface ImportReport {
     "added": number;
     "skipped": ImportSkip[] | null;
+    "ignored": number;
 }
 
 /**
@@ -48,6 +107,16 @@ export interface ImportReport {
 export interface ImportSkip {
     "line": number;
     "code": engine$0.Code;
+}
+
+/**
+ * ImportValue is a value of the category column, with the category its
+ * lines go to ("" for none) and how many lines hold it.
+ */
+export interface ImportValue {
+    "value": string;
+    "category": engine$0.Category;
+    "lines": number;
 }
 
 /**
@@ -82,6 +151,21 @@ export enum NotReady {
      */
     ReasonAbsent = "absent",
 };
+
+/**
+ * Player is a person entered in the tournament. Categories are disjoint, so a
+ * player belongs to exactly one entrant.
+ */
+export interface Player {
+    "id": PlayerID;
+
+    /**
+     * Name is the full name, as typed: one field, first and last name
+     * together.
+     */
+    "name": string;
+    "club": string;
+}
 
 /**
  * PlayerID identifies a player within a tournament.

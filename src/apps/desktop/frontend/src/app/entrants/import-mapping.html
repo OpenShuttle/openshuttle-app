@@ -1,0 +1,174 @@
+<div class="card mapping" *transloco="let t">
+  <div class="head">
+    <div class="title">
+      <h2>{{ t('importMap.title', { file: fileName() }) }}</h2>
+      <span class="hint">{{ t('importMap.lines', { n: dataLines() }) }}</span>
+    </div>
+    <label class="check">
+      <input type="checkbox" [checked]="mapping().header" (change)="setHeader(checked($event))" />
+      {{ t('importMap.header') }}
+    </label>
+  </div>
+
+  <div class="sample">
+    <table>
+      <thead>
+        <tr>
+          @for (c of columns(); track c.index) {
+            <th [title]="c.label">{{ c.label }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (l of sample(); track l.line) {
+          <tr>
+            @for (c of columns(); track c.index) {
+              <td>{{ l.cells?.[c.index] ?? '' }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="fields">
+    <section class="group">
+      <span class="field-label">{{ t('importMap.category') }}</span>
+      <label class="field">
+        <span>{{ t('importMap.categoryColumn') }}</span>
+        <select (change)="setCategoryColumn(number($event))">
+          <option [value]="NO_COLUMN" [selected]="NO_COLUMN === mapping().category">{{ t('importMap.noCategoryColumn') }}</option>
+          @for (c of columns(); track c.index) {
+            <option [value]="c.index" [selected]="c.index === mapping().category">{{ c.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ t(mapping().category === NO_COLUMN ? 'importMap.allIn' : 'importMap.fallback') }}</span>
+        <select (change)="setFallback($any(value($event)))">
+          @for (c of categories(); track c.category) {
+            <option [value]="c.category" [selected]="c.category === mapping().fallback">{{ t('category.name.' + c.category) }}</option>
+          }
+        </select>
+      </label>
+      @if (mapping().category !== NO_COLUMN && (preview()?.values ?? []).length > 0) {
+        <div class="values">
+          @for (v of preview()?.values; track v.value) {
+            <div class="value">
+              <span class="value-text" [title]="v.value">{{ v.value }}</span>
+              <span class="hint">{{ t('importMap.lineCount', { n: v.lines }) }}</span>
+              <select (change)="setValue(v.value, $any(value($event)))" [attr.aria-label]="v.value">
+                @for (c of categories(); track c.category) {
+                  <option [value]="c.category" [selected]="c.category === valueChoice(v)">{{ t('category.name.' + c.category) }}</option>
+                }
+                <option value="" [selected]="'' === valueChoice(v)">{{ t('importMap.ignore') }}</option>
+                <option value="?" [selected]="'?' === valueChoice(v)" disabled>{{ t('importMap.unknown') }}</option>
+              </select>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @for (p of players(); track $index; let k = $index) {
+      <section class="group">
+        <span class="field-label">{{ t('importMap.player', { n: k + 1 }) }}</span>
+        <div class="seg seg-sm">
+          <button type="button" class="seg-option" [class.active]="!split()[k]" (click)="setSplit(k, false)">{{ t('importMap.fullName') }}</button>
+          <button type="button" class="seg-option" [class.active]="split()[k]" (click)="setSplit(k, true)">{{ t('importMap.firstLast') }}</button>
+        </div>
+        @if (split()[k]) {
+          <label class="field">
+            <span>{{ t('importMap.firstName') }}</span>
+            <select (change)="setColumn(k, 'first', number($event))">
+              <option [value]="NO_COLUMN" [selected]="NO_COLUMN === p.first">{{ t('importMap.none') }}</option>
+              @for (c of columns(); track c.index) {
+                <option [value]="c.index" [selected]="c.index === p.first">{{ c.label }}</option>
+              }
+            </select>
+          </label>
+          <label class="field">
+            <span>{{ t('importMap.lastName') }}</span>
+            <select (change)="setColumn(k, 'last', number($event))">
+              <option [value]="NO_COLUMN" [selected]="NO_COLUMN === p.last">{{ t('importMap.none') }}</option>
+              @for (c of columns(); track c.index) {
+                <option [value]="c.index" [selected]="c.index === p.last">{{ c.label }}</option>
+              }
+            </select>
+          </label>
+        } @else {
+          <label class="field">
+            <span>{{ t('importMap.name') }}</span>
+            <select (change)="setColumn(k, 'name', number($event))">
+              <option [value]="NO_COLUMN" [selected]="NO_COLUMN === p.name">{{ t('importMap.none') }}</option>
+              @for (c of columns(); track c.index) {
+                <option [value]="c.index" [selected]="c.index === p.name">{{ c.label }}</option>
+              }
+            </select>
+          </label>
+        }
+        <label class="field">
+          <span>{{ t('importMap.club') }}</span>
+          <select (change)="setColumn(k, 'club', number($event))">
+            <option [value]="NO_COLUMN" [selected]="NO_COLUMN === p.club">{{ t('importMap.none') }}</option>
+            @if (k > 0) {
+              <option [value]="SAME_CLUB" [selected]="SAME_CLUB === p.club">{{ t('importMap.sameClub') }}</option>
+            }
+            @for (c of columns(); track c.index) {
+              <option [value]="c.index" [selected]="c.index === p.club">{{ c.label }}</option>
+            }
+          </select>
+        </label>
+        @if (k === 0) {
+          <label class="check">
+            <input type="checkbox" [checked]="players().length > 1" (change)="setPairs(checked($event))" />
+            {{ t('importMap.pairs') }}
+          </label>
+        }
+      </section>
+    }
+  </div>
+
+  @if (preview(); as p) {
+    <div class="result" role="status">
+      <div class="totals">
+        <strong>{{ t('importMap.toAdd', { n: p.report.added }) }}</strong>
+        @if ((p.report.skipped ?? []).length > 0) {
+          <span class="pill pill-alert">{{ t('entrants.importSkipped', { n: (p.report.skipped ?? []).length }) }}</span>
+        }
+        @if (p.report.ignored > 0) {
+          <span class="pill pill-muted">{{ t('entrants.importIgnored', { n: p.report.ignored }) }}</span>
+        }
+      </div>
+      @if (shown().length > 0) {
+        <ul class="entrants">
+          @for (e of shown(); track e.id) {
+            <li>
+              <app-category-badge [category]="e.category" [slot]="slotOf().get(e.category) ?? 1" />
+              @for (pl of e.players; track pl.id; let last = $last) {
+                <span>{{ pl.name }}@if (pl.club) {<span class="hint"> ({{ pl.club }})</span>}@if (!last) { / }</span>
+              }
+            </li>
+          }
+          @if (more() > 0) {
+            <li class="hint">{{ t('importMap.more', { n: more() }) }}</li>
+          }
+        </ul>
+      }
+      @if ((p.report.skipped ?? []).length > 0) {
+        <ul class="skipped">
+          @for (s of p.report.skipped; track s.line) {
+            <li>{{ t('entrants.importLine', { line: s.line }) }} · {{ t('importSkip.' + s.code) }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  <div class="actions">
+    <button type="button" class="btn" (click)="done.emit(null)">{{ t('common.cancel') }}</button>
+    <button type="button" class="btn btn-primary" [disabled]="importing() || !preview()?.report?.added" (click)="confirm()">
+      {{ t('importMap.confirm', { n: preview()?.report?.added ?? 0 }) }}
+    </button>
+  </div>
+</div>

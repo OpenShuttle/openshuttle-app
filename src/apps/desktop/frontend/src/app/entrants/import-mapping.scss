@@ -1,0 +1,136 @@
+@use 'mixins' as *;
+
+:host {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.mapping {
+  padding: 16px;
+  @include stack(16px);
+}
+
+.head {
+  @include row(16px, true);
+  justify-content: space-between;
+}
+
+.title {
+  @include stack(2px);
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    @include ellipsis;
+  }
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.check {
+  @include row(8px);
+  font-size: 14px;
+}
+
+// The first lines of the file, to recognise the columns; wide files scroll.
+.sample {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  table {
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th,
+  td {
+    max-width: 220px;
+    padding: 6px 10px;
+    text-align: left;
+    @include ellipsis;
+  }
+
+  th {
+    background: var(--color-bg);
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  td {
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.group {
+  @include stack(10px);
+}
+
+.field {
+  @include stack(4px);
+  font-size: 13px;
+}
+
+.field select,
+.value select {
+  width: 100%;
+}
+
+.values {
+  @include stack(6px);
+}
+
+.value {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.value-text {
+  @include ellipsis;
+}
+
+.result {
+  @include stack(8px);
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.totals {
+  @include row(10px, true);
+}
+
+.entrants,
+.skipped {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  @include stack(4px);
+}
+
+.entrants li {
+  @include row(8px, true);
+}
+
+.skipped {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  @include row(10px);
+  justify-content: flex-end;
+}

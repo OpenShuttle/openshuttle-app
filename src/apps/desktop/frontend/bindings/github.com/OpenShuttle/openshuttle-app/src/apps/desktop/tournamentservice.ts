@@ -81,6 +81,15 @@ export function CheckInPlayer(id: tournament$0.PlayerID): $CancellablePromise<vo
 }
 
 /**
+ * ChooseImportFile asks for a player list (CSV from OpenShuttle, a club
+ * registration tool such as HelloAsso or a spreadsheet) and reads it. Lines
+ * without category go to fallback. A cancelled dialog gives an empty path.
+ */
+export function ChooseImportFile(fallback: engine$0.Category): $CancellablePromise<$models.ImportFile> {
+    return $Call.ByID(659107208, fallback);
+}
+
+/**
  * ClearScore removes a recorded score.
  */
 export function ClearScore(id: tournament$0.MatchID): $CancellablePromise<void> {
@@ -250,13 +259,11 @@ export function GetTournamentView(): $CancellablePromise<$models.TournamentView>
 }
 
 /**
- * ImportEntrants asks for a player list (CSV, the layout of the entrants
- * export) and enters its rows, in one undoable action. Rows without a
- * category go to fallback. It reports what was added and skipped; a
- * cancelled dialog reports nothing.
+ * ImportEntrants enters the lines of a player list read with a mapping, in
+ * one undoable action. It reports what was added, skipped and ignored.
  */
-export function ImportEntrants(fallback: engine$0.Category): $CancellablePromise<tournament$0.ImportReport> {
-    return $Call.ByID(1651524604, fallback);
+export function ImportEntrants(path: string, m: tournament$0.ImportMapping): $CancellablePromise<tournament$0.ImportReport> {
+    return $Call.ByID(1651524604, path, m);
 }
 
 /**
@@ -302,6 +309,14 @@ export function OpenTournament(path: string): $CancellablePromise<void> {
  */
 export function OpenTournamentDialog(): $CancellablePromise<string> {
     return $Call.ByID(3132665845);
+}
+
+/**
+ * PreviewImport is what importing the file with this mapping would do,
+ * nothing saved.
+ */
+export function PreviewImport(path: string, m: tournament$0.ImportMapping): $CancellablePromise<tournament$0.ImportPreview> {
+    return $Call.ByID(1369693415, path, m);
 }
 
 /**
