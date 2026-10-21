@@ -366,6 +366,16 @@ export interface HistoryView {
 }
 
 /**
+ * ImportFile is a player list chosen for import: its path, its lines and
+ * the mapping guessed from them, for the frontend to show and adjust.
+ */
+export interface ImportFile {
+    "path": string;
+    "lines": tournament$0.ImportLine[] | null;
+    "mapping": tournament$0.ImportMapping;
+}
+
+/**
  * MatchView is a match as every desk screen shows it.
  */
 export interface MatchView {

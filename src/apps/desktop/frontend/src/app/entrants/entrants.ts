@@ -1,7 +1,7 @@
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { EntrantView, EntrantsView, TournamentService } from '@bindings/apps/desktop';
+import { EntrantView, EntrantsView, ImportFile, TournamentService } from '@bindings/apps/desktop';
 import { Category, EntrantID } from '@bindings/internal/engine';
 import { ImportReport, PlayerInput } from '@bindings/internal/tournament';
 
@@ -11,6 +11,7 @@ import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
 import { ClubSelect } from '../shared/club-select';
+import { ImportMapping } from './import-mapping';
 import { toCsv } from '../shared/csv';
 
 const emptyPlayers = (count: number): PlayerInput[] =>
@@ -19,7 +20,7 @@ const emptyPlayers = (count: number): PlayerInput[] =>
 /** Entrants: one tab per category, add, edit and remove players or pairs. */
 @Component({
   selector: 'app-entrants',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge, ClubSelect],
+  imports: [TranslocoDirective, RouterLink, CategoryBadge, ClubSelect, ImportMapping],
   templateUrl: './entrants.html',
   styleUrl: './entrants.scss',
 })
@@ -28,6 +29,8 @@ export class Entrants {
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
   protected readonly importReport = signal<ImportReport | null>(null);
+  /** The player list chosen for import, while its columns are mapped. */
+  protected readonly importFile = signal<ImportFile | null>(null);
   protected readonly exported = signal<string | null>(null);
   protected readonly view = liveView<EntrantsView>(() => TournamentService.GetEntrantsView(), {
     categories: [],
@@ -121,19 +124,29 @@ export class Entrants {
     }
   }
 
-  /** Imports a player list; rows without category go to the add form's category. */
+  /**
+   * Chooses a player list to import; its columns are mapped before anything
+   * is entered. Lines without category go to the add form's category.
+   */
   protected async importList(): Promise<void> {
     const category = this.current()?.category;
     if (!category) {
       return;
     }
     try {
-      const report = await TournamentService.ImportEntrants(category);
-      this.importReport.set(report.added > 0 || (report.skipped ?? []).length > 0 ? report : null);
+      const file = await TournamentService.ChooseImportFile(category);
+      this.importFile.set(file.path ? file : null);
+      this.importReport.set(null);
       this.tournament.error.set(null);
     } catch (err) {
       this.tournament.error.set(backendError(err));
     }
+  }
+
+  /** The mapping is done: imported (its report) or cancelled (null). */
+  protected imported(report: ImportReport | null): void {
+    this.importFile.set(null);
+    this.importReport.set(report && (report.added > 0 || (report.skipped ?? []).length > 0 || report.ignored > 0) ? report : null);
   }
 
   /**

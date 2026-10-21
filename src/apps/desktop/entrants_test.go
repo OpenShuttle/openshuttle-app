@@ -95,15 +95,23 @@ func TestImportEntrantsFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Cancelled: nothing.
-	if r, err := f.svc.ImportEntrants(f.ctx, engine.MensDoubles); err != nil || r.Added != 0 {
-		t.Fatalf("cancelled import = %+v, %v", r, err)
+	if file, err := f.svc.ChooseImportFile(f.ctx, engine.MensDoubles); err != nil || file.Path != "" {
+		t.Fatalf("cancelled import = %+v, %v", file, err)
 	}
 	f.dialogs.openCSV = filepath.Join(f.dir, "list.csv")
 	content := "Catégorie;Joueur 1;Club 1;Joueur 2;Club 2\nDH;Paul Zola;BC Lyon;Hugo Écuyer;BC Lyon\n;Tom Petit;AS Bron;Max Roux;AS Bron\nDD;Léa Roux;;Zoé Petit;\n"
 	if err := os.WriteFile(f.dialogs.openCSV, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	r, err := f.svc.ImportEntrants(f.ctx, engine.MensDoubles)
+	file, err := f.svc.ChooseImportFile(f.ctx, engine.MensDoubles)
+	if err != nil || len(file.Lines) != 4 || !file.Mapping.Header || file.Mapping.Category != 0 {
+		t.Fatalf("file = %+v, %v", file, err)
+	}
+	preview, err := f.svc.PreviewImport(file.Path, file.Mapping)
+	if err != nil || preview.Report.Added != 2 || len(f.svc.GetEntrantsView().Categories[0].Entrants) != 0 {
+		t.Fatalf("preview = %+v, %v", preview, err)
+	}
+	r, err := f.svc.ImportEntrants(f.ctx, file.Path, file.Mapping)
 	if err != nil || r.Added != 2 || len(r.Skipped) != 1 || r.Skipped[0].Line != 4 {
 		t.Fatalf("import = %+v, %v", r, err)
 	}

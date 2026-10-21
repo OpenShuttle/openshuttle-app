@@ -209,7 +209,8 @@ A tournament goes through six steps.
 
 1. **Preparation (beforehand)**: the organizer creates the tournament,
    chooses one or two categories, imports or types the entrants (one name
-   field per player, a club picked from the club list), starts from a preset
+   field per player, a club picked from the club list; an import takes any
+   CSV, such as a HelloAsso export, its columns mapped on screen), starts from a preset
    or builds the format, and sets the number of courts and the minimum rest.
 2. **Check-in (on the day, arrivals)**: the desk marks players present one by
    one (a player checked in once is checked in for the entrant), hands out
@@ -274,7 +275,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 1 | Home | Organizer | Recent tournaments, Presets, Settings | Create, open a file, duplicate |
 | 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs | Create, edit, duplicate, disable, delete; simulate a format for N teams |
 | 3 | Tournament info | Organizer | Name, one or two categories, number of courts, minimum rest | Edit |
-| 4 | Entrants | Organizer | Entrants (player or pair) per category, club | Add, edit, import and export CSV |
+| 4 | Entrants | Organizer | Entrants (player or pair) per category, club | Add, edit, import CSV (columns mapped) and export it |
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
 | 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs" | Mark present in one click, add on the spot |
 | 7 | Draw | Control desk | One section per category, one column per pool, entrant cards, warning badges (same club), seed ranking | Drag and drop, redraw, confirm |

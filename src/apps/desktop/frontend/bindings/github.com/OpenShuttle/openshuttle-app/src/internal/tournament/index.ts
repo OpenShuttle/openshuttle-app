@@ -10,10 +10,17 @@ export {
 } from "./models.js";
 
 export type {
+    EntrantRegistered,
     FormatPreview,
+    ImportLine,
+    ImportMapping,
+    ImportPlayerColumns,
+    ImportPreview,
     ImportReport,
     ImportSkip,
+    ImportValue,
     MatchID,
+    Player,
     PlayerID,
     PlayerInput,
     RankCount,

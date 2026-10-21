@@ -10,7 +10,7 @@
       </div>
       <div class="head-actions">
         @if ((view().categories ?? []).length > 0) {
-          <button type="button" class="btn btn-sm" (click)="importList()">{{ t('entrants.import') }}</button>
+          <button type="button" class="btn btn-sm" [disabled]="importFile() !== null" (click)="importList()">{{ t('entrants.import') }}</button>
           <button type="button" class="btn btn-sm" [disabled]="totals().entrants === 0" (click)="exportList()">{{ t('entrants.export') }}</button>
         }
         @if ((view().categories ?? []).length > 1) {
@@ -26,12 +26,18 @@
       </div>
     </div>
 
+    @if (importFile(); as file) {
+      <app-import-mapping [file]="file" [categories]="view().categories ?? []" (done)="imported($event)" />
+    }
     @if (importReport(); as r) {
       <div class="card report" role="status">
         <div class="report-head">
           <strong>{{ t('entrants.imported', { n: r.added }) }}</strong>
           @if ((r.skipped ?? []).length > 0) {
             <span>{{ t('entrants.importSkipped', { n: (r.skipped ?? []).length }) }}</span>
+          }
+          @if (r.ignored > 0) {
+            <span>{{ t('entrants.importIgnored', { n: r.ignored }) }}</span>
           }
           <button type="button" class="btn-link" (click)="importReport.set(null)">{{ t('common.dismiss') }}</button>
         </div>
@@ -42,7 +48,6 @@
             }
           </ul>
         }
-        <span class="hint">{{ t('entrants.importFormat') }}</span>
       </div>
     }
     @if (exported(); as path) {
