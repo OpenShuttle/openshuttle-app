@@ -232,7 +232,8 @@
 
 
 // Display screen button: a monitor, and a dot for its state (green: open).
-.display-btn svg {
+.display-btn svg,
+.guide-btn svg {
   width: 13px;
   height: 13px;
 }

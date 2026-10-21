@@ -6,6 +6,7 @@ import { filter, map } from 'rxjs';
 import { System, Window } from '@wailsio/runtime';
 
 import { DisplayScreenService } from '../core/display-screen.service';
+import { openGuide } from '../core/guide';
 import { LanguageService } from '../core/language.service';
 import { AppSettings } from '../core/settings.service';
 import { TournamentStore } from '../core/tournament.service';
@@ -82,6 +83,10 @@ export class Shell implements OnInit {
   ngOnInit(): void {
     void this.display.refresh();
     void this.tournament.refresh();
+  }
+
+  protected guide(): void {
+    void openGuide(this.language.active);
   }
 
   protected minimise(): void {

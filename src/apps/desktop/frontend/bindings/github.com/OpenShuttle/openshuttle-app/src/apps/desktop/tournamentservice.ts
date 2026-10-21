@@ -111,6 +111,18 @@ export function ConfirmDraw(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * CreateSampleTournament creates and opens a tournament to discover the app
+ * with: two categories of fictional pairs from fictional clubs, pools then a
+ * bracket, everybody checked in, the draws confirmed, two rounds played and
+ * the courts busy, a score pending. It is saved in the tournaments folder
+ * under name (translated by the frontend), numbered when the name is taken,
+ * and returns its path.
+ */
+export function CreateSampleTournament(name: string): $CancellablePromise<string> {
+    return $Call.ByID(30353995, name);
+}
+
+/**
  * CreateTournament asks where to save a new tournament, creates it and opens
  * it. It returns the path, or "" when the user cancelled the dialog.
  */

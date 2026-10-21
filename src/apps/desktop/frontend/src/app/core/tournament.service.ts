@@ -62,6 +62,11 @@ export class TournamentStore {
     return this.run(async () => (await Backend.CreateTournament(name)) !== '');
   }
 
+  /** Creates and opens the sample tournament; false when it failed. */
+  createSample(name: string): Promise<boolean> {
+    return this.run(async () => (await Backend.CreateSampleTournament(name)) !== '');
+  }
+
   openDialog(): Promise<boolean> {
     return this.run(async () => (await Backend.OpenTournamentDialog()) !== '');
   }

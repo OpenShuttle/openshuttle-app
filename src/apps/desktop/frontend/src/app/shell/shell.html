@@ -66,6 +66,12 @@
           </button>
           <span class="window-sep"></span>
         }
+        <button type="button" class="window-btn guide-btn" [attr.aria-label]="t('window.guide')" [attr.title]="t('window.guide')" (click)="guide()">
+          <svg viewBox="0 0 12 12" aria-hidden="true">
+            <circle cx="6" cy="6" r="5" />
+            <path d="M4.6 4.6a1.5 1.5 0 1 1 2.1 1.4c-.5.2-.7.6-.7 1.1M6 8.9v.1" />
+          </svg>
+        </button>
         <button
           type="button"
           class="window-btn"

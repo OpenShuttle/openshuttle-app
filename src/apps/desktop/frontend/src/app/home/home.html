@@ -5,6 +5,7 @@
         <h1>{{ t('home.recentTournaments') }}</h1>
         <span class="page-sub">{{ t('home.lead') }}</span>
       </div>
+      <button type="button" class="btn" [disabled]="preparingSample()" (click)="trySample()">{{ t('home.trySample') }}</button>
       <button type="button" class="btn" (click)="openDialog()">{{ t('home.openFile') }}</button>
       <button type="button" class="btn btn-primary" (click)="startCreate()">{{ t('home.newTournament') }}</button>
     </div>
@@ -29,7 +30,14 @@
     }
 
     @if (tournament.recent().length === 0) {
-      <div class="card empty">{{ t('home.noTournament') }}</div>
+      <div class="card first-run">
+        <span>{{ t('home.noTournament') }}</span>
+        <span class="hint">{{ t('home.sampleHint') }}</span>
+        <div class="first-run-actions">
+          <button type="button" class="btn btn-primary" [disabled]="preparingSample()" (click)="trySample()">{{ t('home.trySample') }}</button>
+          <button type="button" class="btn" (click)="guide()">{{ t('home.readGuide') }}</button>
+        </div>
+      </div>
     } @else {
       <div class="card list">
         @for (r of tournament.recent(); track r.path) {
