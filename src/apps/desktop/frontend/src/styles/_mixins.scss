@@ -1,0 +1,32 @@
+// Layout and text patterns shared by every stylesheet:
+// `@use 'mixins' as *;` (src/styles is on the include path, angular.json).
+
+// One line of text cut with "…" when too long. The element needs a width
+// (a flex child also needs min-width: 0, which stack() sets).
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A column of children (texts, fields) that may shrink in a flex row.
+@mixin stack($gap: null) {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  @if $gap {
+    gap: $gap;
+  }
+}
+
+// A row of children centered on their middle line, wrapping when asked.
+@mixin row($gap: null, $wrap: false) {
+  display: flex;
+  align-items: center;
+  @if $gap {
+    gap: $gap;
+  }
+  @if $wrap {
+    flex-wrap: wrap;
+  }
+}

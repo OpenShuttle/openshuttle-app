@@ -74,8 +74,6 @@ export class Home {
   }
 
   protected date(iso: string): string {
-    return new Intl.DateTimeFormat(this.language.active, { day: 'numeric', month: 'long', year: 'numeric' }).format(
-      new Date(iso),
-    );
+    return this.language.date(iso);
   }
 }

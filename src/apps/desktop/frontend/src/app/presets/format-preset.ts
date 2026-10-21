@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { FormatPreset, PresetService, StageView } from '@bindings/apps/desktop';
 import { CrossPool, Tiebreak, WinCondition } from '@bindings/internal/engine';
@@ -32,7 +32,7 @@ function newPoolsStage(id: string, win: WinCondition, tiebreaks: Tiebreak[]): St
  */
 @Component({
   selector: 'app-format-preset',
-  imports: [TranslocoDirective, RouterLink, FormatEditor],
+  imports: [TranslocoDirective, FormatEditor],
   templateUrl: './format-preset.html',
   styleUrl: './format-preset.scss',
 })

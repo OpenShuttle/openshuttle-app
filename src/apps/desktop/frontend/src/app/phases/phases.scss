@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
   height: 100%;
@@ -11,20 +13,14 @@
 
 .main {
   flex: 1;
-  min-width: 0;
+  @include stack(18px);
   min-height: 0;
   overflow: auto;
   padding: 22px 28px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
 }
 
 .head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  @include row(14px, true);
 }
 
 .categories {
@@ -37,9 +33,7 @@
 
 .correction-toggle {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   font-size: 14px;
   font-weight: 700;
 }
@@ -93,14 +87,6 @@
     text-decoration: underline;
     font-weight: 700;
   }
-}
-
-.empty {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--color-text-muted);
 }
 
 .stage-line {
@@ -177,17 +163,13 @@
 }
 
 .who {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   min-width: 0;
 }
 
 .who-names {
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .forfeit {
@@ -253,20 +235,11 @@
 .actions {
   display: flex;
   gap: 6px;
-
-  .btn {
-    height: 26px;
-    padding: 0 8px;
-    font-size: 12px;
-  }
 }
 
 // Brackets.
 .bracket-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  @include row(12px, true);
 }
 
 .draw-bracket {
@@ -324,14 +297,6 @@
   flex: none;
 }
 
-.round-title {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
 .round-matches {
   display: flex;
   flex-direction: column;
@@ -352,10 +317,8 @@
 }
 
 .bmatch-head {
-  display: flex;
-  align-items: center;
+  @include row(8px);
   justify-content: space-between;
-  gap: 8px;
   padding: 6px 10px;
   background: var(--color-bg);
   font-size: 12px;
@@ -389,12 +352,6 @@
   gap: 6px;
   padding: 6px 10px;
   border-top: 1px solid #ecedf0;
-
-  .btn {
-    height: 26px;
-    padding: 0 8px;
-    font-size: 12px;
-  }
 }
 
 .places {
@@ -405,9 +362,7 @@
 }
 
 .place {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   font-size: 14px;
   font-weight: 600;
 }
@@ -415,4 +370,12 @@
 .place-n {
   min-width: 44px;
   font: 700 15px var(--font-mono);
+}
+
+// Small buttons of the pool and bracket match rows.
+.actions .btn,
+.bmatch-actions .btn {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 12px;
 }

@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
@@ -54,10 +56,7 @@
 }
 
 .cell {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  @include stack(3px);
 }
 
 .name {
@@ -68,9 +67,7 @@
 .file {
   font: 500 12px var(--font-mono);
   color: var(--color-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include ellipsis;
 }
 
 .categories {

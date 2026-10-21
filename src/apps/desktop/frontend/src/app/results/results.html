@@ -56,7 +56,7 @@
           @for (r of c.rows; track r.entrant.entrant) {
             <div class="row grid">
               <span class="place" [class.podium]="r.rank >= 1 && r.rank <= 3">{{ rank(r) }}</span>
-              <span class="who"><span class="bib">{{ r.entrant.bib || '–' }}</span><span class="names" [attr.title]="names(r)">{{ short(r) }}</span></span>
+              <span class="who"><span class="bib">{{ r.entrant.bib || '–' }}</span><span class="names" [attr.title]="short(r)">{{ short(r) }}</span></span>
               <span>{{ (r.entrant.clubs ?? []).join(' / ') }}</span>
               <span class="muted">{{ origin(r) }}</span>
             </div>

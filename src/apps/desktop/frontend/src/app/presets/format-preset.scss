@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
   height: 100%;
@@ -6,10 +8,7 @@
 .toolbar {
   flex: none;
   padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  @include row(12px, true);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg);
 }
@@ -34,9 +33,7 @@
 }
 
 .simulate {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   padding: 6px 10px;
   border-radius: var(--radius-md);
   background: var(--color-playing-bg);
@@ -64,17 +61,6 @@
 }
 
 .actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
 }
 
-.error {
-  flex-basis: 100%;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  background: var(--color-alert-bg);
-  color: var(--color-alert);
-  font-weight: 700;
-  font-size: 13px;
-}

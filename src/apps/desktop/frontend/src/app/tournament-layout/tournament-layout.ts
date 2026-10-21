@@ -135,8 +135,6 @@ export class TournamentLayout {
   });
 
   protected time(value: string | Date): string {
-    return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(
-      new Date(value),
-    );
+    return this.language.time(value);
   }
 }

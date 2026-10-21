@@ -35,10 +35,10 @@
         }
       </div>
       @if (error(); as e) {
-        <div class="error" role="alert">{{ t('errors.' + e.code) }}</div>
+        <div class="alert compact" role="alert">{{ t('errors.' + e.code) }}</div>
       }
       @if (presets.error(); as e) {
-        <div class="error" role="alert">{{ t('errors.' + e.code) }}</div>
+        <div class="alert compact" role="alert">{{ t('errors.' + e.code) }}</div>
       }
     </div>
   </app-format-editor>

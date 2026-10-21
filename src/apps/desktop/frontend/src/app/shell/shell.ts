@@ -117,9 +117,7 @@ export class Shell implements OnInit {
   }
 
   protected time(value: string | Date): string {
-    return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(
-      new Date(value),
-    );
+    return this.language.time(value);
   }
 
   /** Translation key for an error code, INTERNAL for unknown codes. */

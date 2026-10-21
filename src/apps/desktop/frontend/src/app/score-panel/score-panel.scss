@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 .backdrop {
   position: fixed;
   inset: 0;
@@ -21,9 +23,7 @@
 .head {
   padding: 18px 22px;
   border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  @include row(14px);
 }
 
 .court {
@@ -44,11 +44,8 @@
 }
 
 .head-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  @include stack(3px);
   flex: 1;
-  min-width: 0;
 }
 
 .title {
@@ -57,9 +54,7 @@
 }
 
 .sub {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   font: 500 13px var(--font-mono);
   color: var(--color-text-muted);
 }
@@ -123,17 +118,13 @@
 }
 
 .side-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+  @include stack;
 }
 
 .names {
   font-size: 16px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .club {

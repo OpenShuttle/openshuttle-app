@@ -86,13 +86,13 @@
     } @else {
       <!-- Both lines share one cell: switching to the drop info never moves the timeline. -->
       <div class="move-hint">
-        <p class="hint" [class.hidden]="dropInfo()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
-        @if (dropInfo(); as d) {
+        <p class="hint" [class.hidden]="drag.info()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
+        @if (drag.info(); as d) {
           <p class="drop-info">
             <app-category-badge [category]="d.item.category" [slot]="d.item.slot" />
             <strong>{{ d.item.label }}</strong>
             <span>{{ d.text }}</span>
-            @if (landing(); as l) {
+            @if (drag.landing(); as l) {
               <span>{{ t('schedule.dropLands', { court: l.court, time: time(l.start) }) }}</span>
             }
             <span class="drop-hint">{{ t('schedule.previewHint') }}</span>
@@ -110,10 +110,10 @@
                   class="block-row"
                   [attr.data-flip]="'b:' + b.key"
                   [attr.data-block-index]="i"
-                  [class.carried]="dragging()?.key === b.key"
+                  [class.carried]="drag.dragging()?.key === b.key"
                   [class.pending]="b.pending"
                   [style.border-left-color]="'var(--color-category-' + b.slot + ')'"
-                  (pointerdown)="onBlockDown($event, b)"
+                  (pointerdown)="drag.blockDown($event, b)"
                 >
                   <span class="block-n">{{ i + 1 }}</span>
                   <app-category-badge [category]="b.category" [slot]="b.slot" />
@@ -129,7 +129,7 @@
                       }
                     </span>
                   </span>
-                  @if (shift('b:' + b.key, b.start); as d) {
+                  @if (drag.shift('b:' + b.key, b.start); as d) {
                     <span class="shift" [class.later]="d > 0">{{ t(d > 0 ? 'schedule.shiftLater' : 'schedule.shiftEarlier', { n: d > 0 ? d : -d }) }}</span>
                   }
                   <span class="grip" aria-hidden="true">⠿</span>
@@ -171,12 +171,12 @@
                     [class.movable]="s.movable"
                     [class.unrested]="s.unrested && s.state === 'planned'"
                     [class.unknown]="!s.match"
-                    [class.carried]="carried(s)"
+                    [class.carried]="drag.carried(s)"
                     [style.top.px]="top(s)"
                     [style.height.px]="slotHeight(s)"
                     [style.border-left-color]="'var(--color-category-' + s.slot + ')'"
-                    [attr.title]="dragging() ? null : title(s)"
-                    (pointerdown)="onSlotDown($event, s)"
+                    [attr.title]="drag.dragging() ? null : title(s)"
+                    (pointerdown)="drag.slotDown($event, s)"
                   >
                     <span class="slot-head">
                       <app-category-badge [category]="s.category" [slot]="s.slot" />
@@ -184,7 +184,7 @@
                       @if (s.state === 'playing') {
                         <span class="slot-state">{{ t('schedule.playing') }}</span>
                       }
-                      @if (shift(s.match?.id, s.start); as d) {
+                      @if (drag.shift(s.match?.id, s.start); as d) {
                         <span class="shift" [class.later]="d > 0">{{ t(d > 0 ? 'schedule.shiftLater' : 'schedule.shiftEarlier', { n: d > 0 ? d : -d }) }}</span>
                       }
                     </span>

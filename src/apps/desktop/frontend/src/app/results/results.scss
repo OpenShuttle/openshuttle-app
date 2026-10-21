@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
@@ -38,14 +40,6 @@
 
 .categories {
   width: 340px;
-}
-
-.empty {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--color-text-muted);
 }
 
 .table {
@@ -103,9 +97,7 @@
 
 .names {
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .muted {

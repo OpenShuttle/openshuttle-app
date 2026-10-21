@@ -46,6 +46,11 @@
               "@fontsource/atkinson-hyperlegible-mono/700.css",
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            },
             "outputPath": {
               "base": "dist",
               "browser": ""

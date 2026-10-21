@@ -6,22 +6,13 @@ import { RouteKind, RouteRule, StageConfig, StageKind } from '@bindings/internal
 
 import { AppPresets } from '../core/presets.service';
 import { stageLabel, winSummary } from '../shared/stage-label';
+import { NODE_H, NODE_W, OUTPUT_W, layoutGraph, places } from './format-graph';
 
 const MAX_POOLS = 16;
 const POOL_SIZE_CHOICES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const DEFAULT_SETS: WinCondition = { kind: WinConditionKind.WinBySets, setsToWin: 2, pointsPerSet: 21, cap: 30 };
 const DEFAULT_TIMED: WinCondition = { kind: WinConditionKind.WinByTime, minutes: 12 };
 const POINT_CHOICES = [11, 15, 21];
-
-/** Canvas geometry of the stage graph, in pixels. */
-const NODE_W = 190;
-const NODE_H = 140;
-const COL_GAP = 140;
-const ROW_GAP = 26;
-const PAD = 16;
-const OUTPUT_W = 170;
-/** Height of the lane under the stages that early exits run along. */
-const LANE_H = 44;
 
 /** A new stage needs a pools stage to feed it: a bracket routes nobody on. */
 export function canAddStage(stages: readonly { kind: StageKind }[]): boolean {
@@ -30,19 +21,6 @@ export function canAddStage(stages: readonly { kind: StageKind }[]): boolean {
 
 /** Selects the last stage, whatever its id: the one just added. */
 export const LAST_STAGE = '__last';
-
-interface GraphNode {
-  stage: StageView;
-  x: number;
-  y: number;
-}
-
-interface GraphEdge {
-  d: string;
-  label: string;
-  x: number;
-  y: number;
-}
 
 /**
  * Edits a format: the stages as a graph (phase by phase, linked by routing),
@@ -97,65 +75,10 @@ export class FormatEditor {
   protected readonly saving = signal<'win' | 'tiebreaks' | null>(null);
   protected readonly presetName = signal('');
 
-  // Graph layout: one column per phase, the output last.
-  private readonly phases = computed(() => Math.max(1, ...this.stages().map((s) => s.phase)));
-  /** Height of the stage rows, the exit lane below them excluded. */
-  private readonly rowsHeight = computed(() => {
-    const perPhase = new Map<number, number>();
-    for (const s of this.stages()) {
-      perPhase.set(s.phase, (perPhase.get(s.phase) ?? 0) + 1);
-    }
-    const rows = Math.max(1, ...perPhase.values());
-    return Math.max(220, rows * (NODE_H + ROW_GAP) - ROW_GAP + 2 * PAD);
-  });
-  /** Stages before the last phase that give final places exit along a lane under the graph. */
-  private readonly hasLane = computed(() => this.stages().some((s) => s.placeFrom > 0 && s.phase < this.phases()));
-  protected readonly canvasHeight = computed(() => this.rowsHeight() + (this.hasLane() ? LANE_H : 0));
-  protected readonly canvasWidth = computed(() => PAD + this.phases() * (NODE_W + COL_GAP) + OUTPUT_W + PAD);
-  protected readonly outputX = computed(() => PAD + this.phases() * (NODE_W + COL_GAP));
-  protected readonly outputY = computed(() => this.rowsHeight() / 2 - NODE_H / 2);
-
-  protected readonly nodes = computed<GraphNode[]>(() => {
-    const h = this.rowsHeight();
-    const byPhase = new Map<number, StageView[]>();
-    for (const s of this.stages()) {
-      byPhase.set(s.phase, [...(byPhase.get(s.phase) ?? []), s]);
-    }
-    const out: GraphNode[] = [];
-    for (const [phase, stages] of byPhase) {
-      const top = h / 2 - (stages.length * (NODE_H + ROW_GAP) - ROW_GAP) / 2;
-      stages.forEach((stage, i) =>
-        out.push({ stage, x: PAD + (phase - 1) * (NODE_W + COL_GAP), y: top + i * (NODE_H + ROW_GAP) }),
-      );
-    }
-    return out;
-  });
-
-  protected readonly edges = computed<GraphEdge[]>(() => {
-    const nodes = new Map(this.nodes().map((n) => [n.stage.id, n]));
-    const out: GraphEdge[] = [];
-    const exit = { x: this.outputX(), y: this.outputY() + NODE_H / 2 };
-    for (const n of this.nodes()) {
-      const from = { x: n.x + NODE_W, y: n.y + NODE_H / 2 };
-      const counts = new Map<string, number>();
-      (n.stage.routing ?? []).forEach((r, i) => counts.set(r.to, (counts.get(r.to) ?? 0) + (n.stage.rules?.[i] ?? 0)));
-      for (const [target, count] of counts) {
-        const to = nodes.get(target);
-        if (to) {
-          out.push(edge(from, { x: to.x, y: to.y + NODE_H / 2 }, this.transloco.translate('format.edgeCount', { n: count })));
-        }
-      }
-      if (n.stage.placeFrom > 0) {
-        const label = places(n.stage.placeFrom, n.stage.placeTo);
-        out.push(
-          n.stage.phase < this.phases()
-            ? laneEdge(from, exit, this.rowsHeight() + LANE_H / 2 - PAD / 2, label)
-            : edge(from, exit, label),
-        );
-      }
-    }
-    return out;
-  });
+  /** The stage graph (format-graph.ts). */
+  protected readonly graph = computed(() =>
+    layoutGraph(this.stages(), (n) => this.transloco.translate('format.edgeCount', { n })),
+  );
 
   /** Stages some routing rule sends entrants to. */
   protected readonly fed = computed(() => new Set(this.stages().flatMap((s) => (s.routing ?? []).map((r) => r.to))));
@@ -174,9 +97,7 @@ export class FormatEditor {
     return winSummary(this.transloco, win);
   }
 
-  protected places(from: number, to: number): string {
-    return places(from, to);
-  }
+  protected readonly places = places;
 
   /** "3 pools of 4" or "5 pools (5, 5, 4, 4, 4)" or "pools of 4 or 3". */
   protected poolsTitle(stage: StageView): string {
@@ -418,25 +339,4 @@ export function config(s: StageView): StageConfig {
     fullPlacement: s.fullPlacement,
     routing: s.routing,
   };
-}
-
-function places(from: number, to: number): string {
-  return from === to ? `${from}` : `${from}–${to}`;
-}
-
-/** An edge that leaves a stage downwards, runs along the lane at y and rises into the output, labelled near its start. */
-function laneEdge(a: { x: number; y: number }, b: { x: number; y: number }, y: number, label: string): GraphEdge {
-  const d = [
-    `M ${a.x} ${a.y}`,
-    `C ${a.x + 40} ${a.y}, ${a.x + 40} ${y}, ${a.x + 80} ${y}`,
-    `L ${b.x - 80} ${y}`,
-    `C ${b.x - 40} ${y}, ${b.x - 40} ${b.y}, ${b.x} ${b.y}`,
-  ].join(' ');
-  return { d, label, x: a.x + COL_GAP / 2 + 40, y };
-}
-
-/** A curved edge between two points, with its label in the middle. */
-function edge(a: { x: number; y: number }, b: { x: number; y: number }, label: string): GraphEdge {
-  const mid = (a.x + b.x) / 2;
-  return { d: `M ${a.x} ${a.y} C ${mid} ${a.y}, ${mid} ${b.y}, ${b.x} ${b.y}`, label, x: mid, y: (a.y + b.y) / 2 };
 }

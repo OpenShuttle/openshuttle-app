@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 .schedule {
   max-width: none;
 }
@@ -48,14 +50,6 @@
   }
 }
 
-.empty {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--color-text-muted);
-}
-
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -98,9 +92,7 @@
 }
 
 .court-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  @include row(6px);
   font-weight: 800;
   font-size: 13px;
 }
@@ -197,9 +189,7 @@
 }
 
 .slot-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  @include row(6px);
   width: 100%;
 }
 
@@ -211,17 +201,13 @@
 
 .slot-label {
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
   max-width: 100%;
 }
 
 .slot-sides {
   color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
   max-width: 100%;
 }
 
@@ -235,10 +221,7 @@
 }
 
 .head-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  @include row(8px, true);
 }
 
 .move-hint {
@@ -303,9 +286,7 @@
 .side-names {
   flex: 1;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .left {
@@ -340,8 +321,7 @@
 }
 
 .panel-head {
-  display: flex;
-  align-items: center;
+  @include row;
   justify-content: space-between;
 }
 
@@ -363,9 +343,7 @@
 }
 
 .drop-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -445,9 +423,7 @@
 }
 
 .block-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+  @include stack;
   flex: 1;
 }
 

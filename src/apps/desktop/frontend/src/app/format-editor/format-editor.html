@@ -4,16 +4,16 @@
       <ng-content />
 
       <div class="canvas-wrap">
-        <div class="canvas" [style.width.px]="canvasWidth()" [style.height.px]="canvasHeight()">
-          <svg class="edges" [attr.width]="canvasWidth()" [attr.height]="canvasHeight()">
-            @for (e of edges(); track $index) {
+        <div class="canvas" [style.width.px]="graph().width" [style.height.px]="graph().height">
+          <svg class="edges" [attr.width]="graph().width" [attr.height]="graph().height">
+            @for (e of graph().edges; track $index) {
               <path [attr.d]="e.d" fill="none" stroke="#16181D" stroke-width="2" />
             }
           </svg>
-          @for (e of edges(); track $index) {
+          @for (e of graph().edges; track $index) {
             <span class="edge-label" [style.left.px]="e.x" [style.top.px]="e.y">{{ e.label }}</span>
           }
-          @for (n of nodes(); track n.stage.id) {
+          @for (n of graph().nodes; track n.stage.id) {
             @let s = n.stage;
             <button
               type="button"
@@ -45,7 +45,7 @@
               }
             </button>
           }
-          <div class="node output" [style.left.px]="outputX()" [style.top.px]="outputY()" [style.width.px]="outputW" [style.height.px]="nodeH">
+          <div class="node output" [style.left.px]="graph().outputX" [style.top.px]="graph().outputY" [style.width.px]="outputW" [style.height.px]="nodeH">
             <span class="node-kicker">{{ t('format.output') }}</span>
             <span class="node-title">{{ t('format.fullStandings') }}</span>
             <span class="node-line">{{ t('format.places', { from: 1, to: ranked() }) }}</span>

@@ -82,9 +82,7 @@ export class CheckIn {
   }
 
   protected time(iso: string | null | undefined): string {
-    return iso
-      ? new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
-      : '';
+    return this.language.time(iso);
   }
 
   /**

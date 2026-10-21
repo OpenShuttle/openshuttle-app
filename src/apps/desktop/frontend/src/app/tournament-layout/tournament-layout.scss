@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: flex;
   height: 100%;
@@ -143,10 +145,7 @@
 }
 
 .item-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  @include stack(1px);
 }
 
 .item-label {
@@ -162,9 +161,7 @@
 .item-sub {
   font-size: 12px;
   color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .file {
@@ -199,9 +196,7 @@
 
 .file-name {
   font: 500 12px var(--font-mono);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include ellipsis;
 }
 
 .file-saved {

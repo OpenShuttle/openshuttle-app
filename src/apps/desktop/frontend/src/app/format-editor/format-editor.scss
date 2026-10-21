@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 
 
 :host {
@@ -34,9 +36,7 @@ fieldset.panel-body {
 }
 
 .rule-head {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  @include row(8px);
 }
 
 .rule-kind,
@@ -70,10 +70,8 @@ fieldset.panel-body {
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
+  @include stack;
   min-height: 0;
-  min-width: 0;
   overflow-y: auto;
 }
 
@@ -105,8 +103,7 @@ fieldset.panel-body {
 }
 
 .section-head {
-  display: flex;
-  align-items: center;
+  @include row;
   justify-content: space-between;
 }
 
@@ -188,7 +185,8 @@ fieldset.panel-body {
   }
 }
 
-.node-kicker {
+.node-kicker,
+.panel-kicker {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -201,9 +199,7 @@ fieldset.panel-body {
   font-weight: 800;
   line-height: 1.2;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include ellipsis;
 }
 
 .node-line {
@@ -324,14 +320,6 @@ fieldset.panel-body {
   gap: 4px;
 }
 
-.panel-kicker {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
 .panel-title {
   font-size: 20px;
   font-weight: 800;
@@ -370,10 +358,8 @@ fieldset.panel-body {
 }
 
 .line {
-  display: flex;
-  align-items: center;
+  @include row(10px);
   justify-content: space-between;
-  gap: 10px;
 }
 
 .block {
@@ -411,9 +397,7 @@ fieldset.panel-body {
 }
 
 .tiebreak {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 6px 6px 6px 10px;

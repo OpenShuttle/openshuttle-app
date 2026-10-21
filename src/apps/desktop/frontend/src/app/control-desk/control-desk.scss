@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
   height: 100%;
@@ -28,10 +30,7 @@
 }
 
 .head-right {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+  @include row(8px, true);
 }
 
 .count {
@@ -77,9 +76,7 @@
 
 .not-started {
   padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  @include row(16px);
   font-size: 15px;
   color: var(--color-text-muted);
 }
@@ -119,10 +116,7 @@
 }
 
 .round-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  @include stack(2px);
 }
 
 .round-kicker {
@@ -200,9 +194,7 @@
 }
 
 .court-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @include row(12px);
   padding: 10px 14px;
   color: #fff;
 }
@@ -236,9 +228,7 @@
 .court-state-name {
   font-size: 16px;
   font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .court.playing {
@@ -301,9 +291,7 @@
 }
 
 .rest-alert {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @include row(12px);
   justify-content: space-between;
   padding: 10px 16px;
   margin-bottom: 12px;
@@ -322,9 +310,7 @@
 }
 
 .side {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   min-width: 0;
 }
 
@@ -349,17 +335,13 @@
 }
 
 .side-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+  @include stack;
 }
 
 .side-names {
   font-size: 15px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .side-club {
@@ -375,9 +357,7 @@
 
 .court-foot {
   padding: 0 14px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
 }
 
 .court-foot-line {
@@ -496,9 +476,7 @@
 .line-names {
   font-size: 14px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
   min-width: 0;
 }
 
@@ -674,10 +652,7 @@
 }
 
 .pending-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  @include stack(2px);
   flex: 1;
 }
 
@@ -690,9 +665,7 @@
 .pending-side {
   font-size: 13px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .pending-cta {
@@ -704,8 +677,7 @@
   color: #fff;
   font-weight: 700;
   font-size: 13px;
-  display: flex;
-  align-items: center;
+  @include row;
 }
 
 .queue {
@@ -768,18 +740,14 @@
 }
 
 .queue-side {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   font-size: 14px;
   font-weight: 600;
   min-width: 0;
 }
 
 .queue-names {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .queue-reason {
@@ -887,10 +855,7 @@
 }
 
 .launch {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  @include row(6px, true);
   padding: 8px;
   border-radius: var(--radius-md);
   background: var(--color-bg);

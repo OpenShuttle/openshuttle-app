@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
@@ -49,10 +51,7 @@
 }
 
 .filters {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+  @include row(10px, true);
 }
 
 .search {
@@ -72,13 +71,6 @@
 
 .list {
   overflow: hidden;
-}
-
-.none {
-  margin: 0;
-  padding: 16px;
-  font-size: 14px;
-  color: var(--color-text-muted);
 }
 
 .team {
@@ -114,10 +106,7 @@
 }
 
 .players {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  @include stack(2px);
 }
 
 .player {
@@ -163,21 +152,15 @@
 .name {
   font-size: 16px;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include ellipsis;
 }
 
 .name-text,
 .club {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include ellipsis;
 }
 
 .club {

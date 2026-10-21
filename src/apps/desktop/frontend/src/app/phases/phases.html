@@ -101,7 +101,7 @@
               @for (r of b.rounds; track r.from + '-' + r.size) {
                 @let label = round(r);
                 <div class="round">
-                  <span class="round-title">{{ t(label.key, label.params) }}</span>
+                  <span class="field-label">{{ t(label.key, label.params) }}</span>
                   <div class="round-matches">
                     @for (m of r.matches; track m.id) {
                       <div class="bmatch" [class.bye]="m.byeA || m.byeB">
@@ -142,7 +142,7 @@
               <div class="card places">
                 <span class="field-label">{{ t('phases.places') }}</span>
                 @for (p of b.places; track p.entrant.entrant) {
-                  <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>{{ names(p.entrant) }}</div>
+                  <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>{{ short(p.entrant) }}</div>
                 }
               </div>
             }

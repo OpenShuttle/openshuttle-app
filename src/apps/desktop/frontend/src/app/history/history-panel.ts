@@ -108,6 +108,6 @@ export class HistoryPanel {
   protected readonly view = liveView<HistoryView>(() => TournamentService.GetHistoryView(), { entries: [] });
 
   protected time(iso: string): string {
-    return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+    return this.language.time(iso);
   }
 }

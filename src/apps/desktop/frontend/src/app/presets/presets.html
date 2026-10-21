@@ -8,7 +8,7 @@
     </div>
 
     @if (presets.error(); as error) {
-      <div class="error" role="alert">{{ t('errors.' + error.code) }}</div>
+      <div class="alert" role="alert">{{ t('errors.' + error.code) }}</div>
     }
 
     <div class="section-head">
@@ -55,7 +55,7 @@
       }
     </div>
 
-    <div class="lists">
+    <div class="columns">
       <section class="card list">
         <div class="list-head">
           <h2 class="list-title">{{ t('presets.winConditions') }}</h2>

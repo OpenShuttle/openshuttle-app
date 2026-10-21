@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 // Sizes use vw so the screen scales with the projector resolution.
 :host {
   display: block;
@@ -16,17 +18,12 @@
 }
 
 .top {
-  display: flex;
-  align-items: center;
-  gap: 2vw;
+  @include row(2vw);
 }
 
 .title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3vw;
+  @include stack(0.3vw);
   margin-right: auto;
-  min-width: 0;
 }
 
 .title {
@@ -44,8 +41,7 @@
 }
 
 .waiting {
-  display: flex;
-  align-items: center;
+  @include row;
   justify-content: center;
   font-size: 2.4vw;
   color: var(--color-display-muted);
@@ -97,9 +93,7 @@
 }
 
 .call-head {
-  display: flex;
-  align-items: center;
-  gap: 1vw;
+  @include row(1vw);
 }
 
 .call-cat {
@@ -117,9 +111,7 @@
 }
 
 .call-body {
-  display: flex;
-  align-items: center;
-  gap: 2.4vw;
+  @include row(2.4vw);
   flex: 1;
   min-height: 0;
 }
@@ -144,16 +136,11 @@
 }
 
 .call-sides {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2vw;
-  min-width: 0;
+  @include stack(1.2vw);
 }
 
 .call-side {
-  display: flex;
-  align-items: center;
-  gap: 1vw;
+  @include row(1vw);
   font-size: 2.6vw;
   font-weight: 800;
   line-height: 1.1;
@@ -191,9 +178,7 @@
 }
 
 .previous-row {
-  display: flex;
-  align-items: center;
-  gap: 1.4vw;
+  @include row(1.4vw);
   background: var(--color-display-surface);
   border-radius: 0.8vw;
   padding: 0.8vw 1.2vw;
@@ -211,9 +196,7 @@
   min-width: 0;
   font-size: 1.45vw;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .previous-time {
@@ -262,10 +245,7 @@
 }
 
 .tile-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25vw;
-  min-width: 0;
+  @include stack(0.25vw);
   flex: 1;
 }
 
@@ -276,9 +256,7 @@
 }
 
 .tile-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
   font-size: 1.05vw;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -294,9 +272,7 @@
 .tile-line {
   font-size: 1.1vw;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 // Rotating standings.
@@ -312,8 +288,7 @@
 }
 
 .board-head {
-  display: flex;
-  align-items: center;
+  @include row;
   justify-content: space-between;
 }
 
@@ -368,9 +343,7 @@
 
 .b-name {
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis;
 }
 
 .b-num {
@@ -396,9 +369,7 @@
 }
 
 .panel-tag {
-  display: flex;
-  align-items: center;
-  gap: 1vw;
+  @include row(1vw);
   padding-bottom: 0.3vw;
 }
 
@@ -408,9 +379,7 @@
 }
 
 .round-row {
-  display: flex;
-  align-items: center;
-  gap: 1.6vw;
+  @include row(1.6vw);
   border-top: 1px solid #262b36;
   padding-top: 0.5vw;
   flex: 1;
@@ -438,10 +407,7 @@
 }
 
 .round-sides {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3vw;
-  min-width: 0;
+  @include stack(0.3vw);
   flex: 1;
 }
 

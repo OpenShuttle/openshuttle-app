@@ -8,7 +8,7 @@
   </div>
 
   @if (settings.error(); as error) {
-    <div class="error" role="alert">{{ t('errors.' + error.code) }}</div>
+    <div class="alert" role="alert">{{ t('errors.' + error.code) }}</div>
   }
 
   @if (settings.value(); as s) {

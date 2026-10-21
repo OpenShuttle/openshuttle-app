@@ -57,7 +57,7 @@
 
     <div class="card list">
       @if (view().players === 0) {
-        <p class="none">{{ t('checkIn.noPlayer') }}</p>
+        <p class="empty-line">{{ t('checkIn.noPlayer') }}</p>
       } @else {
         @for (team of teams(); track team.entrantId) {
           <div class="team" [class.complete]="team.complete">
@@ -89,7 +89,7 @@
             </div>
           </div>
         } @empty {
-          <p class="none">{{ t('checkIn.noMatch') }}</p>
+          <p class="empty-line">{{ t('checkIn.noMatch') }}</p>
         }
       }
     </div>

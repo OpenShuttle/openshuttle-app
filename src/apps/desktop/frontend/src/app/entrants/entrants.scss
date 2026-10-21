@@ -1,17 +1,11 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
 
 .filter {
   min-width: 340px;
-}
-
-.empty {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--color-text-muted);
 }
 
 .layout {
@@ -39,9 +33,7 @@
 }
 
 .who {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   min-width: 0;
 }
 
@@ -57,21 +49,12 @@
   min-width: 0;
 
   .name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    @include ellipsis;
   }
 }
 
 .who app-category-badge {
   flex: none;
-}
-
-.none {
-  margin: 0;
-  padding: 16px;
-  font-size: 14px;
-  color: var(--color-text-muted);
 }
 
 .edit {
@@ -120,10 +103,7 @@
 
 
 .head-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  @include row(8px, true);
   justify-content: flex-end;
 }
 

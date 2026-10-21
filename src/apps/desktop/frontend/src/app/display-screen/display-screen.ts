@@ -87,24 +87,16 @@ export class DisplayScreen {
     void Window.ToggleFullscreen();
   }
 
-  protected names(side: SideView): string {
-    return (side.names ?? []).join(' / ');
-  }
-
   private readonly transloco = inject(TranslocoService);
 
   protected stageName(b: DisplayBoard): string {
     return stageLabel(this.transloco, { name: b.stageName, kind: b.stageKind });
   }
 
-  protected short(side: SideView): string {
-    return fullNames(side);
-  }
+  protected readonly short = fullNames;
 
   protected time(value: string | number | null | undefined): string {
-    return value
-      ? new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(new Date(value))
-      : '';
+    return this.language.time(value);
   }
 
   /** Whole minutes since a match was called. */

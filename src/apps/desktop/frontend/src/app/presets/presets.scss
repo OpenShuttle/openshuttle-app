@@ -1,21 +1,13 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
 
-.error {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: var(--color-alert-bg);
-  color: var(--color-alert);
-  font-weight: 700;
-}
-
 .section-head,
 .list-head {
-  display: flex;
-  align-items: center;
+  @include row(10px);
   justify-content: space-between;
-  gap: 10px;
 }
 
 .section-title,
@@ -33,10 +25,7 @@
 
 .preset {
   padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
+  @include stack(12px);
 }
 
 .preset-head {
@@ -63,9 +52,7 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @include row(10px);
   padding: 16px;
   border-radius: var(--radius-md);
   background-color: var(--color-bg);
@@ -97,21 +84,11 @@
 }
 
 .preset-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+  @include row(8px, true);
 }
 
 .delete {
   margin-left: auto;
-}
-
-.lists {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 16px;
-  align-items: start;
 }
 
 .list {
@@ -122,20 +99,15 @@
 }
 
 .row {
-  display: flex;
-  align-items: center;
+  @include row(10px);
   justify-content: space-between;
-  gap: 10px;
   padding: 8px 0;
   border-top: 1px solid #ecedf0;
   font-size: 14px;
 }
 
 .row-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  @include stack(2px);
 }
 
 .order {
@@ -151,9 +123,7 @@
 
 .row-actions {
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  @include row(6px);
 }
 
 .editor-form {
@@ -172,10 +142,8 @@
   }
 
   .line {
-    display: flex;
-    align-items: center;
+    @include row(10px);
     justify-content: space-between;
-    gap: 10px;
     font-size: 14px;
   }
 
@@ -192,9 +160,7 @@
 }
 
 .tb-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
   background: #fff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -231,9 +197,7 @@
 
 .preset-flags {
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include row(8px);
 }
 
 // Offered in the tournament screens, or not.

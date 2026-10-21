@@ -101,13 +101,9 @@ export class ControlDesk {
     return stageLabel(this.transloco, stage);
   }
 
-  protected short(side: SideView): string {
-    return fullNames(side);
-  }
+  protected readonly short = fullNames;
 
-  protected clubs(side: SideView): string {
-    return clubs(side);
-  }
+  protected readonly clubs = clubs;
 
   /** Court a waiting match is proposed on, 0 if none. */
   protected proposedCourt(id: string): number {
@@ -137,12 +133,7 @@ export class ControlDesk {
   }
 
   protected time(iso: string | null | undefined): string {
-    if (!iso) {
-      return '';
-    }
-    return new Intl.DateTimeFormat(this.language.active, { hour: '2-digit', minute: '2-digit' }).format(
-      new Date(iso),
-    );
+    return this.language.time(iso);
   }
 
   /** Calls a queued match on a court, rest or not: rest is only a warning. */

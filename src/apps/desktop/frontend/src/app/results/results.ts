@@ -51,9 +51,6 @@ export class Results {
     return fullNames(row.entrant);
   }
 
-  protected names(row: ResultRow): string {
-    return (row.entrant.names ?? []).join(' / ');
-  }
 
   protected rank(row: ResultRow): string {
     if (!row.rank) {
@@ -88,7 +85,7 @@ export class Results {
           t('category.name.' + c.category),
           this.rank(r),
           r.entrant.bib || '',
-          this.names(r),
+          this.short(r),
           (r.entrant.clubs ?? []).join(' / '),
           this.origin(r),
         ]);

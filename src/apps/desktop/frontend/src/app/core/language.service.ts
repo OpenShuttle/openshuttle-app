@@ -31,6 +31,16 @@ export class LanguageService {
     return this.transloco.getActiveLang() as Language;
   }
 
+  /** "14:05" or "2:05 PM": hours and minutes in the UI language; "" without a time. */
+  time(value: string | number | Date | null | undefined): string {
+    return value ? new Intl.DateTimeFormat(this.active, { hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : '';
+  }
+
+  /** "19 octobre 2026" or "October 19, 2026". */
+  date(value: string | number | Date): string {
+    return new Intl.DateTimeFormat(this.active, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
+  }
+
   async set(lang: Language): Promise<void> {
     await SettingsService.SetLanguage(lang);
     this.apply(lang);

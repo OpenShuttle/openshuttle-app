@@ -82,9 +82,7 @@ export class Phases {
     return (pool.matches ?? []).filter((m) => m.score || m.walkover).length;
   }
 
-  protected short(side: SideView): string {
-    return fullNames(side);
-  }
+  protected readonly short = fullNames;
 
   protected toggleCorrection(): void {
     this.correction.update((on) => !on);
@@ -129,10 +127,6 @@ export class Phases {
     if (a === slot || (await this.tournament.swapSlots(c.category, b.id, a, slot))) {
       this.swappingSlot.set(null);
     }
-  }
-
-  protected names(side: SideView): string {
-    return (side.names ?? []).join(' / ');
   }
 
   protected diff(won: number, lost: number): string {

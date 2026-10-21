@@ -181,7 +181,7 @@
           <details class="card seeds" [open]="c.status === 'none'">
             <summary>{{ t('draw.seedsTitle') }}</summary>
             <p class="seeds-hint">{{ t('draw.seedsRankingHint') }}</p>
-            <div class="seed-columns">
+            <div class="columns">
               <div class="seed-col">
                 <span class="field-label">{{ t('draw.seedRanking', { n: (c.ranking ?? []).length }) }}</span>
                 <ol class="ranking" [attr.data-rank-end]="c.category" [class.over]="seedTarget()?.list === 'ranking' && seedTarget()?.category === c.category">

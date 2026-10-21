@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 :host {
   display: block;
 }
@@ -6,14 +8,6 @@
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
-}
-
-.error {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: var(--color-alert-bg);
-  color: var(--color-alert);
-  font-weight: 700;
 }
 
 .card {
@@ -44,10 +38,7 @@
 }
 
 .label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  @include stack(2px);
 }
 
 .name {

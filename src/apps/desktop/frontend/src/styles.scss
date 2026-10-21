@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 // Fonts are bundled via angular.json "styles": the app must work without any network.
 
 // Design tokens, taken from the Claude Design mockup (docs/tournoi-badminton-interactif).
@@ -164,11 +166,8 @@ button {
 }
 
 .page-title {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  @include stack(4px);
   margin-right: auto;
-  min-width: 0;
 }
 
 .page-sub {
@@ -337,6 +336,44 @@ select,
 select:focus {
   outline: 2px solid var(--color-link);
   outline-offset: -1px;
+}
+
+// A card with nothing to show yet, and its way forward (a button).
+.empty {
+  padding: 20px;
+  @include row(16px);
+  color: var(--color-text-muted);
+}
+
+// A line saying a list is empty.
+.empty-line {
+  margin: 0;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+// An error said in place (role="alert"); .compact inside toolbars.
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-alert-bg);
+  color: var(--color-alert);
+  font-weight: 700;
+
+  &.compact {
+    flex-basis: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+// Cards side by side, as many as fit.
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
 }
 
 .field-label {
