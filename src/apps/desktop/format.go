@@ -136,3 +136,43 @@ func stageStarted(st tournament.State, c engine.Category, id string) bool {
 		return m.Category == c && m.Stage == id && (m.Called() || m.Score != nil)
 	})
 }
+
+// SaveFormatPreset saves the format of a category as a preset.
+func (s *TournamentService) SaveFormatPreset(ctx context.Context, c engine.Category, name, description string) error {
+	name, err := presetName(name, maxPresetName, true)
+	if err != nil {
+		return err
+	}
+	description, err = presetName(description, maxPresetDesc, false)
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	if s.file == nil {
+		s.mu.Unlock()
+		return engine.NewError(engine.CodeNoTournament)
+	}
+	if !s.state.HasCategory(c) {
+		s.mu.Unlock()
+		return engine.NewError(engine.CodeCategoryNotFound)
+	}
+	stages := s.state.StageConfigs(c)
+	s.mu.Unlock()
+	return updatePresets(ctx, s.app, s.emit, func(p *Presets) {
+		p.Formats = append(p.Formats, FormatPreset{ID: newPresetID(s.now()), Name: name, Description: description, Stages: stages})
+	})
+}
+
+// ApplyFormatPreset replaces the format of a category with a preset.
+func (s *TournamentService) ApplyFormatPreset(ctx context.Context, c engine.Category, id string) error {
+	presets, err := readPresets(ctx, s.app)
+	if err != nil {
+		return err
+	}
+	i := slices.IndexFunc(presets.Formats, func(p FormatPreset) bool { return p.ID == id })
+	if i < 0 {
+		return engine.NewError(engine.CodePresetNotFound)
+	}
+	stages := presets.Formats[i].Stages
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.ApplyFormat(c, stages) })
+}

@@ -245,3 +245,11 @@ func (s State) Archive() (Change, error) {
 func collapseSpaces(s string) string {
 	return strings.Join(strings.Fields(s), " ")
 }
+
+// later is the later of two times.
+func later(a, b time.Time) time.Time {
+	if b.After(a) {
+		return b
+	}
+	return a
+}
