@@ -12,7 +12,7 @@ permissions:
 
 env:
   # renovate: datasource=go depName=github.com/wailsapp/wails/v3
-  WAILS_VERSION: v3.0.0-beta.30
+  WAILS_VERSION: v3.0.0-beta.34
   NODE_VERSION: "24"
   # renovate: datasource=npm depName=git-cliff
   GIT_CLIFF_VERSION: "2.14.2"
