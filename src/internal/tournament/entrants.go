@@ -69,8 +69,18 @@ type Entrant struct {
 	Seed int
 }
 
-// Complete reports whether every player of the entrant is checked in.
+// Waiting reports whether the entrant is a player registered alone in a
+// doubles category, waiting for a partner. It cannot be drawn.
+func (e Entrant) Waiting() bool {
+	return e.Category.IsDoubles() && len(e.Players) == 1
+}
+
+// Complete reports whether every player of the entrant is checked in. A
+// player waiting for a partner is never complete.
 func (e Entrant) Complete() bool {
+	if e.Waiting() {
+		return false
+	}
 	for _, p := range e.Players {
 		if !p.CheckedIn {
 			return false
@@ -129,7 +139,8 @@ func (s State) playerIndex(id PlayerID) (int, int) {
 	return -1, -1
 }
 
-// RegisterEntrant enters a player (singles) or a pair (doubles).
+// RegisterEntrant enters a player (singles) or a pair (doubles). In
+// doubles, a single player is entered waiting for a partner.
 func (s State) RegisterEntrant(c engine.Category, inputs []PlayerInput) (Change, error) {
 	if !s.HasCategory(c) {
 		return Change{}, engine.NewError(engine.CodeCategoryNotFound)
@@ -154,6 +165,10 @@ func (s State) UpdateEntrant(id engine.EntrantID, inputs []PlayerInput) (Change,
 	entrant, ok := s.Entrant(id)
 	if !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
+	}
+	if len(inputs) != len(entrant.Players) {
+		// Partners are added, paired or split by their own commands.
+		return Change{}, engine.NewError(engine.CodeWrongPlayerCount)
 	}
 	players, err := normalizePlayers(entrant.Category, inputs)
 	if err != nil {
@@ -183,26 +198,34 @@ func (s State) RemoveEntrant(id engine.EntrantID) (Change, error) {
 	return Change{TypeEntrantRemoved, EntrantRemoved{ID: id}}, nil
 }
 
+// normalizePlayers checks the players of an entrant: one in singles, two in
+// doubles, or one waiting for a partner.
 func normalizePlayers(c engine.Category, inputs []PlayerInput) ([]Player, error) {
-	want := 1
-	if c.IsDoubles() {
-		want = 2
-	}
-	if len(inputs) != want {
+	if len(inputs) != 1 && (!c.IsDoubles() || len(inputs) != 2) {
 		return nil, engine.NewError(engine.CodeWrongPlayerCount)
 	}
 	players := make([]Player, len(inputs))
 	for i, in := range inputs {
-		p := Player{Name: collapseSpaces(in.Name), Club: collapseSpaces(in.Club)}
-		if p.Name == "" || utf8.RuneCountInString(p.Name) > maxPlayerNameLength {
-			return nil, &engine.Error{Code: engine.CodeInvalidPlayerName, Set: i + 1}
-		}
-		if utf8.RuneCountInString(p.Club) > maxClubLength {
-			return nil, &engine.Error{Code: engine.CodeInvalidClub, Set: i + 1}
+		p, err := normalizePlayer(in, i+1)
+		if err != nil {
+			return nil, err
 		}
 		players[i] = p
 	}
 	return players, nil
+}
+
+// normalizePlayer checks a player's name and club; n numbers the player in
+// the error.
+func normalizePlayer(in PlayerInput, n int) (Player, error) {
+	p := Player{Name: collapseSpaces(in.Name), Club: collapseSpaces(in.Club)}
+	if p.Name == "" || utf8.RuneCountInString(p.Name) > maxPlayerNameLength {
+		return Player{}, &engine.Error{Code: engine.CodeInvalidPlayerName, Set: n}
+	}
+	if utf8.RuneCountInString(p.Club) > maxClubLength {
+		return Player{}, &engine.Error{Code: engine.CodeInvalidClub, Set: n}
+	}
+	return p, nil
 }
 
 // DuplicatePlayers returns the IDs of players whose full name appears more
@@ -247,6 +270,12 @@ func (s *State) applyEntrantUpdated(p EntrantUpdated) {
 
 func (s *State) applyEntrantRemoved(p EntrantRemoved) {
 	s.Entrants = slices.DeleteFunc(s.Entrants, func(e Entrant) bool { return e.ID == p.ID })
+	s.removeFromEntry(p.ID)
+}
+
+// removeFromEntry takes an entrant out of the draw of its entry stage: out
+// of its pool, or a bye in its bracket slot.
+func (s *State) removeFromEntry(id engine.EntrantID) {
 	for _, stages := range s.formats {
 		if len(stages) == 0 {
 			continue
@@ -254,13 +283,13 @@ func (s *State) applyEntrantRemoved(p EntrantRemoved) {
 		e := stages[0]
 		for i := range e.Groups {
 			if e.Kind == StageBracket {
-				for j, id := range e.Groups[i] {
-					if id == p.ID {
+				for j, g := range e.Groups[i] {
+					if g == id {
 						e.Groups[i][j] = "" // a bye
 					}
 				}
 			} else {
-				e.Groups[i] = slices.DeleteFunc(e.Groups[i], func(id engine.EntrantID) bool { return id == p.ID })
+				e.Groups[i] = slices.DeleteFunc(e.Groups[i], func(g engine.EntrantID) bool { return g == id })
 			}
 		}
 	}

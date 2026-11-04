@@ -374,7 +374,8 @@
           "sameClub": [],
           "absent": false
         }
-      ]
+      ],
+      "waiting": 1
     },
     {
       "category": "WD",
@@ -559,7 +560,8 @@
           "sameClub": [],
           "absent": false
         }
-      ]
+      ],
+      "waiting": 1
     }
   ]
 }

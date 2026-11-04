@@ -30,6 +30,14 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * AddPartner adds a partner, not registered before, to a player waiting
+ * for one.
+ */
+export function AddPartner(id: engine$0.EntrantID, partner: tournament$0.PlayerInput): $CancellablePromise<void> {
+    return $Call.ByID(2455663049, id, partner);
+}
+
+/**
  * AddStage adds a stage at the end of a category's format.
  */
 export function AddStage(c: engine$0.Category, kind: tournament$0.StageKind): $CancellablePromise<void> {
@@ -324,6 +332,14 @@ export function OpenTournamentDialog(): $CancellablePromise<string> {
 }
 
 /**
+ * PairEntrants pairs two players waiting for a partner: the partner's
+ * player joins the entrant id.
+ */
+export function PairEntrants(id: engine$0.EntrantID, partner: engine$0.EntrantID): $CancellablePromise<void> {
+    return $Call.ByID(3456945509, id, partner);
+}
+
+/**
  * PreviewImport is what importing the file with this mapping would do,
  * nothing saved.
  */
@@ -460,6 +476,13 @@ export function SetScheduleMode(mode: tournament$0.ScheduleMode): $CancellablePr
  */
 export function SetSeeds(c: engine$0.Category, ranking: engine$0.EntrantID[] | null): $CancellablePromise<void> {
     return $Call.ByID(255775692, c, ranking);
+}
+
+/**
+ * SplitEntrant takes a player out of a pair: both wait for a partner again.
+ */
+export function SplitEntrant(id: engine$0.EntrantID, player: tournament$0.PlayerID): $CancellablePromise<void> {
+    return $Call.ByID(498882252, id, player);
 }
 
 /**

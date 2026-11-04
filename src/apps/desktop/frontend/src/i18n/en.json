@@ -96,7 +96,10 @@
     "ScheduleSet": "Schedule changed",
     "ScheduleOrderSet": "Schedule order changed",
     "EntrantCheckedIn": "Checked in: {names}",
-    "ScheduleBlocksSet": "Schedule blocks reordered"
+    "ScheduleBlocksSet": "Schedule blocks reordered",
+    "EntrantsPaired": "Pair formed: {names}",
+    "PartnerAdded": "Partner added: {names}",
+    "EntrantSplit": "Pair split: {name} leaves {names}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -136,7 +139,10 @@
     "ScheduleSet": "schedule change",
     "ScheduleOrderSet": "change in the schedule order",
     "EntrantCheckedIn": "check-in of {names}",
-    "ScheduleBlocksSet": "reordering of the schedule blocks"
+    "ScheduleBlocksSet": "reordering of the schedule blocks",
+    "EntrantsPaired": "pairing of {names}",
+    "PartnerAdded": "partner for {names}",
+    "EntrantSplit": "split of {names}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -215,7 +221,10 @@
     "ALREADY_ENTERED": "Already entered.",
     "NOTHING_TO_SCHEDULE": "No match is waiting: there is nothing to put in order yet.",
     "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches.",
-    "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool."
+    "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool.",
+    "NOT_WAITING_PARTNER": "This player already has a partner.",
+    "NOT_SAME_CATEGORY": "These players are not in the same category.",
+    "NOT_A_PAIR": "Only a pair can be split."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -336,7 +345,20 @@
       "player": "Player {n}",
       "club": "Club {n}",
       "fileSuffix": "players"
-    }
+    },
+    "alone": "Registered alone, waiting for a partner",
+    "waiting": "Waiting for a partner",
+    "countWaiting": "{n, plural, one {# waiting for a partner} other {# waiting for a partner}}",
+    "findPartner": "Partner…",
+    "partnerTitle": "Find a partner",
+    "pairWith": "Pair with a player waiting in this category",
+    "choosePartner": "Choose a player…",
+    "doPair": "Form the pair",
+    "noOtherWaiting": "Nobody else is waiting for a partner in this category.",
+    "newPartner": "Or add a partner who was not registered",
+    "addPartner": "Add the partner",
+    "split": "Split the pair",
+    "splitHint": "{name} leaves the pair: both wait for a partner again."
   },
   "checkIn": {
     "title": "Check-in",
@@ -359,7 +381,8 @@
     "checkedInAt": "checked in at {time}",
     "teamPresent": "Pair present",
     "checkInTeam": "Check in the pair",
-    "checkInPartner": "Check in the partner"
+    "checkInPartner": "Check in the partner",
+    "waiting": "{n, plural, one {# waiting for a partner} other {# waiting for a partner}}"
   },
   "format": {
     "title": "Format",
@@ -522,7 +545,9 @@
     "seedRemove": "Remove from the seeds",
     "seedAdd": "Seed",
     "noSeeds": "No seed: drag an entrant here, or use \"Seed\".",
-    "noSplit": "{n} present entrants do not split into pools of {sizes}: change the pool sizes in the format."
+    "noSplit": "{n} present entrants do not split into pools of {sizes}: change the pool sizes in the format.",
+    "waiting": "{n, plural, one {# player waits for a partner and stays out of the draw.} other {# players wait for a partner and stay out of the draw.}}",
+    "goToEntrants": "Pair them in Entrants"
   },
   "desk": {
     "title": "Control desk",

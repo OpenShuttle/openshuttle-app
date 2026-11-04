@@ -29,6 +29,10 @@
   color: var(--color-text-muted);
 }
 
+.total-waiting {
+  color: var(--color-finished-fg);
+}
+
 .progress {
   height: 8px;
   border-radius: 4px;

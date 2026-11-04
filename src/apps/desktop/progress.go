@@ -16,6 +16,8 @@ const (
 
 // ProgressView sums up a tournament for the side navigation and the top bar.
 type ProgressView struct {
+	// Entrants counts players and pairs, not the players waiting for a
+	// partner.
 	Entrants int `json:"entrants"`
 	// Doubles is true when every category is played in pairs.
 	Doubles        bool `json:"doubles"`
@@ -36,11 +38,14 @@ type ProgressView struct {
 }
 
 func progressOf(st tournament.State) ProgressView {
-	p := ProgressView{Entrants: len(st.Entrants), Doubles: len(st.Categories) > 0}
+	p := ProgressView{Doubles: len(st.Categories) > 0}
 	for _, c := range st.Categories {
 		p.Doubles = p.Doubles && c.IsDoubles()
 	}
 	for _, e := range st.Entrants {
+		if !e.Waiting() {
+			p.Entrants++
+		}
 		for _, pl := range e.Players {
 			p.Players++
 			if pl.CheckedIn {

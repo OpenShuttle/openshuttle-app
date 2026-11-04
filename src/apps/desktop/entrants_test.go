@@ -3,7 +3,9 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
+	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
@@ -148,5 +150,77 @@ func TestCheckInTeam(t *testing.T) {
 	}
 	if a := f.svc.GetTournamentView().LastAction; a.Type != "EntrantCheckedIn" || a.Params["names"] != "Paul Zola / Hugo Écuyer" {
 		t.Errorf("last action = %+v", a)
+	}
+}
+
+func TestWaitingPartners(t *testing.T) {
+	f := newFixture(t)
+	ctx := f.ctx
+	if err := f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "t.openshuttle"), "Plume"); err != nil {
+		t.Fatal(err)
+	}
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(f.svc.AddCategory(ctx, engine.WomensDoubles))
+	for _, name := range []string{"Julie Morel", "Zoé Petit", "Ana Bel"} {
+		must(f.svc.RegisterEntrant(ctx, engine.WomensDoubles, []tournament.PlayerInput{{Name: name, Club: "PLVPB"}}))
+	}
+	wd := f.svc.GetEntrantsView().Categories[0]
+	if wd.Waiting != 3 || !wd.Entrants[0].Waiting || wd.Entrants[0].Complete {
+		t.Fatalf("WD = %+v", wd)
+	}
+	julie, zoe, ana := wd.Entrants[0], wd.Entrants[1], wd.Entrants[2]
+	must(f.svc.CheckInEntrant(ctx, julie.ID))
+	if team := f.svc.GetCheckInView().Teams[1]; !team.Waiting || team.Bib != 0 || !team.Players[0].CheckedIn {
+		t.Errorf("check-in row = %+v", team)
+	}
+	if d := f.svc.GetDrawView().Categories[0]; d.Waiting != 3 || d.Present != 0 {
+		t.Errorf("draw = waiting %d, present %d", d.Waiting, d.Present)
+	}
+	if p := f.svc.GetTournamentView().Progress; p.Entrants != 0 || p.Players != 3 {
+		t.Errorf("progress = %+v", p)
+	}
+
+	must(f.svc.PairEntrants(ctx, julie.ID, zoe.ID))
+	if a := f.svc.GetTournamentView().LastAction; a.Type != "EntrantsPaired" || a.Params["names"] != "Julie Morel / Zoé Petit" {
+		t.Errorf("pair action = %+v", a)
+	}
+	wantCode(t, f.svc.PairEntrants(ctx, julie.ID, ana.ID), engine.CodeNotWaitingPartner)
+	must(f.svc.AddPartner(ctx, ana.ID, tournament.PlayerInput{Name: "Mia Roux", Club: "AS Bron"}))
+	if a := f.svc.GetTournamentView().LastAction; a.Type != "PartnerAdded" || a.Params["names"] != "Ana Bel / Mia Roux" {
+		t.Errorf("partner action = %+v", a)
+	}
+	if p, err := NewPresetService(f.app, f.rec.emit, func() time.Time { return f.clock }).GetPresets(ctx); err != nil || !slices.Contains(p.Clubs, "AS Bron") {
+		t.Errorf("clubs = %v, %v", p.Clubs, err)
+	}
+	wd = f.svc.GetEntrantsView().Categories[0]
+	if wd.Waiting != 0 || len(wd.Entrants) != 2 || wd.Entrants[0].Bib != 1 {
+		t.Fatalf("after pairing = %+v", wd)
+	}
+
+	// Zoé leaves the pair: history names her, and later actions name her alone.
+	zoeID := wd.Entrants[0].Players[1].ID
+	must(f.svc.SplitEntrant(ctx, julie.ID, zoeID))
+	if a := f.svc.GetTournamentView().LastAction; a.Type != "EntrantSplit" || a.Params["names"] != "Julie Morel / Zoé Petit" || a.Params["name"] != "Zoé Petit" {
+		t.Errorf("split action = %+v", a)
+	}
+	wd = f.svc.GetEntrantsView().Categories[0]
+	if wd.Waiting != 2 || len(wd.Entrants) != 3 {
+		t.Fatalf("after split = %+v", wd)
+	}
+	// Split again after an undo: history names the pair, not the undone split.
+	must(f.svc.Undo(ctx))
+	must(f.svc.SplitEntrant(ctx, julie.ID, zoeID))
+	if a := f.svc.GetTournamentView().LastAction; a.Params["names"] != "Julie Morel / Zoé Petit" {
+		t.Errorf("split again = %+v", a)
+	}
+	wd = f.svc.GetEntrantsView().Categories[0]
+	must(f.svc.RemoveEntrant(ctx, wd.Entrants[1].ID))
+	if a := f.svc.GetTournamentView().LastAction; a.Params["names"] != "Zoé Petit" {
+		t.Errorf("remove action = %+v", a)
 	}
 }

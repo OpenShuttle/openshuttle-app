@@ -11,6 +11,7 @@ import (
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
 // TestWriteFrontendFixtures writes the views of a few demo tournaments as
@@ -58,6 +59,14 @@ func TestWriteFrontendFixtures(t *testing.T) {
 		case i%5 == 3:
 			d.must(d.svc.CheckInPlayer(ctx, team.Players[0].ID)) // half a pair
 		default:
+			d.must(d.svc.CheckInEntrant(ctx, team.EntrantID))
+		}
+	}
+	// Players registered alone, waiting for a partner; Julie is here.
+	d.must(d.svc.RegisterEntrant(ctx, engine.WomensDoubles, []tournament.PlayerInput{{Name: "Julie Morel", Club: "PLVPB"}}))
+	d.must(d.svc.RegisterEntrant(ctx, engine.MensDoubles, []tournament.PlayerInput{{Name: "Rayane Benali", Club: "ESLV"}}))
+	for _, team := range d.svc.GetCheckInView().Teams {
+		if team.Players[0].Name == "Julie Morel" {
 			d.must(d.svc.CheckInEntrant(ctx, team.EntrantID))
 		}
 	}

@@ -2,11 +2,11 @@
   "open": true,
   "path": "/home/julie/Documents/OpenShuttle/Tournoi de printemps.openshuttle",
   "name": "Tournoi de printemps",
-  "version": 45,
+  "version": 48,
   "lastAction": {
-    "seq": 45,
+    "seq": 48,
     "type": "EntryDrawn",
-    "at": "2026-10-17T09:00:47Z",
+    "at": "2026-10-17T09:00:50Z",
     "operator": "",
     "params": {
       "category": "MD"
@@ -30,8 +30,8 @@
   "progress": {
     "entrants": 20,
     "doubles": true,
-    "players": 40,
-    "playersPresent": 28,
+    "players": 42,
+    "playersPresent": 29,
     "drawsConfirmed": 0,
     "drawConfirmedAt": null,
     "started": false,

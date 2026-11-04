@@ -58,6 +58,7 @@ column is the French UI label.
 | Category | Catégorie | The kind of match: men's singles, women's singles, men's doubles, women's doubles, mixed doubles. Short code shown everywhere: MS, WS, MD, WD, XD (French: SH, SD, DH, DD, DM) |
 | Entrant | Participant | A player in singles, a pair in doubles |
 | Bib number | Dossard | Number given to each entrant at check-in, shown next to the name everywhere |
+| Waiting for a partner | Attend un partenaire | A player registered alone in a doubles category, paired on the day |
 | Format | Format | The chain of stages of a category |
 | Preset | Preset | A saved format, win condition or tiebreak order, reused from one tournament to the next |
 | Stage | Phase | A step of the format: a set of pools or a bracket |
@@ -210,12 +211,16 @@ A tournament goes through six steps.
 1. **Preparation (beforehand)**: the organizer creates the tournament,
    chooses one or two categories, imports or types the entrants (one name
    field per player, a club picked from the club list; an import takes any
-   CSV, such as a HelloAsso export, its columns mapped on screen), starts from a preset
+   CSV, such as a HelloAsso export, its columns mapped on screen; in doubles,
+   a player registered alone is entered waiting for a partner), starts from a preset
    or builds the format, and sets the number of courts and the minimum rest.
 2. **Check-in (on the day, arrivals)**: the desk marks players present one by
    one (a player checked in once is checked in for the entrant), hands out
    bibs, removes absentees and adds late entries. A pair is ready when both
-   players are checked in.
+   players are checked in. Players waiting for a partner are paired on the
+   Entrants screen: two of them together, or one with a partner typed on the
+   spot; a pair can also be split back. A waiting player gets no bib and is
+   never drawn: the pair gets its bib once formed.
 3. **Draw**: pools of each category from the present entrants only, with seeds
    ranked by the desk (drag and drop or arrows) and placed in a snake, and
    club mates kept apart. The desk can adjust by hand before confirming.
@@ -275,9 +280,9 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 1 | Home | Organizer | Recent tournaments, Presets, Settings | Create, open a file, duplicate |
 | 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs | Create, edit, duplicate, disable, delete; simulate a format for N teams |
 | 3 | Tournament info | Organizer | Name, one or two categories, number of courts, minimum rest | Edit |
-| 4 | Entrants | Organizer | Entrants (player or pair) per category, club | Add, edit, import CSV (columns mapped) and export it |
+| 4 | Entrants | Organizer | Entrants (player or pair) per category, club, players waiting for a partner and their count | Add (alone, waiting for a partner, in doubles), edit, pair two waiting players, add a partner, split a pair, import CSV (columns mapped) and export it |
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
-| 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs" | Mark present in one click, add on the spot |
+| 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs · 1 waiting for a partner" | Mark present in one click, add on the spot |
 | 7 | Draw | Control desk | One section per category, one column per pool, entrant cards, warning badges (same club), seed ranking | Drag and drop, redraw, confirm |
 | 8 | Schedule | Control desk | Timeline per court with estimated times, order of the matches, matches left per team, how two categories share the courts | Order the rounds, validate, move a match, recompute, reserve courts |
 | 9 | Control desk | Control desk | Dashboard above, with the score panel | Call, end, start next, enter a score, declare a forfeit, start and whistle a round |

@@ -36,6 +36,9 @@
                 <span class="warn">{{ t('draw.notEnough', { min: c.kind === 'bracket' ? 2 : Math.max(2, c.planned * 2) }) }}</span>
               }
             }
+            @if (c.waiting > 0) {
+              <span class="warn">{{ t('draw.waiting', { n: c.waiting }) }} <a routerLink="../entrants">{{ t('draw.goToEntrants') }}</a></span>
+            }
           </span>
           <span class="cat-actions">
             @if (c.status !== 'confirmed') {

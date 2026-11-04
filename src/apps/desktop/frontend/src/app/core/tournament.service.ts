@@ -126,6 +126,21 @@ export class TournamentStore {
     return this.command(() => Backend.RemoveEntrant(id));
   }
 
+  /** Pairs two players waiting for a partner: the partner joins id. */
+  pairEntrants(id: EntrantID, partner: EntrantID): Promise<boolean> {
+    return this.command(() => Backend.PairEntrants(id, partner));
+  }
+
+  /** Adds a partner, not registered before, to a player waiting for one. */
+  addPartner(id: EntrantID, partner: PlayerInput): Promise<boolean> {
+    return this.command(() => Backend.AddPartner(id, partner));
+  }
+
+  /** Takes a player out of a pair: both wait for a partner again. */
+  splitEntrant(id: EntrantID, player: PlayerID): Promise<boolean> {
+    return this.command(() => Backend.SplitEntrant(id, player));
+  }
+
   checkIn(id: PlayerID): Promise<boolean> {
     return this.command(() => Backend.CheckInPlayer(id));
   }

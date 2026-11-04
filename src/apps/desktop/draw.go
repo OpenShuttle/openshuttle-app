@@ -60,6 +60,9 @@ type DrawCategory struct {
 	// entrants not seeded, to pick seeds from.
 	Ranking  []DrawEntrantView `json:"ranking"`
 	Unseeded []DrawEntrantView `json:"unseeded"`
+	// Waiting counts the players still waiting for a partner: they are left
+	// out of the draw (a warning, the desk pairs them on the Entrants screen).
+	Waiting int `json:"waiting"`
 }
 
 // DrawView is the draw screen.
@@ -126,6 +129,7 @@ func (s *TournamentService) GetDrawView() DrawView {
 			Pools: []DrawPoolView{}, Unplaced: []DrawEntrantView{}, Ranking: []DrawEntrantView{}, Unseeded: []DrawEntrantView{},
 			NoSplit:   entry.Kind == tournament.StagePools && len(present) >= 2 && sizes == nil,
 			PoolSizes: append([]int{}, entry.PoolSizes...),
+			Waiting:   len(st.Waiting(ref.Category)),
 		}
 		for _, id := range st.Seeds(ref.Category) {
 			dc.Ranking = append(dc.Ranking, card(id))

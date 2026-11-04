@@ -12,6 +12,9 @@
         @if (pairs().doubles) {
           <span class="total-pairs">· {{ t('checkIn.pairsComplete', { complete: pairs().complete, total: pairs().total }) }}</span>
         }
+        @if (pairs().waiting > 0) {
+          <span class="total-pairs total-waiting">· {{ t('checkIn.waiting', { n: pairs().waiting }) }}</span>
+        }
       </div>
     </div>
 
@@ -60,9 +63,11 @@
         <p class="empty-line">{{ t('checkIn.noPlayer') }}</p>
       } @else {
         @for (team of teams(); track team.entrantId) {
-          <div class="team" [class.complete]="team.complete">
+          <div class="team" [class.complete]="isPresent(team)">
             <div class="team-action">
-              @if (team.complete) {
+              @if (team.waiting) {
+                <span class="pill pill-finished">{{ t('entrants.waiting') }}</span>
+              } @else if (team.complete) {
                 <span class="team-done">✓ {{ t((team.players ?? []).length > 1 ? 'checkIn.teamPresent' : 'checkIn.present') }}</span>
               } @else if ((team.players ?? []).length > 1) {
                 <button type="button" class="btn btn-sm btn-primary team-btn" (click)="checkInTeam(team)">

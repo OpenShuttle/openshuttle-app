@@ -42,7 +42,8 @@ export class CheckIn {
     return {
       doubles: categories.length > 0,
       complete: categories.reduce((n, c) => n + c.entrantsComplete, 0),
-      total: categories.reduce((n, c) => n + (c.entrants ?? []).length, 0),
+      total: categories.reduce((n, c) => n + (c.entrants ?? []).length - c.waiting, 0),
+      waiting: categories.reduce((n, c) => n + c.waiting, 0),
     };
   });
 
@@ -61,7 +62,7 @@ export class CheckIn {
     return (this.view().teams ?? []).filter(
       (t) =>
         (category === 'all' || t.category === category) &&
-        (presence === 'all' || t.complete === (presence === 'present')) &&
+        (presence === 'all' || this.isPresent(t) === (presence === 'present')) &&
         matches(teamText(t), words),
     );
   });
@@ -73,6 +74,11 @@ export class CheckIn {
   }
 
   /** Both players of a pair arriving together: one click, one undo. */
+  /** Complete, or a player waiting for a partner who is here. */
+  protected isPresent(team: CheckInTeam): boolean {
+    return team.complete || (team.waiting && (team.players ?? []).every((p) => p.checkedIn));
+  }
+
   protected checkInTeam(team: CheckInTeam): void {
     void this.tournament.checkInEntrant(team.entrantId);
   }

@@ -42,6 +42,15 @@ describe('CheckIn', () => {
     search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
   });
 
+  it('shows the players waiting for a partner', async () => {
+    const f = await render(CheckIn);
+    expect(text(f)).toContain('· 2 waiting for a partner');
+    expect(text(f)).toContain('Waiting for a partner');
+    await click(f, 'Present');
+    expect(text(f)).toContain('Julie Morel');
+    expect(text(f)).not.toContain('Rayane Benali');
+  });
+
   it('runs every button', async () => {
     await clickAll(await render(CheckIn));
   });
