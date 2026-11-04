@@ -45,11 +45,11 @@
       </div>
       @if ((view().categories ?? []).length > 1) {
         <div class="seg">
-          <button type="button" class="seg-option" [class.active]="category() === 'all'" (click)="category.set('all')">
+          <button type="button" class="seg-option" [class.active]="category() === 'all'" (click)="setCategory('all')">
             {{ t('checkIn.allCategories') }}
           </button>
           @for (c of view().categories; track c.category) {
-            <button type="button" class="seg-option" [class.active]="category() === c.category" (click)="category.set(c.category)">
+            <button type="button" class="seg-option" [class.active]="category() === c.category" (click)="setCategory(c.category)">
               {{ t('category.short.' + c.category) }}
             </button>
           }

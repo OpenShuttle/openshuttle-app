@@ -4,12 +4,14 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ResultRow, ResultsView, TournamentService } from '@bindings/apps/desktop';
 
 import { backendError } from '../core/backend-error';
+import { CategoryShown } from '../core/category-shown.service';
 import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 import { StageKind } from '@bindings/internal/tournament';
+import { Category } from '@bindings/internal/engine';
 import { toCsv } from '../shared/csv';
 
 /** Results: full standings per category, CSV export, archive. */
@@ -33,18 +35,15 @@ export class Results {
   protected readonly exported = signal<string | null>(null);
   protected readonly confirmingArchive = signal(false);
 
-  private readonly selected = signal<string | null>(null);
-  protected readonly current = computed(() => {
-    const categories = this.view().categories ?? [];
-    return categories.find((c) => c.category === this.selected()) ?? categories[0] ?? null;
-  });
+  private readonly shown = inject(CategoryShown);
+  protected readonly current = computed(() => this.shown.pick(this.view().categories));
   /** True while some category is not final: the standings are a preview. */
   protected readonly provisional = computed(() =>
     (this.view().categories ?? []).some((c) => c.started && !c.complete),
   );
 
-  protected select(category: string): void {
-    this.selected.set(category);
+  protected select(category: Category): void {
+    this.shown.show(category);
   }
 
   protected short(row: ResultRow): string {

@@ -4,6 +4,7 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { CheckInTeam, CheckInView, PlayerView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
+import { CategoryShown } from '../core/category-shown.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
 import { LanguageService } from '../core/language.service';
@@ -27,7 +28,9 @@ export class CheckIn {
   });
 
   protected readonly search = signal('');
-  protected readonly category = signal<Category | 'all'>('all');
+  private readonly shown = inject(CategoryShown);
+  /** Category shown, the last one chosen on any screen. */
+  protected readonly category = computed(() => this.shown.orAll(this.view().categories));
   protected readonly presence = signal<'all' | 'present' | 'absent'>('all');
   private readonly language = inject(LanguageService);
   private readonly searchField = viewChild<ElementRef<HTMLInputElement>>('searchField');
@@ -35,6 +38,10 @@ export class CheckIn {
   constructor() {
     // Check-in is typing names: the search box is ready as the screen opens.
     afterNextRender(() => this.searchField()?.nativeElement.focus());
+  }
+
+  protected setCategory(value: Category | 'all'): void {
+    this.shown.show(value);
   }
 
   protected readonly pairs = computed(() => {

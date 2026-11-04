@@ -5,6 +5,7 @@ import { FormatCategory, FormatPreviewView, FormatView, PreviewBase, TournamentS
 import { Category } from '@bindings/internal/engine';
 import { StageConfig, StageKind } from '@bindings/internal/tournament';
 
+import { CategoryShown } from '../core/category-shown.service';
 import { liveView } from '../core/live-view';
 import { AppPresets } from '../core/presets.service';
 import { TournamentStore } from '../core/tournament.service';
@@ -40,11 +41,8 @@ export class Format {
   protected readonly canAdd = computed(() => canAddStage(this.preview()?.stages ?? []));
   private readonly editor = viewChild(FormatEditor);
 
-  private readonly selectedCategory = signal<Category | null>(null);
-  protected readonly current = computed(() => {
-    const categories = this.view().categories ?? [];
-    return categories.find((c) => c.category === this.selectedCategory()) ?? categories[0] ?? null;
-  });
+  private readonly shown = inject(CategoryShown);
+  protected readonly current = computed(() => this.shown.pick(this.view().categories));
 
   /** The base of the preview; singles have no paired base and show every entrant. */
   protected readonly base = signal<PreviewBase>(loadBase());
@@ -78,7 +76,7 @@ export class Format {
   protected readonly presetDescription = signal('');
 
   protected selectCategory(category: Category): void {
-    this.selectedCategory.set(category);
+    this.shown.show(category);
     this.editor()?.selectedID.set('');
   }
 

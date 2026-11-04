@@ -5,6 +5,7 @@ import { provideTransloco, Translation, TranslocoLoader, TranslocoService } from
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 import { Observable, of } from 'rxjs';
 
+import { CATEGORY_SHOWN_KEY } from '../app/core/category-shown.service';
 import en from '../i18n/en.json';
 import fr from '../i18n/fr.json';
 
@@ -32,6 +33,8 @@ export interface RenderOptions {
   inputs?: Record<string, unknown>;
   routes?: Routes;
   providers?: Provider[];
+  /** Keeps the category shown on the previous screen (cleared by default). */
+  keepCategory?: boolean;
 }
 
 /**
@@ -39,6 +42,9 @@ export interface RenderOptions {
  * included) and router; Go is the FakeBackend set up before.
  */
 export async function render<T>(component: Type<T>, options: RenderOptions = {}): Promise<ComponentFixture<T>> {
+  if (!options.keepCategory) {
+    localStorage.removeItem(CATEGORY_SHOWN_KEY);
+  }
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [component],

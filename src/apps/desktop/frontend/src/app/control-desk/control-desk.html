@@ -220,11 +220,11 @@
         @if ((view().categories ?? []).length > 1) {
           <div class="queue-filter">
             <div class="seg seg-sm">
-              <button type="button" class="seg-option" [class.active]="queueFilter() === 'all'" (click)="queueFilter.set('all')">
+              <button type="button" class="seg-option" [class.active]="queueFilter() === 'all'" (click)="setQueueFilter('all')">
                 {{ t('desk.all') }}
               </button>
               @for (c of view().categories; track c.category) {
-                <button type="button" class="seg-option" [class.active]="queueFilter() === c.category" (click)="queueFilter.set(c.category)">
+                <button type="button" class="seg-option" [class.active]="queueFilter() === c.category" (click)="setQueueFilter(c.category)">
                   {{ t('category.short.' + c.category) }}
                 </button>
               }

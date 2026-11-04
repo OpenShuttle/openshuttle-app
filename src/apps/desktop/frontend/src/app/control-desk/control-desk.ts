@@ -4,6 +4,7 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ControlDeskView, CourtView, MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
+import { CategoryShown } from '../core/category-shown.service';
 import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
@@ -47,7 +48,9 @@ export class ControlDesk {
   /** Ticks every second for the "played for" timers. */
   protected readonly now = signal(Date.now());
   protected readonly scoring = signal<MatchView | null>(null);
-  protected readonly queueFilter = signal<Category | 'all'>('all');
+  private readonly shown = inject(CategoryShown);
+  /** Category of the queue, the last one chosen on any screen. */
+  protected readonly queueFilter = computed(() => this.shown.orAll(this.view().categories));
   /** Queue match whose court picker is open. */
   protected readonly launching = signal<string | null>(null);
 
@@ -115,6 +118,10 @@ export class ControlDesk {
   );
 
   /** "mm:ss" since an ISO time. */
+  protected setQueueFilter(value: Category | 'all'): void {
+    this.shown.show(value);
+  }
+
   protected elapsed(iso: string | null | undefined): string {
     if (!iso) {
       return '';

@@ -6,6 +6,7 @@ import { Category, EntrantID } from '@bindings/internal/engine';
 import { ImportReport, PlayerInput } from '@bindings/internal/tournament';
 
 import { backendError } from '../core/backend-error';
+import { CategoryShown } from '../core/category-shown.service';
 import { LanguageService } from '../core/language.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
@@ -36,14 +37,11 @@ export class Entrants {
     categories: [],
   });
 
-  /** Category of the add form. */
-  private readonly selected = signal<Category | null>(null);
-  protected readonly current = computed(() => {
-    const categories = this.view().categories ?? [];
-    return categories.find((c) => c.category === this.selected()) ?? categories[0] ?? null;
-  });
+  private readonly shown = inject(CategoryShown);
+  /** Category of the add form: the last one shown. */
+  protected readonly current = computed(() => this.shown.pick(this.view().categories));
   /** Category shown in the list; 'all' mixes them. */
-  protected readonly filter = signal<Category | 'all'>('all');
+  protected readonly filter = computed(() => this.shown.orAll(this.view().categories));
 
   protected readonly rows = computed(() =>
     (this.view().categories ?? [])
@@ -74,8 +72,12 @@ export class Entrants {
 
   private readonly firstField = viewChild<ElementRef<HTMLInputElement>>('firstField');
 
+  protected setFilter(value: Category | 'all'): void {
+    this.shown.show(value);
+  }
+
   protected select(category: Category): void {
-    this.selected.set(category);
+    this.shown.showOnly(category);
     this.alone.set(false);
     this.resetDraft();
   }

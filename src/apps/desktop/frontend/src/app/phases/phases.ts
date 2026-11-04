@@ -14,6 +14,7 @@ import {
 } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
+import { CategoryShown } from '../core/category-shown.service';
 import { liveView } from '../core/live-view';
 import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
@@ -34,11 +35,8 @@ export class Phases {
   protected readonly tournament = inject(TournamentStore);
   protected readonly view = liveView<PhasesView>(() => TournamentService.GetPhasesView(), { categories: [] });
 
-  private readonly selected = signal<Category | null>(null);
-  protected readonly current = computed(() => {
-    const categories = this.view().categories ?? [];
-    return categories.find((c) => c.category === this.selected()) ?? categories[0] ?? null;
-  });
+  private readonly shown = inject(CategoryShown);
+  protected readonly current = computed(() => this.shown.pick(this.view().categories));
 
   protected readonly correction = signal(false);
   private readonly panels = inject(Panels);
@@ -62,7 +60,7 @@ export class Phases {
   protected readonly swappingSlot = signal<string | null>(null);
 
   protected select(category: Category): void {
-    this.selected.set(category);
+    this.shown.show(category);
     this.stageKey.set('');
   }
 

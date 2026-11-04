@@ -18,9 +18,9 @@
         }
         @if ((view().categories ?? []).length > 1) {
           <div class="seg seg-sm filter">
-            <button type="button" class="seg-option" [class.active]="filter() === 'all'" (click)="filter.set('all')">{{ t('desk.all') }}</button>
+            <button type="button" class="seg-option" [class.active]="filter() === 'all'" (click)="setFilter('all')">{{ t('desk.all') }}</button>
             @for (c of view().categories; track c.category) {
-              <button type="button" class="seg-option" [class.active]="filter() === c.category" (click)="filter.set(c.category)">
+              <button type="button" class="seg-option" [class.active]="filter() === c.category" (click)="setFilter(c.category)">
                 {{ t('category.name.' + c.category) }}
               </button>
             }
