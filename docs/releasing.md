@@ -29,7 +29,7 @@ The [Release desktop](../.github/workflows/release-desktop.yml) workflow then:
 
   | File | Platform |
   | --- | --- |
-  | `openshuttle-desktop-<v>-windows-amd64-setup.exe` | Windows installer (NSIS, installs WebView2 if missing) |
+  | `openshuttle-desktop-<v>-windows-amd64-setup.exe` | Windows installer (NSIS, for the current user in `%LOCALAPPDATA%\Programs\OpenShuttle`, no administrator rights; installs WebView2 if missing) |
   | `openshuttle-desktop-<v>-windows-amd64-portable.zip` | Windows, no install |
   | `openshuttle-desktop-<v>-linux-amd64.deb` | Debian 13+ / Ubuntu 24.04+ (GTK 4, WebKitGTK 6) |
   | `openshuttle-desktop-<v>-linux-amd64.tar.gz` | Linux binary |

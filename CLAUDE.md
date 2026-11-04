@@ -229,6 +229,9 @@ icons in `build/` (`appicon.png`, `windows/icon.ico`, `darwin/icons.icns`,
 DMG icon and background) are generated from it (`wails3 generate icons`);
 `windows/appicon.ico`, a copy of `icon.ico`, is the icon of `.openshuttle` files
 the NSIS installer registers (`fileAssociations` in `build/config.yml`).
+The installer is per user (`INSTALL_SCOPE` defaults to `user` in `build/windows/Taskfile.yml`):
+`%LOCALAPPDATA%\Programs\OpenShuttle`, HKCU registry, no administrator rights; it tells
+users of an earlier machine-wide install (Program Files) how to remove it.
 The main window has no native title bar on Windows and Linux (`Frameless`):
 the app's top bar drags the window (`--wails-draggable: drag`, controls
 `no-drag`), maximises on double-click and draws full screen / minimise / maximise / close;

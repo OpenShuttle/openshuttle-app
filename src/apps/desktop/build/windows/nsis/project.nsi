@@ -82,6 +82,15 @@ ShowInstDetails show # This will always show the installation details.
 
 Function .onInit
    !insertmacro wails.checkArchitecture
+   !if "${WAILS_INSTALL_SCOPE}" == "user"
+       # Versions up to 1.2 installed for every user, in Program Files: this
+       # one installs alongside, for the current user. Say how to remove it.
+       SetRegView 64
+       ReadRegStr $0 HKLM "${UNINST_KEY}" "UninstallString"
+       ${If} $0 != ""
+           MessageBox MB_OK|MB_ICONINFORMATION "An earlier version of ${INFO_PRODUCTNAME} is installed for all users, in Program Files.$\r$\n$\r$\nThis version installs for you only, with no administrator rights. Your tournaments and settings are kept.$\r$\n$\r$\nYou can then remove the earlier version from Settings > Apps > Installed apps."
+       ${EndIf}
+   !endif
 FunctionEnd
 
 Section
