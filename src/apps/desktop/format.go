@@ -55,8 +55,6 @@ type FormatCategory struct {
 	// offered: paired (doubles only), registered, present. Stages already
 	// filled show their actual groups whatever the base.
 	Previews []FormatPreviewView `json:"previews"`
-	// Locked: a match was called or scored, the format no longer changes.
-	Locked bool `json:"locked"`
 }
 
 // FormatView is the format screen.
@@ -99,7 +97,6 @@ func (s *TournamentService) GetFormatView() FormatView {
 		fc := FormatCategory{
 			CategoryRef:  ref,
 			TimedAllowed: len(st.Categories) == 1,
-			Locked:       st.FormatLocked(ref.Category),
 		}
 		for _, b := range previewCounts(st, ref.Category) {
 			p := FormatPreviewView{Base: b.base, Entrants: b.n}
@@ -162,7 +159,7 @@ func formatPreview(st tournament.State, c engine.Category, registered int) (stag
 	for i, stage := range st.Stages(c) {
 		v := StageView{
 			StageConfig: stage.StageConfig, StagePreview: preview.Stages[i], Entry: i == 0,
-			Filled: stage.Filled(), Confirmed: stage.Confirmed, Started: stageStarted(st, c, stage.ID),
+			Filled: stage.Filled(), Confirmed: stage.Confirmed, Started: st.StageStarted(c, stage.ID),
 		}
 		if v.Routing == nil {
 			v.Routing = []tournament.RouteRule{}
@@ -176,12 +173,6 @@ func formatPreview(st tournament.State, c engine.Category, registered int) (stag
 		stages = append(stages, v)
 	}
 	return stages, preview.Ranked, preview.Ties
-}
-
-func stageStarted(st tournament.State, c engine.Category, id string) bool {
-	return slices.ContainsFunc(st.Matches(), func(m tournament.Match) bool {
-		return m.Category == c && m.Stage == id && (m.Called() || m.Score != nil)
-	})
 }
 
 // SaveFormatPreset saves the format of a category as a preset.

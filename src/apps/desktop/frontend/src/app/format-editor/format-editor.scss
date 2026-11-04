@@ -21,6 +21,26 @@ fieldset.panel-body {
   min-width: 0;
 }
 
+// Fields a started stage keeps: disabled together, laid out as if the
+// fieldset were not there.
+fieldset.group {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+
+  &:not(.section) {
+    display: contents;
+  }
+}
+
+.stage-note {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
 .rule {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

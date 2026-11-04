@@ -4,7 +4,7 @@ import { FakeBackend } from '../../testing/backend';
 import { choose, click, clickAll, find, render, text, type } from '../../testing/render';
 import format from '../../testing/fixtures/before-format.json';
 import presets from '../../testing/fixtures/presets.json';
-import locked from '../../testing/fixtures/progress-format.json';
+import progress from '../../testing/fixtures/progress-format.json';
 import settings from '../../testing/fixtures/settings.json';
 import tournament from '../../testing/fixtures/before-tournament.json';
 import { Format } from './format';
@@ -75,9 +75,30 @@ describe('Format', () => {
     localStorage.removeItem('openshuttle.formatPreviewBase');
   });
 
-  it('shows a locked format read only', async () => {
-    go.on('TournamentService.GetFormatView', locked as unknown as FormatView);
+  it('freezes a started stage and keeps the later ones editable', async () => {
+    go.on('TournamentService.GetFormatView', progress as unknown as FormatView);
     const f = await render(Format);
-    expect(text(f)).toContain('Locked');
+    const nodes = [...f.nativeElement.querySelectorAll('.node:not(.output)')] as HTMLElement[];
+    expect(nodes[0].textContent).toContain('started');
+    expect(nodes[1].textContent).not.toContain('started');
+    // The draw is confirmed: no preset replaces the format, stages can still be added.
+    expect(text(f)).not.toContain('Start from a preset');
+    expect(text(f)).toContain('+ Bracket');
+
+    nodes[0].click();
+    f.detectChanges();
+    expect(text(f)).toContain('Matches of this phase have started');
+    const groups = [...f.nativeElement.querySelectorAll('fieldset.group')] as HTMLFieldSetElement[];
+    expect(groups.length).toBeGreaterThan(0);
+    expect(groups.every((g) => g.disabled)).toBe(true);
+
+    nodes[1].click();
+    f.detectChanges();
+    expect(text(f)).not.toContain('Matches of this phase have started');
+    const win = find(f, 'fieldset.group') as HTMLFieldSetElement;
+    expect(win.disabled).toBe(false);
+    (win.querySelector('.stepper button:enabled') as HTMLButtonElement).click();
+    await new Promise((r) => setTimeout(r));
+    expect(go.called('TournamentService.SetFormat')).toBe(true);
   });
 });

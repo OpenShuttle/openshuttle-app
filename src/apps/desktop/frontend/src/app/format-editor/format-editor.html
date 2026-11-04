@@ -19,13 +19,14 @@
               type="button"
               class="node"
               [class.selected]="selected()?.id === s.id"
+              [class.started]="s.started"
               [style.left.px]="n.x"
               [style.top.px]="n.y"
               [style.width.px]="nodeW"
               [style.height.px]="nodeH"
               (click)="select(s.id)"
             >
-              <span class="node-kicker">{{ t('format.phaseKind', { n: s.phase, kind: t('stage.kind.' + s.kind) }) }}</span>
+              <span class="node-kicker">{{ t(s.started ? 'format.phaseKindStarted' : 'format.phaseKind', { n: s.phase, kind: t('stage.kind.' + s.kind) }) }}</span>
               <span class="node-title">{{ s.name || (s.kind === stageKinds.StagePools ? poolsTitle(s) : t('stage.kind.bracket')) }}</span>
               @if (s.name && s.kind === stageKinds.StagePools) {
                 <span class="node-line">{{ poolsTitle(s) }}</span>
@@ -111,13 +112,20 @@
         </div>
 
         <fieldset class="panel-body" [disabled]="readonly()">
+          @let frozen = s.started;
+          @let drawn = s.entry && s.confirmed;
+          @if (frozen) {
+            <span class="note stage-note">{{ t('format.stageStartedHint') }}</span>
+          } @else if (!s.entry && s.filled) {
+            <span class="note stage-note">{{ t('format.stageFilledHint') }}</span>
+          }
           <div class="section">
             <span class="field-label">{{ t('format.kind') }}</span>
             <div class="seg">
-              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StagePools" [disabled]="s.filled" (click)="setKind(s, stageKinds.StagePools)">
+              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StagePools" [disabled]="frozen || (s.entry && s.filled)" (click)="setKind(s, stageKinds.StagePools)">
                 {{ t('stage.kind.pools') }}
               </button>
-              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StageBracket" [disabled]="s.filled" (click)="setKind(s, stageKinds.StageBracket)">
+              <button type="button" class="seg-option" [class.active]="s.kind === stageKinds.StageBracket" [disabled]="frozen || (s.entry && s.filled)" (click)="setKind(s, stageKinds.StageBracket)">
                 {{ t('stage.kind.bracket') }}
               </button>
             </div>
@@ -135,8 +143,8 @@
             <div class="section">
               <span class="field-label">{{ t('format.size') }}</span>
               <div class="seg seg-sm">
-                <button type="button" class="seg-option" [class.active]="bySizes" [disabled]="s.confirmed" (click)="setPoolMode(s, true)">{{ t('format.bySizes') }}</button>
-                <button type="button" class="seg-option" [class.active]="!bySizes" [disabled]="s.confirmed" (click)="setPoolMode(s, false)">{{ t('format.byCount') }}</button>
+                <button type="button" class="seg-option" [class.active]="bySizes" [disabled]="(frozen || drawn)" (click)="setPoolMode(s, true)">{{ t('format.bySizes') }}</button>
+                <button type="button" class="seg-option" [class.active]="!bySizes" [disabled]="(frozen || drawn)" (click)="setPoolMode(s, false)">{{ t('format.byCount') }}</button>
               </div>
               @if (bySizes) {
                 <span class="note">{{ t('format.bySizesHint') }}</span>
@@ -144,12 +152,12 @@
                   <div class="tiebreak">
                     <span class="tb-rank">{{ i + 1 }}</span>
                     <span class="tb-name">{{ t(first ? 'format.sizePreferred' : last ? 'format.sizeLast' : 'format.sizeThen', { n: size }) }}</span>
-                    <button type="button" class="tb-move" [disabled]="first || s.confirmed" (click)="movePoolSize(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
-                    <button type="button" class="tb-move" [disabled]="last || s.confirmed" (click)="movePoolSize(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
-                    <button type="button" class="tb-move" [disabled]="(s.poolSizes ?? []).length === 1 || s.confirmed" (click)="removePoolSize(s, i)" [attr.aria-label]="t('presets.delete')">×</button>
+                    <button type="button" class="tb-move" [disabled]="first || (frozen || drawn)" (click)="movePoolSize(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
+                    <button type="button" class="tb-move" [disabled]="last || (frozen || drawn)" (click)="movePoolSize(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
+                    <button type="button" class="tb-move" [disabled]="(s.poolSizes ?? []).length === 1 || (frozen || drawn)" (click)="removePoolSize(s, i)" [attr.aria-label]="t('presets.delete')">×</button>
                   </div>
                 }
-                <select class="preset-select full" [attr.aria-label]="t('format.addSize')" [disabled]="s.confirmed" (change)="addPoolSize(s, $event)">
+                <select class="preset-select full" [attr.aria-label]="t('format.addSize')" [disabled]="(frozen || drawn)" (change)="addPoolSize(s, $event)">
                   <option value="">{{ t('format.addSize') }}</option>
                   @for (n of poolSizeChoices; track n) {
                     @if (!(s.poolSizes ?? []).includes(n)) {
@@ -161,14 +169,14 @@
                 <div class="line">
                   <span class="text">{{ t('format.poolCount') }}</span>
                   <div class="stepper">
-                    <button type="button" [disabled]="s.confirmed || (s.pools ?? 1) <= 1" (click)="edit(s, { pools: (s.pools ?? 1) - 1 })">−</button>
+                    <button type="button" [disabled]="(frozen || drawn) || (s.pools ?? 1) <= 1" (click)="edit(s, { pools: (s.pools ?? 1) - 1 })">−</button>
                     <span class="stepper-value">{{ s.pools }}</span>
-                    <button type="button" [disabled]="s.confirmed || (s.pools ?? 1) >= maxPools" (click)="edit(s, { pools: (s.pools ?? 1) + 1 })">+</button>
+                    <button type="button" [disabled]="(frozen || drawn) || (s.pools ?? 1) >= maxPools" (click)="edit(s, { pools: (s.pools ?? 1) + 1 })">+</button>
                   </div>
                 </div>
               }
               <span class="note">
-                @if (s.confirmed) {
+                @if (drawn) {
                   {{ t('format.poolsLocked') }}
                 } @else if (s.noSplit) {
                   {{ t('format.noSplit', { n: s.entrants }) }}
@@ -186,73 +194,75 @@
                 <button type="button" class="link" (click)="openSave('win')">{{ t('presets.saveShort') }}</button>
               }
             </div>
-            <select class="preset-select full" [attr.aria-label]="t('format.winPreset')" (change)="applyWinPreset(s, $event)">
-              <option value="">{{ t('presets.choose') }}</option>
-              @for (p of presets.offered().win ?? []; track p.id) {
-                <option [value]="p.id">{{ p.name ? p.name + ' · ' : '' }}{{ win(p.win) }}</option>
+            <fieldset class="group" [disabled]="frozen">
+              <select class="preset-select full" [attr.aria-label]="t('format.winPreset')" (change)="applyWinPreset(s, $event)">
+                <option value="">{{ t('presets.choose') }}</option>
+                @for (p of presets.offered().win ?? []; track p.id) {
+                  <option [value]="p.id">{{ p.name ? p.name + ' · ' : '' }}{{ win(p.win) }}</option>
+                }
+              </select>
+              @if (saving() === 'win') {
+                <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
+                  <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                  <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
+                  <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
+                </form>
               }
-            </select>
-            @if (saving() === 'win') {
-              <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
-                <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
-                <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
-                <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
-              </form>
-            }
-            <div class="seg">
-              <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinBySets" (click)="setWinKind(s, kinds.WinBySets)">
-                {{ t('format.bySets') }}
-              </button>
-              <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinByTime" [disabled]="!timedAllowed()" (click)="setWinKind(s, kinds.WinByTime)">
-                {{ t('format.byTime') }}
-              </button>
-            </div>
-            @if (!timedAllowed()) {
-              <span class="note warning">{{ t('format.timedNeedsOneCategory') }}</span>
-            }
-            @if (s.win.kind === kinds.WinBySets) {
-              <div class="line">
-                <span class="text">{{ t('format.setsToWinLabel') }}</span>
-                <div class="stepper">
-                  <button type="button" [disabled]="(s.win.setsToWin ?? 1) <= 1" (click)="stepWin(s, 'setsToWin', -1)">−</button>
-                  <span class="stepper-value">{{ s.win.setsToWin }}</span>
-                  <button type="button" [disabled]="(s.win.setsToWin ?? 1) >= 3" (click)="stepWin(s, 'setsToWin', 1)">+</button>
-                </div>
+              <div class="seg">
+                <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinBySets" (click)="setWinKind(s, kinds.WinBySets)">
+                  {{ t('format.bySets') }}
+                </button>
+                <button type="button" class="seg-option" [class.active]="s.win.kind === kinds.WinByTime" [disabled]="!timedAllowed()" (click)="setWinKind(s, kinds.WinByTime)">
+                  {{ t('format.byTime') }}
+                </button>
               </div>
-              <div class="block">
-                <span class="text">{{ t('format.pointsPerSet') }}</span>
-                <div class="seg seg-sm">
-                  @for (p of pointChoices; track p) {
-                    <button type="button" class="seg-option" [class.active]="s.win.pointsPerSet === p" (click)="setPoints(s, p)">{{ p }}</button>
-                  }
-                  @if (!pointChoices.includes(s.win.pointsPerSet ?? 0)) {
-                    <button type="button" class="seg-option active">{{ s.win.pointsPerSet }}</button>
-                  }
+              @if (!timedAllowed()) {
+                <span class="note warning">{{ t('format.timedNeedsOneCategory') }}</span>
+              }
+              @if (s.win.kind === kinds.WinBySets) {
+                <div class="line">
+                  <span class="text">{{ t('format.setsToWinLabel') }}</span>
+                  <div class="stepper">
+                    <button type="button" [disabled]="(s.win.setsToWin ?? 1) <= 1" (click)="stepWin(s, 'setsToWin', -1)">−</button>
+                    <span class="stepper-value">{{ s.win.setsToWin }}</span>
+                    <button type="button" [disabled]="(s.win.setsToWin ?? 1) >= 3" (click)="stepWin(s, 'setsToWin', 1)">+</button>
+                  </div>
                 </div>
-              </div>
-              <div class="line">
-                <span class="text-block">
-                  <span class="text">{{ t('format.capLabel') }}</span>
-                  <span class="note">{{ t('format.capNone') }}</span>
-                </span>
-                <div class="stepper">
-                  <button type="button" [disabled]="(s.win.cap ?? 0) <= 0" (click)="stepWin(s, 'cap', -1)">−</button>
-                  <span class="stepper-value">{{ s.win.cap ?? 0 }}</span>
-                  <button type="button" [disabled]="(s.win.cap ?? 0) >= 99" (click)="stepWin(s, 'cap', 1)">+</button>
+                <div class="block">
+                  <span class="text">{{ t('format.pointsPerSet') }}</span>
+                  <div class="seg seg-sm">
+                    @for (p of pointChoices; track p) {
+                      <button type="button" class="seg-option" [class.active]="s.win.pointsPerSet === p" (click)="setPoints(s, p)">{{ p }}</button>
+                    }
+                    @if (!pointChoices.includes(s.win.pointsPerSet ?? 0)) {
+                      <button type="button" class="seg-option active">{{ s.win.pointsPerSet }}</button>
+                    }
+                  </div>
                 </div>
-              </div>
-            } @else {
-              <span class="note">{{ t('format.timedHint') }}</span>
-              <div class="line">
-                <span class="text">{{ t('format.matchDuration') }}</span>
-                <div class="stepper">
-                  <button type="button" [disabled]="(s.win.minutes ?? 1) <= 1" (click)="stepWin(s, 'minutes', -1)">−</button>
-                  <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: s.win.minutes }) }}</span>
-                  <button type="button" [disabled]="(s.win.minutes ?? 1) >= 60" (click)="stepWin(s, 'minutes', 1)">+</button>
+                <div class="line">
+                  <span class="text-block">
+                    <span class="text">{{ t('format.capLabel') }}</span>
+                    <span class="note">{{ t('format.capNone') }}</span>
+                  </span>
+                  <div class="stepper">
+                    <button type="button" [disabled]="(s.win.cap ?? 0) <= 0" (click)="stepWin(s, 'cap', -1)">−</button>
+                    <span class="stepper-value">{{ s.win.cap ?? 0 }}</span>
+                    <button type="button" [disabled]="(s.win.cap ?? 0) >= 99" (click)="stepWin(s, 'cap', 1)">+</button>
+                  </div>
                 </div>
-              </div>
-              <span class="note">{{ t('format.goldenPoint') }}</span>
-            }
+              } @else {
+                <span class="note">{{ t('format.timedHint') }}</span>
+                <div class="line">
+                  <span class="text">{{ t('format.matchDuration') }}</span>
+                  <div class="stepper">
+                    <button type="button" [disabled]="(s.win.minutes ?? 1) <= 1" (click)="stepWin(s, 'minutes', -1)">−</button>
+                    <span class="stepper-value">{{ t('tournamentInfo.minutes', { n: s.win.minutes }) }}</span>
+                    <button type="button" [disabled]="(s.win.minutes ?? 1) >= 60" (click)="stepWin(s, 'minutes', 1)">+</button>
+                  </div>
+                </div>
+                <span class="note">{{ t('format.goldenPoint') }}</span>
+              }
+            </fieldset>
             <div class="line">
               <span class="text">{{ t('format.estimate') }}</span>
               <div class="stepper">
@@ -272,31 +282,33 @@
                   <button type="button" class="link" (click)="openSave('tiebreaks')">{{ t('presets.saveShort') }}</button>
                 }
               </div>
-              <select class="preset-select full" [attr.aria-label]="t('format.tiebreakPreset')" (change)="applyTiebreakPreset(s, $event)">
-                <option value="">{{ t('presets.choose') }}</option>
-                @for (p of presets.offered().tiebreaks ?? []; track p.id) {
-                  <option [value]="p.id">{{ tiebreakPresetLabel(p) }}</option>
+              <fieldset class="group" [disabled]="frozen">
+                <select class="preset-select full" [attr.aria-label]="t('format.tiebreakPreset')" (change)="applyTiebreakPreset(s, $event)">
+                  <option value="">{{ t('presets.choose') }}</option>
+                  @for (p of presets.offered().tiebreaks ?? []; track p.id) {
+                    <option [value]="p.id">{{ tiebreakPresetLabel(p) }}</option>
+                  }
+                </select>
+                @if (saving() === 'tiebreaks') {
+                  <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
+                    <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
+                    <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
+                    <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
+                  </form>
                 }
-              </select>
-              @if (saving() === 'tiebreaks') {
-                <form class="save-inline" (submit)="$event.preventDefault(); savePreset(s)">
-                  <input class="input" maxlength="60" [attr.aria-label]="t('presets.name')" [placeholder]="t('presets.name')" [value]="presetName()" (input)="presetName.set(value($event))" />
-                  <button type="submit" class="btn btn-xs btn-primary" [disabled]="!presetName().trim()">{{ t('presets.save') }}</button>
-                  <button type="button" class="btn btn-xs" (click)="saving.set(null)">×</button>
-                </form>
-              }
-              @for (tb of tiebreaks(s); track tb; let i = $index, first = $first, last = $last) {
-                <div class="tiebreak">
-                  <span class="tb-rank">{{ i + 1 }}</span>
-                  <span class="tb-name">{{ t('tiebreak.' + tb) }}</span>
-                  <button type="button" class="tb-move" [disabled]="first" (click)="moveTiebreak(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
-                  <button type="button" class="tb-move" [disabled]="last" (click)="moveTiebreak(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
-                </div>
-              }
+                @for (tb of tiebreaks(s); track tb; let i = $index, first = $first, last = $last) {
+                  <div class="tiebreak">
+                    <span class="tb-rank">{{ i + 1 }}</span>
+                    <span class="tb-name">{{ t('tiebreak.' + tb) }}</span>
+                    <button type="button" class="tb-move" [disabled]="first" (click)="moveTiebreak(s, i, -1)" [attr.aria-label]="t('format.moveUp')">↑</button>
+                    <button type="button" class="tb-move" [disabled]="last" (click)="moveTiebreak(s, i, 1)" [attr.aria-label]="t('format.moveDown')">↓</button>
+                  </div>
+                }
+              </fieldset>
               <span class="note">{{ t('format.tiebreaksHint') }}</span>
             </div>
 
-            <div class="section">
+            <fieldset class="section group" [disabled]="frozen">
               <span class="field-label">{{ t('format.crossPool') }}</span>
               <div class="seg seg-sm">
                 <button type="button" class="seg-option" [class.active]="s.crossPool !== crossPools.CrossPoolSameMatches" (click)="edit(s, { crossPool: crossPools.CrossPoolRaw })">
@@ -307,15 +319,15 @@
                 </button>
               </div>
               <span class="note">{{ t(s.crossPool === crossPools.CrossPoolSameMatches ? 'format.crossSameHint' : 'format.crossRawHint') }}</span>
-            </div>
+            </fieldset>
           } @else {
             <div class="section">
               <span class="field-label">{{ t('format.placement') }}</span>
               <div class="seg">
-                <button type="button" class="seg-option" [class.active]="s.fullPlacement" [disabled]="s.started" (click)="edit(s, { fullPlacement: true })">
+                <button type="button" class="seg-option" [class.active]="s.fullPlacement" [disabled]="frozen" (click)="edit(s, { fullPlacement: true })">
                   {{ t('format.fullPlacement') }}
                 </button>
-                <button type="button" class="seg-option" [class.active]="!s.fullPlacement" [disabled]="s.started" (click)="edit(s, { fullPlacement: false })">
+                <button type="button" class="seg-option" [class.active]="!s.fullPlacement" [disabled]="frozen" (click)="edit(s, { fullPlacement: false })">
                   {{ t('format.tiedByRound') }}
                 </button>
               </div>
@@ -402,7 +414,7 @@
           </div>
 
           @if (stages().length > 1 && !readonly()) {
-            <button type="button" class="btn btn-sm btn-danger remove" [disabled]="s.filled" (click)="removed.emit(s.id)">
+            <button type="button" class="btn btn-sm btn-danger remove" [disabled]="frozen || (s.entry && s.filled)" (click)="removed.emit(s.id)">
               {{ t('format.removeStage') }}
             </button>
           }

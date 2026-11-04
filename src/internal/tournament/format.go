@@ -54,9 +54,12 @@ type StageConfig struct {
 }
 
 // FormatSet is the payload of TypeFormatSet: the whole format of a category.
+// Emptied lists the later stages the change empties (filled, not started,
+// with another kind, size or feeding rules): the desk fills them again.
 type FormatSet struct {
 	Category engine.Category `json:"category"`
 	Stages   []StageConfig   `json:"stages"`
+	Emptied  []string        `json:"emptied,omitempty"`
 }
 
 // Stage is a stage of a category and how far it went.
@@ -227,19 +230,15 @@ func (s State) AddStage(c engine.Category, kind StageKind) (Change, error) {
 	return s.formatChange(c, append(stages, st))
 }
 
-// RemoveStage removes a stage that has no entrants yet. Routing to it is
-// cleared. The last stage of a format cannot be removed.
+// RemoveStage removes a stage that has not started. Routing to it is
+// cleared; the stages it filled are emptied. The last stage of a format
+// cannot be removed.
 func (s State) RemoveStage(c engine.Category, id string) (Change, error) {
-	st := s.stage(c, id)
 	switch {
-	case st == nil:
+	case s.stage(c, id) == nil:
 		return Change{}, engine.NewError(engine.CodeStageNotFound)
 	case len(s.formats[c]) == 1:
 		return Change{}, engine.NewError(engine.CodeInvalidFormat)
-	case s.FormatLocked(c):
-		return Change{}, engine.NewError(engine.CodeFormatLocked)
-	case st.Filled():
-		return Change{}, engine.NewError(engine.CodeStageFilled)
 	}
 	var stages []StageConfig
 	for _, cfg := range s.StageConfigs(c) {
@@ -293,11 +292,12 @@ func renumberFormat(stages []StageConfig) ([]StageConfig, error) {
 	return renumbered, nil
 }
 
-// formatChange validates a new format against the current one.
+// formatChange validates a new format against the current one. Each stage
+// is locked on its own: a started stage keeps everything but its name,
+// routing and estimate; a later stage filled but not started is emptied when
+// its kind, its size or the rules feeding it change, and so are the filled
+// stages it feeds.
 func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, error) {
-	if s.FormatLocked(c) {
-		return Change{}, engine.NewError(engine.CodeFormatLocked)
-	}
 	stages = slices.Clone(stages)
 	position := map[string]int{}
 	for i, st := range stages {
@@ -320,39 +320,76 @@ func (s State) formatChange(c engine.Category, stages []StageConfig) (Change, er
 		stages[i] = st
 	}
 
-	// What already happened constrains the change.
+	// What already happened constrains the change. Sources come before the
+	// stages they feed: one pass carries an emptied stage to its targets.
+	var emptied []string
+	entry := s.entry(c)
 	for _, cur := range s.formats[c] {
 		i := position[cur.ID] - 1
+		started := s.stageStarted(c, cur.ID)
 		if i < 0 {
-			if cur.Filled() {
+			switch {
+			case started:
+				return Change{}, engine.NewError(engine.CodeStageStarted)
+			case cur == entry && cur.Filled():
 				return Change{}, engine.NewError(engine.CodeStageFilled)
 			}
 			continue
 		}
 		next := stages[i]
-		started := s.stageStarted(c, cur.ID)
+		reshaped := next.Kind != cur.Kind || (next.Kind == StagePools &&
+			(next.Pools != cur.Pools || !slices.Equal(next.PoolSizes, cur.PoolSizes)))
 		switch {
-		case cur.Filled() && next.Kind != cur.Kind:
-			return Change{}, engine.NewError(engine.CodeStageFilled)
-		case cur.Confirmed && next.Kind == StagePools && (next.Pools != cur.Pools || !slices.Equal(next.PoolSizes, cur.PoolSizes)):
-			return Change{}, engine.NewError(engine.CodeDrawConfirmed)
-		case started && next.FullPlacement != cur.FullPlacement:
-			return Change{}, engine.NewError(engine.CodeBracketStarted)
-		}
-		// Ranks feeding a filled stage are settled.
-		for _, other := range s.formats[c] {
-			if other == cur || !other.Filled() {
-				continue
-			}
-			if !slices.EqualFunc(rulesTo(cur.Routing, other.ID), rulesTo(next.Routing, other.ID), ruleEqual) {
+		case started && !sameShape(cur.StageConfig, next):
+			return Change{}, engine.NewError(engine.CodeStageStarted)
+		case cur == entry:
+			// The draw fills the entry stage: it is reopened, never emptied here.
+			switch {
+			case cur.Filled() && next.Kind != cur.Kind:
 				return Change{}, engine.NewError(engine.CodeStageFilled)
+			case cur.Confirmed && reshaped:
+				return Change{}, engine.NewError(engine.CodeDrawConfirmed)
 			}
+			continue
+		case !cur.Filled():
+			continue
+		}
+		if reshaped || s.feedChanged(c, cur.ID, stages, position, emptied) {
+			if started {
+				return Change{}, engine.NewError(engine.CodeStageStarted)
+			}
+			emptied = append(emptied, cur.ID)
 		}
 	}
-	if slices.EqualFunc(stages, s.StageConfigs(c), configEqual) {
+	if emptied == nil && slices.EqualFunc(stages, s.StageConfigs(c), configEqual) {
 		return Change{}, nil
 	}
-	return Change{TypeFormatSet, FormatSet{Category: c, Stages: stages}}, nil
+	return Change{TypeFormatSet, FormatSet{Category: c, Stages: stages, Emptied: emptied}}, nil
+}
+
+// feedChanged reports whether what feeds a filled stage changes: a rule
+// sending entrants to it, or a source removed or emptied.
+func (s State) feedChanged(c engine.Category, id string, stages []StageConfig, position map[string]int, emptied []string) bool {
+	for _, src := range s.formats[c] {
+		rules := rulesTo(src.Routing, id)
+		var next []RouteRule
+		if i := position[src.ID] - 1; i >= 0 {
+			next = rulesTo(stages[i].Routing, id)
+		}
+		if !slices.EqualFunc(rules, next, ruleEqual) || (len(rules) > 0 && slices.Contains(emptied, src.ID)) {
+			return true
+		}
+	}
+	return false
+}
+
+// sameShape reports whether a started stage keeps what its matches and
+// results depend on: everything but its name, routing and estimate.
+func sameShape(a, b StageConfig) bool {
+	a.Name, b.Name = "", ""
+	a.Routing, b.Routing = nil, nil
+	a.Win.Estimate, b.Win.Estimate = 0, 0
+	return configEqual(a, b)
 }
 
 // hasTimedStage reports whether a category plays timed matches. A default
@@ -372,13 +409,9 @@ func (s State) hasTimedStage() bool {
 	return false
 }
 
-// stageStarted reports whether a match of the stage was called or decided on
-// court (byes do not count).
-// FormatLocked reports whether a match of the category was called or
-// scored: its format can no longer change.
-func (s State) FormatLocked(c engine.Category) bool {
-	return slices.ContainsFunc(s.formats[c], func(st *Stage) bool { return s.stageStarted(c, st.ID) })
-}
+// StageStarted reports whether a match of the stage was called or scored
+// (byes do not count): the stage keeps its shape.
+func (s State) StageStarted(c engine.Category, id string) bool { return s.stageStarted(c, id) }
 
 func (s State) stageStarted(c engine.Category, id string) bool {
 	return slices.ContainsFunc(s.matches, func(m Match) bool {
@@ -431,10 +464,13 @@ func (s *State) applyFormatSet(p FormatSet) {
 			regenerate = prev.Confirmed && prev.FullPlacement != cfg.FullPlacement
 			delete(old, cfg.ID)
 			st.Groups, st.Confirmed, st.ConfirmedAt = prev.Groups, prev.Confirmed, prev.ConfirmedAt
-			// A draft draw no longer matching the stage is dropped.
-			if prev.Kind != cfg.Kind || (!prev.Confirmed && cfg.Kind == StagePools &&
+			// A draft draw no longer matching the stage is dropped, and so is
+			// a later stage the change empties: the desk fills it again.
+			if slices.Contains(p.Emptied, cfg.ID) || prev.Kind != cfg.Kind || (!prev.Confirmed && cfg.Kind == StagePools &&
 				(prev.Pools != cfg.Pools || !slices.Equal(prev.PoolSizes, cfg.PoolSizes))) {
-				st.Groups, st.Confirmed = nil, false
+				st.Groups, st.Confirmed, st.ConfirmedAt = nil, false, time.Time{}
+				regenerate = false
+				s.dropStageMatches(p.Category, cfg.ID)
 			}
 		}
 		var n int

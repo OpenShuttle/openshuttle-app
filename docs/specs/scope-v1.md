@@ -118,8 +118,15 @@ condition, and advancement rules send entrants to a later stage by rank
   Built-in presets are read-only (duplicate them to change them) and every
   preset can be disabled so tournaments no longer offer it. The settings
   choose the default format, win condition and tiebreak order.
-- **The format is locked** as soon as a match of the category is called or
-  scored.
+- **Each stage locks on its own** ([ADR 9](../adr/0009-per-stage-format-lock.md)):
+  once a match of a stage is called or scored, its kind, size, win
+  condition and tiebreaks are fixed; its name, its routing and the
+  estimated duration still change. A later stage not started can still
+  change: after forfeits or when running late, the desk shortens the final
+  bracket (one set instead of two), turns it into pools, or adds and
+  removes stages while the pools are played. Reshaping a later stage
+  already filled (kind, size, ranks feeding it) empties it in the same
+  undoable action; the desk fills it again.
 
 ## Business rules
 

@@ -336,11 +336,6 @@ export interface FormatCategory {
      * filled show their actual groups whatever the base.
      */
     "previews": FormatPreviewView[] | null;
-
-    /**
-     * Locked: a match was called or scored, the format no longer changes.
-     */
-    "locked": boolean;
 }
 
 /**

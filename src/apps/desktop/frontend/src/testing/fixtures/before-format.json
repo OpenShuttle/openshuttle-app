@@ -377,8 +377,7 @@
           "ranked": 6,
           "ties": false
         }
-      ],
-      "locked": false
+      ]
     },
     {
       "category": "WD",
@@ -754,8 +753,7 @@
           "ranked": 6,
           "ties": true
         }
-      ],
-      "locked": false
+      ]
     }
   ]
 }

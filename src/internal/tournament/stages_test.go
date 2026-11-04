@@ -209,14 +209,13 @@ func TestBracketFullPlacement(t *testing.T) {
 	})
 	g.fails(engine.CodeBracketStarted, func(s State) (Change, error) { return s.FillStage(engine.MensSingles, main) })
 	g.fails(engine.CodeBracketStarted, func(s State) (Change, error) { return s.SwapSlots(engine.MensSingles, main, 0, 1) })
-	// Matches started: the format is locked.
-	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) {
+	// The bracket started: what feeds it and the stage itself stay.
+	g.fails(engine.CodeStageStarted, func(s State) (Change, error) {
 		stages := s.StageConfigs(engine.MensSingles)
 		stages[0].Routing = RanksRules(main)
 		return s.SetFormat(engine.MensSingles, stages)
 	})
-	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, main) })
-	g.fails(engine.CodeFormatLocked, func(s State) (Change, error) { return s.AddStage(engine.MensSingles, StagePools) })
+	g.fails(engine.CodeStageStarted, func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, main) })
 
 	g.win(final.ID, engine.SideB)
 	g.win(third.ID, engine.SideA)

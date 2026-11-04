@@ -99,9 +99,11 @@ export enum Code {
     CodeBracketIsFinal = "BRACKET_IS_FINAL",
 
     /**
-     * CodeFormatLocked: a match of the category started, its format is fixed.
+     * CodeStageStarted: a match of the stage was called or scored, only its
+     * name, routing and estimate change (the routing as long as the stages it
+     * feeds are not filled).
      */
-    CodeFormatLocked = "FORMAT_LOCKED",
+    CodeStageStarted = "STAGE_STARTED",
     CodeClubNotFound = "CLUB_NOT_FOUND",
     CodeAlreadyEntered = "ALREADY_ENTERED",
     CodeInvalidFile = "INVALID_FILE",

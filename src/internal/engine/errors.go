@@ -67,8 +67,10 @@ const (
 	// CodeBracketIsFinal: a bracket routes nobody on, and a new stage needs a
 	// pools stage to feed it.
 	CodeBracketIsFinal Code = "BRACKET_IS_FINAL"
-	// CodeFormatLocked: a match of the category started, its format is fixed.
-	CodeFormatLocked   Code = "FORMAT_LOCKED"
+	// CodeStageStarted: a match of the stage was called or scored, only its
+	// name, routing and estimate change (the routing as long as the stages it
+	// feeds are not filled).
+	CodeStageStarted   Code = "STAGE_STARTED"
 	CodeClubNotFound   Code = "CLUB_NOT_FOUND"
 	CodeAlreadyEntered Code = "ALREADY_ENTERED"
 	CodeInvalidFile    Code = "INVALID_FILE"

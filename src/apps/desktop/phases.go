@@ -139,7 +139,7 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 	side := sideViewer(st)
 	sp := StagePhase{
 		StageConfig: stage.StageConfig, Phase: st.Phase(c, stage.ID), Entry: entry,
-		Confirmed: stage.Confirmed, Started: stageStarted(st, c, stage.ID), Complete: st.StageComplete(c, stage.ID),
+		Confirmed: stage.Confirmed, Started: st.StageStarted(c, stage.ID), Complete: st.StageComplete(c, stage.ID),
 		Pools: []PoolPhase{}, Slots: []SideView{}, Rounds: []RoundView{}, Places: []PlaceView{},
 	}
 	if sp.Routing == nil {

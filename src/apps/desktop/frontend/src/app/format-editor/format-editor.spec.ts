@@ -18,8 +18,8 @@ describe('FormatEditor', () => {
       .on('PresetService.EstimateMinutes', 22);
   });
 
-  async function editor(readonly = false) {
-    const f = await render(FormatEditor, { inputs: { stages, entrants: 12, courts: 4, ranked: 12, readonly } });
+  async function editor(readonly = false, of: StageView[] = stages) {
+    const f = await render(FormatEditor, { inputs: { stages: of, entrants: 12, courts: 4, ranked: 12, readonly } });
     const changes: StageConfig[][] = [];
     f.componentInstance.changed.subscribe((c) => changes.push(c));
     return { f, changes };
@@ -45,6 +45,20 @@ describe('FormatEditor', () => {
     }
     expect(changes.length).toBeGreaterThan(10);
     expect(text(f)).toContain('Tableau principal');
+  });
+
+  it('warns that reshaping a filled later stage empties it', async () => {
+    const filled = stages.map((s) => (s.entry ? s : { ...s, filled: true, confirmed: true }));
+    const { f, changes } = await editor(false, filled);
+    const later = [...f.nativeElement.querySelectorAll('.node:not(.output)')][1] as HTMLElement;
+    later.click();
+    f.detectChanges();
+    expect(text(f)).toContain('empties it');
+    // Its kind can still change: the desk fills it again.
+    const kinds = [...f.nativeElement.querySelectorAll('.panel-body .seg')][0].querySelectorAll('button:enabled');
+    expect(kinds.length).toBe(2);
+    await clickAll(f, ['Pools']);
+    expect(changes.length).toBeGreaterThan(0);
   });
 
   it('shows a built-in format without editing it', async () => {

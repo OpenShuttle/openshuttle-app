@@ -20,7 +20,6 @@
       [ties]="preview()?.ties ?? false"
       [entrants]="preview()?.entrants ?? 0"
       [courts]="tournament.view().courts"
-      [readonly]="fc.locked"
       (changed)="change($event)"
       (added)="add($event)"
       (removed)="remove($event)"
@@ -60,29 +59,25 @@
           </div>
         }
         <div class="toolbar-actions">
-          @if (fc.locked) {
-            <span class="pill pill-muted" [attr.title]="t('format.lockedHint')">{{
-              t('format.locked')
-            }}</span>
-          } @else {
-            <button
-              type="button"
-              class="btn btn-sm"
-              [disabled]="!canAdd()"
-              [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
-              (click)="add(stageKinds.StagePools)"
-            >
-              + {{ t('format.addPools') }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm"
-              [disabled]="!canAdd()"
-              [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
-              (click)="add(stageKinds.StageBracket)"
-            >
-              + {{ t('format.addBracket') }}
-            </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [disabled]="!canAdd()"
+            [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
+            (click)="add(stageKinds.StagePools)"
+          >
+            + {{ t('format.addPools') }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [disabled]="!canAdd()"
+            [attr.title]="canAdd() ? null : t('format.addNeedsPools')"
+            (click)="add(stageKinds.StageBracket)"
+          >
+            + {{ t('format.addBracket') }}
+          </button>
+          @if (!preview()?.stages?.[0]?.confirmed) {
             <select
               class="preset-select"
               [attr.aria-label]="t('format.applyPreset')"
