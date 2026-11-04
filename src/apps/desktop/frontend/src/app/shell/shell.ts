@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
-import { System, Window } from '@wailsio/runtime';
+import { Events, System, Window } from '@wailsio/runtime';
 
 import { DisplayScreenService } from '../core/display-screen.service';
 import { openGuide } from '../core/guide';
@@ -72,6 +72,11 @@ export class Shell implements OnInit {
     window.addEventListener('resize', refreshMaximised);
     inject(DestroyRef).onDestroy(() => window.removeEventListener('resize', refreshMaximised));
 
+    // A file opened from outside (a double-click on it) arrives with the
+    // window or later (macOS hands it to the running app).
+    const off = Events.On('tournament.launched', () => void this.takeLaunch());
+    inject(DestroyRef).onDestroy(off);
+
     // Closing the tournament leaves its screens.
     effect(() => {
       if (!this.view().open && this.url().startsWith('/tournament')) {
@@ -83,6 +88,17 @@ export class Shell implements OnInit {
   ngOnInit(): void {
     void this.display.refresh();
     void this.tournament.refresh();
+    void this.takeLaunch();
+  }
+
+  /** Shows the tournament opened from outside, or the error on the home screen. */
+  private async takeLaunch(): Promise<void> {
+    const opened = await this.tournament.takeLaunch();
+    if (opened === false) {
+      await this.router.navigateByUrl('/');
+    } else if (opened && !this.url().startsWith('/tournament')) {
+      await this.router.navigateByUrl('/tournament');
+    }
   }
 
   protected guide(): void {

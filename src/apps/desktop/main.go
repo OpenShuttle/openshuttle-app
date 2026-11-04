@@ -4,14 +4,17 @@ import (
 	"context"
 	"embed"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 
+	"github.com/OpenShuttle/openshuttle-app/src/internal/instances"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
 )
 
@@ -25,12 +28,22 @@ const EventTournamentUpdated = "tournament.updated"
 
 func init() {
 	application.RegisterEvent[uint64](EventTournamentUpdated)
+	application.RegisterEvent[string](EventTournamentLaunched)
 	application.RegisterEvent[bool](EventDisplayScreenChanged)
 	application.RegisterEvent[Settings](EventSettingsChanged)
 	application.RegisterEvent[Presets](EventPresetsChanged)
 }
 
 func main() {
+	// A double-click on a tournament file (Windows, Linux) passes its path.
+	// When another instance holds it, that one comes to the front and this
+	// process, started only for it, leaves before showing anything.
+	rendezvous := instances.Default()
+	launch := launchPath(os.Args[1:])
+	if launch != "" && rendezvous.Raise(launch) {
+		return
+	}
+
 	dataDir, err := appDataDir()
 	if err != nil {
 		log.Fatal(err)
@@ -50,6 +63,24 @@ func main() {
 	tournaments := NewTournamentService(appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{})
 	// The open tournament follows the club list and the club display setting.
 	emitClubs := tournaments.followClubs(emit)
+	// Another instance asking for the file open here brings the main window
+	// to the front, once the app runs.
+	var front atomic.Pointer[application.WebviewWindow]
+	tournaments.holder = socketHolder{rendezvous: rendezvous, raise: func() {
+		if w := front.Load(); w != nil {
+			slog.Info("brought to the front by another instance")
+			application.InvokeAsync(func() {
+				w.UnMinimise()
+				w.Show()
+				w.Focus()
+			})
+		}
+	}}
+	if launch != "" {
+		// Opened before the window: it shows the tournament, or the error on
+		// the home screen (TakeLaunchResult).
+		tournaments.openLaunchFile(context.Background(), launch)
+	}
 
 	app := application.New(application.Options{
 		Name:        "OpenShuttle",
@@ -88,6 +119,15 @@ func main() {
 			TitleBar:                application.MacTitleBarHiddenInset,
 			InvisibleTitleBarHeight: 48,
 		},
+	})
+	app.Event.OnApplicationEvent(events.Common.ApplicationStarted, func(*application.ApplicationEvent) {
+		front.Store(mainWindow)
+	})
+	// macOS hands files to the running app instead of the command line.
+	app.Event.OnApplicationEvent(events.Common.ApplicationOpenedWithFile, func(e *application.ApplicationEvent) {
+		if path := e.Context().Filename(); path != "" {
+			go tournaments.openLaunchFile(context.Background(), path)
+		}
 	})
 	// Closing the control desk quits the app, display screen included.
 	mainWindow.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {

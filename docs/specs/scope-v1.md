@@ -278,9 +278,15 @@ A tournament goes through six steps.
 - **Several windows**: the app can be started more than once, each instance
   with its own tournament, side by side. A tournament file is open in one
   instance at a time: opening it in another one is refused with a message
-  ("This tournament is already open in another OpenShuttle window"), and its
-  file cannot be deleted from the trash there. Duplicating it stays possible.
-  A crash or a power cut never leaves a file locked.
+  ("This tournament is already open in another OpenShuttle window") and the
+  window holding it comes to the front; its file cannot be deleted from the
+  trash there. Duplicating it stays possible. A crash or a power cut never
+  leaves a file locked.
+- **Double-click on a tournament file** (Windows, macOS, Linux): the app
+  starts and opens it, as "Open a file" does; an error (file gone, too old)
+  shows on the home screen. When the file is already open in a window, that
+  window comes to the front and no new one starts. On macOS, the running app
+  receives the file and opens it in place of the current one.
 - **Inside a tournament**, a side navigation following the steps in two
   groups: Preparation (Info, Entrants, Format) then On the day (Check-in,
   Draw, Schedule, Control desk, Stages, Results). The current step stands out,

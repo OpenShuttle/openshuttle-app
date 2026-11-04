@@ -67,4 +67,28 @@ describe('Shell', () => {
     expect(guide.getAttribute('aria-label')).toContain('Guide');
     guide.click();
   });
+
+  it('opens the tournament of a file given at launch', async () => {
+    go.on('TournamentService.TakeLaunchResult', { path: tournament.path, error: null });
+    const f = await render(Shell);
+    await settle(f);
+    expect(TestBed.inject(Router).url).toBe('/tournament');
+    expect(go.argsOf('TournamentService.TakeLaunchResult')).toHaveLength(1);
+  });
+
+  it('shows on the home screen why a file given at launch was refused', async () => {
+    const f = await inTournament();
+    go.on('TournamentService.TakeLaunchResult', { path: '/club/open.openshuttle', error: { code: 'FILE_IN_USE' } });
+    go.emit('tournament.launched', '/club/open.openshuttle');
+    await settle(f);
+    expect(TestBed.inject(Router).url).toBe('/');
+    expect(text(f)).toContain('already open in another OpenShuttle window');
+  });
+
+  it('stays where it is when nothing was given at launch', async () => {
+    const f = await inTournament();
+    go.emit('tournament.launched', '');
+    await settle(f);
+    expect(TestBed.inject(Router).url).toBe('/tournament/desk');
+  });
 });

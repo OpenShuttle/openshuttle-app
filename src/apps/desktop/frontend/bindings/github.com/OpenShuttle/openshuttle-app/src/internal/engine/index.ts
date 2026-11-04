@@ -11,6 +11,7 @@ export {
 
 export type {
     EntrantID,
+    Error,
     Score,
     SetScore,
     WinCondition

@@ -53,6 +53,11 @@ func (s *TournamentService) closeLocked() {
 		close(s.stopBackups)
 		s.stopBackups = nil
 	}
+	if s.release != nil {
+		// No longer answers for the file before its lock goes.
+		s.release()
+		s.release = nil
+	}
 	if s.file != nil {
 		ctx := context.Background()
 		s.backupLocked(ctx)

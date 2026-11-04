@@ -24,6 +24,11 @@ export const PresetsChanged = "presets.changed";
 export const SettingsChanged = "settings.changed";
 
 /**
+ * Name of the custom event "tournament.launched".
+ */
+export const TournamentLaunched = "tournament.launched";
+
+/**
  * Name of the custom event "tournament.updated".
  */
 export const TournamentUpdated = "tournament.updated";
