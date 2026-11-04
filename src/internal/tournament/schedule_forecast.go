@@ -95,8 +95,11 @@ func (s State) forecast(start, now time.Time) Schedule {
 	return out
 }
 
-// orderedItems lists the matches to place: the waiting matches in schedule
-// order, then the stand-ins of stages not filled yet, in block order.
+// orderedItems lists the matches to place. While the order is made of
+// blocks, every match follows its block, stand-ins of stages not filled yet
+// included: a bracket round ordered before a pool round is placed before
+// it. Once the schedule is validated, the waiting matches follow the frozen
+// order and the stand-ins join the end, in block order.
 func (s State) orderedItems() []forecast.Item {
 	all := s.scheduleItems()
 	byMatch := map[MatchID]forecast.Item{}
@@ -117,8 +120,22 @@ func (s State) orderedItems() []forecast.Item {
 	for i, b := range s.blockOrder() {
 		rank[b.Key] = i
 	}
-	slices.SortStableFunc(stand, func(a, b forecast.Item) int { return rank[a.Key] - rank[b.Key] })
+	byBlock := func(a, b forecast.Item) int { return blockRank(rank, a.Key) - blockRank(rank, b.Key) }
+	if s.scheduleFrozenAt.IsZero() {
+		out = append(out, stand...)
+		slices.SortStableFunc(out, byBlock)
+		return out
+	}
+	slices.SortStableFunc(stand, byBlock)
 	return append(out, stand...)
+}
+
+// blockRank is a block's place in the order; a block not listed goes last.
+func blockRank(rank map[string]int, key string) int {
+	if r, ok := rank[key]; ok {
+		return r
+	}
+	return len(rank)
 }
 
 // scheduleItems lists the matches left: waiting matches of filled stages,

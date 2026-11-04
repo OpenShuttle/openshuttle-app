@@ -321,3 +321,42 @@ func TestStandInBlocks(t *testing.T) {
 		t.Errorf("blocks once filled = %v", b)
 	}
 }
+
+// A stand-in round (a bracket not filled yet) ordered before pool rounds of
+// the other category is placed before them, not after every known match.
+func TestStandInsFollowTheBlockOrder(t *testing.T) {
+	g := newGame(t, engine.MensSingles, engine.WomensSingles)
+	g.do(func(s State) (Change, error) { return s.SetCourts(2) })
+	g.confirmedPools(engine.MensSingles, 1, 6)
+	g.confirmedPools(engine.WomensSingles, 1, 4)
+	main := g.addStage(engine.WomensSingles, StageBracket, "Main", true)
+	g.route(engine.WomensSingles, "S1", main, main)
+	final := "WS/" + main + "/R1"
+	if !slices.Contains(g.state().ScheduleBlocks(), final) {
+		t.Fatalf("blocks = %v", g.state().ScheduleBlocks())
+	}
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock(final, "MS/S1/A/4") })
+
+	// The final starts as soon as the women's pools are over, on the first
+	// court free then, before the men's round 4 matches still waiting: a
+	// court free earlier takes a men's match rather than idling.
+	var poolsEnd time.Time
+	var fin ScheduleSlot
+	slots := g.state().Schedule(t0).Slots
+	for _, sl := range slots {
+		if sl.Key == final {
+			fin = sl
+		} else if sl.Category == engine.WomensSingles {
+			poolsEnd = later(poolsEnd, sl.End)
+		}
+	}
+	early := slices.ContainsFunc(slots, func(sl ScheduleSlot) bool {
+		return sl.Key == "MS/S1/A/4" && sl.Start.Equal(fin.Start) && sl.Court < fin.Court
+	})
+	if fin.Key == "" || !fin.Start.Equal(poolsEnd) || early {
+		for _, sl := range slots {
+			t.Logf("%s court %d %s", sl.Start.Format("15:04"), sl.Court, sl.Key)
+		}
+		t.Errorf("final = %+v, women's pools end at %v", fin, poolsEnd)
+	}
+}

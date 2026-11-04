@@ -3090,7 +3090,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 1,
+                  "court": 3,
                   "calledAt": "2026-10-17T10:44:02Z",
                   "endedAt": "2026-10-17T11:15:05Z",
                   "score": {
@@ -3163,7 +3163,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 1,
+                  "court": 3,
                   "calledAt": "2026-10-17T11:18:12Z",
                   "endedAt": "2026-10-17T11:49:16Z",
                   "score": {
@@ -3232,7 +3232,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 2,
+                  "court": 4,
                   "calledAt": "2026-10-17T11:18:13Z",
                   "endedAt": "2026-10-17T11:49:18Z",
                   "score": {
@@ -3423,7 +3423,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 2,
+                  "court": 4,
                   "calledAt": "2026-10-17T10:44:03Z",
                   "endedAt": "2026-10-17T11:15:07Z",
                   "score": {
@@ -3492,7 +3492,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 3,
+                  "court": 5,
                   "calledAt": "2026-10-17T10:44:04Z",
                   "endedAt": "2026-10-17T11:15:09Z",
                   "score": {
@@ -3561,7 +3561,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 3,
+                  "court": 5,
                   "calledAt": "2026-10-17T11:18:14Z",
                   "endedAt": "2026-10-17T11:49:20Z",
                   "score": {
@@ -3630,7 +3630,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 4,
+                  "court": 6,
                   "calledAt": "2026-10-17T11:18:15Z",
                   "endedAt": "2026-10-17T11:49:22Z",
                   "score": {
@@ -3699,7 +3699,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 1,
+                  "court": 3,
                   "calledAt": "2026-10-17T11:52:25Z",
                   "endedAt": "2026-10-17T12:23:27Z",
                   "score": {
@@ -3768,7 +3768,7 @@
                     ],
                     "withdrawn": false
                   },
-                  "court": 2,
+                  "court": 4,
                   "calledAt": "2026-10-17T11:52:26Z",
                   "endedAt": "2026-10-17T12:23:29Z",
                   "score": {
