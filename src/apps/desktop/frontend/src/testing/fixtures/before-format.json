@@ -4,259 +4,757 @@
       "category": "MD",
       "slot": 1,
       "timedAllowed": false,
-      "registered": 13,
-      "present": 6,
-      "stages": [
+      "previews": [
         {
-          "id": "S1",
-          "name": "",
-          "kind": "pools",
-          "win": {
-            "kind": "sets",
-            "setsToWin": 2,
-            "pointsPerSet": 15,
-            "cap": 21
-          },
-          "pools": 3,
-          "tiebreaks": [
-            "wins",
-            "headToHead",
-            "setDifference",
-            "pointDifference",
-            "draw"
-          ],
-          "crossPool": "sameMatches",
-          "routing": [
+          "base": "paired",
+          "entrants": 12,
+          "stages": [
             {
-              "kind": "ranks",
-              "to": "S2",
-              "ranks": [
-                1,
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 3,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [
+                2,
+                2,
                 2
-              ]
-            }
-          ],
-          "phase": 1,
-          "estimate": 22,
-          "entrants": 6,
-          "sizes": [
-            2,
-            2,
-            2
-          ],
-          "noSplit": false,
-          "byes": 0,
-          "matches": 3,
-          "rounds": 1,
-          "ranks": [
-            {
-              "rank": 1,
-              "count": 3
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 3,
+              "rounds": 1,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 3
+                },
+                {
+                  "rank": 2,
+                  "count": 3
+                }
+              ],
+              "rules": [
+                6
+              ],
+              "kept": 0,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "entry": true,
+              "filled": true,
+              "confirmed": false,
+              "started": false
             },
             {
-              "rank": 2,
-              "count": 3
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 2,
+              "matches": 7,
+              "rounds": 3,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                },
+                {
+                  "rank": 5,
+                  "count": 1
+                },
+                {
+                  "rank": 6,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 6,
+              "placeFrom": 1,
+              "placeTo": 6,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
             }
           ],
-          "rules": [
-            6
-          ],
-          "kept": 0,
-          "placeFrom": 0,
-          "placeTo": 0,
-          "entry": true,
-          "filled": true,
-          "confirmed": false,
-          "started": false
+          "ranked": 6,
+          "ties": false
         },
         {
-          "id": "S2",
-          "name": "Tableau principal",
-          "kind": "bracket",
-          "win": {
-            "kind": "sets",
-            "setsToWin": 2,
-            "pointsPerSet": 15,
-            "cap": 21
-          },
-          "fullPlacement": true,
-          "phase": 2,
-          "estimate": 22,
-          "entrants": 6,
-          "sizes": [],
-          "noSplit": false,
-          "byes": 2,
-          "matches": 7,
-          "rounds": 3,
-          "ranks": [
+          "base": "registered",
+          "entrants": 13,
+          "stages": [
             {
-              "rank": 1,
-              "count": 1
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 3,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [
+                2,
+                2,
+                2
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 3,
+              "rounds": 1,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 3
+                },
+                {
+                  "rank": 2,
+                  "count": 3
+                }
+              ],
+              "rules": [
+                6
+              ],
+              "kept": 0,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "entry": true,
+              "filled": true,
+              "confirmed": false,
+              "started": false
             },
             {
-              "rank": 2,
-              "count": 1
-            },
-            {
-              "rank": 3,
-              "count": 1
-            },
-            {
-              "rank": 4,
-              "count": 1
-            },
-            {
-              "rank": 5,
-              "count": 1
-            },
-            {
-              "rank": 6,
-              "count": 1
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 2,
+              "matches": 7,
+              "rounds": 3,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                },
+                {
+                  "rank": 5,
+                  "count": 1
+                },
+                {
+                  "rank": 6,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 6,
+              "placeFrom": 1,
+              "placeTo": 6,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
             }
           ],
-          "rules": [],
-          "kept": 6,
-          "placeFrom": 1,
-          "placeTo": 6,
-          "entry": false,
-          "filled": false,
-          "confirmed": false,
-          "started": false
+          "ranked": 6,
+          "ties": false
+        },
+        {
+          "base": "present",
+          "entrants": 6,
+          "stages": [
+            {
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 3,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [
+                2,
+                2,
+                2
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 3,
+              "rounds": 1,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 3
+                },
+                {
+                  "rank": 2,
+                  "count": 3
+                }
+              ],
+              "rules": [
+                6
+              ],
+              "kept": 0,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "entry": true,
+              "filled": true,
+              "confirmed": false,
+              "started": false
+            },
+            {
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 2,
+              "matches": 7,
+              "rounds": 3,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                },
+                {
+                  "rank": 5,
+                  "count": 1
+                },
+                {
+                  "rank": 6,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 6,
+              "placeFrom": 1,
+              "placeTo": 6,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
+            }
+          ],
+          "ranked": 6,
+          "ties": false
         }
       ],
-      "ranked": 6,
-      "ties": false,
       "locked": false
     },
     {
       "category": "WD",
       "slot": 2,
       "timedAllowed": false,
-      "registered": 9,
-      "present": 6,
-      "stages": [
+      "previews": [
         {
-          "id": "S1",
-          "name": "",
-          "kind": "pools",
-          "win": {
-            "kind": "sets",
-            "setsToWin": 2,
-            "pointsPerSet": 15,
-            "cap": 21
-          },
-          "pools": 2,
-          "tiebreaks": [
-            "wins",
-            "headToHead",
-            "setDifference",
-            "pointDifference",
-            "draw"
-          ],
-          "crossPool": "sameMatches",
-          "routing": [
+          "base": "paired",
+          "entrants": 8,
+          "stages": [
             {
-              "kind": "ranks",
-              "to": "S2",
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 2,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 8,
+              "sizes": [
+                4,
+                4
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 12,
+              "rounds": 3,
               "ranks": [
-                1,
-                2
-              ]
+                {
+                  "rank": 1,
+                  "count": 2
+                },
+                {
+                  "rank": 2,
+                  "count": 2
+                },
+                {
+                  "rank": 3,
+                  "count": 2
+                },
+                {
+                  "rank": 4,
+                  "count": 2
+                }
+              ],
+              "rules": [
+                4
+              ],
+              "kept": 4,
+              "placeFrom": 5,
+              "placeTo": 8,
+              "entry": true,
+              "filled": false,
+              "confirmed": false,
+              "started": false
+            },
+            {
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 4,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 4,
+              "rounds": 2,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 4,
+              "placeFrom": 1,
+              "placeTo": 4,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
             }
           ],
-          "phase": 1,
-          "estimate": 22,
-          "entrants": 9,
-          "sizes": [
-            5,
-            4
-          ],
-          "noSplit": false,
-          "byes": 0,
-          "matches": 16,
-          "rounds": 5,
-          "ranks": [
-            {
-              "rank": 1,
-              "count": 2
-            },
-            {
-              "rank": 2,
-              "count": 2
-            },
-            {
-              "rank": 3,
-              "count": 2
-            },
-            {
-              "rank": 4,
-              "count": 2
-            },
-            {
-              "rank": 5,
-              "count": 1
-            }
-          ],
-          "rules": [
-            4
-          ],
-          "kept": 5,
-          "placeFrom": 5,
-          "placeTo": 9,
-          "entry": true,
-          "filled": false,
-          "confirmed": false,
-          "started": false
+          "ranked": 8,
+          "ties": true
         },
         {
-          "id": "S2",
-          "name": "Tableau principal",
-          "kind": "bracket",
-          "win": {
-            "kind": "sets",
-            "setsToWin": 2,
-            "pointsPerSet": 15,
-            "cap": 21
-          },
-          "fullPlacement": true,
-          "phase": 2,
-          "estimate": 22,
-          "entrants": 4,
-          "sizes": [],
-          "noSplit": false,
-          "byes": 0,
-          "matches": 4,
-          "rounds": 2,
-          "ranks": [
+          "base": "registered",
+          "entrants": 9,
+          "stages": [
             {
-              "rank": 1,
-              "count": 1
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 2,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 9,
+              "sizes": [
+                5,
+                4
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 16,
+              "rounds": 5,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 2
+                },
+                {
+                  "rank": 2,
+                  "count": 2
+                },
+                {
+                  "rank": 3,
+                  "count": 2
+                },
+                {
+                  "rank": 4,
+                  "count": 2
+                },
+                {
+                  "rank": 5,
+                  "count": 1
+                }
+              ],
+              "rules": [
+                4
+              ],
+              "kept": 5,
+              "placeFrom": 5,
+              "placeTo": 9,
+              "entry": true,
+              "filled": false,
+              "confirmed": false,
+              "started": false
             },
             {
-              "rank": 2,
-              "count": 1
-            },
-            {
-              "rank": 3,
-              "count": 1
-            },
-            {
-              "rank": 4,
-              "count": 1
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 4,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 4,
+              "rounds": 2,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 4,
+              "placeFrom": 1,
+              "placeTo": 4,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
             }
           ],
-          "rules": [],
-          "kept": 4,
-          "placeFrom": 1,
-          "placeTo": 4,
-          "entry": false,
-          "filled": false,
-          "confirmed": false,
-          "started": false
+          "ranked": 9,
+          "ties": true
+        },
+        {
+          "base": "present",
+          "entrants": 6,
+          "stages": [
+            {
+              "id": "S1",
+              "name": "",
+              "kind": "pools",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "pools": 2,
+              "tiebreaks": [
+                "wins",
+                "headToHead",
+                "setDifference",
+                "pointDifference",
+                "draw"
+              ],
+              "crossPool": "sameMatches",
+              "routing": [
+                {
+                  "kind": "ranks",
+                  "to": "S2",
+                  "ranks": [
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "phase": 1,
+              "estimate": 22,
+              "entrants": 6,
+              "sizes": [
+                3,
+                3
+              ],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 6,
+              "rounds": 3,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 2
+                },
+                {
+                  "rank": 2,
+                  "count": 2
+                },
+                {
+                  "rank": 3,
+                  "count": 2
+                }
+              ],
+              "rules": [
+                4
+              ],
+              "kept": 2,
+              "placeFrom": 5,
+              "placeTo": 6,
+              "entry": true,
+              "filled": false,
+              "confirmed": false,
+              "started": false
+            },
+            {
+              "id": "S2",
+              "name": "Tableau principal",
+              "kind": "bracket",
+              "win": {
+                "kind": "sets",
+                "setsToWin": 2,
+                "pointsPerSet": 15,
+                "cap": 21
+              },
+              "fullPlacement": true,
+              "phase": 2,
+              "estimate": 22,
+              "entrants": 4,
+              "sizes": [],
+              "noSplit": false,
+              "byes": 0,
+              "matches": 4,
+              "rounds": 2,
+              "ranks": [
+                {
+                  "rank": 1,
+                  "count": 1
+                },
+                {
+                  "rank": 2,
+                  "count": 1
+                },
+                {
+                  "rank": 3,
+                  "count": 1
+                },
+                {
+                  "rank": 4,
+                  "count": 1
+                }
+              ],
+              "rules": [],
+              "kept": 4,
+              "placeFrom": 1,
+              "placeTo": 4,
+              "entry": false,
+              "filled": false,
+              "confirmed": false,
+              "started": false
+            }
+          ],
+          "ranked": 6,
+          "ties": true
         }
       ],
-      "ranked": 9,
-      "ties": true,
       "locked": false
     }
   ]

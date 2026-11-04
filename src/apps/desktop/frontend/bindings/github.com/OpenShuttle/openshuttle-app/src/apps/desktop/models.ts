@@ -329,16 +329,13 @@ export interface FormatCategory {
      * TimedAllowed is false with two categories: timed rounds need all courts.
      */
     "timedAllowed": boolean;
-    "registered": number;
-    "present": number;
-    "stages": StageView[] | null;
 
     /**
-     * Ranked is how many entrants the full standings place; Ties is set when
-     * some of them share a rank.
+     * Previews holds the format previewed for each base, in the order
+     * offered: paired (doubles only), registered, present. Stages already
+     * filled show their actual groups whatever the base.
      */
-    "ranked": number;
-    "ties": boolean;
+    "previews": FormatPreviewView[] | null;
 
     /**
      * Locked: a match was called or scored, the format no longer changes.
@@ -356,6 +353,22 @@ export interface FormatPreset {
     "name": string;
     "description": string;
     "stages": tournament$0.StageConfig[] | null;
+}
+
+/**
+ * FormatPreviewView is the format of a category previewed for one base.
+ */
+export interface FormatPreviewView {
+    "base": PreviewBase;
+    "entrants": number;
+    "stages": StageView[] | null;
+
+    /**
+     * Ranked is how many entrants the full standings place; Ties is set when
+     * some of them share a rank.
+     */
+    "ranked": number;
+    "ties": boolean;
 }
 
 /**
@@ -554,6 +567,33 @@ export interface Presets {
      */
     "clubs": string[] | null;
 }
+
+/**
+ * PreviewBase is the entrant count a format preview starts from. The Format
+ * screen offers each one; it is a display choice and never changes the draw.
+ */
+export enum PreviewBase {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * PreviewPaired counts the entrants not waiting for a partner (doubles only).
+     */
+    PreviewPaired = "paired",
+
+    /**
+     * PreviewRegistered counts every entrant of the category.
+     */
+    PreviewRegistered = "registered",
+
+    /**
+     * PreviewPresent counts the entrants with every player checked in: the
+     * ones the draw takes.
+     */
+    PreviewPresent = "present",
+};
 
 /**
  * ProgressView sums up a tournament for the side navigation and the top bar.

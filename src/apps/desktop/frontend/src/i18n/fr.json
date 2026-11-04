@@ -405,6 +405,15 @@
   "format": {
     "title": "Format",
     "lead": "Un format indépendant par catégorie · figé dès son premier match",
+    "base": {
+      "label": "Aperçu pour",
+      "paired": "Paires complètes ({n})",
+      "pairedHint": "Toutes les inscriptions sauf les joueurs en attente de partenaire",
+      "registered": "Toutes les inscriptions ({n})",
+      "registeredHint": "Toutes les inscriptions, joueurs en attente de partenaire compris",
+      "present": "Présentes ({n})",
+      "presentHint": "Inscriptions dont tous les joueurs sont pointés : celles que le tirage prend"
+    },
     "poolCount": "Nombre de poules",
     "fewerPools": "Une poule de moins",
     "morePools": "Une poule de plus",

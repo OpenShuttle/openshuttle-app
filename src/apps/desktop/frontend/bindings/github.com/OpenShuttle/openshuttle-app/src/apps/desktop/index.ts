@@ -15,7 +15,8 @@ export {
 };
 
 export {
-    PresetKind
+    PresetKind,
+    PreviewBase
 } from "./models.js";
 
 export type {
@@ -39,6 +40,7 @@ export type {
     EntrantsView,
     FormatCategory,
     FormatPreset,
+    FormatPreviewView,
     FormatView,
     HistoryEntry,
     HistoryView,

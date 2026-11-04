@@ -14,11 +14,11 @@
     </div>
   } @else if (current(); as fc) {
     <app-format-editor
-      [stages]="fc.stages ?? []"
+      [stages]="preview()?.stages ?? []"
       [timedAllowed]="fc.timedAllowed"
-      [ranked]="fc.ranked"
-      [ties]="fc.ties"
-      [entrants]="fc.registered"
+      [ranked]="preview()?.ranked ?? 0"
+      [ties]="preview()?.ties ?? false"
+      [entrants]="preview()?.entrants ?? 0"
       [courts]="tournament.view().courts"
       [readonly]="fc.locked"
       (changed)="change($event)"
@@ -39,7 +39,22 @@
                 [class.active]="c.category === fc.category"
                 (click)="selectCategory(c.category)"
               >
-                {{ t('category.name.' + c.category) }} · {{ c.registered }}
+                {{ t('category.name.' + c.category) }} · {{ previewOf(c)?.entrants }}
+              </button>
+            }
+          </div>
+        }
+        @if (!preview()?.stages?.[0]?.filled) {
+          <div class="seg seg-sm bases" role="group" [attr.aria-label]="t('format.base.label')">
+            @for (p of fc.previews ?? []; track p.base) {
+              <button
+                type="button"
+                class="seg-option"
+                [class.active]="p.base === preview()?.base"
+                [attr.title]="t('format.base.' + p.base + 'Hint')"
+                (click)="selectBase(p.base)"
+              >
+                {{ t('format.base.' + p.base, { n: p.entrants }) }}
               </button>
             }
           </div>

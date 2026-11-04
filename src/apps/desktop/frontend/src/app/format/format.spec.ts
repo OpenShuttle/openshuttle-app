@@ -56,6 +56,25 @@ describe('Format', () => {
     await clickAll(f, ['Remove']);
   });
 
+  it('previews the format for complete pairs, all entries or present ones', async () => {
+    localStorage.removeItem('openshuttle.formatPreviewBase');
+    const f = await render(Format);
+    // MD is drawn: its pools are known, no base to choose.
+    expect(text(f)).not.toContain('Complete pairs');
+    await click(f, 'Women\'s doubles · 8');
+    expect(text(f)).toContain('Complete pairs (8)');
+    expect(text(f)).toContain('All entries (9)');
+    expect(text(f)).toContain('Present (6)');
+    expect(text(f)).toContain('For 8 entrants');
+    await click(f, 'All entries (9)');
+    expect(text(f)).toContain('For 9 entrants');
+    expect(text(f)).toContain("Women's doubles · 9");
+    expect(localStorage.getItem('openshuttle.formatPreviewBase')).toBe('registered');
+    await click(f, 'Present (6)');
+    expect(text(f)).toContain('For 6 entrants');
+    localStorage.removeItem('openshuttle.formatPreviewBase');
+  });
+
   it('shows a locked format read only', async () => {
     go.on('TournamentService.GetFormatView', locked as unknown as FormatView);
     const f = await render(Format);
