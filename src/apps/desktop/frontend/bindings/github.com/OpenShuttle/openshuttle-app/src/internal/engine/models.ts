@@ -183,6 +183,15 @@ export enum CrossPool {
 export type EntrantID = string;
 
 /**
+ * Error is a domain error carrying a stable code. Set is the 1-based index of
+ * the offending set when the error is about one set, 0 otherwise.
+ */
+export interface Error {
+    "code": Code;
+    "set"?: number;
+}
+
+/**
  * Score is the result of a played match. A timed match has exactly one set
  * holding the final points, golden point included.
  */

@@ -461,6 +461,19 @@ export interface ImportFile {
 }
 
 /**
+ * LaunchResult is a tournament file the app was asked to open from outside
+ * (a double-click on it) and how opening it went.
+ */
+export interface LaunchResult {
+    "path": string;
+
+    /**
+     * Error is nil when the file is open.
+     */
+    "error": engine$0.Error | null;
+}
+
+/**
  * MatchView is a match as every desk screen shows it.
  */
 export interface MatchView {

@@ -15,6 +15,7 @@ declare module "@wailsio/runtime" {
             "displayScreen.changed": boolean;
             "presets.changed": main$0.Presets;
             "settings.changed": main$0.Settings;
+            "tournament.launched": string;
             "tournament.updated": number;
         }
     }

@@ -170,12 +170,16 @@ tasks:
     dir: build
     cmds:
       - mkdir -p {{.ROOT_DIR}}/build/linux/appimage
-      - wails3 generate .desktop -name "{{.APP_NAME}}" -exec "{{.EXEC}}" -icon "{{.ICON}}" -outputfile "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop" -categories "{{.CATEGORIES}}"
+      - wails3 generate .desktop -name "{{.APP_NAME}}" -exec "{{.EXEC}}" -icon "{{.ICON}}" -outputfile "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop" -categories "{{.CATEGORIES}}" -mimetype "{{.MIMETYPE}}" -keywords "{{.KEYWORDS}}"
     vars:
       APP_NAME: '{{.APP_NAME}}'
-      EXEC: '{{.APP_NAME}}'
+      # %f: a double-click on a tournament file passes its path.
+      EXEC: '{{.APP_NAME}} %f'
       ICON: '{{.APP_NAME}}'
       CATEGORIES: 'Utility;'
+      # Declared by build/linux/openshuttle-mime.xml, installed by the packages.
+      MIMETYPE: 'application/x-openshuttle;'
+      KEYWORDS: 'badminton;tournament;'
       OUTPUTFILE: '{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop'
 
   run:

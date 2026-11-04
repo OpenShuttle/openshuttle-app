@@ -349,7 +349,7 @@ export function MoveScheduledMatch(id: tournament$0.MatchID, before: tournament$
 /**
  * OpenTournament opens a tournament file, closing the current one. The file
  * open here is reopened from disk; one open in another instance of the app
- * is refused (FILE_IN_USE).
+ * is refused (FILE_IN_USE) and that instance comes to the front.
  */
 export function OpenTournament(path: string): $CancellablePromise<void> {
     return $Call.ByID(875556689, path);
@@ -559,6 +559,14 @@ export function SwapMatches(a: tournament$0.MatchID, b: tournament$0.MatchID): $
  */
 export function SwapSlots(c: engine$0.Category, id: string, a: number, b: number): $CancellablePromise<void> {
     return $Call.ByID(200850338, c, id, a, b);
+}
+
+/**
+ * TakeLaunchResult returns the latest file opened from outside, once; nil
+ * when there is none.
+ */
+export function TakeLaunchResult(): $CancellablePromise<$models.LaunchResult | null> {
+    return $Call.ByID(3602330615);
 }
 
 /**

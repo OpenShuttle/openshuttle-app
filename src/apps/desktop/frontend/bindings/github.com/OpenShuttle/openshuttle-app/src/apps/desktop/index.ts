@@ -47,6 +47,7 @@ export type {
     HistoryEntry,
     HistoryView,
     ImportFile,
+    LaunchResult,
     MatchView,
     Monitor,
     PhaseCategory,

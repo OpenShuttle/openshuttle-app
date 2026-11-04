@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The OpenShuttle tournament file type: a double-click opens it in the app
+     (MimeType of openshuttle.desktop). -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-openshuttle">
+    <comment>OpenShuttle tournament</comment>
+    <comment xml:lang="fr">Tournoi OpenShuttle</comment>
+    <sub-class-of type="application/vnd.sqlite3"/>
+    <generic-icon name="openshuttle"/>
+    <glob pattern="*.openshuttle"/>
+  </mime-type>
+</mime-info>

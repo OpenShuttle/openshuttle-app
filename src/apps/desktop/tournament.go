@@ -66,6 +66,12 @@ type TournamentService struct {
 	state       tournament.State
 	backedUp    uint64 // version of the latest backup
 	stopBackups chan struct{}
+
+	// holder answers for the open file to the other instances of the app
+	// (launch.go); release stops it.
+	holder   fileHolder
+	release  func()
+	launched *LaunchResult
 }
 
 // fileDialogs shows native file dialogs. An empty path means cancelled.
@@ -78,7 +84,7 @@ type fileDialogs interface {
 }
 
 func NewTournamentService(app *store.AppDB, emit func(string, any), now func() time.Time, backupDir string, dialogs fileDialogs) *TournamentService {
-	return &TournamentService{app: app, emit: emit, now: now, backupDir: backupDir, dialogs: dialogs, rng: cryptoRand}
+	return &TournamentService{app: app, emit: emit, now: now, backupDir: backupDir, dialogs: dialogs, rng: cryptoRand, holder: noHolder{}}
 }
 
 // CreateTournament asks where to save a new tournament, creates it and opens
@@ -183,7 +189,7 @@ func (s *TournamentService) OpenTournamentDialog(ctx context.Context) (string, e
 
 // OpenTournament opens a tournament file, closing the current one. The file
 // open here is reopened from disk; one open in another instance of the app
-// is refused (FILE_IN_USE).
+// is refused (FILE_IN_USE) and that instance comes to the front.
 func (s *TournamentService) OpenTournament(ctx context.Context, path string) error {
 	s.mu.Lock()
 	reopen := s.file != nil && sameFile(s.file.Path(), path)
@@ -194,6 +200,9 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 	s.mu.Unlock()
 	f, log, state, err := s.load(ctx, path)
 	if err != nil {
+		if inUse(err) {
+			s.holder.Raise(path)
+		}
 		if reopen {
 			s.emit(EventTournamentUpdated, uint64(0))
 		}
@@ -203,6 +212,7 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 	s.mu.Lock()
 	s.closeLocked()
 	s.file, s.log, s.state = f, log, state
+	s.release = s.holder.Hold(path)
 	s.backupLocked(ctx)
 	s.startBackupsLocked()
 	s.mu.Unlock()

@@ -83,6 +83,22 @@ export class TournamentStore {
     });
   }
 
+  /**
+   * Takes the file opened from outside (a double-click on it): true when it
+   * opened, false when it was refused (the error is shown), null when there
+   * was none.
+   */
+  async takeLaunch(): Promise<boolean | null> {
+    const launched = await Backend.TakeLaunchResult();
+    if (!launched) {
+      return null;
+    }
+    this.error.set(launched.error ? { code: launched.error.code } : null);
+    // The tournament's screens need its view.
+    await this.refresh();
+    return !launched.error;
+  }
+
   /** Copies a tournament's setup, without its entrants. False when cancelled. */
   async duplicate(path: string, name: string): Promise<boolean> {
     const done = await this.run(async () => (await Backend.DuplicateTournament(path, name)) !== '');

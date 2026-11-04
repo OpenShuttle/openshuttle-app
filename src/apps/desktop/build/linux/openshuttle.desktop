@@ -1,10 +1,11 @@
 [Desktop Entry]
 Type=Application
 Name=openshuttle
-Exec=openshuttle
+Exec=openshuttle %f
 Icon=openshuttle
-Categories=Development;
+Categories=Utility;
 Terminal=false
-Keywords=wails
+Keywords=badminton;tournament;
 Version=1.0
 StartupNotify=false
+MimeType=application/x-openshuttle;
