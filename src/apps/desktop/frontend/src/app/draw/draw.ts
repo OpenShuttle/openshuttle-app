@@ -11,6 +11,9 @@ import { ClubBadges } from '../shared/club-badges';
 /** Pointer travel before a press becomes a drag, in pixels. */
 const DRAG_THRESHOLD = 5;
 
+/** Ranking levels with their own color (--color-tier-1 to -8 in styles.scss). */
+const TIER_COLORS = 8;
+
 interface Drag {
   id: EntrantID;
   x: number;
@@ -68,6 +71,15 @@ export class Draw {
   /** Full names, always: initials leave the desk guessing who is who. */
   protected names(e: DrawEntrantView): string {
     return (e.players ?? []).map((p) => p.name).join(' / ');
+  }
+
+  /** Color of an entrant's ranking level (Go gives the level). */
+  protected tierColor(e: DrawEntrantView): string {
+    return e.tier > 0 ? `var(--color-tier-${((e.tier - 1) % TIER_COLORS) + 1})` : 'var(--color-brand)';
+  }
+
+  protected rankTitle(t: (key: string, params?: object) => string, e: DrawEntrantView): string | null {
+    return e.tier > 0 ? t('draw.rankTitle', { n: e.seed, tier: e.tier }) : null;
   }
 
   /** Entrants sharing their pool with a club mate. */

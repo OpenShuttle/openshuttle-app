@@ -278,7 +278,18 @@ export interface DrawCategory {
 export interface DrawEntrantView {
     "id": engine$0.EntrantID;
     "bib": number;
+
+    /**
+     * Seed is the entrant's rank in the ranking, 0 when unranked.
+     */
     "seed": number;
+
+    /**
+     * Tier is the ranking level in a pools draw: with P pools, ranks 1 to P
+     * are level 1, P+1 to 2P level 2… A balanced draw has one entrant of
+     * each level per pool. 0 when unranked, or for a bracket.
+     */
+    "tier": number;
     "players": PlayerView[] | null;
 
     /**

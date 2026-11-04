@@ -14,6 +14,7 @@
               "id": "e5",
               "bib": 14,
               "seed": 1,
+              "tier": 1,
               "players": [
                 {
                   "id": "p5.1",
@@ -46,6 +47,7 @@
               "id": "e8",
               "bib": 7,
               "seed": 0,
+              "tier": 0,
               "players": [
                 {
                   "id": "p8.1",
@@ -85,6 +87,7 @@
               "id": "e7",
               "bib": 13,
               "seed": 2,
+              "tier": 1,
               "players": [
                 {
                   "id": "p7.1",
@@ -117,6 +120,7 @@
               "id": "e10",
               "bib": 11,
               "seed": 0,
+              "tier": 0,
               "players": [
                 {
                   "id": "p10.1",
@@ -156,6 +160,7 @@
               "id": "e14",
               "bib": 6,
               "seed": 0,
+              "tier": 0,
               "players": [
                 {
                   "id": "p14.1",
@@ -188,6 +193,7 @@
               "id": "e11",
               "bib": 15,
               "seed": 0,
+              "tier": 0,
               "players": [
                 {
                   "id": "p11.1",
@@ -232,6 +238,7 @@
           "id": "e5",
           "bib": 14,
           "seed": 1,
+          "tier": 1,
           "players": [
             {
               "id": "p5.1",
@@ -264,6 +271,7 @@
           "id": "e7",
           "bib": 13,
           "seed": 2,
+          "tier": 1,
           "players": [
             {
               "id": "p7.1",
@@ -298,6 +306,7 @@
           "id": "e8",
           "bib": 7,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p8.1",
@@ -330,6 +339,7 @@
           "id": "e10",
           "bib": 11,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p10.1",
@@ -362,6 +372,7 @@
           "id": "e11",
           "bib": 15,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p11.1",
@@ -394,6 +405,7 @@
           "id": "e14",
           "bib": 6,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p14.1",
@@ -444,6 +456,7 @@
           "id": "e16",
           "bib": 3,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p16.1",
@@ -476,6 +489,7 @@
           "id": "e17",
           "bib": 10,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p17.1",
@@ -508,6 +522,7 @@
           "id": "e20",
           "bib": 1,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p20.1",
@@ -540,6 +555,7 @@
           "id": "e21",
           "bib": 5,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p21.1",
@@ -572,6 +588,7 @@
           "id": "e22",
           "bib": 2,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p22.1",
@@ -604,6 +621,7 @@
           "id": "e23",
           "bib": 9,
           "seed": 0,
+          "tier": 0,
           "players": [
             {
               "id": "p23.1",

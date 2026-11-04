@@ -11,7 +11,8 @@ import (
 type PoolCheck struct {
 	// Unbalanced is set when the pool size differs from the even split.
 	Unbalanced bool
-	// Seeds is the number of seeded entrants in the pool.
+	// Seeds is the number of entrants of the pool ranked in the top level
+	// (ranks 1 to the number of pools): more than one is unbalanced.
 	Seeds int
 	// SameClub maps an entrant to the others of the pool sharing a club.
 	SameClub map[engine.EntrantID][]engine.EntrantID
@@ -62,7 +63,7 @@ func (s State) CheckDraw(c engine.Category) DrawCheck {
 			if !ok {
 				continue
 			}
-			if e.Seed > 0 {
+			if e.Seed > 0 && e.Seed <= len(d.Pools) {
 				pc.Seeds++
 			}
 			if !e.Complete() {

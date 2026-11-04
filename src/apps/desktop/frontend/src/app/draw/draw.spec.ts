@@ -44,6 +44,21 @@ describe('Draw', () => {
     expect(caen.title).toBe('AS Caen');
   });
 
+  it('colors the rank chips by ranking level', async () => {
+    const view = structuredClone(draw);
+    const [first, second] = view.categories[0].pools![0].entrants!;
+    Object.assign(first, { seed: 1, tier: 1 });
+    Object.assign(second, { seed: 12, tier: 10 });
+    go.on('TournamentService.GetDrawView', view);
+    const f = await render(Draw, { lang: 'fr' });
+    const chips = [...f.nativeElement.querySelectorAll('[data-pool="MD:0"] .seed')] as HTMLElement[];
+    expect(chips.map((c) => c.textContent!.trim())).toEqual(['C1', 'C12']);
+    expect(chips[0].style.getPropertyValue('--tier')).toBe('var(--color-tier-1)');
+    expect(chips[1].style.getPropertyValue('--tier')).toBe('var(--color-tier-2)'); // 8 colors, then again
+    expect(chips[1].title).toBe('Classé 12 · niveau 10');
+    expect(text(f)).not.toContain('Même club');
+  });
+
   it('shows no club badge for an unclubbed entrant', async () => {
     const view = structuredClone(draw);
     const pool = view.categories[0].pools![0];

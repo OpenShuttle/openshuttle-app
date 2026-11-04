@@ -74,14 +74,13 @@
                         <span class="bib">{{ p.entrant.bib || '–' }}</span>
                         <span class="names">{{ names(p.entrant) }}</span>
                         @if (p.entrant.seed) {
-                          <span class="seed">{{ t('draw.seedShort', { n: p.entrant.seed }) }}</span>
+                          <span class="seed" [style.--tier]="tierColor(p.entrant)" [attr.title]="rankTitle(t, p.entrant)">{{
+                            t('draw.seedShort', { n: p.entrant.seed })
+                          }}</span>
                         }
                       </span>
                       <span class="entrant-meta">
                         <app-club-badges [clubs]="p.entrant.clubs" />
-                        @if ((p.entrant.sameClub ?? []).length > 0) {
-                          <span class="tag">{{ t('draw.sameClubRound', { bibs: (p.entrant.sameClub ?? []).join(', ') }) }}</span>
-                        }
                       </span>
                     </button>
                   } @else {
@@ -140,14 +139,11 @@
                         }
                       </span>
                       @if (e.seed) {
-                        <span class="seed">{{ t('draw.seedShort', { n: e.seed }) }}</span>
+                        <span class="seed" [style.--tier]="tierColor(e)" [attr.title]="rankTitle(t, e)">{{ t('draw.seedShort', { n: e.seed }) }}</span>
                       }
                     </div>
                     <div class="entrant-meta">
                       <app-club-badges [clubs]="e.clubs" />
-                      @if ((e.sameClub ?? []).length > 0) {
-                        <span class="tag">{{ t('draw.sameClub', { bibs: (e.sameClub ?? []).join(', ') }) }}</span>
-                      }
                       @if (e.absent) {
                         <span class="tag alert">{{ t('draw.absent') }}</span>
                       }
@@ -199,7 +195,7 @@
                       [class.drop-before]="seedTarget()?.category === c.category && seedTarget()?.index === i && seedDragging() !== e.id"
                       (pointerdown)="onSeedDown($event, c, e.id)"
                     >
-                      <span class="rank">{{ i + 1 }}</span>
+                      <span class="rank" [style.--tier]="tierColor(e)" [attr.title]="rankTitle(t, e)">{{ i + 1 }}</span>
                       <span class="who">
                         <span class="names" [attr.title]="names(e)">{{ names(e) }}</span>
                         <app-club-badges [clubs]="e.clubs" />

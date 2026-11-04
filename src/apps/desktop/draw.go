@@ -20,10 +20,15 @@ const (
 
 // DrawEntrantView is a card of the draw screen.
 type DrawEntrantView struct {
-	ID      engine.EntrantID `json:"id"`
-	Bib     int              `json:"bib"`
-	Seed    int              `json:"seed"`
-	Players []PlayerView     `json:"players"`
+	ID  engine.EntrantID `json:"id"`
+	Bib int              `json:"bib"`
+	// Seed is the entrant's rank in the ranking, 0 when unranked.
+	Seed int `json:"seed"`
+	// Tier is the ranking level in a pools draw: with P pools, ranks 1 to P
+	// are level 1, P+1 to 2P level 2… A balanced draw has one entrant of
+	// each level per pool. 0 when unranked, or for a bracket.
+	Tier    int          `json:"tier"`
+	Players []PlayerView `json:"players"`
 	// Clubs are the distinct clubs of the entrant's players, as badges.
 	Clubs []ClubBadge `json:"clubs"`
 	// SameClub lists the bibs of pool mates sharing a club.
@@ -65,6 +70,15 @@ func clubBadges(clubs []string, colors map[string]int, inPool bool, mates []tour
 		out = append(out, b)
 	}
 	return out
+}
+
+// tier is the ranking level of a rank with the given number of pools: ranks
+// 1 to pools are level 1, and so on. 0 when unranked or without pools.
+func tier(seed, pools int) int {
+	if seed <= 0 || pools <= 0 {
+		return 0
+	}
+	return (seed-1)/pools + 1
 }
 
 // DrawPoolView is a column of the draw screen.
@@ -144,6 +158,7 @@ func (s *TournamentService) GetDrawView() DrawView {
 	for i, c := range st.Clubs() {
 		colors[c] = i
 	}
+	pools := 0 // pools of the category being built, for the levels
 	card := func(id engine.EntrantID) DrawEntrantView {
 		if id == "" {
 			return DrawEntrantView{Players: []PlayerView{}, Clubs: []ClubBadge{}, SameClub: []int{}}
@@ -153,6 +168,7 @@ func (s *TournamentService) GetDrawView() DrawView {
 		for _, p := range e.Players {
 			v.Players = append(v.Players, playerView(p, dup[p.ID]))
 		}
+		v.Tier = tier(e.Seed, pools)
 		return v
 	}
 
@@ -168,6 +184,13 @@ func (s *TournamentService) GetDrawView() DrawView {
 			NoSplit:   entry.Kind == tournament.StagePools && len(present) >= 2 && sizes == nil,
 			PoolSizes: append([]int{}, entry.PoolSizes...),
 			Waiting:   len(st.Waiting(ref.Category)),
+		}
+		pools = 0
+		if entry.Kind == tournament.StagePools {
+			pools = len(sizes)
+			if d, ok := st.Draw(ref.Category); ok {
+				pools = len(d.Pools)
+			}
 		}
 		for _, id := range st.Seeds(ref.Category) {
 			dc.Ranking = append(dc.Ranking, card(id))

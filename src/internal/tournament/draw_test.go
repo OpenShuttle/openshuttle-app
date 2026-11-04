@@ -180,6 +180,13 @@ func TestCheckDrawSameClubAndSeeds(t *testing.T) {
 	if check.Pools[0].Seeds != 2 {
 		t.Errorf("seeds in A = %d", check.Pools[0].Seeds)
 	}
+	// Rank 3 of 2 pools is level 2: not counted.
+	g.do(func(s State) (Change, error) {
+		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[0], ids[2], ids[1]})
+	})
+	if check := g.state().CheckDraw(engine.MensSingles); check.Pools[0].Seeds != 1 {
+		t.Errorf("top-level entrants in A = %d", check.Pools[0].Seeds)
+	}
 	if len(check.Pools[0].SameClub[ids[0]]) == 0 {
 		t.Errorf("same club not reported: %+v", check.Pools[0])
 	}
@@ -248,4 +255,85 @@ func TestSetSeeds(t *testing.T) {
 	g.fails(engine.CodeInvalidSeed, func(s State) (Change, error) {
 		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[0], ids[0]})
 	})
+}
+
+func TestRankPool(t *testing.T) {
+	ranks := map[engine.EntrantID]int{"a": 1, "b": 2, "c": 3}
+	seed := func(id engine.EntrantID) int { return ranks[id] }
+	tests := []struct {
+		name string
+		pool []engine.EntrantID
+		want []engine.EntrantID
+	}{
+		{"empty", nil, []engine.EntrantID{}},
+		{"sorted", []engine.EntrantID{"a", "c", "x"}, []engine.EntrantID{"a", "c", "x"}},
+		{"ranked first, best first", []engine.EntrantID{"x", "c", "y", "a"}, []engine.EntrantID{"a", "c", "x", "y"}},
+		{"unranked keep their order", []engine.EntrantID{"y", "b", "x"}, []engine.EntrantID{"b", "y", "x"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := rankPool(tt.pool, seed)
+			if len(got) == 0 && len(tt.want) == 0 {
+				return
+			}
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("rankPool(%v) = %v, want %v", tt.pool, got, tt.want)
+			}
+		})
+	}
+}
+
+// Pools keep the ranking order: a moved entrant takes its rank's place, a new
+// ranking sorts a draft draw again; older move events append, and a confirmed
+// draw never changes.
+func TestPoolsKeepRankingOrder(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	ids := g.presentSingles(engine.MensSingles, []string{"Lyon"}, 6)
+	g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, ids[:4]) })
+	g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+	pools := func() [][]engine.EntrantID {
+		d, _ := g.state().Draw(engine.MensSingles)
+		return d.Pools
+	}
+	// Snake: A holds ranks 1 and 4, B ranks 2 and 3, each with an unranked.
+	a, b := pools()[0], pools()[1]
+	if a[0] != ids[0] || a[1] != ids[3] || b[0] != ids[1] || b[1] != ids[2] {
+		t.Fatalf("drawn pools = %v", pools())
+	}
+	unrankedA, unrankedB := a[2], b[2]
+
+	g.do(func(s State) (Change, error) { return s.MoveEntrant(ids[3], 1) })
+	if got, want := pools()[1], []engine.EntrantID{ids[1], ids[2], ids[3], unrankedB}; !slices.Equal(got, want) {
+		t.Errorf("rank 4 moved to B = %v, want %v", got, want)
+	}
+	g.do(func(s State) (Change, error) { return s.MoveEntrant(ids[0], 1) })
+	if got := pools()[1]; got[0] != ids[0] {
+		t.Errorf("top seed should open B: %v", got)
+	}
+	g.do(func(s State) (Change, error) { return s.MoveEntrant(unrankedB, 0) })
+	if got, want := pools()[0], []engine.EntrantID{unrankedA, unrankedB}; !slices.Equal(got, want) {
+		t.Errorf("unranked moved to A = %v, want %v", got, want)
+	}
+
+	// A new ranking sorts the draft pools again.
+	g.do(func(s State) (Change, error) {
+		return s.SetSeeds(engine.MensSingles, []engine.EntrantID{ids[3], ids[2], ids[1], ids[0]})
+	})
+	if got, want := pools()[1], []engine.EntrantID{ids[3], ids[2], ids[1], ids[0]}; !slices.Equal(got, want) {
+		t.Errorf("B after reranking = %v, want %v", got, want)
+	}
+
+	// An older move event, without its order, still appends.
+	g.append(Change{TypeEntrantMoved, EntrantMoved{Category: engine.MensSingles, Entrant: ids[3], Pool: 0}})
+	if got := pools()[0]; got[len(got)-1] != ids[3] {
+		t.Errorf("legacy move should append: %v", got)
+	}
+
+	// Once confirmed, a new ranking leaves the pools (and their matches) alone.
+	g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
+	before := pools()
+	g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, ids[:2]) })
+	if got := pools(); !slices.Equal(got[0], before[0]) || !slices.Equal(got[1], before[1]) {
+		t.Errorf("confirmed pools changed: %v, was %v", got, before)
+	}
 }

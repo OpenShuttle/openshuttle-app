@@ -52,6 +52,18 @@
   --color-club-9: #15803d;
   --color-club-10: #1e3a8a;
 
+  // Ranking levels on the draw screen (Tier in Go): with P pools, ranks 1 to
+  // P are level 1, and so on. Light fills under dark text, on square chips:
+  // apart from the club pills (dark or pale) and the category badges.
+  --color-tier-1: #ffd23f;
+  --color-tier-2: #7dd3fc;
+  --color-tier-3: #a3e635;
+  --color-tier-4: #fdba74;
+  --color-tier-5: #f9a8d4;
+  --color-tier-6: #c4b5fd;
+  --color-tier-7: #5eead4;
+  --color-tier-8: #d1d5db;
+
   // Display screen (dark, read from 10 m away).
   --color-display-bg: #0b0d12;
   --color-display-surface: #151922;

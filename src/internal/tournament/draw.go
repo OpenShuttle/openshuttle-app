@@ -41,10 +41,13 @@ type EntrantSeeded struct {
 }
 
 // SeedsSet is the payload of TypeSeedsSet: the seeds of a category as a
-// ranking, top seed first. Entrants not listed are not seeded.
+// ranking, top seed first. Entrants not listed are not seeded. Groups, set
+// when the category has a draft pools draw, are its pools sorted again by
+// the new ranking (older events lack it and leave the pools as they are).
 type SeedsSet struct {
-	Category engine.Category    `json:"category"`
-	Entrants []engine.EntrantID `json:"entrants"`
+	Category engine.Category      `json:"category"`
+	Entrants []engine.EntrantID   `json:"entrants"`
+	Groups   [][]engine.EntrantID `json:"groups,omitempty"`
 }
 
 // EntryDrawn is the payload of TypeEntryDrawn: the entry stage as drawn,
@@ -55,12 +58,16 @@ type EntryDrawn struct {
 	Groups   [][]engine.EntrantID `json:"groups"`
 }
 
-// EntrantMoved is the payload of TypeEntrantMoved: the entrant goes to the
-// end of pool Pool (0 is A).
+// EntrantMoved is the payload of TypeEntrantMoved: the entrant goes to pool
+// Pool (0 is A). Order is that pool's order after the move, sorted by the
+// ranking; older events lack it and the entrant goes to the end of the pool.
+// The order of a pool sets its round-robin pairings and match IDs, so replay
+// must keep what each event stored.
 type EntrantMoved struct {
-	Category engine.Category  `json:"category"`
-	Entrant  engine.EntrantID `json:"entrant"`
-	Pool     int              `json:"pool"`
+	Category engine.Category    `json:"category"`
+	Entrant  engine.EntrantID   `json:"entrant"`
+	Pool     int                `json:"pool"`
+	Order    []engine.EntrantID `json:"order,omitempty"`
 }
 
 // DrawConfirmed is the payload of TypeDrawConfirmed and TypeDrawReopened.
@@ -125,7 +132,29 @@ func (s State) SetSeeds(c engine.Category, ranking []engine.EntrantID) (Change, 
 	if slices.Equal(ranking, s.Seeds(c)) {
 		return Change{}, nil
 	}
-	return Change{TypeSeedsSet, SeedsSet{Category: c, Entrants: slices.Clone(ranking)}}, nil
+	set := SeedsSet{Category: c, Entrants: slices.Clone(ranking)}
+	if d, ok := s.Draw(c); ok && d.Kind == StagePools && !d.Confirmed {
+		seed := func(id engine.EntrantID) int { return slices.Index(ranking, id) + 1 }
+		for _, pool := range d.Pools {
+			set.Groups = append(set.Groups, rankPool(pool, seed))
+		}
+	}
+	return Change{TypeSeedsSet, set}, nil
+}
+
+// rankPool sorts a pool by the ranking: ranked entrants first, best first,
+// then the others in their current order. seed gives an entrant's rank, 0
+// when unranked.
+func rankPool(pool []engine.EntrantID, seed func(engine.EntrantID) int) []engine.EntrantID {
+	out := slices.Clone(pool)
+	key := func(id engine.EntrantID) int {
+		if n := seed(id); n > 0 {
+			return n
+		}
+		return MaxSeed + 1
+	}
+	slices.SortStableFunc(out, func(a, b engine.EntrantID) int { return key(a) - key(b) })
+	return out
 }
 
 // Seeds returns the seeded entrants of a category, top seed first.
@@ -202,7 +231,12 @@ func (s State) MoveEntrant(id engine.EntrantID, pool int) (Change, error) {
 	if from == pool {
 		return Change{}, nil
 	}
-	return Change{TypeEntrantMoved, EntrantMoved{Category: e.Category, Entrant: id, Pool: pool}}, nil
+	seed := func(id engine.EntrantID) int {
+		x, _ := s.Entrant(id)
+		return x.Seed
+	}
+	order := rankPool(append(slices.Clone(d.Pools[pool]), id), seed)
+	return Change{TypeEntrantMoved, EntrantMoved{Category: e.Category, Entrant: id, Pool: pool, Order: order}}, nil
 }
 
 // ConfirmDraw locks the draw of a category: the entry stage starts.
@@ -288,6 +322,9 @@ func (s *State) applySeedsSet(p SeedsSet) {
 			s.Entrants[i].Seed = slices.Index(p.Entrants, s.Entrants[i].ID) + 1
 		}
 	}
+	if e := s.entry(p.Category); e != nil && p.Groups != nil && len(p.Groups) == len(e.Groups) && !e.Confirmed {
+		e.Groups = cloneGroups(p.Groups)
+	}
 }
 
 func (s *State) applyEntryDrawn(p EntryDrawn) {
@@ -303,6 +340,10 @@ func (s *State) applyEntrantMoved(p EntrantMoved) {
 	}
 	for i := range e.Groups {
 		e.Groups[i] = slices.DeleteFunc(e.Groups[i], func(x engine.EntrantID) bool { return x == p.Entrant })
+	}
+	if p.Order != nil {
+		e.Groups[p.Pool] = slices.Clone(p.Order)
+		return
 	}
 	e.Groups[p.Pool] = append(e.Groups[p.Pool], p.Entrant)
 }

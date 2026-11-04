@@ -43,6 +43,17 @@ func TestClubBadges(t *testing.T) {
 	}
 }
 
+func TestTier(t *testing.T) {
+	tests := []struct{ seed, pools, want int }{
+		{0, 5, 0}, {1, 0, 0}, {1, 5, 1}, {5, 5, 1}, {6, 5, 2}, {10, 5, 2}, {11, 5, 3}, {3, 1, 3},
+	}
+	for _, tt := range tests {
+		if got := tier(tt.seed, tt.pools); got != tt.want {
+			t.Errorf("tier(%d, %d) = %d, want %d", tt.seed, tt.pools, got, tt.want)
+		}
+	}
+}
+
 func TestFormatAndDraw(t *testing.T) {
 	f := newFixture(t)
 	f.svc.rng = func() *rand.Rand { return rand.New(rand.NewPCG(3, 4)) }
@@ -99,6 +110,9 @@ func TestFormatAndDraw(t *testing.T) {
 	dv = f.svc.GetDrawView().Categories[0]
 	if dv.Status != DrawDraft || len(dv.Pools) != 2 || dv.Pools[0].Name != "A" || len(dv.Pools[0].Entrants)+len(dv.Pools[1].Entrants) != 7 {
 		t.Fatalf("draw = %+v", dv)
+	}
+	if dv.Ranking[1].Tier != 1 || dv.Unseeded[0].Tier != 0 {
+		t.Errorf("levels: rank 2 of 2 pools = %d, unranked = %d", dv.Ranking[1].Tier, dv.Unseeded[0].Tier)
 	}
 	if dv.Pools[0].Entrants[0].ID != first || dv.Pools[0].Entrants[0].Seed != 1 {
 		t.Errorf("top seed should open pool A: %+v", dv.Pools[0].Entrants[0])
