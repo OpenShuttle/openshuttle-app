@@ -78,7 +78,7 @@ export interface CheckInTeam {
 
 /**
  * CheckInView is the check-in screen: every entrant, sorted by the names of
- * its players, with totals per category.
+ * its players, the ones fully checked in last, with totals per category.
  */
 export interface CheckInView {
     "teams": CheckInTeam[] | null;
