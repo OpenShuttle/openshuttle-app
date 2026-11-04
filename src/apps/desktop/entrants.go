@@ -27,7 +27,10 @@ type EntrantView struct {
 	Bib      int              `json:"bib"`
 	Complete bool             `json:"complete"`
 	// Waiting is a player registered alone in doubles, waiting for a partner.
-	Waiting bool         `json:"waiting"`
+	Waiting bool `json:"waiting"`
+	// Locked: the entrant has matches, so it can no longer be removed or
+	// split (a forfeit is declared instead).
+	Locked  bool         `json:"locked"`
 	Players []PlayerView `json:"players"`
 }
 
@@ -179,7 +182,7 @@ func categoryEntrants(st tournament.State) []CategoryEntrants {
 			if e.Category != ref.Category {
 				continue
 			}
-			ev := EntrantView{ID: e.ID, Bib: e.Bib, Complete: e.Complete(), Waiting: e.Waiting()}
+			ev := EntrantView{ID: e.ID, Bib: e.Bib, Complete: e.Complete(), Waiting: e.Waiting(), Locked: st.InMatches(e.ID)}
 			for _, p := range e.Players {
 				ev.Players = append(ev.Players, playerView(p, dup[p.ID]))
 				ce.Players++

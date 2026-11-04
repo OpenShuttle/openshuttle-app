@@ -302,6 +302,12 @@ export interface EntrantView {
      * Waiting is a player registered alone in doubles, waiting for a partner.
      */
     "waiting": boolean;
+
+    /**
+     * Locked: the entrant has matches, so it can no longer be removed or
+     * split (a forfeit is declared instead).
+     */
+    "locked": boolean;
     "players": PlayerView[] | null;
 }
 

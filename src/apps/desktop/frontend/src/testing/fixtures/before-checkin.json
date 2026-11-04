@@ -568,6 +568,7 @@
           "bib": 8,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p3.1",
@@ -592,6 +593,7 @@
           "bib": 12,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p4.1",
@@ -616,6 +618,7 @@
           "bib": 14,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p5.1",
@@ -640,6 +643,7 @@
           "bib": 16,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p6.1",
@@ -664,6 +668,7 @@
           "bib": 13,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p7.1",
@@ -688,6 +693,7 @@
           "bib": 7,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p8.1",
@@ -712,6 +718,7 @@
           "bib": 0,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p9.1",
@@ -736,6 +743,7 @@
           "bib": 11,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p10.1",
@@ -760,6 +768,7 @@
           "bib": 15,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p11.1",
@@ -784,6 +793,7 @@
           "bib": 0,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p12.1",
@@ -808,6 +818,7 @@
           "bib": 0,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p13.1",
@@ -832,6 +843,7 @@
           "bib": 6,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p14.1",
@@ -856,6 +868,7 @@
           "bib": 0,
           "complete": false,
           "waiting": true,
+          "locked": false,
           "players": [
             {
               "id": "p45.1",
@@ -883,6 +896,7 @@
           "bib": 3,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p16.1",
@@ -907,6 +921,7 @@
           "bib": 10,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p17.1",
@@ -931,6 +946,7 @@
           "bib": 4,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p18.1",
@@ -955,6 +971,7 @@
           "bib": 0,
           "complete": false,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p19.1",
@@ -979,6 +996,7 @@
           "bib": 1,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p20.1",
@@ -1003,6 +1021,7 @@
           "bib": 5,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p21.1",
@@ -1027,6 +1046,7 @@
           "bib": 2,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p22.1",
@@ -1051,6 +1071,7 @@
           "bib": 9,
           "complete": true,
           "waiting": false,
+          "locked": false,
           "players": [
             {
               "id": "p23.1",
@@ -1075,6 +1096,7 @@
           "bib": 0,
           "complete": false,
           "waiting": true,
+          "locked": false,
           "players": [
             {
               "id": "p44.1",

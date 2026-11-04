@@ -1,7 +1,7 @@
 import { EntrantsView, Presets, TournamentView } from '@bindings/apps/desktop';
 
 import { FakeBackend } from '../../testing/backend';
-import { choose, click, clickAll, find, render, text, type } from '../../testing/render';
+import { buttons, choose, click, clickAll, find, render, text, type } from '../../testing/render';
 import entrants from '../../testing/fixtures/before-entrants.json';
 import tournament from '../../testing/fixtures/before-tournament.json';
 import presets from '../../testing/fixtures/presets.json';
@@ -131,6 +131,18 @@ describe('Entrants', () => {
     await click(f, 'Split the pair');
     const pair = entrants.categories[0].entrants![0];
     expect(go.argsOf('TournamentService.SplitEntrant')).toEqual([[pair.id, pair.players![1].id]]);
+  });
+
+  it('offers no removal once the pair has matches', async () => {
+    const locked = structuredClone(entrants) as unknown as EntrantsView;
+    locked.categories![0].entrants![0].locked = true;
+    go.on('TournamentService.GetEntrantsView', locked);
+    const f = await render(Entrants);
+    await click(f, 'Edit');
+    expect(text(f)).toContain('can no longer be removed or split');
+    expect(buttons(f).map((b) => b.textContent?.trim())).not.toContain('Remove');
+    expect(buttons(f).map((b) => b.textContent?.trim())).not.toContain('Split the pair');
+    expect(buttons(f).map((b) => b.textContent?.trim())).toContain('Save');
   });
 
   it('runs every button', async () => {

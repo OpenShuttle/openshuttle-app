@@ -115,9 +115,13 @@
                   </div>
                 }
                 <div class="edit-actions">
-                  <button type="button" class="btn btn-sm btn-danger" (click)="tournament.removeEntrant(e.id)">{{ t('entrants.remove') }}</button>
-                  @if ((e.players ?? []).length === 2) {
-                    <button type="button" class="btn btn-sm" [attr.title]="t('entrants.splitHint', { name: (e.players ?? [])[1].name })" (click)="split(e)">{{ t('entrants.split') }}</button>
+                  @if (e.locked) {
+                    <span class="hint locked">{{ t('entrants.lockedHint') }}</span>
+                  } @else {
+                    <button type="button" class="btn btn-sm btn-danger" (click)="tournament.removeEntrant(e.id)">{{ t('entrants.remove') }}</button>
+                    @if ((e.players ?? []).length === 2) {
+                      <button type="button" class="btn btn-sm" [attr.title]="t('entrants.splitHint', { name: (e.players ?? [])[1].name })" (click)="split(e)">{{ t('entrants.split') }}</button>
+                    }
                   }
                   <span class="spacer"></span>
                   <button type="button" class="btn btn-sm" (click)="editing.set(null)">{{ t('common.cancel') }}</button>

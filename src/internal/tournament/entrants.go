@@ -191,11 +191,18 @@ func (s State) RemoveEntrant(id engine.EntrantID) (Change, error) {
 	if _, ok := s.Entrant(id); !ok {
 		return Change{}, engine.NewError(engine.CodeEntrantNotFound)
 	}
-	if slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) }) {
+	if s.InMatches(id) {
 		// Its matches exist: declare a forfeit instead.
 		return Change{}, engine.NewError(engine.CodeEntrantInPools)
 	}
 	return Change{TypeEntrantRemoved, EntrantRemoved{ID: id}}, nil
+}
+
+// InMatches reports whether an entrant has matches (a confirmed draw put it
+// in a pool or a bracket): it can no longer be removed or split, only
+// declared forfeit.
+func (s State) InMatches(id engine.EntrantID) bool {
+	return slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) })
 }
 
 // normalizePlayers checks the players of an entrant: one in singles, two in

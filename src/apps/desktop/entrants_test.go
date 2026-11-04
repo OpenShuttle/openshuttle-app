@@ -42,7 +42,7 @@ func TestEntrantsAndCheckIn(t *testing.T) {
 
 	ev := f.svc.GetEntrantsView()
 	md := ev.Categories[0]
-	if md.Category != engine.MensDoubles || !md.Doubles || len(md.Entrants) != 1 || md.Players != 2 {
+	if md.Category != engine.MensDoubles || !md.Doubles || len(md.Entrants) != 1 || md.Players != 2 || md.Entrants[0].Locked {
 		t.Fatalf("MD = %+v", md)
 	}
 	pair := md.Entrants[0]

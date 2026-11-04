@@ -108,7 +108,7 @@ func (s State) SplitEntrant(id engine.EntrantID, player PlayerID) (Change, error
 	if j < 0 {
 		return Change{}, engine.NewError(engine.CodePlayerNotFound)
 	}
-	if slices.ContainsFunc(s.matches, func(m Match) bool { return m.Has(id) }) {
+	if s.InMatches(id) {
 		return Change{}, engine.NewError(engine.CodeEntrantInPools)
 	}
 	return Change{TypeEntrantSplit, EntrantSplit{

@@ -375,7 +375,8 @@
     "newPartner": "Or add a partner who was not registered",
     "addPartner": "Add the partner",
     "split": "Split the pair",
-    "splitHint": "{name} leaves the pair: both wait for a partner again."
+    "splitHint": "{name} leaves the pair: both wait for a partner again.",
+    "lockedHint": "In the draw: this team can no longer be removed or split. If it stops, declare a forfeit (Stages, correction mode)."
   },
   "checkIn": {
     "title": "Check-in",

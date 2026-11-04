@@ -72,7 +72,12 @@
 
 .edit-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
+
+  .locked {
+    flex: 1;
+  }
 
   .spacer {
     flex: 1;

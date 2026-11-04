@@ -46,6 +46,14 @@ func TestCreateSampleTournament(t *testing.T) {
 	if r := f.svc.GetResultsView(); len(r.Categories) != 2 || r.Categories[0].Category != engine.MensDoubles {
 		t.Errorf("results = %+v", r.Categories)
 	}
+	// Drawn: no entrant can be removed or split any more.
+	for _, c := range f.svc.GetEntrantsView().Categories {
+		for _, e := range c.Entrants {
+			if !e.Locked {
+				t.Errorf("entrant %s not locked after the draw", e.ID)
+			}
+		}
+	}
 
 	// A second one gets a number; a bad name is refused.
 	again, err := f.svc.CreateSampleTournament(f.ctx, "Tournoi d'exemple")

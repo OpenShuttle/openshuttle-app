@@ -375,7 +375,8 @@
     "newPartner": "Ou ajouter un partenaire qui n'était pas inscrit",
     "addPartner": "Ajouter le partenaire",
     "split": "Séparer la paire",
-    "splitHint": "{name} quitte la paire : les deux attendent à nouveau un partenaire."
+    "splitHint": "{name} quitte la paire : les deux attendent à nouveau un partenaire.",
+    "lockedHint": "Dans le tirage : cette équipe ne peut plus être retirée ni séparée. Si elle abandonne, déclarez un forfait (Phases, mode correction)."
   },
   "checkIn": {
     "title": "Pointage",

@@ -49,9 +49,15 @@ func TestMatchesFromConfirmedDraw(t *testing.T) {
 	if len(g.state().Matches()) != 0 {
 		t.Fatal("matches kept after reopening")
 	}
+	if g.state().InMatches(ms[0].A) {
+		t.Error("entrant in matches after reopening")
+	}
 	g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
 	if !slices.Equal(ids(g.state().Matches()), ids(ms)) {
 		t.Error("matches differ after confirming again")
+	}
+	if !g.state().InMatches(ms[0].A) {
+		t.Error("entrant not in matches after confirming")
 	}
 
 	g.do(func(s State) (Change, error) { return s.CallMatch("MS-A1", 1) })
