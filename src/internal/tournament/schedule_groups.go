@@ -6,8 +6,9 @@ import (
 )
 
 // GroupColors is the size of the palette of pools and brackets on the
-// schedule (--color-group-1..n): indexes wrap around past it.
-const GroupColors = 8
+// schedule (--color-group-1..n): indexes wrap around past it, so a color
+// comes back only after that many pools and brackets in the tournament.
+const GroupColors = 16
 
 // GroupStyle is how the schedule tells a pool or a bracket apart: its color
 // index (1..GroupColors) and, for a pool, how many rounds it plays.
@@ -17,21 +18,22 @@ type GroupStyle struct {
 }
 
 // GroupStyles gives each pool ("MD/S1/A", blocks.PoolGroup) and each bracket
-// stage ("MD/S2") of every category its style. Colors follow the format in
-// each category: the pools of the first stage in order, then each later
-// stage's pools, or the bracket as one; a stage not filled yet counts the
-// pools its preview plans.
+// stage ("MD/S2") of every category its style. Colors run through the
+// whole tournament, so no two pools or brackets share one before the
+// palette is used up: category after category, the pools of the first stage
+// in order, then each later stage's pools, or the bracket as one; a stage
+// not filled yet counts the pools its preview plans.
 func (s State) GroupStyles() map[string]GroupStyle {
 	out := map[string]GroupStyle{}
+	n := 0
+	next := func() int {
+		n++
+		return (n-1)%GroupColors + 1
+	}
 	for _, c := range s.Categories {
 		stages := s.Stages(c)
 		var preview FormatPreview
 		previewed := false
-		n := 0
-		next := func() int {
-			n++
-			return (n-1)%GroupColors + 1
-		}
 		for i, st := range stages {
 			if st.Kind != StagePools {
 				out[string(c)+"/"+st.ID] = GroupStyle{Color: next()}

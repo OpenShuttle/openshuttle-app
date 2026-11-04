@@ -167,6 +167,37 @@ func TestGroupStyles(t *testing.T) {
 	}
 }
 
+// Colors run through the tournament: the second category goes on from the
+// first, and a color comes back only past the palette.
+func TestGroupStylesAcrossCategories(t *testing.T) {
+	g := newGame(t, engine.MensSingles, engine.WomensSingles)
+	g.confirmedPools(engine.MensSingles, 2, 8)
+	g.confirmedPools(engine.WomensSingles, 1, 4)
+	styles := g.state().GroupStyles()
+	want := map[string]int{"MS/S1/A": 1, "MS/S1/B": 2, "WS/S1/A": 3}
+	for k, w := range want {
+		if styles[k].Color != w {
+			t.Errorf("%s = %d, want %d", k, styles[k].Color, w)
+		}
+	}
+
+	// 16 pools in MS use up the palette: WS pool A starts it again.
+	g = newGame(t, engine.MensSingles, engine.WomensSingles)
+	g.confirmedPools(engine.MensSingles, GroupColors, 2*GroupColors)
+	g.confirmedPools(engine.WomensSingles, 1, 3)
+	styles = g.state().GroupStyles()
+	seen := map[int]bool{}
+	for p := range GroupColors {
+		seen[GroupStyleOf(styles, engine.MensSingles, "S1", p).Color] = true
+	}
+	if len(seen) != GroupColors {
+		t.Errorf("%d colors for the first %d pools", len(seen), GroupColors)
+	}
+	if c := GroupStyleOf(styles, engine.WomensSingles, "S1", 0).Color; c != 1 {
+		t.Errorf("pool past the palette = %d, want 1", c)
+	}
+}
+
 func TestStageAcronym(t *testing.T) {
 	g := newGame(t, engine.MensSingles)
 	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.Acronym = " P 1 " })
