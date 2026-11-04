@@ -31,6 +31,21 @@ describe('Home', () => {
     expect(go.argsOf('TournamentService.CreateTournament')).toEqual([['Plume']]);
   });
 
+  it('says when a newer version is published, with the way to download it', async () => {
+    go.on('AppService.GetAppInfo', { version: '1.2.0', compat: 1 });
+    go.on('AppService.GetUpdate', { checked: true, latest: '1.3.0', available: true });
+    const f = await render(Home);
+    expect(text(f)).toContain('OpenShuttle 1.3.0 is available: you are running 1.2.0.');
+    await click(f, 'Download');
+  });
+
+  it('says nothing when the version is the latest', async () => {
+    go.on('AppService.GetAppInfo', { version: '1.3.0', compat: 1 });
+    go.on('AppService.GetUpdate', { checked: true, latest: '1.3.0', available: false });
+    const f = await render(Home);
+    expect(text(f)).not.toContain('is available');
+  });
+
   it('runs every button', async () => {
     go.on('TournamentService.DuplicateTournament', '');
     await clickAll(await render(Home));

@@ -157,6 +157,46 @@
       </div>
     </section>
 
+    <section class="card">
+      <h2>{{ t('settingsPage.updates') }}</h2>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.checkUpdates') }}</span>
+          <span class="hint">{{ t('settingsPage.checkUpdatesHint') }}</span>
+        </div>
+        <div class="seg">
+          <button type="button" class="seg-option" [class.active]="s.checkUpdates" (click)="setCheckUpdates(true)">{{ t('settingsPage.yes') }}</button>
+          <button type="button" class="seg-option" [class.active]="!s.checkUpdates" (click)="setCheckUpdates(false)">{{ t('settingsPage.no') }}</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.latestVersion') }}</span>
+          <span class="hint" role="status">
+            @if (updates.error(); as error) {
+              {{ t('errors.' + error.code) }}
+            } @else if (!updates.info().checked) {
+              {{ t('settingsPage.notChecked') }}
+            } @else if (!updates.info().latest) {
+              {{ t('settingsPage.noRelease') }}
+            } @else if (updates.info().available) {
+              {{ t('settingsPage.newVersion', { version: updates.info().latest }) }}
+            } @else if (app()?.version === 'dev') {
+              {{ t('settingsPage.devBuild', { version: updates.info().latest }) }}
+            } @else {
+              {{ t('settingsPage.upToDate', { version: updates.info().latest }) }}
+            }
+          </span>
+        </div>
+        <span class="update-actions">
+          @if (updates.info().available) {
+            <button type="button" class="btn btn-primary" (click)="download()">{{ t('home.download') }}</button>
+          }
+          <button type="button" class="btn" [disabled]="updates.checking()" (click)="updates.check()">{{ t('settingsPage.checkNow') }}</button>
+        </span>
+      </div>
+    </section>
+
     @if (app(); as info) {
       <p class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</p>
     }

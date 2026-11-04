@@ -80,5 +80,6 @@ export type {
     TimedRoundView,
     TournamentSummary,
     TournamentView,
+    UpdateInfo,
     WinPreset
 } from "./models.js";

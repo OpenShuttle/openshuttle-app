@@ -85,6 +85,12 @@ select {
   color: var(--color-free-fg);
 }
 
+.update-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
 .version {
   margin: 0;
   font-size: 12px;

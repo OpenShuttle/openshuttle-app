@@ -49,7 +49,9 @@
     "deleteFileHint": "Le fichier ne pourra pas être récupéré. Les copies de sauvegarde sont conservées.",
     "deleteForGood": "Supprimer de la corbeille",
     "deleteWithFile": "Supprimer avec le fichier",
-    "trashEmpty": "La corbeille est vide."
+    "trashEmpty": "La corbeille est vide.",
+    "updateAvailable": "OpenShuttle {version} est disponible : vous utilisez la {current}.",
+    "download": "Télécharger"
   },
   "topBar": {
     "lastAction": "Dernière action · {time}",
@@ -252,7 +254,8 @@
     "NOT_SAME_CATEGORY": "Ces joueurs ne sont pas dans la même catégorie.",
     "NOT_A_PAIR": "Seule une paire peut être séparée.",
     "CLUB_EXISTS": "Un autre club a déjà ce nom ou cet acronyme.",
-    "INVALID_TIME": "Date ou heure non valide : la fin doit suivre le début."
+    "INVALID_TIME": "Date ou heure non valide : la fin doit suivre le début.",
+    "UPDATE_CHECK_FAILED": "Impossible de vérifier s'il existe une nouvelle version : pas de connexion internet ?"
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -819,7 +822,19 @@
     "clubDisplayBy": {
       "name": "Nom",
       "acronym": "Acronyme"
-    }
+    },
+    "updates": "Mises à jour",
+    "checkUpdates": "Rechercher une nouvelle version au démarrage",
+    "checkUpdatesHint": "Une seule requête à GitHub pour connaître la dernière version publiée. Rien n'est téléchargé ni installé ; sans réseau, il ne se passe rien.",
+    "yes": "Oui",
+    "no": "Non",
+    "latestVersion": "Dernière version",
+    "notChecked": "Pas encore vérifié.",
+    "noRelease": "Aucune version publiée pour l'instant.",
+    "newVersion": "La version {version} est disponible.",
+    "upToDate": "Vous avez la dernière version ({version}).",
+    "devBuild": "Version de développement : la dernière version publiée est la {version}.",
+    "checkNow": "Vérifier maintenant"
   },
   "homeTabs": {
     "home": "Accueil",

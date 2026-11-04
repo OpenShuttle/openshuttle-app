@@ -9,5 +9,6 @@
   "defaultWin": "b-sets-2x15",
   "defaultTiebreaks": "b-standard",
   "tournamentsDir": "/home/julie/Documents/OpenShuttle",
-  "clubDisplay": "name"
+  "clubDisplay": "name",
+  "checkUpdates": true
 }

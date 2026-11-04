@@ -53,6 +53,17 @@ func (v Version) String() string {
 	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }
 
+// Less reports whether v comes before other.
+func (v Version) Less(other Version) bool {
+	if v.Major != other.Major {
+		return v.Major < other.Major
+	}
+	if v.Minor != other.Minor {
+		return v.Minor < other.Minor
+	}
+	return v.Patch < other.Patch
+}
+
 // Compatible reports whether two apps can work together: same MAJOR.
 func (v Version) Compatible(other Version) bool {
 	return v.Major == other.Major

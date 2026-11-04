@@ -49,7 +49,9 @@
     "deleteFileHint": "The file cannot be recovered. Backup copies are kept.",
     "deleteForGood": "Delete from the trash",
     "deleteWithFile": "Delete with the file",
-    "trashEmpty": "The trash is empty."
+    "trashEmpty": "The trash is empty.",
+    "updateAvailable": "OpenShuttle {version} is available: you are running {current}.",
+    "download": "Download"
   },
   "topBar": {
     "lastAction": "Last action · {time}",
@@ -252,7 +254,8 @@
     "NOT_SAME_CATEGORY": "These players are not in the same category.",
     "NOT_A_PAIR": "Only a pair can be split.",
     "CLUB_EXISTS": "Another club already has this name or acronym.",
-    "INVALID_TIME": "This date or time is not valid: the end must come after the start."
+    "INVALID_TIME": "This date or time is not valid: the end must come after the start.",
+    "UPDATE_CHECK_FAILED": "Could not check for a new version: no internet connection?"
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -819,7 +822,19 @@
     "clubDisplayBy": {
       "name": "Name",
       "acronym": "Acronym"
-    }
+    },
+    "updates": "Updates",
+    "checkUpdates": "Look for a new version at startup",
+    "checkUpdatesHint": "One request to GitHub to learn the latest published version. Nothing is downloaded or installed; without network, nothing happens.",
+    "yes": "Yes",
+    "no": "No",
+    "latestVersion": "Latest version",
+    "notChecked": "Not checked yet.",
+    "noRelease": "No version published yet.",
+    "newVersion": "Version {version} is available.",
+    "upToDate": "You have the latest version ({version}).",
+    "devBuild": "Development build: the latest published version is {version}.",
+    "checkNow": "Check now"
   },
   "homeTabs": {
     "home": "Home",

@@ -33,3 +33,8 @@ export const TournamentLaunched = "tournament.launched";
  */
 export const TournamentUpdated = "tournament.updated";
 
+/**
+ * Name of the custom event "update.checked".
+ */
+export const UpdateChecked = "update.checked";
+

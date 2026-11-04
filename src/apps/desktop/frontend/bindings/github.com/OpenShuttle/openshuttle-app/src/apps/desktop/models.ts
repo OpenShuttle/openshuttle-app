@@ -1064,6 +1064,12 @@ export interface Settings {
      * when the club has none.
      */
     "clubDisplay": tournament$0.ClubDisplay;
+
+    /**
+     * CheckUpdates looks for a newer release at startup (on by default):
+     * one request to the GitHub releases list, nothing downloaded.
+     */
+    "checkUpdates": boolean;
 }
 
 /**
@@ -1335,6 +1341,28 @@ export interface TournamentView {
      */
     "day": tournament$0.DaySet;
     "progress": ProgressView;
+}
+
+/**
+ * UpdateInfo says whether a newer release is published. The app never
+ * downloads it: the home screen links to the website's download page.
+ */
+export interface UpdateInfo {
+    /**
+     * Checked: a check got an answer since the app started.
+     */
+    "checked": boolean;
+
+    /**
+     * Latest is the newest desktop version published ("" when none).
+     */
+    "latest": string;
+
+    /**
+     * Available: Latest is newer than the running version (never for a
+     * dev build).
+     */
+    "available": boolean;
 }
 
 /**
