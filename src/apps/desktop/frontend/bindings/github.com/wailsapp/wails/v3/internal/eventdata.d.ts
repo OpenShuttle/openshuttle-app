@@ -16,6 +16,7 @@ declare module "@wailsio/runtime" {
             "presets.changed": main$0.Presets;
             "settings.changed": main$0.Settings;
             "tournament.updated": number;
+            "update.checked": main$0.UpdateInfo;
         }
     }
 }

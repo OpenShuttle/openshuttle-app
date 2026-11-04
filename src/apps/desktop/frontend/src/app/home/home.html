@@ -17,6 +17,13 @@
       }
     </div>
 
+    @if (updates.info().available && app(); as info) {
+      <div class="card update" role="status">
+        <span>{{ t('home.updateAvailable', { version: updates.info().latest, current: info.version }) }}</span>
+        <button type="button" class="btn btn-sm btn-primary" (click)="download()">{{ t('home.download') }}</button>
+      </div>
+    }
+
     @if (creating()) {
       <form class="card create" (submit)="$event.preventDefault(); create()">
         <label class="create-field">

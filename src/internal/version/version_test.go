@@ -41,3 +41,24 @@ func TestCompatible(t *testing.T) {
 		t.Error("different MAJOR should not be compatible")
 	}
 }
+
+func TestLess(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		{"1.2.0", "1.3.0", true},
+		{"1.3.0", "1.2.9", false},
+		{"1.9.9", "2.0.0", true},
+		{"1.2.3", "1.2.4", true},
+		{"1.2.3", "1.2.3", false},
+		{"1.10.0", "1.9.0", false},
+	}
+	for _, tt := range tests {
+		a, _ := Parse(tt.a)
+		b, _ := Parse(tt.b)
+		if got := a.Less(b); got != tt.want {
+			t.Errorf("%s < %s = %v, want %v", tt.a, tt.b, got, tt.want)
+		}
+	}
+}

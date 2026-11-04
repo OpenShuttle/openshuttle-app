@@ -25,6 +25,7 @@ const (
 	settingDefaultTiebrk   = "defaultTiebreaks"
 	settingTournamentsDir  = "tournamentsDir"
 	settingClubDisplay     = "clubDisplay"
+	settingCheckUpdates    = "checkUpdates"
 
 	// EventSettingsChanged is emitted after a setting changes, so every
 	// window applies it. Its payload is the full Settings.
@@ -66,6 +67,9 @@ type Settings struct {
 	// ClubDisplay shows clubs by name (default) or by acronym, the name
 	// when the club has none.
 	ClubDisplay tournament.ClubDisplay `json:"clubDisplay"`
+	// CheckUpdates looks for a newer release at startup (on by default):
+	// one request to the GitHub releases list, nothing downloaded.
+	CheckUpdates bool `json:"checkUpdates"`
 }
 
 // SettingsService reads and writes the app settings.
@@ -137,6 +141,11 @@ func (s *SettingsService) SetClubDisplay(ctx context.Context, display tournament
 		return engine.NewError(engine.CodeInvalidSetting)
 	}
 	return s.set(ctx, settingClubDisplay, string(display))
+}
+
+// SetCheckUpdates turns the startup check for a newer release on or off.
+func (s *SettingsService) SetCheckUpdates(ctx context.Context, on bool) error {
+	return s.set(ctx, settingCheckUpdates, strconv.FormatBool(on))
 }
 
 // PresetKind names a list of presets.
@@ -216,6 +225,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		settingLanguage, settingOperator, settingMonitor, settingRotationSeconds,
 		settingDefaultCourts, settingDefaultMinRest, settingTournamentsDir,
 		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk, settingClubDisplay,
+		settingCheckUpdates,
 	} {
 		v, _, err := db.Setting(ctx, key)
 		if err != nil {
@@ -238,6 +248,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		DefaultMinRest:  number(settingDefaultMinRest, tournament.DefaultMinRest),
 		TournamentsDir:  raw[settingTournamentsDir],
 		ClubDisplay:     clubDisplay(raw[settingClubDisplay]),
+		CheckUpdates:    raw[settingCheckUpdates] != "false",
 	}
 	presets, err := readPresets(ctx, db)
 	if err != nil {

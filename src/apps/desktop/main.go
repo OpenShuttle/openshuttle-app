@@ -28,6 +28,7 @@ func init() {
 	application.RegisterEvent[bool](EventDisplayScreenChanged)
 	application.RegisterEvent[Settings](EventSettingsChanged)
 	application.RegisterEvent[Presets](EventPresetsChanged)
+	application.RegisterEvent[UpdateInfo](EventUpdateChecked)
 }
 
 func main() {
@@ -55,7 +56,7 @@ func main() {
 		Name:        "OpenShuttle",
 		Description: "Run badminton club tournaments, fully offline",
 		Services: []application.Service{
-			service(&AppService{}),
+			service(NewAppService(appDB, emit)),
 			service(NewDisplayScreenService()),
 			service(NewSettingsService(appDB, emitClubs, nativeDialogs{})),
 			service(NewPresetService(appDB, emitClubs, time.Now)),

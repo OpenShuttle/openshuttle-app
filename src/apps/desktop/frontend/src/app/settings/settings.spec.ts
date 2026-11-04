@@ -1,7 +1,7 @@
 import { Presets, Settings } from '@bindings/apps/desktop';
 
-import { FakeBackend } from '../../testing/backend';
-import { choose, clickAll, render, text } from '../../testing/render';
+import { FakeBackend, backendFailure } from '../../testing/backend';
+import { choose, click, clickAll, render, text } from '../../testing/render';
 import presets from '../../testing/fixtures/presets.json';
 import settings from '../../testing/fixtures/settings.json';
 import { SettingsPage } from './settings';
@@ -25,6 +25,31 @@ describe('SettingsPage', () => {
     for (const name of ['SetLanguage', 'SetDefaultCourts', 'SetDefaultMinRest', 'SetRotationSeconds', 'ChooseTournamentsDir']) {
       expect(go.called(`SettingsService.${name}`)).toBe(true);
     }
+  });
+
+  it('looks for a new version at startup, or not, and checks on demand', async () => {
+    go.on('AppService.GetAppInfo', { version: '1.2.0', compat: 1 });
+    const f = await render(SettingsPage);
+    expect(text(f)).toContain('Not checked yet.');
+    const seg = () => [...f.nativeElement.querySelectorAll('.seg-option')] as HTMLButtonElement[];
+    seg().find((b) => b.textContent!.trim() === 'No')!.click();
+    await new Promise((r) => setTimeout(r));
+    expect(go.argsOf('SettingsService.SetCheckUpdates')).toEqual([[false]]);
+
+    go.on('AppService.CheckForUpdate', { checked: true, latest: '1.3.0', available: true });
+    await click(f, 'Check now');
+    expect(text(f)).toContain('Version 1.3.0 is available.');
+    expect(text(f)).toContain('Download');
+
+    go.on('AppService.CheckForUpdate', { checked: true, latest: '1.2.0', available: false });
+    await click(f, 'Check now');
+    expect(text(f)).toContain('You have the latest version (1.2.0).');
+
+    go.on('AppService.CheckForUpdate', () => {
+      throw backendFailure('UPDATE_CHECK_FAILED');
+    });
+    await click(f, 'Check now');
+    expect(text(f)).toContain('no internet connection?');
   });
 
   it('shows clubs by name or by acronym', async () => {

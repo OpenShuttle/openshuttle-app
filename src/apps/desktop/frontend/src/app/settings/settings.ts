@@ -5,9 +5,11 @@ import { WinCondition } from '@bindings/internal/engine';
 import { ClubDisplay } from '@bindings/internal/tournament';
 
 import { DisplayScreenService } from '../core/display-screen.service';
+import { openDownload } from '../core/guide';
 import { Language, LanguageService } from '../core/language.service';
 import { AppPresets } from '../core/presets.service';
 import { AppSettings } from '../core/settings.service';
+import { AppUpdates } from '../core/updates.service';
 import { winSummary } from '../shared/stage-label';
 
 /** Settings: stored on this PC, for every tournament. */
@@ -22,6 +24,7 @@ export class SettingsPage {
   protected readonly language = inject(LanguageService);
   protected readonly display = inject(DisplayScreenService);
   protected readonly presets = inject(AppPresets);
+  protected readonly updates = inject(AppUpdates);
   private readonly transloco = inject(TranslocoService);
   protected readonly presetKinds = PresetKind;
   protected readonly app = signal<AppInfo | null>(null);
@@ -37,6 +40,14 @@ export class SettingsPage {
 
   /** Clubs shown by name, or by acronym when they have one. */
   protected readonly clubDisplays = [ClubDisplay.ClubDisplayName, ClubDisplay.ClubDisplayAcronym];
+
+  protected setCheckUpdates(on: boolean): void {
+    void this.settings.run(() => SettingsService.SetCheckUpdates(on));
+  }
+
+  protected download(): void {
+    void openDownload(this.language.active);
+  }
 
   protected setClubDisplay(display: ClubDisplay): void {
     void this.settings.run(() => SettingsService.SetClubDisplay(display));

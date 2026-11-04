@@ -34,6 +34,13 @@ export function GetSettings(): $CancellablePromise<$models.Settings> {
 }
 
 /**
+ * SetCheckUpdates turns the startup check for a newer release on or off.
+ */
+export function SetCheckUpdates(on: boolean): $CancellablePromise<void> {
+    return $Call.ByID(2446101002, on);
+}
+
+/**
  * SetClubDisplay shows clubs by name or by acronym on every screen.
  */
 export function SetClubDisplay(display: tournament$0.ClubDisplay): $CancellablePromise<void> {

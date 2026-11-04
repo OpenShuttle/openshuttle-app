@@ -2,10 +2,11 @@ import { Component, ElementRef, computed, effect, inject, signal, viewChild } fr
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
-import { openGuide } from '../core/guide';
+import { openDownload, openGuide } from '../core/guide';
 import { LanguageService } from '../core/language.service';
 import { AppSettings } from '../core/settings.service';
 import { TournamentStore } from '../core/tournament.service';
+import { AppUpdates } from '../core/updates.service';
 import { AppInfo, AppService, RecentTournament } from '@bindings/apps/desktop';
 
 /** Home screen: recent tournament files, create, open, duplicate, and the trash. */
@@ -21,6 +22,7 @@ export class Home {
   private readonly settings = inject(AppSettings);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  protected readonly updates = inject(AppUpdates);
 
   protected readonly app = signal<AppInfo | null>(null);
   protected readonly creating = signal(false);
@@ -45,6 +47,11 @@ export class Home {
       this.creating.set(false);
       void this.router.navigateByUrl('/tournament');
     }
+  }
+
+  /** Opens the website's download page for the newer version. */
+  protected download(): void {
+    void openDownload(this.language.active);
   }
 
   /** Building the sample tournament takes a moment: the button waits. */
