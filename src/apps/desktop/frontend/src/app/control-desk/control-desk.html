@@ -73,7 +73,7 @@
                     <span class="court-label">{{ t('desk.court') }}</span>
                     <span class="court-state-name">{{ t('desk.state.playing') }}</span>
                   </span>
-                  <app-category-badge [category]="m.category" [slot]="m.slot" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
+                  <app-category-badge [category]="m.category" [slot]="m.slot" [color]="m.color" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
                 </header>
                 <div class="court-body">
                   <div class="side">
@@ -108,7 +108,7 @@
                     <span class="court-label">{{ t('desk.court') }}</span>
                     <span class="court-state-name">{{ t('desk.endedAt', { time: time(m.endedAt) }) }}</span>
                   </span>
-                  <app-category-badge [category]="m.category" [slot]="m.slot" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
+                  <app-category-badge [category]="m.category" [slot]="m.slot" [color]="m.color" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
                 </header>
                 <button type="button" class="pending-match" (click)="scoring.set(m)">
                   <span class="line"><span class="bib">{{ m.a.bib }}</span><span class="line-names">{{ short(m.a) }}</span></span>
@@ -145,7 +145,7 @@
                     <span class="court-state-name">{{ t('desk.state.free') }}</span>
                   </span>
                   @if (c.proposal; as p) {
-                    <app-category-badge [category]="p.category" [slot]="p.slot" [ring]="true"> · <app-match-stage [match]="p" /></app-category-badge>
+                    <app-category-badge [category]="p.category" [slot]="p.slot" [color]="p.color" [ring]="true"> · <app-match-stage [match]="p" /></app-category-badge>
                   }
                 </header>
                 @if (c.proposal; as p) {
@@ -234,7 +234,7 @@
         @for (q of queue().slice(0, 30); track q.match.id) {
           <div class="queue-item">
             <div class="queue-top">
-              <app-category-badge [category]="q.match.category" [slot]="q.match.slot"> · <app-match-stage [match]="q.match" /></app-category-badge>
+              <app-category-badge [category]="q.match.category" [slot]="q.match.slot" [color]="q.match.color"> · <app-match-stage [match]="q.match" /></app-category-badge>
               <span class="queue-id">{{ q.match.id }}</span>
               @if (proposedCourt(q.match.id); as court) {
                 <span class="pill pill-free queue-status">{{ t('desk.status.proposed', { court }) }}</span>

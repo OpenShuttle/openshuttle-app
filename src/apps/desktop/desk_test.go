@@ -46,7 +46,7 @@ func TestControlDesk(t *testing.T) {
 		t.Fatalf("proposals = %+v", v.Courts)
 	}
 	p := v.Courts[0].Proposal
-	if p.Pool != "A" || p.Round != 1 || p.Slot != 1 || p.A.Bib == 0 || len(p.A.Names) != 1 || p.Win.PointsPerSet != 21 {
+	if p.Pool != "A" || p.Round != 1 || p.Slot != 1 || p.Color != 1 || p.A.Bib == 0 || len(p.A.Names) != 1 || p.Win.PointsPerSet != 21 {
 		t.Errorf("match view = %+v", p)
 	}
 
