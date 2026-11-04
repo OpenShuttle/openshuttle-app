@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -14,13 +16,14 @@ import (
 // read from disk.
 func (s *TournamentService) stateOf(ctx context.Context, path string) (tournament.State, error) {
 	s.mu.Lock()
-	if s.file != nil && s.file.Path() == path {
+	if s.file != nil && sameFile(s.file.Path(), path) {
 		st := s.state
 		s.mu.Unlock()
 		return st, nil
 	}
 	s.mu.Unlock()
-	f, err := store.OpenTournament(ctx, path)
+	// Only read: the file may be open in another instance of the app.
+	f, err := store.PeekTournament(ctx, path)
 	if err != nil {
 		return tournament.State{}, err
 	}
@@ -32,6 +35,19 @@ func (s *TournamentService) stateOf(ctx context.Context, path string) (tournamen
 	return tournament.Project(log)
 }
 
+// sameFile tells whether two paths name one file.
+func sameFile(a, b string) bool {
+	if filepath.Clean(a) == filepath.Clean(b) {
+		return true
+	}
+	sa, err := os.Stat(a)
+	if err != nil {
+		return false
+	}
+	sb, err := os.Stat(b)
+	return err == nil && os.SameFile(sa, sb)
+}
+
 func (s *TournamentService) closeLocked() {
 	if s.stopBackups != nil {
 		close(s.stopBackups)
@@ -40,9 +56,9 @@ func (s *TournamentService) closeLocked() {
 	if s.file != nil {
 		ctx := context.Background()
 		s.backupLocked(ctx)
-		if list, err := readRecent(ctx, s.app); err == nil {
-			_ = writeRecent(ctx, s.app, setSummary(list, s.file.Path(), summaryOf(s.state, lastEventAt(s.log))))
-		}
+		_ = updateRecent(ctx, s.app, func(list []RecentTournament) []RecentTournament {
+			return setSummary(list, s.file.Path(), summaryOf(s.state, lastEventAt(s.log)))
+		})
 		if err := s.file.Close(); err != nil {
 			slog.Error("close tournament", "err", err)
 		}

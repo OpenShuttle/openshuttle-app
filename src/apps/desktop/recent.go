@@ -32,7 +32,7 @@ type RecentTournament struct {
 	TrashedAt *time.Time `json:"trashedAt"`
 }
 
-func readRecent(ctx context.Context, db *store.AppDB) ([]RecentTournament, error) {
+func readRecent(ctx context.Context, db store.Settings) ([]RecentTournament, error) {
 	raw, ok, err := db.Setting(ctx, settingRecentTournaments)
 	if err != nil || !ok {
 		return []RecentTournament{}, err
@@ -75,12 +75,24 @@ func renameRecent(list []RecentTournament, path, name string) []RecentTournament
 	return list
 }
 
-func writeRecent(ctx context.Context, db *store.AppDB, list []RecentTournament) error {
+func writeRecent(ctx context.Context, db store.Settings, list []RecentTournament) error {
 	raw, err := json.Marshal(list)
 	if err != nil {
 		return err
 	}
 	return db.SetSetting(ctx, settingRecentTournaments, string(raw))
+}
+
+// updateRecent changes the recent list in one transaction, so another
+// instance of the app writing it meanwhile loses nothing.
+func updateRecent(ctx context.Context, db *store.AppDB, change func([]RecentTournament) []RecentTournament) error {
+	return db.Update(ctx, func(tx store.Settings) error {
+		list, err := readRecent(ctx, tx)
+		if err != nil {
+			return err
+		}
+		return writeRecent(ctx, tx, change(list))
+	})
 }
 
 // markArchived flags a tournament of the list as archived.

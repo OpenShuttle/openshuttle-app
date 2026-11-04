@@ -163,10 +163,10 @@ func (s *TournamentService) DuplicateTournament(ctx context.Context, source, nam
 	if err != nil {
 		return "", err
 	}
-	if list, err := readRecent(ctx, s.app); err == nil {
+	_ = updateRecent(ctx, s.app, func(list []RecentTournament) []RecentTournament {
 		list = touchRecent(list, path, state.Name, s.now())
-		_ = writeRecent(ctx, s.app, setSummary(list, path, summaryOf(state, lastEventAt(log))))
-	}
+		return setSummary(list, path, summaryOf(state, lastEventAt(log)))
+	})
 	return path, nil
 }
 
@@ -181,20 +181,22 @@ func (s *TournamentService) OpenTournamentDialog(ctx context.Context) (string, e
 	return path, s.OpenTournament(ctx, path)
 }
 
-// OpenTournament opens a tournament file, closing the current one.
+// OpenTournament opens a tournament file, closing the current one. The file
+// open here is reopened from disk; one open in another instance of the app
+// is refused (FILE_IN_USE).
 func (s *TournamentService) OpenTournament(ctx context.Context, path string) error {
-	f, err := store.OpenTournament(ctx, path)
-	if err != nil {
-		return err
+	s.mu.Lock()
+	reopen := s.file != nil && sameFile(s.file.Path(), path)
+	if reopen {
+		// Its lock is held here: close it first.
+		s.closeLocked()
 	}
-	log, err := f.Events(ctx)
+	s.mu.Unlock()
+	f, log, state, err := s.load(ctx, path)
 	if err != nil {
-		f.Close()
-		return err
-	}
-	state, err := s.project(log)
-	if err != nil {
-		f.Close()
+		if reopen {
+			s.emit(EventTournamentUpdated, uint64(0))
+		}
 		return err
 	}
 
@@ -206,12 +208,29 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 	s.mu.Unlock()
 
 	s.untrash(ctx, path)
-	if list, err := readRecent(ctx, s.app); err == nil {
+	_ = updateRecent(ctx, s.app, func(list []RecentTournament) []RecentTournament {
 		list = touchRecent(list, path, state.Name, s.now())
-		_ = writeRecent(ctx, s.app, setSummary(list, path, summaryOf(state, lastEventAt(log))))
-	}
+		return setSummary(list, path, summaryOf(state, lastEventAt(log)))
+	})
 	s.emit(EventTournamentUpdated, state.Version)
 	return nil
+}
+
+// load opens a tournament file and projects its log.
+func (s *TournamentService) load(ctx context.Context, path string) (*store.TournamentFile, []events.Event, tournament.State, error) {
+	f, err := store.OpenTournament(ctx, path)
+	if err != nil {
+		return nil, nil, tournament.State{}, err
+	}
+	log, err := f.Events(ctx)
+	if err == nil {
+		var state tournament.State
+		if state, err = s.project(log); err == nil {
+			return f, log, state, nil
+		}
+	}
+	f.Close()
+	return nil, nil, tournament.State{}, err
 }
 
 // CloseTournament closes the current tournament, if any.
@@ -320,9 +339,7 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 	s.log, s.state = log, state
 
 	if nameChanged {
-		if list, err := readRecent(ctx, s.app); err == nil {
-			_ = writeRecent(ctx, s.app, renameRecent(list, s.file.Path(), state.Name))
-		}
+		_ = updateRecent(ctx, s.app, func(list []RecentTournament) []RecentTournament { return renameRecent(list, s.file.Path(), state.Name) })
 	}
 	s.emit(EventTournamentUpdated, state.Version)
 	return nil

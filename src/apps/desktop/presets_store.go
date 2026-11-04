@@ -85,7 +85,7 @@ func (p Presets) has(kind PresetKind, id string) bool {
 }
 
 // readPresets returns the built-in presets, then the saved ones.
-func readPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
+func readPresets(ctx context.Context, db store.Settings) (Presets, error) {
 	all := builtInPresets()
 	user, err := readUserPresets(ctx, db)
 	if err != nil {
@@ -99,7 +99,7 @@ func readPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
 	return all, nil
 }
 
-func readUserPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
+func readUserPresets(ctx context.Context, db store.Settings) (Presets, error) {
 	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}, Clubs: []tournament.Club{}}
 	raw, ok, err := db.Setting(ctx, settingPresets)
 	if err != nil || !ok {
@@ -110,7 +110,7 @@ func readUserPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
 	return p, nil
 }
 
-func writeUserPresets(ctx context.Context, db *store.AppDB, p Presets) error {
+func writeUserPresets(ctx context.Context, db store.Settings, p Presets) error {
 	raw, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -127,13 +127,18 @@ func presetName(name string, maxLen int, required bool) (string, error) {
 	return name, nil
 }
 
+// updatePresets changes the saved presets in one transaction, so another
+// instance of the app writing them meanwhile loses nothing.
 func updatePresets(ctx context.Context, db *store.AppDB, emit func(string, any), change func(*Presets)) error {
-	p, err := readUserPresets(ctx, db)
+	err := db.Update(ctx, func(tx store.Settings) error {
+		p, err := readUserPresets(ctx, tx)
+		if err != nil {
+			return err
+		}
+		change(&p)
+		return writeUserPresets(ctx, tx, p)
+	})
 	if err != nil {
-		return err
-	}
-	change(&p)
-	if err := writeUserPresets(ctx, db, p); err != nil {
 		return err
 	}
 	all, err := readPresets(ctx, db)

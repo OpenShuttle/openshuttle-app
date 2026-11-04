@@ -29,15 +29,16 @@ const (
 // migration upgrades a schema by one version, inside a transaction.
 type migration func(ctx context.Context, tx *sql.Tx) error
 
-// openDB opens a SQLite file with the pragmas every OpenShuttle database uses.
-func openDB(path string) (*sql.DB, error) {
-	q := strings.Join([]string{
+// openDB opens a SQLite file with the pragmas every OpenShuttle database
+// uses, then the extra ones.
+func openDB(path string, extra ...string) (*sql.DB, error) {
+	q := strings.Join(append([]string{
 		"_pragma=journal_mode(WAL)",
 		"_pragma=synchronous(FULL)",
 		"_pragma=foreign_keys(1)",
 		"_pragma=busy_timeout(5000)",
 		"_txlock=immediate",
-	}, "&")
+	}, extra...), "&")
 	// No "file:" prefix: the path is then passed as is, not parsed as a URI,
 	// so Windows paths and names with '#' or '%' work.
 	db, err := sql.Open("sqlite", path+"?"+q)
@@ -49,16 +50,38 @@ func openDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
+// header reads the application_id and user_version of a database.
+func header(ctx context.Context, db *sql.DB) (id int32, version int, err error) {
+	if err := db.QueryRowContext(ctx, "PRAGMA application_id").Scan(&id); err != nil {
+		// Not a SQLite file at all.
+		return 0, 0, engine.NewError(engine.CodeNotATournamentFile)
+	}
+	err = db.QueryRowContext(ctx, "PRAGMA user_version").Scan(&version)
+	return id, version, err
+}
+
+// check checks the file type and that its schema is the latest, without
+// writing anything.
+func check(ctx context.Context, db *sql.DB, appID int32, migrations []migration) error {
+	id, version, err := header(ctx, db)
+	switch {
+	case err != nil:
+		return err
+	case id != appID:
+		return engine.NewError(engine.CodeNotATournamentFile)
+	case version > len(migrations):
+		return engine.NewError(engine.CodeFileTooNew)
+	case version < len(migrations):
+		return engine.NewError(engine.CodeFileTooOld)
+	}
+	return nil
+}
+
 // prepare checks the file type, then migrates it to the latest schema. A new,
 // empty database is stamped with appID.
 func prepare(ctx context.Context, db *sql.DB, appID int32, migrations []migration) error {
-	var id int32
-	if err := db.QueryRowContext(ctx, "PRAGMA application_id").Scan(&id); err != nil {
-		// Not a SQLite file at all.
-		return engine.NewError(engine.CodeNotATournamentFile)
-	}
-	var version int
-	if err := db.QueryRowContext(ctx, "PRAGMA user_version").Scan(&version); err != nil {
+	id, version, err := header(ctx, db)
+	if err != nil {
 		return err
 	}
 

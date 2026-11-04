@@ -70,6 +70,8 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - Files are recognized by their SQLite `application_id` (`OSHT` tournament, `OSAP` app.db), versioned by `user_version`. Migrations are append-only lists in `internal/store`.
 - Undo appends an `ActionUndone` event targeting an earlier seq; undoing an undo restores its target. `events.Active` gives the events in effect. Nothing is deleted from the log.
 - Open SQLite with a plain path, never a `file:` URI (Windows paths, `#` and `%` in names).
+- **One instance per tournament file**: the app may run several times (two tournaments side by side), but `store.OpenTournament`/`CreateTournament` hold an exclusive OS lock on a sibling `<name>.openshuttle-lock` (`flock`; `LockFileEx` on Windows, file hidden) until `Close`; a second open, in this instance or another, fails with `FILE_IN_USE`. The OS drops the lock when the process dies, so a lock file left by a crash is only reused; `Close` deletes it. Never lock the database itself (SQLite's own locks; on Unix closing any handle drops the process's fcntl locks). Reading a file open elsewhere (`stateOf` for Duplicate) goes through `PeekTournament` (no lock, `query_only`, no migration). `RemoveTournament` (trash delete) takes the lock first. Opening the file already open here reopens it.
+- **app.db is shared by every instance** (WAL, `busy_timeout`): a setting read, changed and written back (recent list, trash, presets) goes through `AppDB.Update`, one `BEGIN IMMEDIATE` transaction (`updateRecent`, `updatePresets`), so another instance's write is never lost. Single-key settings (`lastDir.*`, Settings screen) are last write wins.
 
 ## Domain rules (v1, decided)
 

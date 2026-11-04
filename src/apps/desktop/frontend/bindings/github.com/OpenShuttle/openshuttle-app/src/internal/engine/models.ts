@@ -148,6 +148,7 @@ export enum Code {
     CodeNotATournamentFile = "NOT_A_TOURNAMENT_FILE",
     CodeFileTooNew = "FILE_TOO_NEW",
     CodeFileTooOld = "FILE_TOO_OLD",
+    CodeFileInUse = "FILE_IN_USE",
     CodeNotInTrash = "NOT_IN_TRASH",
     CodeDeleteFailed = "DELETE_FAILED",
 };

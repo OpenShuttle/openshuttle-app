@@ -236,6 +236,7 @@
     "PRESET_NOT_FOUND": "This preset no longer exists.",
     "PRESET_READ_ONLY": "Built-in presets cannot be deleted.",
     "FILE_TOO_OLD": "This file was made by an earlier test version of OpenShuttle and can no longer be opened.",
+    "FILE_IN_USE": "This tournament is already open in another OpenShuttle window.",
     "NO_POOL_SPLIT": "The pool sizes allowed cannot split this number of entrants: allow another size in the format.",
     "BRACKET_IS_FINAL": "A bracket is always the last phase of its entrants: it cannot send anyone to another phase.",
     "STAGE_STARTED": "A match of this phase has started: only its name, its routing and the estimated duration can still change.",

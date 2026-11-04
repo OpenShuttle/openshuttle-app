@@ -156,8 +156,9 @@ export function CreateTournamentAt(path: string, name: string): $CancellableProm
 /**
  * DeleteTournament removes a tournament from the trash for good. With
  * deleteFile, its file is deleted from disk too, with its -wal and -shm
- * siblings; backups are kept. A file that cannot be deleted leaves the
- * tournament in the trash (DELETE_FAILED).
+ * siblings; backups are kept. A file open in another instance of the app is
+ * kept (FILE_IN_USE), and so is one that cannot be deleted (DELETE_FAILED):
+ * the tournament then stays in the trash.
  */
 export function DeleteTournament(path: string, deleteFile: boolean): $CancellablePromise<void> {
     return $Call.ByID(3183251870, path, deleteFile);
@@ -346,7 +347,9 @@ export function MoveScheduledMatch(id: tournament$0.MatchID, before: tournament$
 }
 
 /**
- * OpenTournament opens a tournament file, closing the current one.
+ * OpenTournament opens a tournament file, closing the current one. The file
+ * open here is reopened from disk; one open in another instance of the app
+ * is refused (FILE_IN_USE).
  */
 export function OpenTournament(path: string): $CancellablePromise<void> {
     return $Call.ByID(875556689, path);

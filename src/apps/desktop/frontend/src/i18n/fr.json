@@ -236,6 +236,7 @@
     "PRESET_NOT_FOUND": "Ce preset n'existe plus.",
     "PRESET_READ_ONLY": "Les presets intégrés ne peuvent pas être supprimés.",
     "FILE_TOO_OLD": "Ce fichier a été créé par une version de test antérieure d'OpenShuttle et ne peut plus être ouvert.",
+    "FILE_IN_USE": "Ce tournoi est déjà ouvert dans une autre fenêtre d'OpenShuttle.",
     "NO_POOL_SPLIT": "Les tailles de poule autorisées ne permettent pas de répartir ce nombre de participants : autorisez une autre taille dans le format.",
     "BRACKET_IS_FINAL": "Un tableau est toujours la dernière phase de ses participants : il ne peut envoyer personne vers une autre phase.",
     "STAGE_STARTED": "Un match de cette phase a commencé : seuls son nom, son routage et la durée estimée peuvent encore changer.",
