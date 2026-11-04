@@ -238,7 +238,7 @@
     "SCHEDULE_NOT_VALIDATED": "Validez l'échéancier avant de déplacer des matchs.",
     "SCHEDULE_VALIDATED": "L'échéancier est validé : les matchs se déplacent maintenant un par un. Revenez aux blocs pour déplacer toute une poule.",
     "NOT_IN_TRASH": "Ce tournoi n'est plus dans la corbeille.",
-    "DELETE_FAILED": "Le fichier n'a pas pu être supprimé. Il est peut-être ouvert dans un autre programme."
+    "DELETE_FAILED": "Le fichier n'a pas pu être supprimé. Il est peut-être ouvert dans un autre programme.",
     "NOT_WAITING_PARTNER": "Ce joueur a déjà un partenaire.",
     "NOT_SAME_CATEGORY": "Ces joueurs ne sont pas dans la même catégorie.",
     "NOT_A_PAIR": "Seule une paire peut être séparée."

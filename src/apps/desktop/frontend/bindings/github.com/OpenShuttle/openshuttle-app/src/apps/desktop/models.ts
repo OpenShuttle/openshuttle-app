@@ -553,6 +553,10 @@ export interface Presets {
  * ProgressView sums up a tournament for the side navigation and the top bar.
  */
 export interface ProgressView {
+    /**
+     * Entrants counts players and pairs, not the players waiting for a
+     * partner.
+     */
     "entrants": number;
 
     /**

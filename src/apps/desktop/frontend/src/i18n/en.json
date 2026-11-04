@@ -238,7 +238,7 @@
     "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches.",
     "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool.",
     "NOT_IN_TRASH": "This tournament is no longer in the trash.",
-    "DELETE_FAILED": "The file could not be deleted. It may be open in another program."
+    "DELETE_FAILED": "The file could not be deleted. It may be open in another program.",
     "NOT_WAITING_PARTNER": "This player already has a partner.",
     "NOT_SAME_CATEGORY": "These players are not in the same category.",
     "NOT_A_PAIR": "Only a pair can be split."
