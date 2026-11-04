@@ -199,7 +199,9 @@ Frontend tests render each screen with Go faked: `src/testing/backend.ts`
 the calls) and `src/testing/render.ts` (real translations, `click`, `clickAll`,
 `drag`…). Views come from `src/testing/fixtures/*.json`, written by the Go test
 above from demo tournaments (fixed clock, seeded draw): regenerate them when a
-view changes. Every screen has a spec; coverage counts every file of `src/app`
+view changes. `src/i18n/translations.spec.ts` checks the translation files
+themselves: valid JSON, every message compiles (ICU), same keys and parameters
+in en and fr. Every screen has a spec; coverage counts every file of `src/app`
 (Sonar wants 80 % on new code).
 
 Generated bindings (`frontend/bindings`) are committed. Import them through the
