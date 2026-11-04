@@ -241,7 +241,8 @@
     "DELETE_FAILED": "Le fichier n'a pas pu être supprimé. Il est peut-être ouvert dans un autre programme.",
     "NOT_WAITING_PARTNER": "Ce joueur a déjà un partenaire.",
     "NOT_SAME_CATEGORY": "Ces joueurs ne sont pas dans la même catégorie.",
-    "NOT_A_PAIR": "Seule une paire peut être séparée."
+    "NOT_A_PAIR": "Seule une paire peut être séparée.",
+    "CLUB_EXISTS": "Un autre club a déjà ce nom ou cet acronyme."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -789,7 +790,13 @@
     "defaultFormatHint": "Une nouvelle catégorie démarre avec ce preset de format.",
     "defaultWin": "Condition de victoire",
     "defaultWinHint": "Utilisée par les nouvelles phases et les nouveaux formats.",
-    "defaultTiebreaks": "Ordre de départage"
+    "defaultTiebreaks": "Ordre de départage",
+    "clubDisplay": "Clubs",
+    "clubDisplayHint": "Comment tous les écrans affichent les clubs. Un club sans acronyme affiche son nom.",
+    "clubDisplayBy": {
+      "name": "Nom",
+      "acronym": "Acronyme"
+    }
   },
   "homeTabs": {
     "home": "Accueil",
@@ -860,13 +867,15 @@
   },
   "clubs": {
     "title": "Clubs",
-    "hint": "Proposés à la saisie d'un joueur. Un club saisi pour un joueur rejoint la liste.",
+    "hint": "Proposés à la saisie d'un joueur. Le club d'un joueur est reconnu par son nom ou son acronyme ; un club saisi pour un joueur rejoint la liste.",
     "none": "Sans club",
     "new": "Nouveau club…",
     "newPlaceholder": "Nom du club",
     "add": "Ajouter",
-    "rename": "Renommer",
-    "empty": "Aucun club pour l'instant."
+    "empty": "Aucun club pour l'instant.",
+    "acronym": "Acronyme",
+    "acronymPlaceholder": "Acronyme (facultatif)",
+    "edit": "Modifier"
   },
   "importSkip": {
     "ALREADY_ENTERED": "déjà inscrit",
@@ -900,7 +909,15 @@
     "pairs": "Paires : un second joueur sur chaque ligne",
     "toAdd": "{n, plural, =0 {Personne à importer} one {# inscription à importer} other {# inscriptions à importer}}",
     "more": "et {n} de plus",
-    "confirm": "{n, plural, =0 {Importer} one {Importer # inscription} other {Importer # inscriptions}}"
+    "confirm": "{n, plural, =0 {Importer} one {Importer # inscription} other {Importer # inscriptions}}",
+    "clubsTitle": "{n, plural, one {# club absent de la liste} other {# clubs absents de la liste}}",
+    "clubsHint": "Ajoutez chacun à la liste des clubs, rattachez-le à un club de la liste ou gardez-le tel quel.",
+    "clubChoice": "Que faire de {club}",
+    "clubAdd": "Ajouter à la liste",
+    "clubKeep": "Garder tel quel",
+    "clubMap": "Même club que",
+    "clubName": "Nom du club {club}",
+    "clubAcronym": "Acronyme du club {club}"
   },
   "schedule": {
     "title": "Échéancier",

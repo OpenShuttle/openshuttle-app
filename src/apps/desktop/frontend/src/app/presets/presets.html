@@ -195,31 +195,36 @@
       <section class="card list">
         <div class="list-head">
           <h2 class="list-title">{{ t('clubs.title') }}</h2>
-          <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: '', name: '' })">+ {{ t('presets.new') }}</button>
+          <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: '', name: '', acronym: '' })">+ {{ t('presets.new') }}</button>
         </div>
         <span class="order">{{ t('clubs.hint') }}</span>
+        <ng-template #clubForm let-d>
+          <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
+            <input class="input" maxlength="80" [attr.aria-label]="t('clubs.newPlaceholder')" [placeholder]="t('clubs.newPlaceholder')" [value]="d.name" (input)="setClubDraft('name', value($event))" />
+            <input class="input acronym" maxlength="20" [attr.aria-label]="t('clubs.acronym')" [placeholder]="t('clubs.acronymPlaceholder')" [value]="d.acronym" (input)="setClubDraft('acronym', value($event))" />
+            <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn btn-xs btn-primary" [disabled]="!d.name.trim() && !d.acronym.trim()">{{ t('presets.save') }}</button>
+          </form>
+        </ng-template>
         @if (clubDraft(); as d) {
           @if (d.old === '') {
-            <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
-              <input class="input" maxlength="80" [attr.aria-label]="t('clubs.newPlaceholder')" [placeholder]="t('clubs.newPlaceholder')" [value]="d.name" (input)="clubDraft.set({ old: d.old, name: value($event) })" />
-              <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-xs btn-primary" [disabled]="!d.name.trim()">{{ t('presets.save') }}</button>
-            </form>
+            <ng-container *ngTemplateOutlet="clubForm; context: { $implicit: d }" />
           }
         }
-        @for (c of presets.value().clubs ?? []; track c) {
-          @if (clubDraft()?.old === c) {
-            <form class="row club-form" (submit)="$event.preventDefault(); saveClub()">
-              <input class="input" maxlength="80" [attr.aria-label]="t('clubs.newPlaceholder')" [value]="clubDraft()!.name" (input)="clubDraft.set({ old: c, name: value($event) })" />
-              <button type="button" class="btn btn-xs" (click)="clubDraft.set(null)">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-xs btn-primary" [disabled]="!clubDraft()!.name.trim()">{{ t('presets.save') }}</button>
-            </form>
+        @for (c of presets.value().clubs ?? []; track c.name) {
+          @if (clubDraft()?.old === c.name) {
+            <ng-container *ngTemplateOutlet="clubForm; context: { $implicit: clubDraft() }" />
           } @else {
             <div class="row">
-              <span class="row-text"><strong>{{ c }}</strong></span>
+              <span class="row-text">
+                <strong>{{ c.name }}</strong>
+                @if (c.acronym) {
+                  <span class="club-acronym">{{ c.acronym }}</span>
+                }
+              </span>
               <span class="row-actions">
-                <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: c, name: c })">{{ t('clubs.rename') }}</button>
-                <button type="button" class="btn-link" (click)="deleteClub(c)">{{ t('presets.delete') }}</button>
+                <button type="button" class="btn btn-xs" (click)="clubDraft.set({ old: c.name, name: c.name, acronym: c.acronym })">{{ t('clubs.edit') }}</button>
+                <button type="button" class="btn-link" (click)="deleteClub(c.name)">{{ t('presets.delete') }}</button>
               </span>
             </div>
           }

@@ -47,17 +47,19 @@ func main() {
 		}
 	}
 
+	tournaments := NewTournamentService(appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{})
+	// The open tournament follows the club list and the club display setting.
+	emitClubs := tournaments.followClubs(emit)
+
 	app := application.New(application.Options{
 		Name:        "OpenShuttle",
 		Description: "Run badminton club tournaments, fully offline",
 		Services: []application.Service{
 			service(&AppService{}),
 			service(NewDisplayScreenService()),
-			service(NewSettingsService(appDB, emit, nativeDialogs{})),
-			service(NewPresetService(appDB, emit, time.Now)),
-			service(NewTournamentService(
-				appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{},
-			)),
+			service(NewSettingsService(appDB, emitClubs, nativeDialogs{})),
+			service(NewPresetService(appDB, emitClubs, time.Now)),
+			service(tournaments),
 		},
 		Assets: application.AssetOptions{
 			Handler: spaHandler(application.AssetFileServerFS(assets)),

@@ -11,11 +11,14 @@ import (
 
 // SideView is one side of a match.
 type SideView struct {
-	Entrant   engine.EntrantID `json:"entrant"`
-	Bib       int              `json:"bib"`
-	Names     []string         `json:"names"` // "First Last" per player
-	Clubs     []string         `json:"clubs"`
-	Withdrawn bool             `json:"withdrawn"`
+	Entrant engine.EntrantID `json:"entrant"`
+	Bib     int              `json:"bib"`
+	Names   []string         `json:"names"` // "First Last" per player
+	// Clubs are the entrant's distinct clubs as the settings show them,
+	// ClubNames their names in the club list (else as typed), for exports.
+	Clubs     []string `json:"clubs"`
+	ClubNames []string `json:"clubNames"`
+	Withdrawn bool     `json:"withdrawn"`
 }
 
 // MatchView is a match as every desk screen shows it.
@@ -199,12 +202,13 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 func sideViewer(st tournament.State) func(engine.EntrantID) SideView {
 	return func(id engine.EntrantID) SideView {
 		e, _ := st.Entrant(id)
-		sv := SideView{Entrant: id, Bib: e.Bib, Names: []string{}, Clubs: e.Clubs(), Withdrawn: st.Withdrawn(id)}
+		sv := SideView{Entrant: id, Bib: e.Bib, Names: []string{}, Clubs: []string{}, ClubNames: []string{}, Withdrawn: st.Withdrawn(id)}
 		for _, p := range e.Players {
 			sv.Names = append(sv.Names, p.Name)
 		}
-		if sv.Clubs == nil {
-			sv.Clubs = []string{}
+		for _, c := range st.EntrantClubs(e) {
+			sv.Clubs = append(sv.Clubs, c.Label)
+			sv.ClubNames = append(sv.ClubNames, c.Name)
 		}
 		return sv
 	}

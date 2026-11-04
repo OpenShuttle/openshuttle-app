@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { AppInfo, AppService, PresetKind, SettingsService } from '@bindings/apps/desktop';
 import { WinCondition } from '@bindings/internal/engine';
+import { ClubDisplay } from '@bindings/internal/tournament';
 
 import { DisplayScreenService } from '../core/display-screen.service';
 import { Language, LanguageService } from '../core/language.service';
@@ -32,6 +33,13 @@ export class SettingsPage {
 
   protected setLanguage(lang: Language): void {
     void this.settings.run(() => this.language.set(lang));
+  }
+
+  /** Clubs shown by name, or by acronym when they have one. */
+  protected readonly clubDisplays = [ClubDisplay.ClubDisplayName, ClubDisplay.ClubDisplayAcronym];
+
+  protected setClubDisplay(display: ClubDisplay): void {
+    void this.settings.run(() => SettingsService.SetClubDisplay(display));
   }
 
   protected setMonitor(event: Event): void {

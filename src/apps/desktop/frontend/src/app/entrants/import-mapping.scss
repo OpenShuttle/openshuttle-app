@@ -134,3 +134,42 @@
   @include row(10px);
   justify-content: flex-end;
 }
+
+// Club values matching no listed club: add, map or keep each one.
+.clubs {
+  @include stack(8px);
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.clubs-head {
+  @include stack(2px);
+}
+
+.club-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) auto minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+
+  select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.new-club {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+
+  .input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .input.acronym {
+    flex: 0 1 6rem;
+  }
+}

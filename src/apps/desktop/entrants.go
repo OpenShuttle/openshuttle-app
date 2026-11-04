@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -11,10 +13,13 @@ import (
 
 // PlayerView is a player as shown on the entrants and check-in screens.
 type PlayerView struct {
-	ID        tournament.PlayerID `json:"id"`
-	Name      string              `json:"name"`
-	Club      string              `json:"club"`
-	CheckedIn bool                `json:"checkedIn"`
+	ID   tournament.PlayerID `json:"id"`
+	Name string              `json:"name"`
+	// Club is the club's name in the club list, else as typed; ClubShown
+	// the club as the settings show it.
+	Club      string `json:"club"`
+	ClubShown string `json:"clubShown"`
+	CheckedIn bool   `json:"checkedIn"`
 	// CheckedInAt is when the player was checked in.
 	CheckedInAt *time.Time `json:"checkedInAt"`
 	// Duplicate warns that another player has the same full name.
@@ -84,6 +89,7 @@ func (s *TournamentService) RemoveCategory(ctx context.Context, c engine.Categor
 
 // RegisterEntrant enters a player (singles) or a pair (doubles).
 func (s *TournamentService) RegisterEntrant(ctx context.Context, c engine.Category, players []tournament.PlayerInput) error {
+	players = s.listedClubs(players)
 	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RegisterEntrant(c, players) }); err != nil {
 		return err
 	}
@@ -93,6 +99,7 @@ func (s *TournamentService) RegisterEntrant(ctx context.Context, c engine.Catego
 
 // UpdateEntrant changes the names and clubs of an entrant's players.
 func (s *TournamentService) UpdateEntrant(ctx context.Context, id engine.EntrantID, players []tournament.PlayerInput) error {
+	players = s.listedClubs(players)
 	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.UpdateEntrant(id, players) }); err != nil {
 		return err
 	}
@@ -100,14 +107,33 @@ func (s *TournamentService) UpdateEntrant(ctx context.Context, id engine.Entrant
 	return nil
 }
 
+// listedClubs enters the clubs typed for players as the clubs of the list
+// they name, by name or acronym ("AUVR" is entered as "Rillieux").
+func (s *TournamentService) listedClubs(players []tournament.PlayerInput) []tournament.PlayerInput {
+	book := s.clubBook()
+	out := slices.Clone(players)
+	for i := range out {
+		out[i].Club = book.Name(strings.Join(strings.Fields(out[i].Club), " "))
+	}
+	return out
+}
+
 // rememberClubs adds the clubs typed for players to the club list. The
 // list is a convenience: failing to update it never fails the entry.
 func (s *TournamentService) rememberClubs(ctx context.Context, players []tournament.PlayerInput) {
-	var clubs []string
+	var clubs []tournament.Club
 	for _, p := range players {
-		clubs = append(clubs, p.Club)
+		clubs = append(clubs, tournament.Club{Name: p.Club})
 	}
-	_ = updatePresets(ctx, s.app, s.emit, func(p *Presets) { p.Clubs = addClubs(p.Clubs, clubs...) })
+	added := false
+	err := updatePresets(ctx, s.app, s.emit, func(p *Presets) {
+		n := len(p.Clubs)
+		p.Clubs = addClubs(p.Clubs, clubs...)
+		added = len(p.Clubs) != n
+	})
+	if err == nil && added {
+		s.refreshClubs(ctx)
+	}
 }
 
 // PairEntrants pairs two players waiting for a partner: the partner's
@@ -119,6 +145,7 @@ func (s *TournamentService) PairEntrants(ctx context.Context, id, partner engine
 // AddPartner adds a partner, not registered before, to a player waiting
 // for one.
 func (s *TournamentService) AddPartner(ctx context.Context, id engine.EntrantID, partner tournament.PlayerInput) error {
+	partner = s.listedClubs([]tournament.PlayerInput{partner})[0]
 	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddPartner(id, partner) }); err != nil {
 		return err
 	}
@@ -184,7 +211,7 @@ func categoryEntrants(st tournament.State) []CategoryEntrants {
 			}
 			ev := EntrantView{ID: e.ID, Bib: e.Bib, Complete: e.Complete(), Waiting: e.Waiting(), Locked: st.InMatches(e.ID)}
 			for _, p := range e.Players {
-				ev.Players = append(ev.Players, playerView(p, dup[p.ID]))
+				ev.Players = append(ev.Players, playerView(st, p, dup[p.ID]))
 				ce.Players++
 				if p.CheckedIn {
 					ce.PlayersPresent++
@@ -216,7 +243,7 @@ func checkInView(st tournament.State) CheckInView {
 			Bib: e.Bib, Players: []PlayerView{}, Complete: e.Complete(), Waiting: e.Waiting(),
 		}
 		for _, p := range e.Players {
-			team.Players = append(team.Players, playerView(p, dup[p.ID]))
+			team.Players = append(team.Players, playerView(st, p, dup[p.ID]))
 			v.Players++
 			if p.CheckedIn {
 				v.Present++
@@ -228,9 +255,10 @@ func checkInView(st tournament.State) CheckInView {
 	return v
 }
 
-func playerView(p tournament.Player, duplicate bool) PlayerView {
+func playerView(st tournament.State, p tournament.Player, duplicate bool) PlayerView {
+	clubs := st.ClubBook()
 	v := PlayerView{
-		ID: p.ID, Name: p.Name, Club: p.Club,
+		ID: p.ID, Name: p.Name, Club: clubs.Name(p.Club), ClubShown: clubs.Label(p.Club),
 		CheckedIn: p.CheckedIn, Duplicate: duplicate,
 	}
 	if p.CheckedIn && !p.CheckedInAt.IsZero() {
@@ -307,31 +335,26 @@ func (s *TournamentService) PreviewImport(path string, m tournament.ImportMappin
 }
 
 // ImportEntrants enters the lines of a player list read with a mapping, in
-// one undoable action. It reports what was added, skipped and ignored.
-func (s *TournamentService) ImportEntrants(ctx context.Context, path string, m tournament.ImportMapping) (tournament.ImportReport, error) {
+// one undoable action. It first adds the clubs chosen for club values
+// matching no listed club (add) to the club list, then enters each club as
+// the listed club it names (m.Clubs for the others, else as typed). It
+// reports what was added, skipped and ignored.
+func (s *TournamentService) ImportEntrants(ctx context.Context, path string, m tournament.ImportMapping, add []tournament.Club) (tournament.ImportReport, error) {
 	report := tournament.ImportReport{Skipped: []tournament.ImportSkip{}}
 	lines, err := readImportFile(path)
 	if err != nil {
 		return report, err
 	}
-	var added []tournament.EntrantRegistered
+	if len(add) > 0 {
+		if err := updatePresets(ctx, s.app, s.emit, func(p *Presets) { p.Clubs = addClubs(p.Clubs, add...) }); err != nil {
+			return report, err
+		}
+		s.refreshClubs(ctx)
+	}
 	err = s.execute(ctx, func(st tournament.State) (tournament.Change, error) {
 		ch, r, err := st.ImportEntrants(lines, m)
 		report = r
-		if imp, ok := ch.Data.(tournament.EntrantsImported); ok {
-			added = imp.Entrants
-		}
 		return ch, err
 	})
-	if err != nil {
-		return report, err
-	}
-	var players []tournament.PlayerInput
-	for _, e := range added {
-		for _, p := range e.Players {
-			players = append(players, tournament.PlayerInput{Name: p.Name, Club: p.Club})
-		}
-	}
-	s.rememberClubs(ctx, players)
-	return report, nil
+	return report, err
 }

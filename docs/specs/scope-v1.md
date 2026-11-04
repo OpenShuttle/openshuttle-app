@@ -218,7 +218,9 @@ A tournament goes through six steps.
 1. **Preparation (beforehand)**: the organizer creates the tournament,
    chooses one or two categories, imports or types the entrants (one name
    field per player, a club picked from the club list; an import takes any
-   CSV, such as a HelloAsso export, its columns mapped on screen; in doubles,
+   CSV, such as a HelloAsso export, its columns mapped on screen, its clubs
+   recognized by name or acronym and the unknown ones added to the list,
+   entered as a listed club or kept as typed; in doubles,
    a player registered alone is entered waiting for a partner), starts from a preset
    or builds the format, and sets the number of courts and the minimum rest.
 2. **Check-in (on the day, arrivals)**: the desk marks players present one by
@@ -293,7 +295,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | # | Screen | Persona | Content | Key actions |
 | --- | --- | --- | --- | --- |
 | 1 | Home | Organizer | Recent tournaments, trash, Presets, Settings | Create, open a file, duplicate, move to the trash, restore, delete |
-| 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs | Create, edit, duplicate, disable, delete; simulate a format for N teams |
+| 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs (name and optional acronym) | Create, edit, duplicate, disable, delete; simulate a format for N teams |
 | 3 | Tournament info | Organizer | Name, one or two categories, number of courts, minimum rest | Edit |
 | 4 | Entrants | Organizer | Entrants (player or pair) per category, club, players waiting for a partner and their count | Add (alone, waiting for a partner, in doubles), edit, pair two waiting players, add a partner, split a pair, import CSV (columns mapped) and export it |
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
@@ -304,7 +306,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 10 | Stages | Control desk | Category, then one tab per stage: pool standings or bracket tree | "Correction" mode to move, swap, edit; history |
 | 11 | Results | Control desk | Full standings per category | Export, archive |
 | 12 | Display screen | Players and audience | Second full-screen window, both categories mixed with a very visible code: called matches in very large type with their court, grid of courts in play, automatic rotation between pools and brackets. In a timed stage: the courts of the round and a large shared countdown | None, display only |
-| 13 | Settings | Organizer | Language, display screen monitor, defaults (courts, rest, default presets), tournaments folder | Edit |
+| 13 | Settings | Organizer | Language, clubs shown by name or acronym, display screen monitor, defaults (courts, rest, default presets), tournaments folder | Edit |
 
 ## UX principles and hardware constraints
 

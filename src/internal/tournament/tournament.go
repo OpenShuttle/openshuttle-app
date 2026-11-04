@@ -81,6 +81,9 @@ type State struct {
 	lots      map[PoolRef]map[engine.EntrantID]int
 
 	places map[string][]Place // "<category>/<stage>"
+	// clubs resolves the clubs typed for players against the club list of
+	// this PC (not in the file): set by WithClubs, never projected.
+	clubs  ClubBook
 	rounds []Round
 	// schedule is the schedule setup (mode, reserved courts); scheduleOrder
 	// the validated order of the waiting matches, since scheduleFrozenAt.

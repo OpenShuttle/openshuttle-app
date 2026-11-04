@@ -290,10 +290,13 @@ export function GetTournamentView(): $CancellablePromise<$models.TournamentView>
 
 /**
  * ImportEntrants enters the lines of a player list read with a mapping, in
- * one undoable action. It reports what was added, skipped and ignored.
+ * one undoable action. It first adds the clubs chosen for club values
+ * matching no listed club (add) to the club list, then enters each club as
+ * the listed club it names (m.Clubs for the others, else as typed). It
+ * reports what was added, skipped and ignored.
  */
-export function ImportEntrants(path: string, m: tournament$0.ImportMapping): $CancellablePromise<tournament$0.ImportReport> {
-    return $Call.ByID(1651524604, path, m);
+export function ImportEntrants(path: string, m: tournament$0.ImportMapping, add: tournament$0.Club[] | null): $CancellablePromise<tournament$0.ImportReport> {
+    return $Call.ByID(1651524604, path, m, add);
 }
 
 /**

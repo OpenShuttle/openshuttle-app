@@ -207,12 +207,15 @@ func TestStateClubs(t *testing.T) {
 	}{
 		{"none", nil, nil},
 		{"unclubbed", []Entrant{entrant(""), entrant("", "")}, nil},
-		{"first appearance", []Entrant{entrant("Lyon"), entrant("Caen", "Lyon"), entrant("Albi")}, []string{"Lyon", "Caen", "Albi"}},
-		{"pair of one club", []Entrant{entrant("Caen", "Caen"), entrant("", "Albi")}, []string{"Caen", "Albi"}},
+		{"first appearance", []Entrant{entrant("Lyon"), entrant("Caen", "Lyon"), entrant("Albi")}, []string{"lyon", "caen", "albi"}},
+		{"pair of one club", []Entrant{entrant("Caen", "Caen"), entrant("", "Albi")}, []string{"caen", "albi"}},
+		{"case and accents", []Entrant{entrant("Bélley"), entrant("BELLEY")}, []string{"belley"}},
+		{"acronym of a listed club", []Entrant{entrant("AUVR"), entrant("Rillieux", "auvr")}, []string{"rillieux"}},
 	}
+	book := NewClubBook([]Club{{Name: "Rillieux", Acronym: "AUVR"}}, ClubDisplayName)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := (State{Entrants: tt.entrants}).Clubs(); !slices.Equal(got, tt.want) {
+			if got := (State{Entrants: tt.entrants}).WithClubs(book).Clubs(); !slices.Equal(got, tt.want) {
 				t.Errorf("Clubs() = %v, want %v", got, tt.want)
 			}
 		})

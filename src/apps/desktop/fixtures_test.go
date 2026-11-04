@@ -180,6 +180,10 @@ func newDemo(t *testing.T, name string, courts int) *demo {
 		d.svc.ServiceShutdown()
 		app.Close()
 	})
+	// Two of the sample clubs are listed with an acronym.
+	presets := NewPresetService(app, func(string, any) {}, d.now)
+	d.must(presets.SaveClub(ctx, "", tournament.Club{Name: "Volant des Monts", Acronym: "VDM"}))
+	d.must(presets.SaveClub(ctx, "", tournament.Club{Name: "BC Rive Droite", Acronym: "BCRD"}))
 	d.must(d.svc.CreateTournamentAt(ctx, filepath.Join(dir, name+".openshuttle"), name))
 	d.must(d.svc.SetCourts(ctx, courts))
 	return d

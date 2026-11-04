@@ -100,7 +100,7 @@ func readPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
 }
 
 func readUserPresets(ctx context.Context, db *store.AppDB) (Presets, error) {
-	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}, Clubs: []string{}}
+	p := Presets{Win: []WinPreset{}, Tiebreaks: []TiebreakPreset{}, Formats: []FormatPreset{}, Disabled: []string{}, Clubs: []tournament.Club{}}
 	raw, ok, err := db.Setting(ctx, settingPresets)
 	if err != nil || !ok {
 		return p, err

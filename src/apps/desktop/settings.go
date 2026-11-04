@@ -24,6 +24,7 @@ const (
 	settingDefaultWin      = "defaultWin"
 	settingDefaultTiebrk   = "defaultTiebreaks"
 	settingTournamentsDir  = "tournamentsDir"
+	settingClubDisplay     = "clubDisplay"
 
 	// EventSettingsChanged is emitted after a setting changes, so every
 	// window applies it. Its payload is the full Settings.
@@ -62,6 +63,9 @@ type Settings struct {
 	DefaultTiebreaks string `json:"defaultTiebreaks"`
 	// TournamentsDir is where the file dialogs open.
 	TournamentsDir string `json:"tournamentsDir"`
+	// ClubDisplay shows clubs by name (default) or by acronym, the name
+	// when the club has none.
+	ClubDisplay tournament.ClubDisplay `json:"clubDisplay"`
 }
 
 // SettingsService reads and writes the app settings.
@@ -125,6 +129,14 @@ func (s *SettingsService) SetDefaultCourts(ctx context.Context, courts int) erro
 // SetDefaultMinRest sets the minimum rest of new tournaments, in minutes.
 func (s *SettingsService) SetDefaultMinRest(ctx context.Context, minutes int) error {
 	return s.setInt(ctx, settingDefaultMinRest, minutes, 0, tournament.MaxMinRest)
+}
+
+// SetClubDisplay shows clubs by name or by acronym on every screen.
+func (s *SettingsService) SetClubDisplay(ctx context.Context, display tournament.ClubDisplay) error {
+	if display != tournament.ClubDisplayName && display != tournament.ClubDisplayAcronym {
+		return engine.NewError(engine.CodeInvalidSetting)
+	}
+	return s.set(ctx, settingClubDisplay, string(display))
 }
 
 // PresetKind names a list of presets.
@@ -203,7 +215,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 	for _, key := range []string{
 		settingLanguage, settingOperator, settingMonitor, settingRotationSeconds,
 		settingDefaultCourts, settingDefaultMinRest, settingTournamentsDir,
-		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk,
+		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk, settingClubDisplay,
 	} {
 		v, _, err := db.Setting(ctx, key)
 		if err != nil {
@@ -225,6 +237,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		DefaultCourts:   number(settingDefaultCourts, tournament.DefaultCourts),
 		DefaultMinRest:  number(settingDefaultMinRest, tournament.DefaultMinRest),
 		TournamentsDir:  raw[settingTournamentsDir],
+		ClubDisplay:     clubDisplay(raw[settingClubDisplay]),
 	}
 	presets, err := readPresets(ctx, db)
 	if err != nil {
@@ -243,6 +256,14 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		s.TournamentsDir = documentsDir()
 	}
 	return s, nil
+}
+
+// clubDisplay reads the club display setting: by name unless set to acronym.
+func clubDisplay(v string) tournament.ClubDisplay {
+	if tournament.ClubDisplay(v) == tournament.ClubDisplayAcronym {
+		return tournament.ClubDisplayAcronym
+	}
+	return tournament.ClubDisplayName
 }
 
 // documentsDir is the user's Documents folder, or their home folder.

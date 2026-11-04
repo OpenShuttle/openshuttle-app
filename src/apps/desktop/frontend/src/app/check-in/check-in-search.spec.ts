@@ -7,6 +7,7 @@ const player = (firstName: string, lastName: string, club = ''): PlayerView => (
   id: 'p1',
   name: `${firstName} ${lastName}`,
   club,
+  clubShown: club,
   checkedIn: false,
   checkedInAt: null,
   duplicate: false,

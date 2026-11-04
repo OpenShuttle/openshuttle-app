@@ -43,7 +43,9 @@ const ClubColors = 10
 
 // ClubBadge is a club shown on a draw card.
 type ClubBadge struct {
+	// Name is the club as the settings show it, Full its name.
 	Name string `json:"name"`
+	Full string `json:"full"`
 	// Color is 1 to ClubColors, from the club's order in the tournament
 	// (State.Clubs): the same club has the same color everywhere.
 	Color int `json:"color"`
@@ -55,14 +57,14 @@ type ClubBadge struct {
 
 // clubBadges builds the badges of an entrant's clubs, counted among its
 // pool mates sharing a club (none outside a pool, with inPool false).
-func clubBadges(clubs []string, colors map[string]int, inPool bool, mates []tournament.Entrant) []ClubBadge {
+func clubBadges(st tournament.State, e tournament.Entrant, colors map[string]int, inPool bool, mates []tournament.Entrant) []ClubBadge {
 	out := []ClubBadge{}
-	for _, c := range clubs {
-		b := ClubBadge{Name: c, Color: colors[c]%ClubColors + 1}
+	for _, c := range st.EntrantClubs(e) {
+		b := ClubBadge{Name: c.Label, Full: c.Name, Color: colors[c.ID]%ClubColors + 1}
 		if inPool {
 			b.Count = 1
 			for _, m := range mates {
-				if slices.Contains(m.Clubs(), c) {
+				if slices.Contains(st.ClubIDs(m), c.ID) {
 					b.Count++
 				}
 			}
@@ -164,9 +166,9 @@ func (s *TournamentService) GetDrawView() DrawView {
 			return DrawEntrantView{Players: []PlayerView{}, Clubs: []ClubBadge{}, SameClub: []int{}}
 		}
 		e, _ := st.Entrant(id)
-		v := DrawEntrantView{ID: id, Bib: e.Bib, Seed: e.Seed, Clubs: clubBadges(e.Clubs(), colors, false, nil), SameClub: []int{}, Absent: !e.Complete()}
+		v := DrawEntrantView{ID: id, Bib: e.Bib, Seed: e.Seed, Clubs: clubBadges(st, e, colors, false, nil), SameClub: []int{}, Absent: !e.Complete()}
 		for _, p := range e.Players {
-			v.Players = append(v.Players, playerView(p, dup[p.ID]))
+			v.Players = append(v.Players, playerView(st, p, dup[p.ID]))
 		}
 		v.Tier = tier(e.Seed, pools)
 		return v
@@ -222,7 +224,7 @@ func (s *TournamentService) GetDrawView() DrawView {
 					}
 					if id != "" {
 						e, _ := st.Entrant(id)
-						c.Clubs = clubBadges(e.Clubs(), colors, true, mates)
+						c.Clubs = clubBadges(st, e, colors, true, mates)
 					}
 					pv.Entrants = append(pv.Entrants, c)
 				}

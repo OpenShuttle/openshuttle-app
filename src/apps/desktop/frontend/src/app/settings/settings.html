@@ -26,6 +26,19 @@
           }
         </div>
       </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.clubDisplay') }}</span>
+          <span class="hint">{{ t('settingsPage.clubDisplayHint') }}</span>
+        </div>
+        <div class="seg">
+          @for (d of clubDisplays; track d) {
+            <button type="button" class="seg-option" [class.active]="s.clubDisplay === d" (click)="setClubDisplay(d)">
+              {{ t('settingsPage.clubDisplayBy.' + d) }}
+            </button>
+          }
+        </div>
+      </div>
     </section>
 
     <section class="card">

@@ -2,12 +2,12 @@ import { Component, signal } from '@angular/core';
 import { Presets, Settings } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
-import { FakeBackend } from '../../testing/backend';
-import { choose, find, render, text, type } from '../../testing/render';
+import { FakeBackend, backendFailure } from '../../testing/backend';
+import { choose, click, find, render, text, type } from '../../testing/render';
 import presets from '../../testing/fixtures/presets.json';
 import settings from '../../testing/fixtures/settings.json';
 import { CategoryBadge } from './category-badge';
-import { ClubSelect } from './club-select';
+import { ClubSelect, clubKey, findClub } from './club-select';
 import { Glide } from './glide';
 import { PanelToggle } from './panel-strip';
 
@@ -35,6 +35,7 @@ describe('shared components', () => {
   });
 
   it('ClubSelect picks a known club or adds a new one', async () => {
+    const go = new FakeBackend().on('PresetService.GetPresets', presets as unknown as Presets).on('SettingsService.GetSettings', settings as unknown as Settings);
     const changes: string[] = [];
     @Component({
       imports: [ClubSelect],
@@ -45,20 +46,50 @@ describe('shared components', () => {
       readonly changes = changes;
     }
     const f = await render(Host);
-    const select = find(f, 'select') as HTMLSelectElement;
-    await choose(f, select, presets.clubs![0]);
-    expect(changes).toEqual([presets.clubs![0]]);
-    const newOption = [...select.options].find((o) => o.value && !presets.clubs!.includes(o.value) && o.value !== '');
-    if (newOption) {
-      await choose(f, select, newOption.value);
-      const input = f.nativeElement.querySelector('input') as HTMLInputElement | null;
-      if (input) {
-        await type(f, input, 'Nouveau club');
-        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-        input.dispatchEvent(new Event('blur'));
-      }
-    }
-    expect(changes.length).toBeGreaterThan(0);
+    const select = () => find(f, 'select') as HTMLSelectElement;
+    // A listed club shows its acronym.
+    expect([...select().options].map((o) => o.textContent!.trim())).toContain('BC Rive Droite (BCRD)');
+    await choose(f, select(), 'BC Rive Droite');
+    expect(changes).toEqual(['BC Rive Droite']);
+
+    // Typed by its acronym, a listed club is picked, not added.
+    await choose(f, select(), '__new');
+    const [name] = [...f.nativeElement.querySelectorAll('input')] as HTMLInputElement[];
+    await type(f, name, ' vdm ');
+    await click(f, 'Add');
+    expect(changes).toEqual(['BC Rive Droite', 'Volant des Monts']);
+    expect(go.called('PresetService.SaveClub')).toBe(false);
+
+    // A new club with its acronym is added to the list.
+    await choose(f, select(), '__new');
+    const [name2, acronym2] = [...f.nativeElement.querySelectorAll('input')] as HTMLInputElement[];
+    await type(f, name2, 'Rillieux');
+    await type(f, acronym2, 'AUVR');
+    await click(f, 'Add');
+    expect(go.argsOf('PresetService.SaveClub')).toEqual([['', { name: 'Rillieux', acronym: 'AUVR' }]]);
+    expect(changes.at(-1)).toBe('Rillieux');
+
+    // A refused club says why and stays open.
+    go.on('PresetService.SaveClub', () => {
+      throw backendFailure('CLUB_EXISTS');
+    });
+    await choose(f, select(), '__new');
+    const [name3, acronym3] = [...f.nativeElement.querySelectorAll('input')] as HTMLInputElement[];
+    await type(f, name3, 'Autre');
+    await type(f, acronym3, 'BCRD');
+    await click(f, 'Add');
+    expect(text(f)).toContain('Another club already has this name or acronym.');
+  });
+
+  it('clubKey and findClub match clubs by name or acronym, as Go does', () => {
+    expect(clubKey('Rillieux-la-Pape')).toBe(clubKey('rillieux la pape'));
+    expect(clubKey('A.U.V.R.')).toBe('auvr');
+    expect(clubKey('Évian')).toBe('evian');
+    const list = [{ name: 'Rillieux', acronym: 'AUVR' }, { name: 'AUVR Bis', acronym: '' }];
+    expect(findClub(list, 'auvr')?.name).toBe('Rillieux');
+    expect(findClub(list, 'RILLIEUX')?.name).toBe('Rillieux');
+    expect(findClub(list, 'PLVPB')).toBeUndefined();
+    expect(findClub(list, '')).toBeUndefined();
   });
 
   it('Glide animates what moved since the last render', () => {

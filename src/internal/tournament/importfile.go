@@ -112,6 +112,10 @@ type ImportMapping struct {
 	Categories map[string]engine.Category `json:"categories"`
 	Fallback   engine.Category            `json:"fallback"`
 	Players    []ImportPlayerColumns      `json:"players"`
+	// Clubs maps a club value matching no club of the list to the club
+	// chosen for it. Other values are entered as the club they name (by
+	// name or acronym), else as typed.
+	Clubs map[string]string `json:"clubs"`
 }
 
 // importRow is a line read with a mapping.

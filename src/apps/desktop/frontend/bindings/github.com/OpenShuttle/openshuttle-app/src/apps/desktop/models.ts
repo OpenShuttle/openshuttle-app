@@ -91,7 +91,11 @@ export interface CheckInView {
  * ClubBadge is a club shown on a draw card.
  */
 export interface ClubBadge {
+    /**
+     * Name is the club as the settings show it, Full its name.
+     */
     "name": string;
+    "full": string;
 
     /**
      * Color is 1 to ClubColors, from the club's order in the tournament
@@ -530,7 +534,13 @@ export interface PlaceView {
 export interface PlayerView {
     "id": tournament$0.PlayerID;
     "name": string;
+
+    /**
+     * Club is the club's name in the club list, else as typed; ClubShown
+     * the club as the settings show it.
+     */
     "club": string;
+    "clubShown": string;
     "checkedIn": boolean;
 
     /**
@@ -593,9 +603,10 @@ export interface Presets {
     "disabled": string[] | null;
 
     /**
-     * Clubs offered when entering a player, sorted by name.
+     * Clubs offered when entering a player, sorted by name. Older lists of
+     * plain names read as clubs without acronym.
      */
-    "clubs": string[] | null;
+    "clubs": tournament$0.Club[] | null;
 }
 
 /**
@@ -986,6 +997,12 @@ export interface Settings {
      * TournamentsDir is where the file dialogs open.
      */
     "tournamentsDir": string;
+
+    /**
+     * ClubDisplay shows clubs by name (default) or by acronym, the name
+     * when the club has none.
+     */
+    "clubDisplay": tournament$0.ClubDisplay;
 }
 
 /**
@@ -999,7 +1016,13 @@ export interface SideView {
      * "First Last" per player
      */
     "names": string[] | null;
+
+    /**
+     * Clubs are the entrant's distinct clubs as the settings show them,
+     * ClubNames their names in the club list (else as typed), for exports.
+     */
     "clubs": string[] | null;
+    "clubNames": string[] | null;
     "withdrawn": boolean;
 }
 

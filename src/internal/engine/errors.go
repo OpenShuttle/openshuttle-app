@@ -70,8 +70,11 @@ const (
 	// CodeStageStarted: a match of the stage was called or scored, only its
 	// name, routing and estimate change (the routing as long as the stages it
 	// feeds are not filled).
-	CodeStageStarted   Code = "STAGE_STARTED"
-	CodeClubNotFound   Code = "CLUB_NOT_FOUND"
+	CodeStageStarted Code = "STAGE_STARTED"
+	CodeClubNotFound Code = "CLUB_NOT_FOUND"
+	// CodeClubExists: the name or acronym of a club is already another
+	// club's name or acronym.
+	CodeClubExists     Code = "CLUB_EXISTS"
 	CodeAlreadyEntered Code = "ALREADY_ENTERED"
 	CodeInvalidFile    Code = "INVALID_FILE"
 	// Schedule: nothing waiting to put in order, or a move before the order

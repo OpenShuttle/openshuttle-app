@@ -241,7 +241,8 @@
     "DELETE_FAILED": "The file could not be deleted. It may be open in another program.",
     "NOT_WAITING_PARTNER": "This player already has a partner.",
     "NOT_SAME_CATEGORY": "These players are not in the same category.",
-    "NOT_A_PAIR": "Only a pair can be split."
+    "NOT_A_PAIR": "Only a pair can be split.",
+    "CLUB_EXISTS": "Another club already has this name or acronym."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -789,7 +790,13 @@
     "defaultFormatHint": "A new category starts with this format preset.",
     "defaultWin": "Win condition",
     "defaultWinHint": "Used by new stages and new formats.",
-    "defaultTiebreaks": "Tiebreak order"
+    "defaultTiebreaks": "Tiebreak order",
+    "clubDisplay": "Clubs",
+    "clubDisplayHint": "How every screen shows clubs. A club without an acronym shows its name.",
+    "clubDisplayBy": {
+      "name": "Name",
+      "acronym": "Acronym"
+    }
   },
   "homeTabs": {
     "home": "Home",
@@ -860,13 +867,15 @@
   },
   "clubs": {
     "title": "Clubs",
-    "hint": "Offered when entering a player. A club typed for a player joins the list.",
+    "hint": "Offered when entering a player. A player's club matches a club by its name or its acronym; a club typed for a player joins the list.",
     "none": "No club",
     "new": "New club…",
     "newPlaceholder": "Club name",
     "add": "Add",
-    "rename": "Rename",
-    "empty": "No club yet."
+    "empty": "No club yet.",
+    "acronym": "Acronym",
+    "acronymPlaceholder": "Acronym (optional)",
+    "edit": "Edit"
   },
   "importSkip": {
     "ALREADY_ENTERED": "already entered",
@@ -900,7 +909,15 @@
     "pairs": "Pairs: a second player on each line",
     "toAdd": "{n, plural, =0 {Nobody to import} one {# entrant to import} other {# entrants to import}}",
     "more": "and {n} more",
-    "confirm": "{n, plural, =0 {Import} one {Import # entrant} other {Import # entrants}}"
+    "confirm": "{n, plural, =0 {Import} one {Import # entrant} other {Import # entrants}}",
+    "clubsTitle": "{n, plural, one {# club not in the list} other {# clubs not in the list}}",
+    "clubsHint": "Add each one to the club list, enter it as a listed club, or keep it as typed.",
+    "clubChoice": "What to do with {club}",
+    "clubAdd": "Add to the list",
+    "clubKeep": "Keep as typed",
+    "clubMap": "Same club as",
+    "clubName": "Name of the club {club}",
+    "clubAcronym": "Acronym of the club {club}"
   },
   "schedule": {
     "title": "Schedule",

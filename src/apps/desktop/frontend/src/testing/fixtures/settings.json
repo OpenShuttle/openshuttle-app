@@ -8,5 +8,6 @@
   "defaultFormat": "b-pools",
   "defaultWin": "b-sets-2x15",
   "defaultTiebreaks": "b-standard",
-  "tournamentsDir": "/home/julie/Documents/OpenShuttle"
+  "tournamentsDir": "/home/julie/Documents/OpenShuttle",
+  "clubDisplay": "name"
 }

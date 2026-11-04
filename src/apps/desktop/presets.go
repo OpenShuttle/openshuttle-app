@@ -52,8 +52,9 @@ type Presets struct {
 	Tiebreaks []TiebreakPreset `json:"tiebreaks"`
 	Formats   []FormatPreset   `json:"formats"`
 	Disabled  []string         `json:"disabled"`
-	// Clubs offered when entering a player, sorted by name.
-	Clubs []string `json:"clubs"`
+	// Clubs offered when entering a player, sorted by name. Older lists of
+	// plain names read as clubs without acronym.
+	Clubs []tournament.Club `json:"clubs"`
 }
 
 // PresetService manages the presets of this PC.

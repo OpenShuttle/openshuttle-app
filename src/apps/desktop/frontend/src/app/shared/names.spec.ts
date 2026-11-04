@@ -7,6 +7,7 @@ const side = (names: string[], clubList: string[]): SideView => ({
   bib: 1,
   names,
   clubs: clubList,
+  clubNames: clubList,
   withdrawn: false,
 });
 

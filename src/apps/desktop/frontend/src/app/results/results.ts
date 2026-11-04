@@ -85,7 +85,7 @@ export class Results {
           this.rank(r),
           r.entrant.bib || '',
           this.short(r),
-          (r.entrant.clubs ?? []).join(' / '),
+          (r.entrant.clubNames ?? []).join(' / '),
           this.origin(r),
         ]);
       }

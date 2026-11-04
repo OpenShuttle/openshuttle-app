@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -30,7 +31,7 @@ interface TiebreakDraft {
  */
 @Component({
   selector: 'app-presets',
-  imports: [TranslocoDirective],
+  imports: [TranslocoDirective, NgTemplateOutlet],
   templateUrl: './presets.html',
   styleUrl: './presets.scss',
 })
@@ -43,8 +44,8 @@ export class PresetsPage {
 
   protected readonly winDraft = signal<WinDraft | null>(null);
   protected readonly tiebreakDraft = signal<TiebreakDraft | null>(null);
-  /** Club being added (old "") or renamed. */
-  protected readonly clubDraft = signal<{ old: string; name: string } | null>(null);
+  /** Club being added (old "") or changed: its name and optional acronym. */
+  protected readonly clubDraft = signal<{ old: string; name: string; acronym: string } | null>(null);
 
   protected builtIn(id: string): boolean {
     return id.startsWith('b-');
@@ -110,9 +111,13 @@ export class PresetsPage {
 
   protected async saveClub(): Promise<void> {
     const d = this.clubDraft();
-    if (d && (await this.presets.run(() => PresetService.SaveClub(d.old, d.name)))) {
+    if (d && (await this.presets.run(() => PresetService.SaveClub(d.old, { name: d.name, acronym: d.acronym })))) {
       this.clubDraft.set(null);
     }
+  }
+
+  protected setClubDraft(field: 'name' | 'acronym', value: string): void {
+    this.clubDraft.update((d) => (d ? { ...d, [field]: value } : d));
   }
 
   protected deleteClub(name: string): void {

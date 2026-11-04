@@ -96,7 +96,7 @@
                         <select class="input" [attr.aria-label]="t('entrants.pairWith')" [value]="partner()" (change)="partner.set($any($event.target).value)">
                           <option value="">{{ t('entrants.choosePartner') }}</option>
                           @for (o of others; track o.id) {
-                            <option [value]="o.id">{{ (o.players ?? [])[0]?.name }}{{ (o.players ?? [])[0]?.club ? ' · ' + (o.players ?? [])[0]?.club : '' }}</option>
+                            <option [value]="o.id">{{ (o.players ?? [])[0]?.name }}{{ (o.players ?? [])[0]?.clubShown ? ' · ' + (o.players ?? [])[0]?.clubShown : '' }}</option>
                           }
                         </select>
                         <button type="button" class="btn btn-sm btn-primary" [disabled]="!partner()" (click)="pair(e.id)">{{ t('entrants.doPair') }}</button>
@@ -143,7 +143,7 @@
                 </span>
                 <span class="club">
                   @for (p of e.players ?? []; track p.id) {
-                    <span class="name" [attr.title]="p.club">{{ p.club || '–' }}</span>
+                    <span class="name" [attr.title]="p.club">{{ p.clubShown || '–' }}</span>
                   }
                 </span>
                 <span class="status">

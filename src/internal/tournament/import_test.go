@@ -153,9 +153,57 @@ func TestImportEntrants(t *testing.T) {
 	if solo := g.entrant(imported[2].ID); !solo.Waiting() || solo.Players[0].Name != "Solo" {
 		t.Errorf("waiting player = %+v", solo)
 	}
+	if want := []ImportClub{{"BC Lyon", 1}, {"ASPTT", 1}, {"AS Bron", 1}}; !slices.Equal(preview.Clubs, want) {
+		t.Errorf("unknown clubs = %+v", preview.Clubs)
+	}
 	// Importing the same lines again adds nobody.
 	_, again, _ := g.state().ImportEntrants(lines[:3], m)
 	if again.Added != 0 || len(again.Skipped) != 2 {
 		t.Errorf("second import = %+v", again)
+	}
+}
+
+func TestImportClubs(t *testing.T) {
+	g := newGame(t, engine.MensDoubles)
+	lines := []ImportLine{
+		{1, []string{"Ana Bel", "AUVR", "Eva Roux", "Rillieux"}},
+		{2, []string{"Tom Petit", "a.u.v.r", "Max Roux", "BCVO"}},
+		{3, []string{"Jo Durand", "PLVPB", "Léo Blanc", "plvpb"}},
+		{4, []string{"Paul Zola", "LSM", "Hugo Écuyer", "PLVPB"}},
+		{5, []string{"Ana Bel", "Lyon", "Eva Roux", "Lyon"}}, // already entered: not counted
+	}
+	book := NewClubBook([]Club{{Name: "Rillieux", Acronym: "AUVR"}, {Name: "Lyon Saint-Maurice", Acronym: "LSM"}}, ClubDisplayName)
+	m := ImportMapping{
+		Category: NoColumn, Fallback: engine.MensDoubles,
+		Players: []ImportPlayerColumns{{0, NoColumn, NoColumn, 1}, {2, NoColumn, NoColumn, 3}},
+		Clubs:   map[string]string{"BCVO": "lsm"},
+	}
+	tests := []struct {
+		name  string
+		book  ClubBook
+		clubs [][]string
+		want  []ImportClub
+	}{
+		{"no club list: as typed", ClubBook{},
+			[][]string{{"AUVR", "Rillieux"}, {"a.u.v.r", "lsm"}, {"PLVPB", "plvpb"}, {"LSM", "PLVPB"}},
+			[]ImportClub{{"AUVR", 1}, {"Rillieux", 1}, {"a.u.v.r", 1}, {"BCVO", 1}, {"PLVPB", 2}, {"plvpb", 1}, {"LSM", 1}}},
+		{"by name or acronym, unknown ones counted", book,
+			[][]string{{"Rillieux", "Rillieux"}, {"Rillieux", "Lyon Saint-Maurice"}, {"PLVPB", "plvpb"}, {"Lyon Saint-Maurice", "PLVPB"}},
+			[]ImportClub{{"BCVO", 1}, {"PLVPB", 2}, {"plvpb", 1}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := g.state().WithClubs(tt.book).PreviewImport(lines, m)
+			var clubs [][]string
+			for _, e := range p.Entrants {
+				clubs = append(clubs, []string{e.Players[0].Club, e.Players[1].Club})
+			}
+			if p.Report.Added != 4 || !reflect.DeepEqual(clubs, tt.clubs) {
+				t.Errorf("clubs = %v, want %v", clubs, tt.clubs)
+			}
+			if !slices.Equal(p.Clubs, tt.want) {
+				t.Errorf("unknown clubs = %+v, want %+v", p.Clubs, tt.want)
+			}
+		})
 	}
 }

@@ -20,6 +20,9 @@
           "clubs": [
             "BC Rive Droite"
           ],
+          "clubNames": [
+            "BC Rive Droite"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -30,6 +33,9 @@
             "Théo Simon"
           ],
           "clubs": [
+            "Plumes du Lac"
+          ],
+          "clubNames": [
             "Plumes du Lac"
           ],
           "withdrawn": false
@@ -75,6 +81,9 @@
           "clubs": [
             "Volant des Monts"
           ],
+          "clubNames": [
+            "Volant des Monts"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -85,6 +94,9 @@
             "Simon Fournier"
           ],
           "clubs": [
+            "AS Belvédère"
+          ],
+          "clubNames": [
             "AS Belvédère"
           ],
           "withdrawn": false
@@ -130,6 +142,9 @@
           "clubs": [
             "Plumes du Lac"
           ],
+          "clubNames": [
+            "Plumes du Lac"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -140,6 +155,9 @@
             "Jules Fournier"
           ],
           "clubs": [
+            "AS Belvédère"
+          ],
+          "clubNames": [
             "AS Belvédère"
           ],
           "withdrawn": false
@@ -185,6 +203,9 @@
           "clubs": [
             "BC Rive Droite"
           ],
+          "clubNames": [
+            "BC Rive Droite"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -195,6 +216,9 @@
             "Hugo Mathieu"
           ],
           "clubs": [
+            "Volant des Monts"
+          ],
+          "clubNames": [
             "Volant des Monts"
           ],
           "withdrawn": false
@@ -241,6 +265,9 @@
           "clubs": [
             "BC Rive Droite"
           ],
+          "clubNames": [
+            "BC Rive Droite"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -251,6 +278,9 @@
             "Simon Fournier"
           ],
           "clubs": [
+            "AS Belvédère"
+          ],
+          "clubNames": [
             "AS Belvédère"
           ],
           "withdrawn": false
@@ -295,6 +325,9 @@
           "clubs": [
             "Volant des Monts"
           ],
+          "clubNames": [
+            "Volant des Monts"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -305,6 +338,9 @@
             "Théo Simon"
           ],
           "clubs": [
+            "Plumes du Lac"
+          ],
+          "clubNames": [
             "Plumes du Lac"
           ],
           "withdrawn": false
@@ -349,6 +385,9 @@
           "clubs": [
             "Plumes du Lac"
           ],
+          "clubNames": [
+            "Plumes du Lac"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -359,6 +398,9 @@
             "Hugo Mathieu"
           ],
           "clubs": [
+            "Volant des Monts"
+          ],
+          "clubNames": [
             "Volant des Monts"
           ],
           "withdrawn": false
@@ -403,6 +445,9 @@
           "clubs": [
             "BC Rive Droite"
           ],
+          "clubNames": [
+            "BC Rive Droite"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -413,6 +458,9 @@
             "Jules Fournier"
           ],
           "clubs": [
+            "AS Belvédère"
+          ],
+          "clubNames": [
             "AS Belvédère"
           ],
           "withdrawn": false
@@ -457,6 +505,9 @@
           "clubs": [
             "BC Rive Droite"
           ],
+          "clubNames": [
+            "BC Rive Droite"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -467,6 +518,9 @@
             "Kevin Henry"
           ],
           "clubs": [
+            "Volant des Monts"
+          ],
+          "clubNames": [
             "Volant des Monts"
           ],
           "withdrawn": false
@@ -511,6 +565,9 @@
           "clubs": [
             "AS Belvédère"
           ],
+          "clubNames": [
+            "AS Belvédère"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -521,6 +578,9 @@
             "Théo Simon"
           ],
           "clubs": [
+            "Plumes du Lac"
+          ],
+          "clubNames": [
             "Plumes du Lac"
           ],
           "withdrawn": false
@@ -565,6 +625,9 @@
           "clubs": [
             "Plumes du Lac"
           ],
+          "clubNames": [
+            "Plumes du Lac"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -575,6 +638,9 @@
             "Félix Laurent"
           ],
           "clubs": [
+            "BC Rive Droite"
+          ],
+          "clubNames": [
             "BC Rive Droite"
           ],
           "withdrawn": false
@@ -619,6 +685,9 @@
           "clubs": [
             "Volant des Monts"
           ],
+          "clubNames": [
+            "Volant des Monts"
+          ],
           "withdrawn": false
         },
         "b": {
@@ -629,6 +698,9 @@
             "Jules Fournier"
           ],
           "clubs": [
+            "AS Belvédère"
+          ],
+          "clubNames": [
             "AS Belvédère"
           ],
           "withdrawn": false
@@ -691,6 +763,9 @@
             "clubs": [
               "BC Rive Droite"
             ],
+            "clubNames": [
+              "BC Rive Droite"
+            ],
             "withdrawn": false
           },
           "b": {
@@ -701,6 +776,9 @@
               "Théo Simon"
             ],
             "clubs": [
+              "Plumes du Lac"
+            ],
+            "clubNames": [
               "Plumes du Lac"
             ],
             "withdrawn": false
@@ -740,6 +818,9 @@
             "clubs": [
               "Volant des Monts"
             ],
+            "clubNames": [
+              "Volant des Monts"
+            ],
             "withdrawn": false
           },
           "b": {
@@ -750,6 +831,9 @@
               "Simon Fournier"
             ],
             "clubs": [
+              "AS Belvédère"
+            ],
+            "clubNames": [
               "AS Belvédère"
             ],
             "withdrawn": false
@@ -789,6 +873,9 @@
             "clubs": [
               "Plumes du Lac"
             ],
+            "clubNames": [
+              "Plumes du Lac"
+            ],
             "withdrawn": false
           },
           "b": {
@@ -799,6 +886,9 @@
               "Jules Fournier"
             ],
             "clubs": [
+              "AS Belvédère"
+            ],
+            "clubNames": [
               "AS Belvédère"
             ],
             "withdrawn": false
@@ -838,6 +928,9 @@
             "clubs": [
               "BC Rive Droite"
             ],
+            "clubNames": [
+              "BC Rive Droite"
+            ],
             "withdrawn": false
           },
           "b": {
@@ -848,6 +941,9 @@
               "Hugo Mathieu"
             ],
             "clubs": [
+              "Volant des Monts"
+            ],
+            "clubNames": [
               "Volant des Monts"
             ],
             "withdrawn": false

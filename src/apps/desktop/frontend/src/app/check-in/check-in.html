@@ -87,7 +87,7 @@
                       <span class="pill pill-finished" [attr.title]="t('entrants.duplicate')">{{ t('entrants.homonym') }}</span>
                     }
                   </span>
-                  <span class="club">{{ p.club }}</span>
+                  <span class="club" [attr.title]="p.club">{{ p.clubShown }}</span>
                   <span class="at">{{ p.checkedInAt ? t('checkIn.checkedInAt', { time: time(p.checkedInAt) }) : t('checkIn.absent') }}</span>
                 </button>
               }

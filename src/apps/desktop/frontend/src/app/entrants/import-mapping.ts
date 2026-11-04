@@ -2,9 +2,10 @@ import { Component, computed, effect, inject, input, output, signal, untracked }
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ImportFile, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
-import { ImportMapping as Mapping, ImportPlayerColumns, ImportPreview, ImportReport } from '@bindings/internal/tournament';
+import { Club, ImportMapping as Mapping, ImportPlayerColumns, ImportPreview, ImportReport } from '@bindings/internal/tournament';
 
 import { backendError } from '../core/backend-error';
+import { AppPresets } from '../core/presets.service';
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
 
@@ -24,6 +25,32 @@ export interface ImportCategory {
   slot: number;
 }
 
+/**
+ * What becomes of a club value matching no club of the list: added to the
+ * list (name, optional acronym), entered as a listed club, or kept as typed.
+ */
+export type ClubChoice = { kind: 'add'; name: string; acronym: string } | { kind: 'map'; club: string } | { kind: 'keep' };
+
+/**
+ * A value not in the club list is added by default: a short word in capitals
+ * ("PLVPB") as the acronym, the name left to type; anything else as the name.
+ */
+export function defaultClubChoice(value: string): ClubChoice {
+  return /^[\p{Lu}\p{N}.&-]{2,10}$/u.test(value) ? { kind: 'add', name: '', acronym: value } : { kind: 'add', name: value, acronym: '' };
+}
+
+/** The club a value is entered as, with its choice. */
+export function chosenClub(value: string, choice: ClubChoice): string {
+  switch (choice.kind) {
+    case 'add':
+      return choice.name.trim() || choice.acronym.trim() || value;
+    case 'map':
+      return choice.club;
+    default:
+      return value;
+  }
+}
+
 const noPlayer = (): ImportPlayerColumns => ({ name: NO_COLUMN, first: NO_COLUMN, last: NO_COLUMN, club: NO_COLUMN });
 
 /**
@@ -31,7 +58,9 @@ const noPlayer = (): ImportPlayerColumns => ({ name: NO_COLUMN, first: NO_COLUMN
  * (OpenShuttle's export, HelloAsso and other registration tools): the
  * category column and what each of its values means, the name (whole or
  * first and last) and club of each player. Go previews the result on every
- * change; nothing is saved before Import.
+ * change; nothing is saved before Import. Club values matching no club of the
+ * list, by name or acronym, are listed: each is added to the list (the
+ * default), entered as a listed club, or kept as typed.
  */
 @Component({
   selector: 'app-import-mapping',
@@ -47,15 +76,19 @@ export class ImportMapping {
 
   private readonly transloco = inject(TranslocoService);
   private readonly tournament = inject(TournamentStore);
+  protected readonly presets = inject(AppPresets);
 
   protected readonly NO_COLUMN = NO_COLUMN;
   protected readonly SAME_CLUB = SAME_CLUB;
 
-  protected readonly mapping = signal<Mapping>({ header: false, category: NO_COLUMN, categories: {}, fallback: '' as Category, players: [noPlayer()] });
+  protected readonly mapping = signal<Mapping>({ header: false, category: NO_COLUMN, categories: {}, fallback: '' as Category, players: [noPlayer()], clubs: {} });
   /** Per player: a whole name column, or first and last name columns. */
   protected readonly split = signal<boolean[]>([]);
   protected readonly preview = signal<ImportPreview | null>(null);
   protected readonly importing = signal(false);
+  /** The choices made for club values matching no listed club. */
+  protected readonly clubChoices = signal<Record<string, ClubChoice>>({});
+  protected readonly unknownClubs = computed(() => this.preview()?.clubs ?? []);
   private seq = 0;
 
   protected readonly fileName = computed(() => this.file().path.split(/[\\/]/).pop() ?? '');
@@ -159,10 +192,50 @@ export class ImportMapping {
     this.split.update((s) => (pairs ? [s[0] ?? false, false] : [s[0] ?? false]));
   }
 
+  protected clubChoice(value: string): ClubChoice {
+    return this.clubChoices()[value] ?? defaultClubChoice(value);
+  }
+
+  /** The select of a value: "add", "keep" or "map:<club>". */
+  protected clubChoiceKey(value: string): string {
+    const c = this.clubChoice(value);
+    return c.kind === 'map' ? 'map:' + c.club : c.kind;
+  }
+
+  protected setClubChoice(value: string, key: string): void {
+    const choice: ClubChoice = key.startsWith('map:') ? { kind: 'map', club: key.slice(4) } : key === 'keep' ? { kind: 'keep' } : defaultClubChoice(value);
+    this.clubChoices.update((c) => ({ ...c, [value]: choice }));
+  }
+
+  protected setNewClub(value: string, field: 'name' | 'acronym', text: string): void {
+    const c = this.clubChoice(value);
+    if (c.kind === 'add') {
+      this.clubChoices.update((all) => ({ ...all, [value]: { ...c, [field]: text } }));
+    }
+  }
+
+  /** A previewed player's club, as it will be entered. */
+  protected previewClub(club: string): string {
+    return this.unknownClubs().some((u) => u.value === club) ? chosenClub(club, this.clubChoice(club)) : club;
+  }
+
   protected async confirm(): Promise<void> {
     this.importing.set(true);
+    const m = structuredClone(this.mapping());
+    const add: Club[] = [];
+    m.clubs = {};
+    for (const { value } of this.unknownClubs()) {
+      const c = this.clubChoice(value);
+      if (c.kind === 'keep') {
+        continue;
+      }
+      if (c.kind === 'add') {
+        add.push({ name: c.name.trim() || (c.acronym.trim() ? '' : value), acronym: c.acronym.trim() });
+      }
+      m.clubs[value] = chosenClub(value, c);
+    }
     try {
-      const report = await TournamentService.ImportEntrants(this.file().path, this.mapping());
+      const report = await TournamentService.ImportEntrants(this.file().path, m, add);
       this.tournament.error.set(null);
       this.done.emit(report);
     } catch (err) {

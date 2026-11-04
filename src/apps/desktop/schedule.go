@@ -81,7 +81,7 @@ func (s *TournamentService) previewSchedule(cmd func(tournament.State) (tourname
 	if ch, err := cmd(st); err == nil && !ch.None() {
 		if d, err := events.NewDraft(ch.Type, ch.Data, now, ""); err == nil {
 			log := append(slices.Clone(s.log), events.Event{Seq: st.Version + 1, Type: d.Type, Data: d.Data, At: d.At})
-			if p, err := tournament.Project(log); err == nil {
+			if p, err := s.project(log); err == nil {
 				st = p
 			}
 		}

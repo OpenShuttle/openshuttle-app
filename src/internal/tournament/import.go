@@ -45,12 +45,22 @@ type ImportValue struct {
 	Lines    int             `json:"lines"`
 }
 
+// ImportClub is a club value matching no club of the list, with how many
+// lines hold it.
+type ImportClub struct {
+	Value string `json:"value"`
+	Lines int    `json:"lines"`
+}
+
 // ImportPreview is what an import would do, nothing saved: the report, the
-// entrants it would add, and the values of the category column.
+// entrants it would add, the values of the category column, and the club
+// values matching no club of the list (the desk adds them, maps them to a
+// club or keeps them as typed).
 type ImportPreview struct {
 	Report   ImportReport        `json:"report"`
 	Entrants []EntrantRegistered `json:"entrants"`
 	Values   []ImportValue       `json:"values"`
+	Clubs    []ImportClub        `json:"clubs"`
 }
 
 // ImportEntrants enters the lines of a player list, read with a mapping.
@@ -67,7 +77,7 @@ func (s State) ImportEntrants(lines []ImportLine, m ImportMapping) (Change, Impo
 
 // PreviewImport is what ImportEntrants would do.
 func (s State) PreviewImport(lines []ImportLine, m ImportMapping) ImportPreview {
-	p := ImportPreview{Report: ImportReport{Skipped: []ImportSkip{}}, Entrants: []EntrantRegistered{}, Values: []ImportValue{}}
+	p := ImportPreview{Report: ImportReport{Skipped: []ImportSkip{}}, Entrants: []EntrantRegistered{}, Values: []ImportValue{}, Clubs: []ImportClub{}}
 	seq := s.nextSeq()
 	known := map[string]bool{}
 	for _, e := range s.Entrants {
@@ -106,6 +116,7 @@ func (s State) PreviewImport(lines []ImportLine, m ImportMapping) ImportPreview 
 			continue
 		}
 		known[k] = true
+		p.Clubs = s.resolveImportClubs(players, m.Clubs, p.Clubs)
 		n := len(p.Entrants) + 1
 		for i := range players {
 			players[i].ID = PlayerID(fmt.Sprintf("p%d.%d.%d", seq, n, i+1))
@@ -116,6 +127,36 @@ func (s State) PreviewImport(lines []ImportLine, m ImportMapping) ImportPreview 
 	}
 	p.Report.Added = len(p.Entrants)
 	return p
+}
+
+// resolveImportClubs enters the clubs of a line's players as the clubs of
+// the list they name (or the club chosen for them), and counts the values
+// matching none among the lines imported.
+func (s State) resolveImportClubs(players []Player, chosen map[string]string, unknown []ImportClub) []ImportClub {
+	var counted []string
+	for i, pl := range players {
+		if pl.Club == "" {
+			continue
+		}
+		if c, ok := s.clubs.Find(pl.Club); ok {
+			players[i].Club = c.Name
+			continue
+		}
+		if c, ok := chosen[pl.Club]; ok && c != "" {
+			players[i].Club = s.clubs.Name(c)
+		}
+		if slices.Contains(counted, pl.Club) {
+			continue
+		}
+		counted = append(counted, pl.Club)
+		j := slices.IndexFunc(unknown, func(u ImportClub) bool { return u.Value == pl.Club })
+		if j < 0 {
+			j = len(unknown)
+			unknown = append(unknown, ImportClub{Value: pl.Club})
+		}
+		unknown[j].Lines++
+	}
+	return unknown
 }
 
 // entrantKey identifies an entrant by category and player names, in any

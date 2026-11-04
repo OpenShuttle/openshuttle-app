@@ -12,8 +12,8 @@ import (
 )
 
 func TestClubBadges(t *testing.T) {
-	colors := map[string]int{"Lyon": 0, "Caen": 1, "Albi": 12}
-	mate := func(clubs ...string) tournament.Entrant {
+	colors := map[string]int{"lyon": 0, "caen": 1, "albi": 12, "rillieux": 3}
+	entrant := func(clubs ...string) tournament.Entrant {
 		e := tournament.Entrant{}
 		for _, c := range clubs {
 			e.Players = append(e.Players, tournament.Player{Club: c})
@@ -21,22 +21,26 @@ func TestClubBadges(t *testing.T) {
 		return e
 	}
 	tests := []struct {
-		name   string
-		clubs  []string
-		inPool bool
-		mates  []tournament.Entrant
-		want   []ClubBadge
+		name    string
+		clubs   []string
+		display tournament.ClubDisplay
+		inPool  bool
+		mates   []tournament.Entrant
+		want    []ClubBadge
 	}{
-		{"unclubbed", nil, true, nil, []ClubBadge{}},
-		{"outside a pool", []string{"Lyon"}, false, nil, []ClubBadge{{"Lyon", 1, 0}}},
-		{"alone in its pool", []string{"Caen"}, true, nil, []ClubBadge{{"Caen", 2, 1}}},
-		{"palette wraps", []string{"Albi"}, true, nil, []ClubBadge{{"Albi", 3, 1}}},
-		{"two mates", []string{"Lyon"}, true, []tournament.Entrant{mate("Lyon"), mate("Lyon", "Caen")}, []ClubBadge{{"Lyon", 1, 3}}},
-		{"mixed pair, one club shared", []string{"Lyon", "Caen"}, true, []tournament.Entrant{mate("Caen", "Caen")}, []ClubBadge{{"Lyon", 1, 1}, {"Caen", 2, 2}}},
+		{"unclubbed", nil, tournament.ClubDisplayName, true, nil, []ClubBadge{}},
+		{"outside a pool", []string{"Lyon"}, tournament.ClubDisplayName, false, nil, []ClubBadge{{"Lyon", "Lyon", 1, 0}}},
+		{"alone in its pool", []string{"Caen"}, tournament.ClubDisplayName, true, nil, []ClubBadge{{"Caen", "Caen", 2, 1}}},
+		{"palette wraps", []string{"Albi"}, tournament.ClubDisplayName, true, nil, []ClubBadge{{"Albi", "Albi", 3, 1}}},
+		{"two mates", []string{"Lyon"}, tournament.ClubDisplayName, true, []tournament.Entrant{entrant("Lyon"), entrant("lyon", "Caen")}, []ClubBadge{{"Lyon", "Lyon", 1, 3}}},
+		{"mixed pair, one club shared", []string{"Lyon", "Caen"}, tournament.ClubDisplayName, true, []tournament.Entrant{entrant("Caen", "Caen")}, []ClubBadge{{"Lyon", "Lyon", 1, 1}, {"Caen", "Caen", 2, 2}}},
+		{"acronym and name are one club", []string{"AUVR", "Rillieux"}, tournament.ClubDisplayName, true, []tournament.Entrant{entrant("auvr")}, []ClubBadge{{"Rillieux", "Rillieux", 4, 2}}},
+		{"shown by acronym", []string{"Rillieux", "Lyon"}, tournament.ClubDisplayAcronym, false, nil, []ClubBadge{{"AUVR", "Rillieux", 4, 0}, {"Lyon", "Lyon", 1, 0}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := clubBadges(tt.clubs, colors, tt.inPool, tt.mates); !slices.Equal(got, tt.want) {
+			st := tournament.State{}.WithClubs(tournament.NewClubBook([]tournament.Club{{Name: "Rillieux", Acronym: "AUVR"}}, tt.display))
+			if got := clubBadges(st, entrant(tt.clubs...), colors, tt.inPool, tt.mates); !slices.Equal(got, tt.want) {
 				t.Errorf("clubBadges() = %v, want %v", got, tt.want)
 			}
 		})

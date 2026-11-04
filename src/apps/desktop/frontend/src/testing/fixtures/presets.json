@@ -422,9 +422,21 @@
   ],
   "disabled": [],
   "clubs": [
-    "AS Belvédère",
-    "BC Rive Droite",
-    "Plumes du Lac",
-    "Volant des Monts"
+    {
+      "name": "AS Belvédère",
+      "acronym": ""
+    },
+    {
+      "name": "BC Rive Droite",
+      "acronym": "BCRD"
+    },
+    {
+      "name": "Plumes du Lac",
+      "acronym": ""
+    },
+    {
+      "name": "Volant des Monts",
+      "acronym": "VDM"
+    }
   ]
 }

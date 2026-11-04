@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -52,6 +53,10 @@ type TournamentService struct {
 	backupDir string
 	dialogs   fileDialogs
 	rng       func() *rand.Rand
+
+	// clubs is the club list and display setting of app.db (clubbook.go),
+	// read on first use and on each change.
+	clubs atomic.Pointer[tournament.ClubBook]
 
 	mu          sync.Mutex
 	file        *store.TournamentFile
@@ -152,7 +157,7 @@ func (s *TournamentService) DuplicateTournament(ctx context.Context, source, nam
 		}
 		log = append(log, e)
 	}
-	state, err := tournament.Project(log)
+	state, err := s.project(log)
 	if err != nil {
 		return "", err
 	}
@@ -185,7 +190,7 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 		f.Close()
 		return err
 	}
-	state, err := tournament.Project(log)
+	state, err := s.project(log)
 	if err != nil {
 		f.Close()
 		return err
@@ -304,7 +309,7 @@ func (s *TournamentService) appendLocked(ctx context.Context, typ events.Type, d
 		return err
 	}
 	log := append(s.log, e)
-	state, err := tournament.Project(log)
+	state, err := s.project(log)
 	if err != nil {
 		return err
 	}

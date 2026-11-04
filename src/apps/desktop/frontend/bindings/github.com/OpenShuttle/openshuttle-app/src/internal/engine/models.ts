@@ -105,6 +105,12 @@ export enum Code {
      */
     CodeStageStarted = "STAGE_STARTED",
     CodeClubNotFound = "CLUB_NOT_FOUND",
+
+    /**
+     * CodeClubExists: the name or acronym of a club is already another
+     * club's name or acronym.
+     */
+    CodeClubExists = "CLUB_EXISTS",
     CodeAlreadyEntered = "ALREADY_ENTERED",
     CodeInvalidFile = "INVALID_FILE",
 

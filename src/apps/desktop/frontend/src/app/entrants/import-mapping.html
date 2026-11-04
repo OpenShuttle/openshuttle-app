@@ -146,7 +146,7 @@
             <li>
               <app-category-badge [category]="e.category" [slot]="slotOf().get(e.category) ?? 1" />
               @for (pl of e.players; track pl.id; let last = $last) {
-                <span>{{ pl.name }}@if (pl.club) {<span class="hint"> ({{ pl.club }})</span>}@if (!last) { / }</span>
+                <span>{{ pl.name }}@if (pl.club) {<span class="hint"> ({{ previewClub(pl.club) }})</span>}@if (!last) { / }</span>
               }
             </li>
           }
@@ -163,6 +163,56 @@
         </ul>
       }
     </div>
+  }
+
+  @if (unknownClubs().length > 0) {
+    <section class="clubs">
+      <div class="clubs-head">
+        <span class="field-label">{{ t('importMap.clubsTitle', { n: unknownClubs().length }) }}</span>
+        <span class="hint">{{ t('importMap.clubsHint') }}</span>
+      </div>
+      @for (u of unknownClubs(); track u.value) {
+        <div class="club-row">
+          <span class="value-text" [title]="u.value">{{ u.value }}</span>
+          <span class="hint">{{ t('importMap.lineCount', { n: u.lines }) }}</span>
+          <select [attr.aria-label]="t('importMap.clubChoice', { club: u.value })" (change)="setClubChoice(u.value, value($event))">
+            <option value="add" [selected]="clubChoiceKey(u.value) === 'add'">{{ t('importMap.clubAdd') }}</option>
+            <option value="keep" [selected]="clubChoiceKey(u.value) === 'keep'">{{ t('importMap.clubKeep') }}</option>
+            @if ((presets.value().clubs ?? []).length > 0) {
+              <optgroup [label]="t('importMap.clubMap')">
+                @for (c of presets.value().clubs; track c.name) {
+                  <option [value]="'map:' + c.name" [selected]="clubChoiceKey(u.value) === 'map:' + c.name">
+                    {{ c.acronym ? c.name + ' (' + c.acronym + ')' : c.name }}
+                  </option>
+                }
+              </optgroup>
+            }
+          </select>
+          @if (clubChoice(u.value); as c) {
+            @if (c.kind === 'add') {
+              <span class="new-club">
+                <input
+                  class="input"
+                  maxlength="80"
+                  [attr.aria-label]="t('importMap.clubName', { club: u.value })"
+                  [placeholder]="t('clubs.newPlaceholder')"
+                  [value]="c.name"
+                  (input)="setNewClub(u.value, 'name', value($event))"
+                />
+                <input
+                  class="input acronym"
+                  maxlength="20"
+                  [attr.aria-label]="t('importMap.clubAcronym', { club: u.value })"
+                  [placeholder]="t('clubs.acronymPlaceholder')"
+                  [value]="c.acronym"
+                  (input)="setNewClub(u.value, 'acronym', value($event))"
+                />
+              </span>
+            }
+          }
+        </div>
+      }
+    </section>
   }
 
   <div class="actions">

@@ -17,7 +17,7 @@ import { ClubBadge } from '@bindings/apps/desktop';
         class="club-badge"
         [class.shared]="c.count > 1"
         [style.--club]="'var(--color-club-' + c.color + ')'"
-        [attr.title]="c.count > 1 ? t('draw.clubInPool', { club: c.name, n: c.count }) : c.name"
+        [attr.title]="c.count > 1 ? t('draw.clubInPool', { club: c.full, n: c.count }) : c.full"
         ><span class="name">{{ c.name }}</span>
         @if (c.count > 1) {
           <span class="count">×{{ c.count }}</span>

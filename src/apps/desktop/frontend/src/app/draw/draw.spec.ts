@@ -24,18 +24,19 @@ describe('Draw', () => {
   it('shows clubs as colored badges, club mates of a pool highlighted', async () => {
     const view = structuredClone(draw);
     const [first, second] = view.categories[0].pools![0].entrants!;
-    first.clubs = [{ name: 'BC Lyon', color: 3, count: 2 }];
+    first.clubs = [{ name: 'BCL', full: 'BC Lyon', color: 3, count: 2 }];
     second.clubs = [
-      { name: 'BC Lyon', color: 3, count: 2 },
-      { name: 'AS Caen', color: 1, count: 1 },
+      { name: 'BCL', full: 'BC Lyon', color: 3, count: 2 },
+      { name: 'AS Caen', full: 'AS Caen', color: 1, count: 1 },
     ];
     go.on('TournamentService.GetDrawView', view);
     const f = await render(Draw);
     const badges = [...f.nativeElement.querySelectorAll('[data-pool="MD:0"] .club-badge')] as HTMLElement[];
     expect(badges.map((b) => b.textContent!.replace(/\s+/g, ' ').trim())).toEqual(
-      expect.arrayContaining(['BC Lyon×2', 'AS Caen']),
+      expect.arrayContaining(['BCL×2', 'AS Caen']),
     );
-    const lyon = badges.find((b) => b.textContent!.includes('Lyon'))!;
+    // Shown as the settings say (an acronym here), the full name in the tooltip.
+    const lyon = badges.find((b) => b.textContent!.includes('BCL'))!;
     expect(lyon.classList).toContain('shared');
     expect(lyon.style.getPropertyValue('--club')).toBe('var(--color-club-3)');
     expect(lyon.title).toBe('BC Lyon: 2 entrants of this club together');

@@ -27,6 +27,16 @@ describe('SettingsPage', () => {
     }
   });
 
+  it('shows clubs by name or by acronym', async () => {
+    const f = await render(SettingsPage);
+    const seg = [...f.nativeElement.querySelectorAll('.seg-option')] as HTMLButtonElement[];
+    const byAcronym = seg.find((b) => b.textContent!.trim() === 'Acronym')!;
+    expect(seg.find((b) => b.textContent!.trim() === 'Name')!.classList).toContain('active');
+    byAcronym.click();
+    await new Promise((r) => setTimeout(r));
+    expect(go.argsOf('SettingsService.SetClubDisplay')).toEqual([['acronym']]);
+  });
+
   it('chooses the defaults, the monitor and the operator', async () => {
     const f = await render(SettingsPage);
     for (const select of [...f.nativeElement.querySelectorAll('select')] as HTMLSelectElement[]) {

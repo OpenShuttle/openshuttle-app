@@ -181,7 +181,7 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 	}
 	for _, id := range stage.Slots() {
 		if id == "" {
-			sp.Slots = append(sp.Slots, SideView{Names: []string{}, Clubs: []string{}})
+			sp.Slots = append(sp.Slots, SideView{Names: []string{}, Clubs: []string{}, ClubNames: []string{}})
 		} else {
 			sp.Slots = append(sp.Slots, side(id))
 		}

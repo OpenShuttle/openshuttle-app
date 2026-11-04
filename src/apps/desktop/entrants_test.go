@@ -113,7 +113,7 @@ func TestImportEntrantsFile(t *testing.T) {
 	if err != nil || preview.Report.Added != 2 || len(f.svc.GetEntrantsView().Categories[0].Entrants) != 0 {
 		t.Fatalf("preview = %+v, %v", preview, err)
 	}
-	r, err := f.svc.ImportEntrants(f.ctx, file.Path, file.Mapping)
+	r, err := f.svc.ImportEntrants(f.ctx, file.Path, file.Mapping, nil)
 	if err != nil || r.Added != 2 || len(r.Skipped) != 1 || r.Skipped[0].Line != 4 {
 		t.Fatalf("import = %+v, %v", r, err)
 	}
@@ -195,7 +195,7 @@ func TestWaitingPartners(t *testing.T) {
 	if a := f.svc.GetTournamentView().LastAction; a.Type != "PartnerAdded" || a.Params["names"] != "Ana Bel / Mia Roux" {
 		t.Errorf("partner action = %+v", a)
 	}
-	if p, err := NewPresetService(f.app, f.rec.emit, func() time.Time { return f.clock }).GetPresets(ctx); err != nil || !slices.Contains(p.Clubs, "AS Bron") {
+	if p, err := NewPresetService(f.app, f.rec.emit, func() time.Time { return f.clock }).GetPresets(ctx); err != nil || !slices.Contains(p.Clubs, tournament.Club{Name: "AS Bron"}) {
 		t.Errorf("clubs = %v, %v", p.Clubs, err)
 	}
 	wd = f.svc.GetEntrantsView().Categories[0]

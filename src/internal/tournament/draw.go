@@ -187,7 +187,7 @@ func (s State) DrawEntry(c engine.Category, rng *rand.Rand) (Change, error) {
 	present := s.Present(c)
 	in := make([]engine.DrawEntrant, len(present))
 	for i, p := range present {
-		in[i] = engine.DrawEntrant{ID: p.ID, Seed: p.Seed, Clubs: p.Clubs()}
+		in[i] = engine.DrawEntrant{ID: p.ID, Seed: p.Seed, Clubs: s.ClubIDs(p)}
 	}
 	if e.Kind == StageBracket {
 		if len(present) < 2 {
@@ -266,13 +266,14 @@ func (s State) ReopenDraw(c engine.Category) (Change, error) {
 	return Change{TypeDrawReopened, DrawConfirmed{Category: c}}, nil
 }
 
-// Clubs returns the distinct clubs of the tournament's players, in order of
-// first appearance among the entrants (both categories). The order gives each
-// club its color on the draw screen: stable from one session to the next.
+// Clubs returns the distinct clubs of the tournament's players (ClubBook.ID),
+// in order of first appearance among the entrants (both categories). The
+// order gives each club its color on the draw screen: stable from one
+// session to the next.
 func (s State) Clubs() []string {
 	var clubs []string
 	for _, e := range s.Entrants {
-		for _, c := range e.Clubs() {
+		for _, c := range s.ClubIDs(e) {
 			if !slices.Contains(clubs, c) {
 				clubs = append(clubs, c)
 			}
@@ -281,16 +282,45 @@ func (s State) Clubs() []string {
 	return clubs
 }
 
-// Clubs returns the distinct clubs of an entrant's players.
-func (e Entrant) Clubs() []string {
+// ClubIDs returns the distinct clubs of an entrant's players (ClubBook.ID):
+// "AUVR" and "Rillieux" are one club when the list says so.
+func (s State) ClubIDs(e Entrant) []string {
 	var clubs []string
 	for _, p := range e.Players {
-		if p.Club != "" && !slices.Contains(clubs, p.Club) {
-			clubs = append(clubs, p.Club)
+		if id := s.clubs.ID(p.Club); id != "" && !slices.Contains(clubs, id) {
+			clubs = append(clubs, id)
 		}
 	}
 	return clubs
 }
+
+// EntrantClub is a distinct club of an entrant: its ID, its name in the
+// club list (else as typed) and its label as the settings show it.
+type EntrantClub struct {
+	ID, Name, Label string
+}
+
+// EntrantClubs returns the distinct clubs of an entrant's players.
+func (s State) EntrantClubs(e Entrant) []EntrantClub {
+	var clubs []EntrantClub
+	for _, p := range e.Players {
+		id := s.clubs.ID(p.Club)
+		if id == "" || slices.ContainsFunc(clubs, func(c EntrantClub) bool { return c.ID == id }) {
+			continue
+		}
+		clubs = append(clubs, EntrantClub{ID: id, Name: s.clubs.Name(p.Club), Label: s.clubs.Label(p.Club)})
+	}
+	return clubs
+}
+
+// WithClubs returns the state resolving clubs with a club book.
+func (s State) WithClubs(b ClubBook) State {
+	s.clubs = b
+	return s
+}
+
+// ClubBook returns the club book the state resolves clubs with.
+func (s State) ClubBook() ClubBook { return s.clubs }
 
 func (d Draw) poolOf(id engine.EntrantID) int {
 	for i, pool := range d.Pools {

@@ -12,6 +12,10 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as tournament$0 from "../../internal/tournament/models.js";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
 /**
@@ -27,6 +31,13 @@ export function ChooseTournamentsDir(): $CancellablePromise<string> {
  */
 export function GetSettings(): $CancellablePromise<$models.Settings> {
     return $Call.ByID(3034808949);
+}
+
+/**
+ * SetClubDisplay shows clubs by name or by acronym on every screen.
+ */
+export function SetClubDisplay(display: tournament$0.ClubDisplay): $CancellablePromise<void> {
+    return $Call.ByID(3079262342, display);
 }
 
 /**

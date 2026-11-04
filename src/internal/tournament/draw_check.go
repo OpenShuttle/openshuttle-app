@@ -74,7 +74,7 @@ func (s State) CheckDraw(c engine.Category) DrawCheck {
 				if other == id || !ok {
 					continue
 				}
-				if shareClub(e, o) {
+				if s.shareClub(e, o) {
 					pc.SameClub[id] = append(pc.SameClub[id], other)
 				}
 			}
@@ -89,9 +89,9 @@ func (s State) CheckDraw(c engine.Category) DrawCheck {
 	return check
 }
 
-func shareClub(a, b Entrant) bool {
-	for _, c := range a.Clubs() {
-		if slices.Contains(b.Clubs(), c) {
+func (s State) shareClub(a, b Entrant) bool {
+	for _, c := range s.ClubIDs(a) {
+		if slices.Contains(s.ClubIDs(b), c) {
 			return true
 		}
 	}
@@ -108,7 +108,7 @@ func (s State) checkBracketDraw(c engine.Category, d Draw) DrawCheck {
 		if id == "" || !ok {
 			continue
 		}
-		if o, ok := s.Entrant(slots[i^1]); ok && slots[i^1] != "" && shareClub(e, o) {
+		if o, ok := s.Entrant(slots[i^1]); ok && slots[i^1] != "" && s.shareClub(e, o) {
 			pc.SameClub[id] = []engine.EntrantID{o.ID}
 		}
 	}

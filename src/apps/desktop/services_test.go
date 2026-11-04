@@ -106,8 +106,8 @@ func newBareFixture(t *testing.T) *fixture {
 		clock: time.Date(2026, 10, 17, 9, 0, 0, 0, time.UTC),
 	}
 	now := func() time.Time { f.clock = f.clock.Add(time.Second); return f.clock }
-	f.settings = NewSettingsService(app, f.rec.emit, f.dialogs)
 	f.svc = NewTournamentService(app, f.rec.emit, now, filepath.Join(dir, "backups"), f.dialogs)
+	f.settings = NewSettingsService(app, f.svc.followClubs(f.rec.emit), f.dialogs)
 	t.Cleanup(func() {
 		f.svc.ServiceShutdown()
 		app.Close()
@@ -169,6 +169,8 @@ func TestSettings(t *testing.T) {
 	must(f.settings.SetDefaultPreset(f.ctx, PresetKindFormat, "b-pools-main"))
 	must(f.settings.SetDefaultPreset(f.ctx, PresetKindWin, "b-timed-10"))
 	must(f.settings.SetDefaultPreset(f.ctx, PresetKindTiebreaks, "b-differences-first"))
+	must(f.settings.SetClubDisplay(f.ctx, tournament.ClubDisplayAcronym))
+	wantCode(t, f.settings.SetClubDisplay(f.ctx, "logo"), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 3), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultMinRest(f.ctx, 61), engine.CodeInvalidSetting)
@@ -186,7 +188,8 @@ func TestSettings(t *testing.T) {
 	s, _ = f.settings.GetSettings(f.ctx)
 	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 12,
 		DefaultCourts: 6, DefaultMinRest: 0, TournamentsDir: f.dir,
-		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first"}
+		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first",
+		ClubDisplay: tournament.ClubDisplayAcronym}
 	if s != want {
 		t.Errorf("settings = %+v, want %+v", s, want)
 	}

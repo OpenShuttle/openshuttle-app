@@ -21,6 +21,9 @@
             "clubs": [
               "Plumes du Lac"
             ],
+            "clubNames": [
+              "Plumes du Lac"
+            ],
             "withdrawn": false
           },
           "stage": "S2",
@@ -40,6 +43,9 @@
               "Hugo Mathieu"
             ],
             "clubs": [
+              "Volant des Monts"
+            ],
+            "clubNames": [
               "Volant des Monts"
             ],
             "withdrawn": false
@@ -63,6 +69,9 @@
             "clubs": [
               "Volant des Monts"
             ],
+            "clubNames": [
+              "Volant des Monts"
+            ],
             "withdrawn": false
           },
           "stage": "S2",
@@ -82,6 +91,9 @@
               "Simon Laurent"
             ],
             "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
               "BC Rive Droite"
             ],
             "withdrawn": false
@@ -105,6 +117,9 @@
             "clubs": [
               "AS Belvédère"
             ],
+            "clubNames": [
+              "AS Belvédère"
+            ],
             "withdrawn": false
           },
           "stage": "S2",
@@ -124,6 +139,9 @@
               "Hugo Simon"
             ],
             "clubs": [
+              "Plumes du Lac"
+            ],
+            "clubNames": [
               "Plumes du Lac"
             ],
             "withdrawn": false
@@ -147,6 +165,9 @@
             "clubs": [
               "AS Belvédère"
             ],
+            "clubNames": [
+              "AS Belvédère"
+            ],
             "withdrawn": false
           },
           "stage": "S1",
@@ -166,6 +187,9 @@
               "Théo Henry"
             ],
             "clubs": [
+              "Volant des Monts"
+            ],
+            "clubNames": [
               "Volant des Monts"
             ],
             "withdrawn": false
@@ -189,6 +213,9 @@
             "clubs": [
               "BC Rive Droite"
             ],
+            "clubNames": [
+              "BC Rive Droite"
+            ],
             "withdrawn": false
           },
           "stage": "S1",
@@ -208,6 +235,9 @@
               "Jules Gauthier"
             ],
             "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
               "BC Rive Droite"
             ],
             "withdrawn": false
@@ -231,6 +261,9 @@
             "clubs": [
               "AS Belvédère"
             ],
+            "clubNames": [
+              "AS Belvédère"
+            ],
             "withdrawn": false
           },
           "stage": "S1",
@@ -250,6 +283,9 @@
               "Théo Simon"
             ],
             "clubs": [
+              "Plumes du Lac"
+            ],
+            "clubNames": [
               "Plumes du Lac"
             ],
             "withdrawn": false
@@ -281,6 +317,9 @@
             "clubs": [
               "Plumes du Lac"
             ],
+            "clubNames": [
+              "Plumes du Lac"
+            ],
             "withdrawn": false
           },
           "stage": "S2",
@@ -300,6 +339,9 @@
               "Léa André"
             ],
             "clubs": [
+              "Plumes du Lac"
+            ],
+            "clubNames": [
               "Plumes du Lac"
             ],
             "withdrawn": false
@@ -323,6 +365,9 @@
             "clubs": [
               "Volant des Monts"
             ],
+            "clubNames": [
+              "Volant des Monts"
+            ],
             "withdrawn": false
           },
           "stage": "S2",
@@ -342,6 +387,9 @@
               "Lou Gauthier"
             ],
             "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
               "BC Rive Droite"
             ],
             "withdrawn": false
@@ -365,6 +413,9 @@
             "clubs": [
               "Volant des Monts"
             ],
+            "clubNames": [
+              "Volant des Monts"
+            ],
             "withdrawn": false
           },
           "stage": "S1",
@@ -384,6 +435,9 @@
               "Clara Blanc"
             ],
             "clubs": [
+              "AS Belvédère"
+            ],
+            "clubNames": [
               "AS Belvédère"
             ],
             "withdrawn": false
@@ -407,6 +461,9 @@
             "clubs": [
               "AS Belvédère"
             ],
+            "clubNames": [
+              "AS Belvédère"
+            ],
             "withdrawn": false
           },
           "stage": "S1",
@@ -426,6 +483,9 @@
               "Manon Laurent"
             ],
             "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
               "BC Rive Droite"
             ],
             "withdrawn": false

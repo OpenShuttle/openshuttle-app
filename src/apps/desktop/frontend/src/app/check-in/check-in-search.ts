@@ -5,14 +5,14 @@ export function fold(s: string): string {
   return s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 }
 
-/** A player's own searchable fields: name, club, and the team's bib. */
+/** A player's own searchable fields: name, club (name and as shown), and the team's bib. */
 export function ownText(p: PlayerView, team: CheckInTeam): (string | number)[] {
-  return [p.name, p.club, team.bib || ''];
+  return [p.name, p.club, p.clubShown, team.bib || ''];
 }
 
 /** Every searchable field of a team: its players, their clubs, its bib. */
 export function teamText(team: CheckInTeam): (string | number)[] {
-  return [...(team.players ?? []).flatMap((p) => [p.name, p.club]), team.bib || ''];
+  return [...(team.players ?? []).flatMap((p) => [p.name, p.club, p.clubShown]), team.bib || ''];
 }
 
 /** True when every search word appears in the fields. */

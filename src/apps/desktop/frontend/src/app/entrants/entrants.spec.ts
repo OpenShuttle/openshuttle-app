@@ -59,7 +59,7 @@ describe('Entrants', () => {
     await click(f, 'Import…');
     expect(text(f)).toContain('Import inscriptions.csv');
     await click(f, 'Import 1 entrant');
-    expect(go.argsOf('TournamentService.ImportEntrants')[0]).toEqual([file.path, file.mapping]);
+    expect(go.argsOf('TournamentService.ImportEntrants')[0]).toEqual([file.path, { ...file.mapping, clubs: {} }, []]);
     expect(text(f)).toContain('1 entrant imported');
     expect(text(f)).toContain('Line 4 · already entered');
     expect(text(f)).toContain('2 lines ignored');
@@ -69,7 +69,7 @@ describe('Entrants', () => {
   });
 
   it('cancels a chosen list', async () => {
-    go.on('TournamentService.ChooseImportFile', { path: '/x.csv', lines: [], mapping: { header: false, category: -1, categories: {}, fallback: 'MD', players: [] } });
+    go.on('TournamentService.ChooseImportFile', { path: '/x.csv', lines: [], mapping: { header: false, category: -1, categories: {}, fallback: 'MD', players: [], clubs: {} } });
     const f = await render(Entrants);
     await click(f, 'Import…');
     await click(f, 'Cancel');

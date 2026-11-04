@@ -3,6 +3,7 @@ package main
 import (
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -134,20 +135,31 @@ func TestClubs(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	clubs := func() []string {
+	clubs := func() []tournament.Club {
 		p, err := presets.GetPresets(f.ctx)
 		must(err)
 		return p.Clubs
 	}
-	must(presets.SaveClub(f.ctx, "", "  BC  Lyon "))
-	must(presets.SaveClub(f.ctx, "", "Écully BC"))
-	must(presets.SaveClub(f.ctx, "", "bc lyon"))
-	if got := clubs(); !slices.Equal(got, []string{"BC Lyon", "Écully BC"}) {
+	club := func(name, acronym string) tournament.Club { return tournament.Club{Name: name, Acronym: acronym} }
+	must(presets.SaveClub(f.ctx, "", club("  BC  Lyon ", "")))
+	must(presets.SaveClub(f.ctx, "", club("Écully BC", " ebc ")))
+	must(presets.SaveClub(f.ctx, "", club("", "AUVR")))    // the acronym alone becomes the name
+	must(presets.SaveClub(f.ctx, "", club("bc lyon", ""))) // covers BC Lyon: replaces it
+	wantCode(t, presets.SaveClub(f.ctx, "", club("Rillieux", "E.B.C.")), engine.CodeClubExists)
+	wantCode(t, presets.SaveClub(f.ctx, "", club("ecully-bc", "X")), engine.CodeClubExists)
+	if got := clubs(); !slices.Equal(got, []tournament.Club{club("AUVR", ""), club("bc lyon", ""), club("Écully BC", "ebc")}) {
 		t.Errorf("clubs = %v", got)
 	}
-	must(presets.SaveClub(f.ctx, "BC Lyon", "ASPTT"))
-	wantCode(t, presets.SaveClub(f.ctx, "Nope", "X"), engine.CodeClubNotFound)
-	wantCode(t, presets.SaveClub(f.ctx, "", " "), engine.CodeInvalidClub)
+	must(presets.SaveClub(f.ctx, "", club("BC Lyon", "")))
+	must(presets.SaveClub(f.ctx, "", club("Rillieux", "")))
+	must(presets.SaveClub(f.ctx, "Rillieux", club("Rillieux", "AUVR"))) // AUVR alone merges into Rillieux
+	must(presets.SaveClub(f.ctx, "BC Lyon", club("ASPTT", "asptt")))    // an acronym equal to the name is none
+	wantCode(t, presets.SaveClub(f.ctx, "Nope", club("X", "")), engine.CodeClubNotFound)
+	wantCode(t, presets.SaveClub(f.ctx, "", club(" ", "")), engine.CodeInvalidClub)
+	wantCode(t, presets.SaveClub(f.ctx, "", club("Long", strings.Repeat("A", 21))), engine.CodeInvalidClub)
+	if got := clubs(); !slices.Equal(got, []tournament.Club{club("ASPTT", ""), club("Écully BC", "ebc"), club("Rillieux", "AUVR")}) {
+		t.Errorf("clubs = %v", got)
+	}
 	must(presets.DeleteClub(f.ctx, "Écully BC"))
 	wantCode(t, presets.DeleteClub(f.ctx, "Écully BC"), engine.CodeClubNotFound)
 
@@ -158,7 +170,15 @@ func TestClubs(t *testing.T) {
 	}
 	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
 	must(f.svc.RegisterEntrant(f.ctx, engine.MensSingles, []tournament.PlayerInput{{Name: "Paul Zola", Club: "Badminton Villeurbanne"}}))
-	if got := clubs(); !slices.Equal(got, []string{"ASPTT", "Badminton Villeurbanne"}) {
+	if got := clubs(); !slices.Equal(got, []tournament.Club{club("ASPTT", ""), club("Badminton Villeurbanne", ""), club("Rillieux", "AUVR")}) {
 		t.Errorf("clubs = %v", got)
+	}
+	// A club typed by its acronym is entered as the listed club.
+	must(f.svc.RegisterEntrant(f.ctx, engine.MensSingles, []tournament.PlayerInput{{Name: "Tom Petit", Club: " auvr "}}))
+	if p := f.svc.GetEntrantsView().Categories[0].Entrants[1].Players[0]; p.Club != "Rillieux" || p.ClubShown != "Rillieux" {
+		t.Errorf("player = %+v", p)
+	}
+	if got := len(clubs()); got != 3 {
+		t.Errorf("clubs = %d", got)
 	}
 }

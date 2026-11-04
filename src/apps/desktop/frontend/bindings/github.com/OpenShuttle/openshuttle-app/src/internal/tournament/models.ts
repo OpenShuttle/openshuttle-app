@@ -6,6 +6,30 @@
 import * as engine$0 from "../engine/models.js";
 
 /**
+ * Club is an entry of the club list of a PC (app.db): its name and an
+ * optional acronym ("Rillieux", "AUVR"). A player's club matches it by
+ * either, case, accents, spaces and punctuation ignored.
+ */
+export interface Club {
+    "name": string;
+    "acronym": string;
+}
+
+/**
+ * ClubDisplay says how clubs are shown: by name, or by acronym when the
+ * club has one.
+ */
+export enum ClubDisplay {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    ClubDisplayName = "name",
+    ClubDisplayAcronym = "acronym",
+};
+
+/**
  * CourtState is the state of a court.
  */
 export enum CourtState {
@@ -44,6 +68,15 @@ export interface FormatPreview {
 }
 
 /**
+ * ImportClub is a club value matching no club of the list, with how many
+ * lines hold it.
+ */
+export interface ImportClub {
+    "value": string;
+    "lines": number;
+}
+
+/**
  * ImportLine is a non-blank line of a player list: its number in the file
  * and its cells, spaces collapsed.
  */
@@ -66,6 +99,13 @@ export interface ImportMapping {
     "categories": { [_ in string]?: engine$0.Category } | null;
     "fallback": engine$0.Category;
     "players": ImportPlayerColumns[] | null;
+
+    /**
+     * Clubs maps a club value matching no club of the list to the club
+     * chosen for it. Other values are entered as the club they name (by
+     * name or acronym), else as typed.
+     */
+    "clubs": { [_ in string]?: string } | null;
 }
 
 /**
@@ -82,12 +122,15 @@ export interface ImportPlayerColumns {
 
 /**
  * ImportPreview is what an import would do, nothing saved: the report, the
- * entrants it would add, and the values of the category column.
+ * entrants it would add, the values of the category column, and the club
+ * values matching no club of the list (the desk adds them, maps them to a
+ * club or keeps them as typed).
  */
 export interface ImportPreview {
     "report": ImportReport;
     "entrants": EntrantRegistered[] | null;
     "values": ImportValue[] | null;
+    "clubs": ImportClub[] | null;
 }
 
 /**

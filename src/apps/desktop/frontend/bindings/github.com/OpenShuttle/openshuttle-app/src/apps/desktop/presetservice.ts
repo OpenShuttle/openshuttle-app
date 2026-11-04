@@ -68,10 +68,14 @@ export function PreviewFormat(stages: tournament$0.StageConfig[] | null, entrant
 
 /**
  * SaveClub adds a club to the list offered when entering a player (old ""),
- * or renames one. A club already listed (case ignored) is not added twice.
+ * or changes the club named old. The name is required, the acronym
+ * optional; case, accents and punctuation ignored. A listed club the new
+ * one fully covers ("AUVR" alone, when saving Rillieux, AUVR) merges into
+ * it; any other club already holding the name or acronym refuses it
+ * (CLUB_EXISTS).
  */
-export function SaveClub(old: string, name: string): $CancellablePromise<void> {
-    return $Call.ByID(1604392783, old, name);
+export function SaveClub(old: string, club: tournament$0.Club): $CancellablePromise<void> {
+    return $Call.ByID(1604392783, old, club);
 }
 
 /**
