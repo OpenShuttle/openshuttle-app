@@ -173,7 +173,7 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   finished match goes to the pending scores. Rest counts from the real end of
   the match, not from score entry.
 
-**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md))
+**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md), [ADR 10](../adr/0010-schedule-day-and-breaks.md))
 
 - The schedule puts every waiting match in order and forecasts courts and
   times from the estimated time on court of each win condition (2 sets of 21:
@@ -196,6 +196,22 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   When players have not had their minimum rest, the desk is warned: it calls
   the match anyway, or moves matches in the schedule.
 - The schedule shows how many matches each team has left in the stage.
+- The tournament has a **date, a start time and an end time** (Tournament
+  info). Until the first match is called, the forecast starts at the start
+  time (now once it is past); then real times take over. A forecast ending
+  after the end time is a warning, never a refusal. The desk can still call
+  matches before the start time.
+- **Breaks** (lunch…) are periods at fixed times, added on the schedule: every
+  court stops, no match is planned across a break, the next ones start at
+  its end. Matches are not proposed during a break (the desk can still call
+  one).
+- Each pool, and each bracket stage (main, consolation…), has its own color:
+  the category badge of its rounds and matches takes it. Rounds are named
+  short: the stage's acronym (typed in the format, P for pools and T for a
+  bracket by default), then the pool and "round/rounds" (`P A · 2/5`), or the
+  bracket round (`T · 1/8`, `1/4`, `1/2`, `Finale`, `3e place`, `5e–8e`;
+  English `R16`, `QF`, `SF`, `Final`, `3rd place`, `5th–8th`).
+- The order of rounds panel folds, like the other side panels.
 
 **Two categories at once**
 
@@ -296,7 +312,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | --- | --- | --- | --- | --- |
 | 1 | Home | Organizer | Recent tournaments, trash, Presets, Settings | Create, open a file, duplicate, move to the trash, restore, delete |
 | 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs (name and optional acronym) | Create, edit, duplicate, disable, delete; simulate a format for N teams |
-| 3 | Tournament info | Organizer | Name, one or two categories, number of courts, minimum rest | Edit |
+| 3 | Tournament info | Organizer | Name, one or two categories, date with start and end times, number of courts, minimum rest | Edit |
 | 4 | Entrants | Organizer | Entrants (player or pair) per category, club, players waiting for a partner and their count | Add (alone, waiting for a partner, in doubles), edit, pair two waiting players, add a partner, split a pair, import CSV (columns mapped) and export it |
 | 5 | Format | Organizer | One tab per category; the stage graph in the middle, the selected stage's settings on the right, the preview for N entrants below | Add and link stages, configure, apply or save a preset |
 | 6 | Check-in | Control desk | Large list per player with search, category, partner, bib, counters "40 / 42 players · 20 / 21 complete pairs · 1 waiting for a partner" | Mark present in one click, add on the spot |
