@@ -84,13 +84,13 @@ func TestPresets(t *testing.T) {
 		t.Fatalf("format preset = %+v", mine)
 	}
 	must(f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, mine.ID))
-	if fc := f.svc.GetFormatView().Categories[1]; len(fc.Stages) != 2 || fc.Stages[1].Kind != tournament.StageBracket {
-		t.Errorf("applied = %+v", fc.Stages)
+	if fc := f.svc.GetFormatView().Categories[1]; len(reg(fc).Stages) != 2 || reg(fc).Stages[1].Kind != tournament.StageBracket {
+		t.Errorf("applied = %+v", reg(fc).Stages)
 	}
 	must(f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, "b-pools-main-consolation"))
-	if fc := f.svc.GetFormatView().Categories[1]; len(fc.Stages) != 3 || len(fc.Stages[0].Routing) != 2 ||
-		!ruleEq(fc.Stages[0].Routing[1], tournament.RouteRule{Kind: tournament.RouteRest, To: "S3"}) {
-		t.Errorf("built-in applied = %+v", fc.Stages)
+	if fc := f.svc.GetFormatView().Categories[1]; len(reg(fc).Stages) != 3 || len(reg(fc).Stages[0].Routing) != 2 ||
+		!ruleEq(reg(fc).Stages[0].Routing[1], tournament.RouteRule{Kind: tournament.RouteRest, To: "S3"}) {
+		t.Errorf("built-in applied = %+v", reg(fc).Stages)
 	}
 	wantCode(t, f.svc.ApplyFormatPreset(ctx, engine.WomensDoubles, "nope"), engine.CodePresetNotFound)
 

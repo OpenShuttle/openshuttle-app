@@ -121,8 +121,8 @@ func (f *fixture) editEntry(c engine.Category, edit func(*tournament.StageConfig
 		if fc.Category != c {
 			continue
 		}
-		stages := make([]tournament.StageConfig, len(fc.Stages))
-		for i, st := range fc.Stages {
+		stages := make([]tournament.StageConfig, len(reg(fc).Stages))
+		for i, st := range reg(fc).Stages {
 			stages[i] = st.StageConfig
 		}
 		edit(&stages[0])
@@ -204,9 +204,9 @@ func TestSettings(t *testing.T) {
 	}
 	// A new category starts with the default format.
 	must(f.svc.AddCategory(f.ctx, engine.MensSingles))
-	if fc := f.svc.GetFormatView().Categories[0]; len(fc.Stages) != 2 || fc.Stages[1].Kind != tournament.StageBracket ||
-		fc.Stages[0].Win != (engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 2, PointsPerSet: 15, Cap: 21}) {
-		t.Errorf("default format = %+v", fc.Stages)
+	if fc := f.svc.GetFormatView().Categories[0]; len(reg(fc).Stages) != 2 || reg(fc).Stages[1].Kind != tournament.StageBracket ||
+		reg(fc).Stages[0].Win != (engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 2, PointsPerSet: 15, Cap: 21}) {
+		t.Errorf("default format = %+v", reg(fc).Stages)
 	}
 	// One undo removes the category and its format together.
 	must(f.svc.Undo(f.ctx))

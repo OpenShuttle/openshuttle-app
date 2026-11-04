@@ -21,18 +21,40 @@ type StageView struct {
 	Started   bool `json:"started"`
 }
 
-// FormatCategory is one category of the format screen.
-type FormatCategory struct {
-	CategoryRef
-	// TimedAllowed is false with two categories: timed rounds need all courts.
-	TimedAllowed bool        `json:"timedAllowed"`
-	Registered   int         `json:"registered"`
-	Present      int         `json:"present"`
-	Stages       []StageView `json:"stages"`
+// PreviewBase is the entrant count a format preview starts from. The Format
+// screen offers each one; it is a display choice and never changes the draw.
+type PreviewBase string
+
+const (
+	// PreviewPaired counts the entrants not waiting for a partner (doubles only).
+	PreviewPaired PreviewBase = "paired"
+	// PreviewRegistered counts every entrant of the category.
+	PreviewRegistered PreviewBase = "registered"
+	// PreviewPresent counts the entrants with every player checked in: the
+	// ones the draw takes.
+	PreviewPresent PreviewBase = "present"
+)
+
+// FormatPreviewView is the format of a category previewed for one base.
+type FormatPreviewView struct {
+	Base     PreviewBase `json:"base"`
+	Entrants int         `json:"entrants"`
+	Stages   []StageView `json:"stages"`
 	// Ranked is how many entrants the full standings place; Ties is set when
 	// some of them share a rank.
 	Ranked int  `json:"ranked"`
 	Ties   bool `json:"ties"`
+}
+
+// FormatCategory is one category of the format screen.
+type FormatCategory struct {
+	CategoryRef
+	// TimedAllowed is false with two categories: timed rounds need all courts.
+	TimedAllowed bool `json:"timedAllowed"`
+	// Previews holds the format previewed for each base, in the order
+	// offered: paired (doubles only), registered, present. Stages already
+	// filled show their actual groups whatever the base.
+	Previews []FormatPreviewView `json:"previews"`
 	// Locked: a match was called or scored, the format no longer changes.
 	Locked bool `json:"locked"`
 }
@@ -77,18 +99,43 @@ func (s *TournamentService) GetFormatView() FormatView {
 		fc := FormatCategory{
 			CategoryRef:  ref,
 			TimedAllowed: len(st.Categories) == 1,
-			Present:      len(st.Present(ref.Category)),
 			Locked:       st.FormatLocked(ref.Category),
 		}
-		for _, e := range st.Entrants {
-			if e.Category == ref.Category {
-				fc.Registered++
-			}
+		for _, b := range previewCounts(st, ref.Category) {
+			p := FormatPreviewView{Base: b.base, Entrants: b.n}
+			p.Stages, p.Ranked, p.Ties = formatPreview(st, ref.Category, b.n)
+			fc.Previews = append(fc.Previews, p)
 		}
-		fc.Stages, fc.Ranked, fc.Ties = formatPreview(st, ref.Category, fc.Registered)
 		v.Categories = append(v.Categories, fc)
 	}
 	return v
+}
+
+type previewCount struct {
+	base PreviewBase
+	n    int
+}
+
+// previewCounts counts the entrants of a category for each preview base.
+// Singles have no partner to wait for: the paired base is left out.
+func previewCounts(st tournament.State, c engine.Category) []previewCount {
+	registered, paired := 0, 0
+	for _, e := range st.Entrants {
+		if e.Category != c {
+			continue
+		}
+		registered++
+		if !e.Waiting() {
+			paired++
+		}
+	}
+	var out []previewCount
+	if c.IsDoubles() {
+		out = append(out, previewCount{PreviewPaired, paired})
+	}
+	return append(out,
+		previewCount{PreviewRegistered, registered},
+		previewCount{PreviewPresent, len(st.Present(c))})
 }
 
 // formatPreview previews each stage for the registered entrants, with the

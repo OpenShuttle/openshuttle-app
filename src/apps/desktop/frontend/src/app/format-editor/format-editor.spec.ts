@@ -8,7 +8,7 @@ import presets from '../../testing/fixtures/presets.json';
 import settings from '../../testing/fixtures/settings.json';
 import { FormatEditor, canAddStage } from './format-editor';
 
-const stages = (format as unknown as FormatView).categories![0].stages as StageView[];
+const stages = (format as unknown as FormatView).categories![0].previews![0].stages as StageView[];
 
 describe('FormatEditor', () => {
   beforeEach(() => {

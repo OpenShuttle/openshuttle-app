@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { FormatView, TournamentService } from '@bindings/apps/desktop';
+import { FormatCategory, FormatPreviewView, FormatView, PreviewBase, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 import { StageConfig, StageKind } from '@bindings/internal/tournament';
 
@@ -10,7 +10,21 @@ import { AppPresets } from '../core/presets.service';
 import { TournamentStore } from '../core/tournament.service';
 import { FormatEditor, LAST_STAGE, canAddStage } from '../format-editor/format-editor';
 
-/** Format of the open tournament, per category: the shared editor, applied through Go. */
+const BASE_KEY = 'openshuttle.formatPreviewBase';
+
+function loadBase(): PreviewBase {
+  try {
+    return (localStorage.getItem(BASE_KEY) as PreviewBase | null) ?? PreviewBase.PreviewPaired;
+  } catch {
+    return PreviewBase.PreviewPaired;
+  }
+}
+
+/**
+ * Format of the open tournament, per category: the shared editor, applied
+ * through Go. The preview counts complete pairs, every entrant or the present
+ * ones: Go previews each base, the choice is a convenience of this PC.
+ */
 @Component({
   selector: 'app-format',
   imports: [TranslocoDirective, RouterLink, FormatEditor],
@@ -23,7 +37,7 @@ export class Format {
   private readonly transloco = inject(TranslocoService);
   protected readonly view = liveView<FormatView>(() => TournamentService.GetFormatView(), { categories: [] });
   protected readonly stageKinds = StageKind;
-  protected readonly canAdd = computed(() => canAddStage(this.current()?.stages ?? []));
+  protected readonly canAdd = computed(() => canAddStage(this.preview()?.stages ?? []));
   private readonly editor = viewChild(FormatEditor);
 
   private readonly selectedCategory = signal<Category | null>(null);
@@ -31,6 +45,32 @@ export class Format {
     const categories = this.view().categories ?? [];
     return categories.find((c) => c.category === this.selectedCategory()) ?? categories[0] ?? null;
   });
+
+  /** The base of the preview; singles have no paired base and show every entrant. */
+  protected readonly base = signal<PreviewBase>(loadBase());
+  protected readonly preview = computed(() => {
+    const fc = this.current();
+    return fc ? this.previewOf(fc) : null;
+  });
+
+  protected previewOf(fc: FormatCategory): FormatPreviewView | null {
+    const previews = fc.previews ?? [];
+    return (
+      previews.find((p) => p.base === this.base()) ??
+      previews.find((p) => p.base === PreviewBase.PreviewRegistered) ??
+      previews[0] ??
+      null
+    );
+  }
+
+  protected selectBase(base: PreviewBase): void {
+    this.base.set(base);
+    try {
+      localStorage.setItem(BASE_KEY, base);
+    } catch {
+      // Not saved: the choice still applies for this session.
+    }
+  }
 
   /** The save-as-preset form, when open. */
   protected readonly saving = signal(false);

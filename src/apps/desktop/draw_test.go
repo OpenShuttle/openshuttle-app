@@ -32,12 +32,12 @@ func TestFormatAndDraw(t *testing.T) {
 
 	fv := f.svc.GetFormatView()
 	fc := fv.Categories[0]
-	if !fc.TimedAllowed || fc.Registered != 7 || fc.Present != 0 || fc.Stages[0].Matches != 6+3 || len(fc.Stages[0].Sizes) != 2 {
+	if !fc.TimedAllowed || reg(fc).Entrants != 7 || previewOf(fc, PreviewPresent).Entrants != 0 || reg(fc).Stages[0].Matches != 6+3 || len(reg(fc).Stages[0].Sizes) != 2 {
 		t.Fatalf("format = %+v", fc)
 	}
 
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools = 3 }))
-	if fc = f.svc.GetFormatView().Categories[0]; fc.Stages[0].Pools != 3 || fc.Stages[0].Matches != 3+1+1 {
+	if fc = f.svc.GetFormatView().Categories[0]; reg(fc).Stages[0].Pools != 3 || reg(fc).Stages[0].Matches != 3+1+1 {
 		t.Errorf("after 3 pools = %+v", fc)
 	}
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools = 2 }))
@@ -90,7 +90,7 @@ func TestFormatAndDraw(t *testing.T) {
 	if dv = f.svc.GetDrawView().Categories[0]; dv.Status != DrawConfirmed {
 		t.Errorf("status = %s", dv.Status)
 	}
-	if fc = f.svc.GetFormatView().Categories[0]; !fc.Stages[0].Confirmed {
+	if fc = f.svc.GetFormatView().Categories[0]; !reg(fc).Stages[0].Confirmed {
 		t.Error("pools should be locked")
 	}
 	must(f.svc.Undo(ctx))

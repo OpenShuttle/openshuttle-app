@@ -133,7 +133,7 @@ func (b *sampleBuilder) stages(c engine.Category) []tournament.StageConfig {
 	var stages []tournament.StageConfig
 	for _, fc := range b.svc.GetFormatView().Categories {
 		if fc.Category == c {
-			for _, st := range fc.Stages {
+			for _, st := range fc.Previews[0].Stages {
 				stages = append(stages, st.StageConfig)
 			}
 		}

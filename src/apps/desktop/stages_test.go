@@ -34,7 +34,7 @@ func TestStageViews(t *testing.T) {
 	win := engine.WinCondition{Kind: engine.WinBySets, SetsToWin: 1, PointsPerSet: 21, Cap: 30}
 	stages := func() []tournament.StageConfig {
 		var out []tournament.StageConfig
-		for _, st := range f.svc.GetFormatView().Categories[0].Stages {
+		for _, st := range f.svc.GetFormatView().Categories[0].Previews[0].Stages {
 			out = append(out, st.StageConfig)
 		}
 		return out
@@ -45,11 +45,11 @@ func TestStageViews(t *testing.T) {
 	must(f.svc.SetFormat(ctx, engine.MensSingles, format))
 
 	fc := f.svc.GetFormatView().Categories[0]
-	if len(fc.Stages) != 2 || fc.Stages[1].Name != "Finale" || fc.Stages[1].Phase != 2 || fc.Stages[0].Routing[0].To != "S2" {
+	if len(reg(fc).Stages) != 2 || reg(fc).Stages[1].Name != "Finale" || reg(fc).Stages[1].Phase != 2 || reg(fc).Stages[0].Routing[0].To != "S2" {
 		t.Fatalf("format = %+v", fc)
 	}
-	if s := fc.Stages[1]; s.Entrants != 2 || s.PlaceFrom != 1 || s.PlaceTo != 2 || fc.Ranked != 4 || fc.Ties {
-		t.Errorf("preview = %+v, ranked %d", s, fc.Ranked)
+	if s := reg(fc).Stages[1]; s.Entrants != 2 || s.PlaceFrom != 1 || s.PlaceTo != 2 || reg(fc).Ranked != 4 || reg(fc).Ties {
+		t.Errorf("preview = %+v, ranked %d", s, reg(fc).Ranked)
 	}
 	if a := f.svc.GetTournamentView().LastAction; a.Type != "FormatSet" || a.Params["category"] != "MS" {
 		t.Errorf("format action = %+v", a)
@@ -118,7 +118,7 @@ func TestFormatPreview(t *testing.T) {
 	must(f.svc.AddStage(ctx, engine.MensSingles, tournament.StageBracket))
 	must(f.svc.AddStage(ctx, engine.MensSingles, tournament.StageBracket))
 	var format []tournament.StageConfig
-	for _, st := range f.svc.GetFormatView().Categories[0].Stages {
+	for _, st := range f.svc.GetFormatView().Categories[0].Previews[0].Stages {
 		format = append(format, st.StageConfig)
 	}
 	format[0].Pools, format[0].Routing = 3, tournament.RanksRules("S2", "S2", "S3")
@@ -127,7 +127,7 @@ func TestFormatPreview(t *testing.T) {
 	must(f.svc.SetFormat(ctx, engine.MensSingles, format))
 
 	fc := f.svc.GetFormatView().Categories[0]
-	pools, main, cons := fc.Stages[0], fc.Stages[1], fc.Stages[2]
+	pools, main, cons := reg(fc).Stages[0], reg(fc).Stages[1], reg(fc).Stages[2]
 	if !reflect.DeepEqual(pools.Sizes, []int{4, 4, 3}) || pools.Matches != 6+6+3 || pools.Rounds != 3 {
 		t.Errorf("pools = %+v", pools)
 	}
@@ -139,7 +139,7 @@ func TestFormatPreview(t *testing.T) {
 		!reflect.DeepEqual(cons.Ranks, []tournament.RankCount{{Rank: 1, Count: 1}, {Rank: 2, Count: 1}, {Rank: 3, Count: 1}}) {
 		t.Errorf("consolation = %+v", cons)
 	}
-	if pools.PlaceFrom != 10 || pools.PlaceTo != 11 || fc.Ranked != 11 || !fc.Ties {
-		t.Errorf("kept in pools = %d-%d, ranked %d, ties %v", pools.PlaceFrom, pools.PlaceTo, fc.Ranked, fc.Ties)
+	if pools.PlaceFrom != 10 || pools.PlaceTo != 11 || reg(fc).Ranked != 11 || !reg(fc).Ties {
+		t.Errorf("kept in pools = %d-%d, ranked %d, ties %v", pools.PlaceFrom, pools.PlaceTo, reg(fc).Ranked, reg(fc).Ties)
 	}
 }

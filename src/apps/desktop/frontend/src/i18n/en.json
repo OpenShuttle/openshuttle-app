@@ -405,6 +405,15 @@
   "format": {
     "title": "Format",
     "lead": "One format per category · fixed once its first match starts",
+    "base": {
+      "label": "Preview for",
+      "paired": "Complete pairs ({n})",
+      "pairedHint": "Every entrant except players waiting for a partner",
+      "registered": "All entries ({n})",
+      "registeredHint": "Every entrant, players waiting for a partner included",
+      "present": "Present ({n})",
+      "presentHint": "Entrants with every player checked in: the ones the draw takes"
+    },
     "poolCount": "Number of pools",
     "fewerPools": "One pool less",
     "morePools": "One pool more",
