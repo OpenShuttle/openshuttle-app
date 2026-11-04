@@ -138,6 +138,16 @@ export function CreateTournamentAt(path: string, name: string): $CancellableProm
 }
 
 /**
+ * DeleteTournament removes a tournament from the trash for good. With
+ * deleteFile, its file is deleted from disk too, with its -wal and -shm
+ * siblings; backups are kept. A file that cannot be deleted leaves the
+ * tournament in the trash (DELETE_FAILED).
+ */
+export function DeleteTournament(path: string, deleteFile: boolean): $CancellablePromise<void> {
+    return $Call.ByID(3183251870, path, deleteFile);
+}
+
+/**
  * DrawEntry draws (or redraws) the entry stage of a category: its pools, or
  * the slots of its bracket.
  */
@@ -287,6 +297,14 @@ export function ListRecentTournaments(): $CancellablePromise<$models.RecentTourn
 }
 
 /**
+ * ListTrashedTournaments returns the tournaments in the trash, most recently
+ * trashed first.
+ */
+export function ListTrashedTournaments(): $CancellablePromise<$models.RecentTournament[] | null> {
+    return $Call.ByID(423752543);
+}
+
+/**
  * MoveEntrant moves an entrant to another pool (0 is A).
  */
 export function MoveEntrant(id: engine$0.EntrantID, pool: number): $CancellablePromise<void> {
@@ -405,6 +423,14 @@ export function ReopenDraw(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * RestoreTournament puts a tournament of the trash back at the top of the
+ * recent list.
+ */
+export function RestoreTournament(path: string): $CancellablePromise<void> {
+    return $Call.ByID(714350503, path);
+}
+
+/**
  * SaveFormatPreset saves the format of a category as a preset.
  */
 export function SaveFormatPreset(c: engine$0.Category, name: string, description: string): $CancellablePromise<void> {
@@ -481,6 +507,14 @@ export function SwapMatches(a: tournament$0.MatchID, b: tournament$0.MatchID): $
  */
 export function SwapSlots(c: engine$0.Category, id: string, a: number, b: number): $CancellablePromise<void> {
     return $Call.ByID(200850338, c, id, a, b);
+}
+
+/**
+ * TrashTournament moves a tournament of the recent list to the trash. Its file
+ * stays on disk. The open tournament is closed first.
+ */
+export function TrashTournament(path: string): $CancellablePromise<void> {
+    return $Call.ByID(1023407199, path);
 }
 
 /**

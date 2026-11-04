@@ -28,6 +28,8 @@ type RecentTournament struct {
 	// Summary is the tournament as it was when last closed; nil for
 	// entries saved by older versions.
 	Summary *TournamentSummary `json:"summary"`
+	// TrashedAt is when it was moved to the trash; nil in the recent list.
+	TrashedAt *time.Time `json:"trashedAt"`
 }
 
 func readRecent(ctx context.Context, db *store.AppDB) ([]RecentTournament, error) {

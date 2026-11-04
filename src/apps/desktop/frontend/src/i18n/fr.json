@@ -34,7 +34,22 @@
     "trySample": "Essayer avec un tournoi d'exemple",
     "sampleName": "Tournoi d'exemple",
     "sampleHint": "Des paires fictives, un tournoi déjà commencé : explorez chaque écran sans rien saisir.",
-    "readGuide": "Lire le guide"
+    "readGuide": "Lire le guide",
+    "moveToTrash": "Mettre à la corbeille",
+    "moveToTrashHint": "Retirer de la liste. Le fichier reste sur ce PC ; la corbeille permet de le restaurer.",
+    "openTrash": "Corbeille · {count}",
+    "trash": "Corbeille",
+    "trashLead": "Tournois retirés de la liste. Leurs fichiers restent sur ce PC tant que vous ne les supprimez pas.",
+    "backToRecent": "Retour aux tournois récents",
+    "trashedOn": "Mis à la corbeille le {date}",
+    "restore": "Restaurer",
+    "delete": "Supprimer…",
+    "deleteConfirm": "Supprimer définitivement « {name} » ?",
+    "deleteFile": "Supprimer aussi le fichier {file} de ce PC",
+    "deleteFileHint": "Le fichier ne pourra pas être récupéré. Les copies de sauvegarde sont conservées.",
+    "deleteForGood": "Supprimer de la corbeille",
+    "deleteWithFile": "Supprimer avec le fichier",
+    "trashEmpty": "La corbeille est vide."
   },
   "topBar": {
     "lastAction": "Dernière action · {time}",
@@ -215,7 +230,9 @@
     "ALREADY_ENTERED": "Déjà inscrit.",
     "NOTHING_TO_SCHEDULE": "Aucun match en attente : rien à ordonner pour l'instant.",
     "SCHEDULE_NOT_VALIDATED": "Validez l'échéancier avant de déplacer des matchs.",
-    "SCHEDULE_VALIDATED": "L'échéancier est validé : les matchs se déplacent maintenant un par un. Revenez aux blocs pour déplacer toute une poule."
+    "SCHEDULE_VALIDATED": "L'échéancier est validé : les matchs se déplacent maintenant un par un. Revenez aux blocs pour déplacer toute une poule.",
+    "NOT_IN_TRASH": "Ce tournoi n'est plus dans la corbeille.",
+    "DELETE_FAILED": "Le fichier n'a pas pu être supprimé. Il est peut-être ouvert dans un autre programme."
   },
   "displayScreen": {
     "monitor": "Moniteur",

@@ -8,7 +8,7 @@ import { AppSettings } from '../core/settings.service';
 import { TournamentStore } from '../core/tournament.service';
 import { AppInfo, AppService, RecentTournament } from '@bindings/apps/desktop';
 
-/** Home screen: recent tournament files, create, open, duplicate. */
+/** Home screen: recent tournament files, create, open, duplicate, and the trash. */
 @Component({
   selector: 'app-home',
   imports: [TranslocoDirective],
@@ -79,6 +79,32 @@ export class Home {
 
   protected duplicate(r: RecentTournament): void {
     void this.tournament.duplicate(r.path, this.transloco.translate('home.copyName', { name: r.name }));
+  }
+
+  /** The trash view replaces the recent list. */
+  protected readonly showTrash = signal(false);
+  /** The trashed tournament whose permanent deletion is being confirmed. */
+  protected readonly deleting = signal<string | null>(null);
+  /** Off by default: deleting from the trash keeps the file unless asked. */
+  protected readonly deleteFile = signal(false);
+
+  protected moveToTrash(r: RecentTournament): void {
+    void this.tournament.moveToTrash(r.path);
+  }
+
+  protected restore(r: RecentTournament): void {
+    void this.tournament.restore(r.path);
+  }
+
+  protected askDelete(r: RecentTournament): void {
+    this.deleteFile.set(false);
+    this.deleting.set(r.path);
+  }
+
+  protected async confirmDelete(r: RecentTournament): Promise<void> {
+    if (await this.tournament.deleteForGood(r.path, r.exists && this.deleteFile())) {
+      this.deleting.set(null);
+    }
   }
 
   protected fileName(path: string): string {

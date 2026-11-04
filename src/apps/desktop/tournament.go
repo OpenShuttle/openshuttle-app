@@ -195,6 +195,7 @@ func (s *TournamentService) OpenTournament(ctx context.Context, path string) err
 	s.startBackupsLocked()
 	s.mu.Unlock()
 
+	s.untrash(ctx, path)
 	if list, err := readRecent(ctx, s.app); err == nil {
 		list = touchRecent(list, path, state.Name, s.now())
 		_ = writeRecent(ctx, s.app, setSummary(list, path, summaryOf(state, lastEventAt(log))))

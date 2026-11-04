@@ -41,6 +41,8 @@ const CLOSED: TournamentView = {
 export class TournamentStore {
   readonly view = signal<TournamentView>(CLOSED);
   readonly recent = signal<RecentTournament[]>([]);
+  /** Tournaments moved to the trash from home; their files stay on disk. */
+  readonly trash = signal<RecentTournament[]>([]);
   /** Latest failed command, shown until dismissed. */
   readonly error = signal<BackendError | null>(null);
 
@@ -49,12 +51,14 @@ export class TournamentStore {
   }
 
   async refresh(): Promise<void> {
-    const [view, recent] = await Promise.all([
+    const [view, recent, trash] = await Promise.all([
       Backend.GetTournamentView(),
       Backend.ListRecentTournaments(),
+      Backend.ListTrashedTournaments(),
     ]);
     this.view.set(view);
     this.recent.set(recent ?? []);
+    this.trash.set(trash ?? []);
   }
 
   /** Returns false when the user cancelled the save dialog or it failed. */
@@ -81,6 +85,26 @@ export class TournamentStore {
   /** Copies a tournament's setup, without its entrants. False when cancelled. */
   async duplicate(path: string, name: string): Promise<boolean> {
     const done = await this.run(async () => (await Backend.DuplicateTournament(path, name)) !== '');
+    await this.refresh();
+    return done;
+  }
+
+  /** Moves a tournament to the trash, closing it when open. */
+  async moveToTrash(path: string): Promise<boolean> {
+    const done = await this.command(() => Backend.TrashTournament(path));
+    await this.refresh();
+    return done;
+  }
+
+  async restore(path: string): Promise<boolean> {
+    const done = await this.command(() => Backend.RestoreTournament(path));
+    await this.refresh();
+    return done;
+  }
+
+  /** Removes a tournament from the trash, and its file from disk with deleteFile. */
+  async deleteForGood(path: string, deleteFile: boolean): Promise<boolean> {
+    const done = await this.command(() => Backend.DeleteTournament(path, deleteFile));
     await this.refresh();
     return done;
   }

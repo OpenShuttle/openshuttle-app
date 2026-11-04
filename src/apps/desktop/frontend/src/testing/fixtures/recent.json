@@ -15,6 +15,7 @@
       "courts": 7,
       "stage": "dayOf",
       "updatedAt": "2026-10-17T14:15:09Z"
-    }
+    },
+    "trashedAt": null
   }
 ]

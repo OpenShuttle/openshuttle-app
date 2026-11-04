@@ -236,6 +236,12 @@ A tournament goes through six steps.
 
 - **Outside a tournament**, a home screen: recent tournaments (one file per
   tournament), "New tournament", "Open a file", then Presets and Settings.
+- **Trash**: any tournament of the home list can be moved to the trash (the
+  open one is closed first). It leaves the list, its file stays on the PC. The
+  trash, reached from home, lists them with Restore and Delete. Delete asks for
+  confirmation, with an unticked option to also delete the file from disk;
+  backup copies are always kept. Opening a trashed file takes it out of the
+  trash.
 - **Inside a tournament**, a side navigation following the steps in two
   groups: Preparation (Info, Entrants, Format) then On the day (Check-in,
   Draw, Schedule, Control desk, Stages, Results). The current step stands out,
@@ -272,7 +278,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 
 | # | Screen | Persona | Content | Key actions |
 | --- | --- | --- | --- | --- |
-| 1 | Home | Organizer | Recent tournaments, Presets, Settings | Create, open a file, duplicate |
+| 1 | Home | Organizer | Recent tournaments, trash, Presets, Settings | Create, open a file, duplicate, move to the trash, restore, delete |
 | 2 | Presets | Organizer | Formats with a preview of their graph, win conditions, tiebreak orders, clubs | Create, edit, duplicate, disable, delete; simulate a format for N teams |
 | 3 | Tournament info | Organizer | Name, one or two categories, number of courts, minimum rest | Edit |
 | 4 | Entrants | Organizer | Entrants (player or pair) per category, club | Add, edit, import CSV (columns mapped) and export it |

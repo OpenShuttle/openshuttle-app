@@ -2,12 +2,19 @@
   <div class="page-body home">
     <div class="page-head">
       <div class="page-title">
-        <h1>{{ t('home.recentTournaments') }}</h1>
-        <span class="page-sub">{{ t('home.lead') }}</span>
+        <h1>{{ t(showTrash() ? 'home.trash' : 'home.recentTournaments') }}</h1>
+        <span class="page-sub">{{ t(showTrash() ? 'home.trashLead' : 'home.lead') }}</span>
       </div>
-      <button type="button" class="btn" [disabled]="preparingSample()" (click)="trySample()">{{ t('home.trySample') }}</button>
+      @if (showTrash()) {
+        <button type="button" class="btn" (click)="showTrash.set(false)">{{ t('home.backToRecent') }}</button>
+      } @else {
+        @if (tournament.trash().length) {
+          <button type="button" class="btn" (click)="showTrash.set(true)">{{ t('home.openTrash', { count: tournament.trash().length }) }}</button>
+        }
+        <button type="button" class="btn" [disabled]="preparingSample()" (click)="trySample()">{{ t('home.trySample') }}</button>
       <button type="button" class="btn" (click)="openDialog()">{{ t('home.openFile') }}</button>
-      <button type="button" class="btn btn-primary" (click)="startCreate()">{{ t('home.newTournament') }}</button>
+        <button type="button" class="btn btn-primary" (click)="startCreate()">{{ t('home.newTournament') }}</button>
+      }
     </div>
 
     @if (creating()) {
@@ -29,7 +36,71 @@
       </form>
     }
 
-    @if (tournament.recent().length === 0) {
+    @if (showTrash()) {
+      <div class="card list">
+        @for (r of tournament.trash(); track r.path) {
+          <div class="row" [class.missing]="!r.exists">
+            <span class="cell">
+              <span class="name">{{ r.name }}</span>
+              <span class="file" [attr.title]="r.path">{{ fileName(r.path) }}</span>
+            </span>
+            <span class="cell">
+              @if (r.summary; as s) {
+                <span class="categories">
+                  @for (c of s.categories ?? []; track c; let last = $last) {
+                    {{ t('category.name.' + c) }}{{ last ? '' : ' + ' }}
+                  } @empty {
+                    {{ t('home.noCategory') }}
+                  }
+                </span>
+                <span class="size">
+                  {{ t(s.doubles ? 'home.pairs' : 'home.entrants', { count: s.entrants }) }} ·
+                  {{ t('home.courts', { count: s.courts }) }}
+                </span>
+              }
+            </span>
+            <span class="status">
+              @if (!r.exists) {
+                <span class="pill pill-alert">{{ t('home.fileMissing') }}</span>
+              } @else if (r.trashedAt) {
+                <span class="size">{{ t('home.trashedOn', { date: date(r.trashedAt) }) }}</span>
+              }
+            </span>
+            <span class="actions">
+              <button type="button" class="btn btn-sm" (click)="restore(r)">{{ t('home.restore') }}</button>
+              <button type="button" class="btn btn-sm btn-danger" [disabled]="deleting() === r.path" (click)="askDelete(r)">
+                {{ t('home.delete') }}
+              </button>
+            </span>
+            @if (deleting() === r.path) {
+              <div class="confirm-delete">
+                <span class="confirm-text">{{ t('home.deleteConfirm', { name: r.name }) }}</span>
+                <label class="delete-file" [class.disabled]="!r.exists">
+                  <input
+                    type="checkbox"
+                    [disabled]="!r.exists"
+                    [checked]="r.exists && deleteFile()"
+                    (change)="deleteFile.set($any($event.target).checked)"
+                  />
+                  <span>{{ t('home.deleteFile', { file: fileName(r.path) }) }}</span>
+                </label>
+                @if (r.exists && deleteFile()) {
+                  <span class="delete-hint">{{ t('home.deleteFileHint') }}</span>
+                }
+                <span class="confirm-actions">
+                  <button type="button" class="btn btn-sm" (click)="deleting.set(null)">{{ t('common.cancel') }}</button>
+                  <button type="button" class="btn btn-sm btn-danger" (click)="confirmDelete(r)">
+                    {{ t(r.exists && deleteFile() ? 'home.deleteWithFile' : 'home.deleteForGood') }}
+                  </button>
+                </span>
+              </div>
+            }
+          </div>
+        } @empty {
+          <p class="empty-line">{{ t('home.trashEmpty') }}</p>
+        }
+      </div>
+    } @else if (tournament.recent().length === 0) {
       <div class="card first-run">
         <span>{{ t('home.noTournament') }}</span>
         <span class="hint">{{ t('home.sampleHint') }}</span>
@@ -77,6 +148,17 @@
               }
             </span>
             <span class="actions">
+              <button
+                type="button"
+                class="btn btn-sm trash-btn"
+                [attr.aria-label]="t('home.moveToTrash')"
+                [attr.title]="t('home.moveToTrashHint')"
+                (click)="moveToTrash(r)"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5" />
+                </svg>
+              </button>
               <button type="button" class="btn btn-sm" [disabled]="!r.exists" (click)="duplicate(r)">
                 {{ t('home.duplicate') }}
               </button>
@@ -93,7 +175,9 @@
       @if (folder()) {
         {{ t('home.folder', { folder: folder() }) }}
       }
-      {{ t('home.duplicateHint') }}
+      @if (!showTrash()) {
+        {{ t('home.duplicateHint') }}
+      }
       @if (app(); as info) {
         <span class="version">{{ t('home.version', { version: info.version, compat: info.compat }) }}</span>
       }

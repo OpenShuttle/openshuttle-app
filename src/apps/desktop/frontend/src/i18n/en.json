@@ -34,7 +34,22 @@
     "trySample": "Try with a sample tournament",
     "sampleName": "Sample tournament",
     "sampleHint": "Fictional pairs, a tournament already under way: explore every screen without typing anything.",
-    "readGuide": "Read the guide"
+    "readGuide": "Read the guide",
+    "moveToTrash": "Move to the trash",
+    "moveToTrashHint": "Remove from this list. The file stays on this PC; the trash can restore it.",
+    "openTrash": "Trash · {count}",
+    "trash": "Trash",
+    "trashLead": "Tournaments removed from the list. Their files stay on this PC until you delete them.",
+    "backToRecent": "Back to recent tournaments",
+    "trashedOn": "Trashed on {date}",
+    "restore": "Restore",
+    "delete": "Delete…",
+    "deleteConfirm": "Delete \"{name}\" for good?",
+    "deleteFile": "Also delete the file {file} from this PC",
+    "deleteFileHint": "The file cannot be recovered. Backup copies are kept.",
+    "deleteForGood": "Delete from the trash",
+    "deleteWithFile": "Delete with the file",
+    "trashEmpty": "The trash is empty."
   },
   "topBar": {
     "lastAction": "Last action · {time}",
@@ -215,7 +230,9 @@
     "ALREADY_ENTERED": "Already entered.",
     "NOTHING_TO_SCHEDULE": "No match is waiting: there is nothing to put in order yet.",
     "SCHEDULE_NOT_VALIDATED": "Validate the schedule before moving matches.",
-    "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool."
+    "SCHEDULE_VALIDATED": "The schedule is validated: matches now move one by one. Go back to blocks to move a whole pool.",
+    "NOT_IN_TRASH": "This tournament is no longer in the trash.",
+    "DELETE_FAILED": "The file could not be deleted. It may be open in another program."
   },
   "displayScreen": {
     "monitor": "Monitor",

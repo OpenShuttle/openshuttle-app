@@ -606,6 +606,11 @@ export interface RecentTournament {
      * entries saved by older versions.
      */
     "summary": TournamentSummary | null;
+
+    /**
+     * TrashedAt is when it was moved to the trash; nil in the recent list.
+     */
+    "trashedAt": string | null;
 }
 
 /**

@@ -97,6 +97,9 @@ const (
 	CodeNotATournamentFile Code = "NOT_A_TOURNAMENT_FILE"
 	CodeFileTooNew         Code = "FILE_TOO_NEW"
 	CodeFileTooOld         Code = "FILE_TOO_OLD"
+
+	CodeNotInTrash   Code = "NOT_IN_TRASH"
+	CodeDeleteFailed Code = "DELETE_FAILED"
 )
 
 // Error is a domain error carrying a stable code. Set is the 1-based index of

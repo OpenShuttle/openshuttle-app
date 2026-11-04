@@ -1,7 +1,7 @@
 import { RecentTournament, TournamentView } from '@bindings/apps/desktop';
 
 import { FakeBackend } from '../../testing/backend';
-import { click, clickAll, find, render, text, type } from '../../testing/render';
+import { buttons, click, clickAll, find, render, text, type } from '../../testing/render';
 import recent from '../../testing/fixtures/recent.json';
 import tournament from '../../testing/fixtures/finished-tournament.json';
 import { Home } from './home';
@@ -50,5 +50,77 @@ describe('Home', () => {
     await click(f, 'Lire le guide');
     await click(f, "Essayer avec un tournoi d'exemple");
     expect(go.argsOf('TournamentService.CreateSampleTournament')).toEqual([["Tournoi d'exemple"]]);
+  });
+
+  describe('trash', () => {
+    const path = recent[0].path;
+    const trashed = [{ ...recent[0], trashedAt: '2026-10-20T08:00:00Z' }];
+
+    it('moves a recent tournament to the trash', async () => {
+      const f = await render(Home);
+      expect(text(f)).not.toContain('Trash ·');
+      find(f, 'button[aria-label="Move to the trash"]').click();
+      await new Promise((r) => setTimeout(r));
+      expect(go.argsOf('TournamentService.TrashTournament')).toEqual([[path]]);
+    });
+
+    it('restores a tournament from the trash', async () => {
+      go.on('TournamentService.ListTrashedTournaments', trashed);
+      const f = await render(Home);
+      await click(f, 'Trash · 1');
+      expect(text(f)).toContain('Their files stay on this PC');
+      expect(text(f)).toContain('Trashed on');
+      await click(f, 'Restore');
+      expect(go.argsOf('TournamentService.RestoreTournament')).toEqual([[path]]);
+      await click(f, 'Back to recent tournaments');
+      expect(text(f)).toContain('Recent tournaments');
+    });
+
+    it('deletes for good, keeping the file unless asked', async () => {
+      go.on('TournamentService.ListTrashedTournaments', trashed);
+      const f = await render(Home, { lang: 'fr' });
+      await click(f, 'Corbeille · 1');
+      await click(f, 'Supprimer…');
+      expect(text(f)).toContain(`Supprimer définitivement « ${recent[0].name} » ?`);
+      const box = find(f, '.confirm-delete input[type=checkbox]') as HTMLInputElement;
+      expect(box.checked).toBe(false);
+      await click(f, 'Supprimer de la corbeille');
+      expect(go.argsOf('TournamentService.DeleteTournament')).toEqual([[path, false]]);
+    });
+
+    it('deletes the file too when asked', async () => {
+      go.on('TournamentService.ListTrashedTournaments', trashed);
+      const f = await render(Home);
+      await click(f, 'Trash · 1');
+      await click(f, 'Delete…');
+      const box = find(f, '.confirm-delete input[type=checkbox]') as HTMLInputElement;
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+      f.detectChanges();
+      expect(text(f)).toContain('Backup copies are kept');
+      await click(f, 'Delete with the file');
+      expect(go.argsOf('TournamentService.DeleteTournament')).toEqual([[path, true]]);
+    });
+
+    it('cannot delete a missing file, and shows an empty trash', async () => {
+      go.on('TournamentService.ListTrashedTournaments', [{ ...trashed[0], exists: false }]);
+      const f = await render(Home);
+      await click(f, 'Trash · 1');
+      expect(text(f)).toContain('File not found');
+      await click(f, 'Delete…');
+      expect((find(f, '.confirm-delete input[type=checkbox]') as HTMLInputElement).disabled).toBe(true);
+      await click(f, 'Cancel');
+      expect(buttons(f, '.confirm-delete').length).toBe(0);
+      go.on('TournamentService.ListTrashedTournaments', []);
+      await click(f, 'Restore');
+      expect(text(f)).toContain('The trash is empty.');
+    });
+
+    it('runs every button of the trash', async () => {
+      go.on('TournamentService.ListTrashedTournaments', trashed);
+      const f = await render(Home);
+      await click(f, 'Trash · 1');
+      await clickAll(f, ['Back to recent']);
+    });
   });
 });
