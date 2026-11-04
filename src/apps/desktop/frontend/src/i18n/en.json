@@ -576,7 +576,9 @@
     "noSeeds": "Nobody ranked: drag an entrant here, or use \"Rank\".",
     "noSplit": "{n} present entrants do not split into pools of {sizes}: change the pool sizes in the format.",
     "waiting": "{n, plural, one {# player waits for a partner and stays out of the draw.} other {# players wait for a partner and stay out of the draw.}}",
-    "goToEntrants": "Pair them in Entrants"
+    "goToEntrants": "Pair them in Entrants",
+    "rankingChanged": "The ranking changed since the draw: draw again to place the entrants by the new ranking.",
+    "rankingLocked": "To change the ranking, reopen the draw."
   },
   "desk": {
     "title": "Control desk",

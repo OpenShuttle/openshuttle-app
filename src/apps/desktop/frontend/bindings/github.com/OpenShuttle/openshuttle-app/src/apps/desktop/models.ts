@@ -274,6 +274,12 @@ export interface DrawCategory {
      * out of the draw (a warning, the desk pairs them on the Entrants screen).
      */
     "waiting": number;
+
+    /**
+     * RankingChanged: the ranking changed since the pools were drawn and the
+     * draw is not confirmed; drawing again follows the new ranking.
+     */
+    "rankingChanged": boolean;
 }
 
 /**

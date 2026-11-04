@@ -471,7 +471,8 @@
           "absent": false
         }
       ],
-      "waiting": 1
+      "waiting": 1,
+      "rankingChanged": false
     },
     {
       "category": "WD",
@@ -705,7 +706,8 @@
           "absent": false
         }
       ],
-      "waiting": 1
+      "waiting": 1,
+      "rankingChanged": false
     }
   ]
 }

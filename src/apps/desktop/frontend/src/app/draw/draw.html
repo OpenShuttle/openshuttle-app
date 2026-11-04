@@ -36,6 +36,12 @@
                 <span class="warn">{{ t('draw.notEnough', { min: c.kind === 'bracket' ? 2 : Math.max(2, c.planned * 2) }) }}</span>
               }
             }
+            @if (c.rankingChanged) {
+              <span class="warn">{{ t('draw.rankingChanged') }}</span>
+            }
+            @if (c.status === 'confirmed') {
+              <span class="note">{{ t('draw.rankingLocked') }}</span>
+            }
             @if (c.waiting > 0) {
               <span class="warn">{{ t('draw.waiting', { n: c.waiting }) }} <a routerLink="../entrants">{{ t('draw.goToEntrants') }}</a></span>
             }
@@ -180,7 +186,7 @@
         }
 
         @if (c.status !== 'confirmed' && (c.ranking ?? []).length + (c.unseeded ?? []).length > 0) {
-          <details class="card seeds" [open]="c.status === 'none'">
+          <details class="card seeds" open>
             <summary>{{ t('draw.seedsTitle') }}</summary>
             <p class="seeds-hint">{{ t('draw.seedsRankingHint') }}</p>
             <div class="columns">

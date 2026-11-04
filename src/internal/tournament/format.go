@@ -72,6 +72,8 @@ type Stage struct {
 	// draw is confirmed, later stages as soon as they are filled.
 	Confirmed   bool
 	ConfirmedAt time.Time
+	// DrawnSeeds is the ranking the entry stage was last drawn with.
+	DrawnSeeds []engine.EntrantID
 }
 
 // Filled reports whether the stage has entrants.

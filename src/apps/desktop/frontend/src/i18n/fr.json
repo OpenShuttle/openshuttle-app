@@ -576,7 +576,9 @@
     "noSeeds": "Personne n'est classé : glissez un participant ici, ou utilisez « Classer ».",
     "noSplit": "{n} présents ne se répartissent pas en poules de {sizes} : changez les tailles de poule dans le format.",
     "waiting": "{n, plural, one {# joueur attend un partenaire et reste hors du tirage.} other {# joueurs attendent un partenaire et restent hors du tirage.}}",
-    "goToEntrants": "Former les paires dans Inscrits"
+    "goToEntrants": "Former les paires dans Inscrits",
+    "rankingChanged": "Le classement a changé depuis le tirage : relancez le tirage pour répartir les participants selon le nouveau classement.",
+    "rankingLocked": "Pour changer le classement, rouvrez le tirage."
   },
   "desk": {
     "title": "Table de marque",

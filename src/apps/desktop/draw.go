@@ -116,6 +116,9 @@ type DrawCategory struct {
 	// Waiting counts the players still waiting for a partner: they are left
 	// out of the draw (a warning, the desk pairs them on the Entrants screen).
 	Waiting int `json:"waiting"`
+	// RankingChanged: the ranking changed since the pools were drawn and the
+	// draw is not confirmed; drawing again follows the new ranking.
+	RankingChanged bool `json:"rankingChanged"`
 }
 
 // DrawView is the draw screen.
@@ -183,9 +186,10 @@ func (s *TournamentService) GetDrawView() DrawView {
 			CategoryRef: ref, Kind: entry.Kind, Stage: entry.ID, Status: DrawNone, Planned: len(sizes),
 			Present: len(present), CanDraw: len(present) >= 2 && (entry.Kind == tournament.StageBracket || sizes != nil),
 			Pools: []DrawPoolView{}, Unplaced: []DrawEntrantView{}, Ranking: []DrawEntrantView{}, Unseeded: []DrawEntrantView{},
-			NoSplit:   entry.Kind == tournament.StagePools && len(present) >= 2 && sizes == nil,
-			PoolSizes: append([]int{}, entry.PoolSizes...),
-			Waiting:   len(st.Waiting(ref.Category)),
+			NoSplit:        entry.Kind == tournament.StagePools && len(present) >= 2 && sizes == nil,
+			PoolSizes:      append([]int{}, entry.PoolSizes...),
+			Waiting:        len(st.Waiting(ref.Category)),
+			RankingChanged: st.RankingChanged(ref.Category),
 		}
 		pools = 0
 		if entry.Kind == tournament.StagePools {

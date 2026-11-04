@@ -340,3 +340,42 @@ func TestPoolsKeepRankingOrder(t *testing.T) {
 		t.Errorf("confirmed pools changed: %v, was %v", got, before)
 	}
 }
+
+func TestRankingChangedSinceDraw(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	ids := g.presentSingles(engine.MensSingles, []string{"Lyon", "Paris"}, 6)
+	changed := func() bool { return g.state().RankingChanged(engine.MensSingles) }
+	seeds := func(ranking ...engine.EntrantID) {
+		g.do(func(s State) (Change, error) { return s.SetSeeds(engine.MensSingles, ranking) })
+	}
+
+	seeds(ids[0], ids[1])
+	if changed() {
+		t.Error("changed before any draw")
+	}
+	g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+	if changed() {
+		t.Error("changed right after the draw")
+	}
+	// A new ranking after the draw is flagged until the pools are drawn again.
+	seeds(ids[1], ids[0])
+	if !changed() {
+		t.Error("ranking change not flagged")
+	}
+	g.undo()
+	if changed() {
+		t.Error("still flagged after undoing the change")
+	}
+	seeds(ids[1], ids[0], ids[2])
+	g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+	if changed() {
+		t.Error("flagged after drawing again")
+	}
+	// Confirmed: nothing to flag; reopened, a change shows again.
+	g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
+	g.do(func(s State) (Change, error) { return s.ReopenDraw(engine.MensSingles) })
+	seeds(ids[2])
+	if !changed() {
+		t.Error("ranking change after reopening not flagged")
+	}
+}

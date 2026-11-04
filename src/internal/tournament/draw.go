@@ -360,7 +360,20 @@ func (s *State) applySeedsSet(p SeedsSet) {
 func (s *State) applyEntryDrawn(p EntryDrawn) {
 	if e := s.entry(p.Category); e != nil {
 		e.Groups, e.Confirmed = cloneGroups(p.Groups), false
+		e.DrawnSeeds = s.Seeds(p.Category)
 	}
+}
+
+// RankingChanged reports whether the ranking changed since the entry stage
+// was drawn, while the draw is not confirmed: drawing again places the
+// entrants by the new ranking (a ranking change alone only reorders pools).
+func (s State) RankingChanged(c engine.Category) bool {
+	d, ok := s.Draw(c)
+	if !ok || d.Confirmed {
+		return false
+	}
+	e := s.entry(c)
+	return e != nil && !slices.Equal(s.Seeds(c), e.DrawnSeeds)
 }
 
 func (s *State) applyEntrantMoved(p EntrantMoved) {

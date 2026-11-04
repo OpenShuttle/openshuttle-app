@@ -42,8 +42,12 @@
   color: var(--color-text-muted);
 }
 
-.warn {
+.warn,
+.note {
   margin-left: 6px;
+}
+
+.warn {
   font-weight: 700;
   color: var(--color-alert);
 }

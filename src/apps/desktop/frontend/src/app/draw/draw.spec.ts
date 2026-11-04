@@ -21,6 +21,23 @@ describe('Draw', () => {
     expect(text(f)).toContain(draw.categories[0].ranking![0].players![0].name);
   });
 
+  it('keeps the ranking open after the draw and says when it changed', async () => {
+    const view = structuredClone(draw) as unknown as DrawView;
+    view.categories![0].rankingChanged = true;
+    go.on('TournamentService.GetDrawView', view);
+    const f = await render(Draw);
+    expect((f.nativeElement.querySelector('details.seeds') as HTMLDetailsElement).open).toBe(true);
+    expect(text(f)).toContain('The ranking changed since the draw: draw again');
+  });
+
+  it('says to reopen a confirmed draw to change the ranking', async () => {
+    const view = structuredClone(draw) as unknown as DrawView;
+    view.categories![0].status = 'confirmed';
+    go.on('TournamentService.GetDrawView', view);
+    const f = await render(Draw);
+    expect(text(f)).toContain('To change the ranking, reopen the draw.');
+  });
+
   it('shows clubs as colored badges, club mates of a pool highlighted', async () => {
     const view = structuredClone(draw);
     const [first, second] = view.categories[0].pools![0].entrants!;
