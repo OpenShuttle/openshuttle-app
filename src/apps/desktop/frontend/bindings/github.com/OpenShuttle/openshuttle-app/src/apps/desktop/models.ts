@@ -88,6 +88,26 @@ export interface CheckInView {
 }
 
 /**
+ * ClubBadge is a club shown on a draw card.
+ */
+export interface ClubBadge {
+    "name": string;
+
+    /**
+     * Color is 1 to ClubColors, from the club's order in the tournament
+     * (State.Clubs): the same club has the same color everywhere.
+     */
+    "color": number;
+
+    /**
+     * Count is the number of entrants of the pool holding the club, the
+     * entrant included (of the first-round match in a bracket); 0 outside
+     * a pool. Above 1, club mates share the pool: the badge stands out.
+     */
+    "count": number;
+}
+
+/**
  * ControlDeskView is the control desk: courts, pending scores, queue, alerts.
  */
 export interface ControlDeskView {
@@ -260,7 +280,11 @@ export interface DrawEntrantView {
     "bib": number;
     "seed": number;
     "players": PlayerView[] | null;
-    "clubs": string[] | null;
+
+    /**
+     * Clubs are the distinct clubs of the entrant's players, as badges.
+     */
+    "clubs": ClubBadge[] | null;
 
     /**
      * SameClub lists the bibs of pool mates sharing a club.

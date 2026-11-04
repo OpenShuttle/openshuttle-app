@@ -185,6 +185,33 @@ func TestCheckDrawSameClubAndSeeds(t *testing.T) {
 	}
 }
 
+func TestStateClubs(t *testing.T) {
+	entrant := func(clubs ...string) Entrant {
+		e := Entrant{}
+		for _, c := range clubs {
+			e.Players = append(e.Players, Player{Club: c})
+		}
+		return e
+	}
+	tests := []struct {
+		name     string
+		entrants []Entrant
+		want     []string
+	}{
+		{"none", nil, nil},
+		{"unclubbed", []Entrant{entrant(""), entrant("", "")}, nil},
+		{"first appearance", []Entrant{entrant("Lyon"), entrant("Caen", "Lyon"), entrant("Albi")}, []string{"Lyon", "Caen", "Albi"}},
+		{"pair of one club", []Entrant{entrant("Caen", "Caen"), entrant("", "Albi")}, []string{"Caen", "Albi"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := (State{Entrants: tt.entrants}).Clubs(); !slices.Equal(got, tt.want) {
+				t.Errorf("Clubs() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestSetSeeds(t *testing.T) {
 	g := newGame(t, engine.MensSingles, engine.WomensSingles)
 	var ids []engine.EntrantID

@@ -4,11 +4,44 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
+
+func TestClubBadges(t *testing.T) {
+	colors := map[string]int{"Lyon": 0, "Caen": 1, "Albi": 12}
+	mate := func(clubs ...string) tournament.Entrant {
+		e := tournament.Entrant{}
+		for _, c := range clubs {
+			e.Players = append(e.Players, tournament.Player{Club: c})
+		}
+		return e
+	}
+	tests := []struct {
+		name   string
+		clubs  []string
+		inPool bool
+		mates  []tournament.Entrant
+		want   []ClubBadge
+	}{
+		{"unclubbed", nil, true, nil, []ClubBadge{}},
+		{"outside a pool", []string{"Lyon"}, false, nil, []ClubBadge{{"Lyon", 1, 0}}},
+		{"alone in its pool", []string{"Caen"}, true, nil, []ClubBadge{{"Caen", 2, 1}}},
+		{"palette wraps", []string{"Albi"}, true, nil, []ClubBadge{{"Albi", 3, 1}}},
+		{"two mates", []string{"Lyon"}, true, []tournament.Entrant{mate("Lyon"), mate("Lyon", "Caen")}, []ClubBadge{{"Lyon", 1, 3}}},
+		{"mixed pair, one club shared", []string{"Lyon", "Caen"}, true, []tournament.Entrant{mate("Caen", "Caen")}, []ClubBadge{{"Lyon", 1, 1}, {"Caen", 2, 2}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := clubBadges(tt.clubs, colors, tt.inPool, tt.mates); !slices.Equal(got, tt.want) {
+				t.Errorf("clubBadges() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
 func TestFormatAndDraw(t *testing.T) {
 	f := newFixture(t)
@@ -79,6 +112,20 @@ func TestFormatAndDraw(t *testing.T) {
 	}
 	if conflicts == 0 {
 		t.Error("same-club pairs not reported")
+	}
+	// Club badges: Lyon registered first takes color 1, Paris color 2; in a
+	// pool, each badge counts the entrants holding the club.
+	for _, p := range dv.Pools {
+		held := map[string]int{}
+		for _, e := range p.Entrants {
+			held[e.Clubs[0].Name]++
+		}
+		for _, e := range p.Entrants {
+			b := e.Clubs[0]
+			if want := map[string]int{"Lyon": 1, "Paris": 2}[b.Name]; b.Color != want || b.Count != held[b.Name] {
+				t.Errorf("pool %s badge = %+v, want color %d count %d", p.Name, b, want, held[b.Name])
+			}
+		}
 	}
 
 	moved := dv.Pools[1].Entrants[0].ID

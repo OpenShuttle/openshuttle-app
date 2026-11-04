@@ -562,6 +562,7 @@
     "conflicts": "{n, plural, one {# entrant shares its pool with its club} other {# entrants share their pool with their club}}",
     "noConflict": "No club conflict",
     "sameClubRound": "Same club in round 1: #{bibs}",
+    "clubInPool": "{club}: {n} entrants of this club together",
     "slotsHint": "Click two places to swap them.",
     "unplacedBracket": "{n, plural, one {# entrant} other {# entrants}} checked in after the draw: redraw to place them.",
     "summaryBracket": "{present, plural, one {# present} other {# present}} · straight bracket.",

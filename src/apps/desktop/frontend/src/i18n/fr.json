@@ -562,6 +562,7 @@
     "conflicts": "{n, plural, one {# participant partage sa poule avec son club} other {# participants partagent leur poule avec leur club}}",
     "noConflict": "Aucun conflit de club",
     "sameClubRound": "Même club au 1er tour : #{bibs}",
+    "clubInPool": "{club} : {n} participants de ce club ensemble",
     "slotsHint": "Cliquez deux places pour les échanger.",
     "unplacedBracket": "{n, plural, one {# présent pointé} other {# présents pointés}} après le tirage : relancez le tirage pour les placer.",
     "summaryBracket": "{present, plural, one {# présent} other {# présents}} · tableau direct.",

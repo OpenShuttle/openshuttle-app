@@ -21,6 +21,39 @@ describe('Draw', () => {
     expect(text(f)).toContain(draw.categories[0].ranking![0].players![0].name);
   });
 
+  it('shows clubs as colored badges, club mates of a pool highlighted', async () => {
+    const view = structuredClone(draw);
+    const [first, second] = view.categories[0].pools![0].entrants!;
+    first.clubs = [{ name: 'BC Lyon', color: 3, count: 2 }];
+    second.clubs = [
+      { name: 'BC Lyon', color: 3, count: 2 },
+      { name: 'AS Caen', color: 1, count: 1 },
+    ];
+    go.on('TournamentService.GetDrawView', view);
+    const f = await render(Draw);
+    const badges = [...f.nativeElement.querySelectorAll('[data-pool="MD:0"] .club-badge')] as HTMLElement[];
+    expect(badges.map((b) => b.textContent!.replace(/\s+/g, ' ').trim())).toEqual(
+      expect.arrayContaining(['BC Lyon×2', 'AS Caen']),
+    );
+    const lyon = badges.find((b) => b.textContent!.includes('Lyon'))!;
+    expect(lyon.classList).toContain('shared');
+    expect(lyon.style.getPropertyValue('--club')).toBe('var(--color-club-3)');
+    expect(lyon.title).toBe('BC Lyon: 2 entrants of this club together');
+    const caen = badges.find((b) => b.textContent!.includes('Caen'))!;
+    expect(caen.classList).not.toContain('shared');
+    expect(caen.title).toBe('AS Caen');
+  });
+
+  it('shows no club badge for an unclubbed entrant', async () => {
+    const view = structuredClone(draw);
+    const pool = view.categories[0].pools![0];
+    pool.entrants!.forEach((e) => (e.clubs = []));
+    go.on('TournamentService.GetDrawView', view);
+    const f = await render(Draw);
+    expect(f.nativeElement.querySelectorAll('[data-pool="MD:0"] .club-badge').length).toBe(0);
+    expect(f.nativeElement.querySelectorAll('.seed-row .club-badge').length).toBeGreaterThan(0);
+  });
+
   it('warns about the players waiting for a partner', async () => {
     const f = await render(Draw);
     expect(text(f)).toContain('1 player waits for a partner and stays out of the draw. Pair them in Entrants');

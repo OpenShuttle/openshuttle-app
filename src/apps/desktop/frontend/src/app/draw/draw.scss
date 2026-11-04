@@ -158,11 +158,6 @@
   @include row(8px, true);
 }
 
-.club {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
 .tag {
   background: var(--color-finished-bg);
   color: var(--color-finished-fg);
@@ -271,12 +266,6 @@
 
   .names {
     font-weight: 700;
-    @include ellipsis;
-  }
-
-  .club {
-    font-size: 12px;
-    color: var(--color-text-muted);
     @include ellipsis;
   }
 }

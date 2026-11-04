@@ -6,6 +6,7 @@ import { EntrantID } from '@bindings/internal/engine';
 
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
+import { ClubBadges } from '../shared/club-badges';
 
 /** Pointer travel before a press becomes a drag, in pixels. */
 const DRAG_THRESHOLD = 5;
@@ -50,7 +51,7 @@ function seedTargetAt(x: number, y: number): SeedTarget | null {
 /** Draw: pools of each category, seeds, drag and drop, validation. */
 @Component({
   selector: 'app-draw',
-  imports: [TranslocoDirective, RouterLink],
+  imports: [TranslocoDirective, RouterLink, ClubBadges],
   templateUrl: './draw.html',
   styleUrl: './draw.scss',
 })

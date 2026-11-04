@@ -33,7 +33,11 @@
                 }
               ],
               "clubs": [
-                "Plumes du Lac"
+                {
+                  "name": "Plumes du Lac",
+                  "color": 3,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -61,7 +65,11 @@
                 }
               ],
               "clubs": [
-                "BC Rive Droite"
+                {
+                  "name": "BC Rive Droite",
+                  "color": 2,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -96,7 +104,11 @@
                 }
               ],
               "clubs": [
-                "Volant des Monts"
+                {
+                  "name": "Volant des Monts",
+                  "color": 1,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -124,7 +136,11 @@
                 }
               ],
               "clubs": [
-                "AS Belvédère"
+                {
+                  "name": "AS Belvédère",
+                  "color": 4,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -159,7 +175,11 @@
                 }
               ],
               "clubs": [
-                "AS Belvédère"
+                {
+                  "name": "AS Belvédère",
+                  "color": 4,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -187,7 +207,11 @@
                 }
               ],
               "clubs": [
-                "Volant des Monts"
+                {
+                  "name": "Volant des Monts",
+                  "color": 1,
+                  "count": 1
+                }
               ],
               "sameClub": [],
               "absent": false
@@ -227,7 +251,11 @@
             }
           ],
           "clubs": [
-            "Plumes du Lac"
+            {
+              "name": "Plumes du Lac",
+              "color": 3,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -255,7 +283,11 @@
             }
           ],
           "clubs": [
-            "Volant des Monts"
+            {
+              "name": "Volant des Monts",
+              "color": 1,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -285,7 +317,11 @@
             }
           ],
           "clubs": [
-            "BC Rive Droite"
+            {
+              "name": "BC Rive Droite",
+              "color": 2,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -313,7 +349,11 @@
             }
           ],
           "clubs": [
-            "AS Belvédère"
+            {
+              "name": "AS Belvédère",
+              "color": 4,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -341,7 +381,11 @@
             }
           ],
           "clubs": [
-            "Volant des Monts"
+            {
+              "name": "Volant des Monts",
+              "color": 1,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -369,7 +413,11 @@
             }
           ],
           "clubs": [
-            "AS Belvédère"
+            {
+              "name": "AS Belvédère",
+              "color": 4,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -415,7 +463,11 @@
             }
           ],
           "clubs": [
-            "Volant des Monts"
+            {
+              "name": "Volant des Monts",
+              "color": 1,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -443,7 +495,11 @@
             }
           ],
           "clubs": [
-            "BC Rive Droite"
+            {
+              "name": "BC Rive Droite",
+              "color": 2,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -471,7 +527,11 @@
             }
           ],
           "clubs": [
-            "Volant des Monts"
+            {
+              "name": "Volant des Monts",
+              "color": 1,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -499,7 +559,11 @@
             }
           ],
           "clubs": [
-            "BC Rive Droite"
+            {
+              "name": "BC Rive Droite",
+              "color": 2,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -527,7 +591,11 @@
             }
           ],
           "clubs": [
-            "Plumes du Lac"
+            {
+              "name": "Plumes du Lac",
+              "color": 3,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false
@@ -555,7 +623,11 @@
             }
           ],
           "clubs": [
-            "AS Belvédère"
+            {
+              "name": "AS Belvédère",
+              "color": 4,
+              "count": 0
+            }
           ],
           "sameClub": [],
           "absent": false

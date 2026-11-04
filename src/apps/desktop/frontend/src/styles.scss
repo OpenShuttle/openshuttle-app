@@ -37,6 +37,21 @@
   --color-category-1: #5a3db5;
   --color-category-2: #a3246b;
 
+  // Clubs on the draw screen, by the color index Go gives each club
+  // (ClubColors in apps/desktop/draw.go). Dark enough for white text, away
+  // from the category purple and magenta; the first ones the most distinct
+  // (red comes late: it reads as an alert).
+  --color-club-1: #1d4ed8;
+  --color-club-2: #c2410c;
+  --color-club-3: #0f766e;
+  --color-club-4: #4d7c0f;
+  --color-club-5: #475569;
+  --color-club-6: #a16207;
+  --color-club-7: #b91c1c;
+  --color-club-8: #78350f;
+  --color-club-9: #15803d;
+  --color-club-10: #1e3a8a;
+
   // Display screen (dark, read from 10 m away).
   --color-display-bg: #0b0d12;
   --color-display-surface: #151922;

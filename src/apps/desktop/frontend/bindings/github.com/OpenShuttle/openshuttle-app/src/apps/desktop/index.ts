@@ -26,6 +26,7 @@ export type {
     CategoryRef,
     CheckInTeam,
     CheckInView,
+    ClubBadge,
     ControlDeskView,
     CourtReservation,
     CourtView,

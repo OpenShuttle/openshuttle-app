@@ -232,6 +232,21 @@ func (s State) ReopenDraw(c engine.Category) (Change, error) {
 	return Change{TypeDrawReopened, DrawConfirmed{Category: c}}, nil
 }
 
+// Clubs returns the distinct clubs of the tournament's players, in order of
+// first appearance among the entrants (both categories). The order gives each
+// club its color on the draw screen: stable from one session to the next.
+func (s State) Clubs() []string {
+	var clubs []string
+	for _, e := range s.Entrants {
+		for _, c := range e.Clubs() {
+			if !slices.Contains(clubs, c) {
+				clubs = append(clubs, c)
+			}
+		}
+	}
+	return clubs
+}
+
 // Clubs returns the distinct clubs of an entrant's players.
 func (e Entrant) Clubs() []string {
 	var clubs []string
