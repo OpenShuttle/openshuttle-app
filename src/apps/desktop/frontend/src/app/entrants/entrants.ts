@@ -54,14 +54,20 @@ export class Entrants {
   protected readonly totals = computed(() => {
     const categories = this.view().categories ?? [];
     return {
-      entrants: categories.reduce((n, c) => n + (c.entrants ?? []).length, 0),
+      entrants: categories.reduce((n, c) => n + (c.entrants ?? []).length - c.waiting, 0),
       players: categories.reduce((n, c) => n + c.players, 0),
+      waiting: categories.reduce((n, c) => n + c.waiting, 0),
       doubles: categories.length > 0 && categories.every((c) => c.doubles),
     };
   });
 
   /** Players being typed in the add form. */
   protected readonly draft = signal<PlayerInput[]>(emptyPlayers(1));
+  /** In doubles, the add form enters one player waiting for a partner. */
+  protected readonly alone = signal(false);
+  /** In the edit form of a waiting player: the partner picked, or typed. */
+  protected readonly partner = signal<EntrantID | ''>('');
+  protected readonly newPartner = signal<PlayerInput>({ name: '', club: '' });
   /** Entrant being edited, and its players. */
   protected readonly editing = signal<EntrantID | null>(null);
   protected readonly editDraft = signal<PlayerInput[]>([]);
@@ -70,11 +76,17 @@ export class Entrants {
 
   protected select(category: Category): void {
     this.selected.set(category);
+    this.alone.set(false);
     this.resetDraft();
   }
 
   protected size(): number {
-    return this.current()?.doubles ? 2 : 1;
+    return this.current()?.doubles && !this.alone() ? 2 : 1;
+  }
+
+  protected setAlone(alone: boolean): void {
+    this.alone.set(alone);
+    this.draft.update((players) => emptyPlayers(this.size()).map((empty, i) => players[i] ?? empty));
   }
 
   protected resetDraft(): void {
@@ -104,6 +116,8 @@ export class Entrants {
 
   protected edit(entrant: EntrantView): void {
     this.editing.set(entrant.id);
+    this.partner.set('');
+    this.newPartner.set({ name: '', club: '' });
     this.editDraft.set(
       (entrant.players ?? []).map((p) => ({ name: p.name, club: p.club })),
     );
@@ -120,6 +134,37 @@ export class Entrants {
   protected async saveEdit(): Promise<void> {
     const id = this.editing();
     if (id && (await this.tournament.updateEntrant(id, this.editDraft()))) {
+      this.editing.set(null);
+    }
+  }
+
+  /** The other players waiting for a partner in the category. */
+  protected othersWaiting(category: Category, id: EntrantID): EntrantView[] {
+    const c = (this.view().categories ?? []).find((c) => c.category === category);
+    return (c?.entrants ?? []).filter((e) => e.waiting && e.id !== id);
+  }
+
+  protected async pair(id: EntrantID): Promise<void> {
+    const partner = this.partner();
+    if (partner && (await this.tournament.pairEntrants(id, partner))) {
+      this.editing.set(null);
+    }
+  }
+
+  protected setNewPartner(field: keyof PlayerInput, value: string): void {
+    this.newPartner.update((p) => ({ ...p, [field]: value }));
+  }
+
+  protected async addPartner(id: EntrantID): Promise<void> {
+    if (await this.tournament.addPartner(id, this.newPartner())) {
+      this.editing.set(null);
+    }
+  }
+
+  /** The second player leaves the pair: both wait for a partner again. */
+  protected async split(e: EntrantView): Promise<void> {
+    const leaving = (e.players ?? [])[1];
+    if (leaving && (await this.tournament.splitEntrant(e.id, leaving.id))) {
       this.editing.set(null);
     }
   }

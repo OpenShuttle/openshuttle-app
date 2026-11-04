@@ -111,7 +111,10 @@
     "ScheduleSet": "Échéancier modifié",
     "ScheduleOrderSet": "Ordre de l'échéancier modifié",
     "EntrantCheckedIn": "Pointé(e)s : {names}",
-    "ScheduleBlocksSet": "Blocs de l'échéancier réordonnés"
+    "ScheduleBlocksSet": "Blocs de l'échéancier réordonnés",
+    "EntrantsPaired": "Paire formée : {names}",
+    "PartnerAdded": "Partenaire ajouté : {names}",
+    "EntrantSplit": "Paire séparée : {name} quitte {names}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -151,7 +154,10 @@
     "ScheduleSet": "modification de l'échéancier",
     "ScheduleOrderSet": "modification de l'ordre de l'échéancier",
     "EntrantCheckedIn": "pointage de {names}",
-    "ScheduleBlocksSet": "réordonnancement des blocs de l'échéancier"
+    "ScheduleBlocksSet": "réordonnancement des blocs de l'échéancier",
+    "EntrantsPaired": "formation de la paire {names}",
+    "PartnerAdded": "partenaire de {names}",
+    "EntrantSplit": "séparation de {names}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -233,6 +239,9 @@
     "SCHEDULE_VALIDATED": "L'échéancier est validé : les matchs se déplacent maintenant un par un. Revenez aux blocs pour déplacer toute une poule.",
     "NOT_IN_TRASH": "Ce tournoi n'est plus dans la corbeille.",
     "DELETE_FAILED": "Le fichier n'a pas pu être supprimé. Il est peut-être ouvert dans un autre programme."
+    "NOT_WAITING_PARTNER": "Ce joueur a déjà un partenaire.",
+    "NOT_SAME_CATEGORY": "Ces joueurs ne sont pas dans la même catégorie.",
+    "NOT_A_PAIR": "Seule une paire peut être séparée."
   },
   "displayScreen": {
     "monitor": "Moniteur",
@@ -353,7 +362,20 @@
       "player": "Joueur {n}",
       "club": "Club {n}",
       "fileSuffix": "joueurs"
-    }
+    },
+    "alone": "Inscrit seul, attend un partenaire",
+    "waiting": "Attend un partenaire",
+    "countWaiting": "{n, plural, one {# attend un partenaire} other {# attendent un partenaire}}",
+    "findPartner": "Partenaire…",
+    "partnerTitle": "Trouver un partenaire",
+    "pairWith": "Former la paire avec un joueur seul de cette catégorie",
+    "choosePartner": "Choisir un joueur…",
+    "doPair": "Former la paire",
+    "noOtherWaiting": "Personne d'autre n'attend de partenaire dans cette catégorie.",
+    "newPartner": "Ou ajouter un partenaire qui n'était pas inscrit",
+    "addPartner": "Ajouter le partenaire",
+    "split": "Séparer la paire",
+    "splitHint": "{name} quitte la paire : les deux attendent à nouveau un partenaire."
   },
   "checkIn": {
     "title": "Pointage",
@@ -376,7 +398,8 @@
     "checkedInAt": "pointé à {time}",
     "teamPresent": "Paire présente",
     "checkInTeam": "Pointer la paire",
-    "checkInPartner": "Pointer le partenaire"
+    "checkInPartner": "Pointer le partenaire",
+    "waiting": "{n, plural, one {# attend un partenaire} other {# attendent un partenaire}}"
   },
   "format": {
     "title": "Format",
@@ -539,7 +562,9 @@
     "seedRemove": "Retirer des têtes de série",
     "seedAdd": "Tête de série",
     "noSeeds": "Aucune tête de série : glissez un participant ici, ou utilisez « Tête de série ».",
-    "noSplit": "{n} présents ne se répartissent pas en poules de {sizes} : changez les tailles de poule dans le format."
+    "noSplit": "{n} présents ne se répartissent pas en poules de {sizes} : changez les tailles de poule dans le format.",
+    "waiting": "{n, plural, one {# joueur attend un partenaire et reste hors du tirage.} other {# joueurs attendent un partenaire et restent hors du tirage.}}",
+    "goToEntrants": "Former les paires dans Inscrits"
   },
   "desk": {
     "title": "Table de marque",

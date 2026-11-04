@@ -6,6 +6,9 @@
         <span class="page-sub">
           {{ t(totals().doubles ? 'entrants.countPairs' : 'entrants.countEntrants', { n: totals().entrants }) }} ·
           {{ t('entrants.countPlayers', { n: totals().players }) }}
+          @if (totals().waiting > 0) {
+            · <span class="waiting-count">{{ t('entrants.countWaiting', { n: totals().waiting }) }}</span>
+          }
         </span>
       </div>
       <div class="head-actions">
@@ -83,8 +86,39 @@
                     <app-club-select [value]="p.club" (changed)="setEdit(i, 'club', $event)" />
                   </div>
                 }
+                @if (e.waiting) {
+                  <div class="partner">
+                    <span class="add-title">{{ t('entrants.partnerTitle') }}</span>
+                    @let others = othersWaiting(r.category, e.id);
+                    @if (others.length > 0) {
+                      <span class="field-label">{{ t('entrants.pairWith') }}</span>
+                      <div class="partner-line">
+                        <select class="input" [attr.aria-label]="t('entrants.pairWith')" [value]="partner()" (change)="partner.set($any($event.target).value)">
+                          <option value="">{{ t('entrants.choosePartner') }}</option>
+                          @for (o of others; track o.id) {
+                            <option [value]="o.id">{{ (o.players ?? [])[0]?.name }}{{ (o.players ?? [])[0]?.club ? ' · ' + (o.players ?? [])[0]?.club : '' }}</option>
+                          }
+                        </select>
+                        <button type="button" class="btn btn-sm btn-primary" [disabled]="!partner()" (click)="pair(e.id)">{{ t('entrants.doPair') }}</button>
+                      </div>
+                    } @else {
+                      <span class="hint">{{ t('entrants.noOtherWaiting') }}</span>
+                    }
+                    <span class="field-label">{{ t('entrants.newPartner') }}</span>
+                    <div class="player-fields">
+                      <input class="input" [attr.aria-label]="t('entrants.newPartner')" [placeholder]="t('entrants.namePlaceholder')" maxlength="100" [value]="newPartner().name" (input)="setNewPartner('name', value($event))" />
+                      <app-club-select [value]="newPartner().club" (changed)="setNewPartner('club', $event)" />
+                    </div>
+                    <div class="partner-line end">
+                      <button type="button" class="btn btn-sm" [disabled]="!newPartner().name.trim()" (click)="addPartner(e.id)">{{ t('entrants.addPartner') }}</button>
+                    </div>
+                  </div>
+                }
                 <div class="edit-actions">
                   <button type="button" class="btn btn-sm btn-danger" (click)="tournament.removeEntrant(e.id)">{{ t('entrants.remove') }}</button>
+                  @if ((e.players ?? []).length === 2) {
+                    <button type="button" class="btn btn-sm" [attr.title]="t('entrants.splitHint', { name: (e.players ?? [])[1].name })" (click)="split(e)">{{ t('entrants.split') }}</button>
+                  }
                   <span class="spacer"></span>
                   <button type="button" class="btn btn-sm" (click)="editing.set(null)">{{ t('common.cancel') }}</button>
                   <button type="submit" class="btn btn-sm btn-primary">{{ t('entrants.save') }}</button>
@@ -108,8 +142,13 @@
                     <span class="name" [attr.title]="p.club">{{ p.club || '–' }}</span>
                   }
                 </span>
-                <span>
-                  @if (e.complete) {
+                <span class="status">
+                  @if (e.waiting) {
+                    <span class="pill pill-finished">{{ t('entrants.waiting') }}</span>
+                    @if (present(e) > 0) {
+                      <span class="pill pill-free">{{ t('checkIn.present') }}</span>
+                    }
+                  } @else if (e.complete) {
                     <span class="pill pill-free">{{ t('entrants.present', { bib: e.bib }) }}</span>
                   } @else if (present(e) > 0) {
                     <span class="pill pill-finished">{{ t('entrants.partly', { n: present(e), total: (e.players ?? []).length }) }}</span>
@@ -117,7 +156,7 @@
                     <span class="pill pill-alert">{{ t('checkIn.absent') }}</span>
                   }
                 </span>
-                <button type="button" class="btn btn-xs" (click)="edit(e)">{{ t('entrants.edit') }}</button>
+                <button type="button" class="btn btn-xs" [class.btn-primary]="e.waiting" (click)="edit(e)">{{ t(e.waiting ? 'entrants.findPartner' : 'entrants.edit') }}</button>
               </div>
             }
           } @empty {
@@ -127,7 +166,7 @@
 
         @if (current(); as cat) {
           <form class="card add" (submit)="$event.preventDefault(); add()">
-            <span class="add-title">{{ t(cat.doubles ? 'entrants.addPair' : 'entrants.addPlayer') }}</span>
+            <span class="add-title">{{ t(cat.doubles && !alone() ? 'entrants.addPair' : 'entrants.addPlayer') }}</span>
             @if ((view().categories ?? []).length > 1) {
               <div class="seg seg-sm">
                 @for (c of view().categories; track c.category) {
@@ -137,15 +176,21 @@
                 }
               </div>
             }
-            @for (i of cat.doubles ? [0, 1] : [0]; track i) {
+            @if (cat.doubles) {
+              <label class="alone">
+                <input type="checkbox" [checked]="alone()" (change)="setAlone($any($event.target).checked)" />
+                <span>{{ t('entrants.alone') }}</span>
+              </label>
+            }
+            @for (i of cat.doubles && !alone() ? [0, 1] : [0]; track i) {
               <div class="add-player">
-                @if (cat.doubles) {
+                @if (cat.doubles && !alone()) {
                   <span class="field-label">{{ t('entrants.playerN', { n: i + 1 }) }}</span>
                 }
                 <input
                   #firstField
                   class="input"
-                  [attr.aria-label]="cat.doubles ? t('entrants.playerN', { n: i + 1 }) : t('entrants.name')"
+                  [attr.aria-label]="cat.doubles && !alone() ? t('entrants.playerN', { n: i + 1 }) : t('entrants.name')"
                   [placeholder]="t('entrants.namePlaceholder')"
                   maxlength="100"
                   [value]="draftValue(i, 'name')"

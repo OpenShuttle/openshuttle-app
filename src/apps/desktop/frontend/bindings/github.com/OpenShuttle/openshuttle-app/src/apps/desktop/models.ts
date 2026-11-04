@@ -47,6 +47,11 @@ export interface CategoryEntrants {
     "players": number;
     "playersPresent": number;
     "entrantsComplete": number;
+
+    /**
+     * Waiting counts the players waiting for a partner.
+     */
+    "waiting": number;
 }
 
 /**
@@ -68,6 +73,7 @@ export interface CheckInTeam {
     "bib": number;
     "players": PlayerView[] | null;
     "complete": boolean;
+    "waiting": boolean;
 }
 
 /**
@@ -238,6 +244,12 @@ export interface DrawCategory {
      */
     "ranking": DrawEntrantView[] | null;
     "unseeded": DrawEntrantView[] | null;
+
+    /**
+     * Waiting counts the players still waiting for a partner: they are left
+     * out of the draw (a warning, the desk pairs them on the Entrants screen).
+     */
+    "waiting": number;
 }
 
 /**
@@ -285,6 +297,11 @@ export interface EntrantView {
     "id": engine$0.EntrantID;
     "bib": number;
     "complete": boolean;
+
+    /**
+     * Waiting is a player registered alone in doubles, waiting for a partner.
+     */
+    "waiting": boolean;
     "players": PlayerView[] | null;
 }
 

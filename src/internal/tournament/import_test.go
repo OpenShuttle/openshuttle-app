@@ -110,10 +110,11 @@ func TestImportEntrants(t *testing.T) {
 		{4, []string{"Simple dames", "léa", "roux"}},                      // already entered
 		{5, []string{"Double hommes", "Hugo", "Écuyer", "", "Paul Zola"}}, // the same pair, registered by the partner
 		{6, []string{"XD", "A", "B", "", "C"}},                            // not played
-		{7, []string{"MD", "Solo", "", "", ""}},                           // pair expected
+		{7, []string{"MD", "Solo", "", "", ""}},                           // waiting for a partner
 		{8, []string{"Tournoi", "X", "Y"}},                                // unknown category
 		{9, []string{"Repas", "Jo", "Durand"}},                            // ignored on purpose
 		{10, []string{"Double hommes", "Tom", "Petit", "AS Bron", "Max Roux"}},
+		{11, []string{"Simple dames", "Ana", "Bel", "", "Max Roux"}}, // one player expected
 	}
 	m := ImportMapping{
 		Header: true, Category: 0, Fallback: engine.WomensSingles,
@@ -122,7 +123,7 @@ func TestImportEntrants(t *testing.T) {
 	}
 	preview := g.state().PreviewImport(lines, m)
 	wantValues := []ImportValue{
-		{"DH", engine.MensDoubles, 1}, {"Simple dames", engine.WomensSingles, 1}, {"Double hommes", engine.MensDoubles, 2},
+		{"DH", engine.MensDoubles, 1}, {"Simple dames", engine.WomensSingles, 2}, {"Double hommes", engine.MensDoubles, 2},
 		{"XD", engine.MixedDoubles, 1}, {"MD", engine.MensDoubles, 1}, {"Tournoi", "", 1}, {"Repas", "", 1},
 	}
 	if !reflect.DeepEqual(preview.Values, wantValues) {
@@ -136,18 +137,21 @@ func TestImportEntrants(t *testing.T) {
 	})
 	want := []ImportSkip{
 		{4, engine.CodeAlreadyEntered}, {5, engine.CodeAlreadyEntered}, {6, engine.CodeCategoryNotFound},
-		{7, engine.CodeWrongPlayerCount}, {8, engine.CodeCategoryNotFound},
+		{8, engine.CodeCategoryNotFound}, {11, engine.CodeWrongPlayerCount},
 	}
-	if report.Added != 3 || report.Ignored != 1 || !slices.Equal(report.Skipped, want) || !reflect.DeepEqual(report, preview.Report) {
+	if report.Added != 4 || report.Ignored != 1 || !slices.Equal(report.Skipped, want) || !reflect.DeepEqual(report, preview.Report) {
 		t.Errorf("report = %+v", report)
 	}
 	imported := ch.Data.(EntrantsImported).Entrants
 	if imported[0].ID != "e5.1" || imported[0].Players[1].ID != "p5.1.2" || imported[0].Players[1].Club != "BC Lyon" ||
-		imported[0].Players[0].Name != "Paul Zola" || imported[1].Category != engine.WomensSingles || imported[2].Players[1].Club != "AS Bron" {
+		imported[0].Players[0].Name != "Paul Zola" || imported[1].Category != engine.WomensSingles || imported[3].Players[1].Club != "AS Bron" {
 		t.Errorf("imported = %+v", imported)
 	}
-	if n := len(g.state().Entrants); n != 4 {
+	if n := len(g.state().Entrants); n != 5 {
 		t.Errorf("entrants = %d", n)
+	}
+	if solo := g.entrant(imported[2].ID); !solo.Waiting() || solo.Players[0].Name != "Solo" {
+		t.Errorf("waiting player = %+v", solo)
 	}
 	// Importing the same lines again adds nobody.
 	_, again, _ := g.state().ImportEntrants(lines[:3], m)

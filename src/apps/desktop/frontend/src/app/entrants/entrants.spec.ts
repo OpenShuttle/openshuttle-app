@@ -1,7 +1,7 @@
 import { EntrantsView, Presets, TournamentView } from '@bindings/apps/desktop';
 
 import { FakeBackend } from '../../testing/backend';
-import { click, clickAll, find, render, text, type } from '../../testing/render';
+import { choose, click, clickAll, find, render, text, type } from '../../testing/render';
 import entrants from '../../testing/fixtures/before-entrants.json';
 import tournament from '../../testing/fixtures/before-tournament.json';
 import presets from '../../testing/fixtures/presets.json';
@@ -24,7 +24,7 @@ describe('Entrants', () => {
 
   it('registers a pair', async () => {
     const f = await render(Entrants);
-    const names = [...f.nativeElement.querySelectorAll('form input')] as HTMLInputElement[];
+    const names = [...f.nativeElement.querySelectorAll('form.add input.input')] as HTMLInputElement[];
     await type(f, names[0], 'Anne Martin');
     await type(f, names[1], 'Rose Petit');
     (find(f, 'form') as HTMLFormElement).dispatchEvent(new Event('submit'));
@@ -75,6 +75,62 @@ describe('Entrants', () => {
     await click(f, 'Cancel');
     expect(text(f)).not.toContain('Import x.csv');
     expect(go.called('TournamentService.ImportEntrants')).toBe(false);
+  });
+
+  it('registers a player waiting for a partner', async () => {
+    const f = await render(Entrants);
+    const alone = find(f, 'form.add input[type=checkbox]') as HTMLInputElement;
+    alone.checked = true;
+    alone.dispatchEvent(new Event('change'));
+    await new Promise((r) => setTimeout(r));
+    f.detectChanges();
+    const names = [...f.nativeElement.querySelectorAll('form.add input.input')] as HTMLInputElement[];
+    expect(names.length).toBe(1);
+    await type(f, names[0], 'Julie Morel');
+    (find(f, 'form.add') as HTMLFormElement).dispatchEvent(new Event('submit'));
+    await new Promise((r) => setTimeout(r));
+    const [, players] = go.argsOf('TournamentService.RegisterEntrant')[0] as [string, { name: string }[]];
+    expect(players.map((p) => p.name)).toEqual(['Julie Morel']);
+  });
+
+  it('shows the players waiting for a partner', async () => {
+    const f = await render(Entrants);
+    expect(text(f)).toContain('2 waiting for a partner');
+    expect(text(f)).toContain('Waiting for a partner');
+    await click(f, 'Partner…');
+    expect(text(f)).toContain('Nobody else is waiting for a partner in this category.');
+  });
+
+  it('pairs two players waiting, or adds a partner', async () => {
+    const view = structuredClone(entrants) as unknown as EntrantsView;
+    const wd = view.categories!.find((c) => c.category === 'WD')!;
+    const julie = wd.entrants!.find((e) => e.waiting)!;
+    wd.entrants!.push({ ...julie, id: 'e900', players: [{ ...julie.players![0], id: 'p900.1', name: 'Zoé Petit', checkedIn: false }] });
+    wd.waiting = 2;
+    go.on('TournamentService.GetEntrantsView', view);
+    const f = await render(Entrants);
+    const row = [...f.nativeElement.querySelectorAll('.row')].find((r) => (r as HTMLElement).textContent?.includes('Julie Morel')) as HTMLElement;
+    (row.querySelector('button') as HTMLButtonElement).click();
+    await new Promise((r) => setTimeout(r));
+    f.detectChanges();
+    await choose(f, find(f, '.partner select') as HTMLSelectElement, 'e900');
+    await click(f, 'Form the pair');
+    expect(go.argsOf('TournamentService.PairEntrants')).toEqual([[julie.id, 'e900']]);
+
+    await click(f, 'Partner…');
+    await type(f, find(f, '.partner input') as HTMLInputElement, 'Mia Roux');
+    await click(f, 'Add the partner');
+    const [id, partner] = go.argsOf('TournamentService.AddPartner')[0] as [string, { name: string }];
+    expect(id).toBeTruthy();
+    expect(partner.name).toBe('Mia Roux');
+  });
+
+  it('splits a pair', async () => {
+    const f = await render(Entrants);
+    await click(f, 'Edit');
+    await click(f, 'Split the pair');
+    const pair = entrants.categories[0].entrants![0];
+    expect(go.argsOf('TournamentService.SplitEntrant')).toEqual([[pair.id, pair.players![1].id]]);
   });
 
   it('runs every button', async () => {

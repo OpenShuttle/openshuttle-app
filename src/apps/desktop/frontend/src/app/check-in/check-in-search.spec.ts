@@ -19,6 +19,7 @@ const team = (players: PlayerView[], bib = 0): CheckInTeam => ({
   bib,
   players,
   complete: false,
+  waiting: false,
 });
 
 const own = (firstName: string, lastName: string, club = '', bib = 0) => {

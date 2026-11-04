@@ -36,7 +36,8 @@ type CheckInCancelled struct {
 }
 
 // CheckInPlayer marks a player present. The first check-in of an entrant
-// assigns its bib: the next number, unique across the tournament.
+// assigns its bib: the next number, unique across the tournament. A player
+// waiting for a partner gets none: the pair gets its bib once formed.
 func (s State) CheckInPlayer(id PlayerID) (Change, error) {
 	i, j := s.playerIndex(id)
 	if i < 0 {
@@ -46,7 +47,7 @@ func (s State) CheckInPlayer(id PlayerID) (Change, error) {
 		return Change{}, nil
 	}
 	p := PlayerCheckedIn{Player: id}
-	if s.Entrants[i].Bib == 0 {
+	if s.Entrants[i].Bib == 0 && !s.Entrants[i].Waiting() {
 		p.Bib = s.lastBib + 1
 	}
 	return Change{TypePlayerCheckedIn, p}, nil
@@ -68,7 +69,7 @@ func (s State) CheckInEntrant(id engine.EntrantID) (Change, error) {
 	if len(p.Players) == 0 {
 		return Change{}, nil
 	}
-	if e.Bib == 0 {
+	if e.Bib == 0 && !e.Waiting() {
 		p.Bib = s.lastBib + 1
 	}
 	return Change{TypeEntrantCheckedIn, p}, nil

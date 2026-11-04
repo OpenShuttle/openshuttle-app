@@ -4,7 +4,7 @@
       "category": "MD",
       "slot": 1,
       "timedAllowed": false,
-      "registered": 12,
+      "registered": 13,
       "present": 6,
       "stages": [
         {
@@ -132,7 +132,7 @@
       "category": "WD",
       "slot": 2,
       "timedAllowed": false,
-      "registered": 8,
+      "registered": 9,
       "present": 6,
       "stages": [
         {
@@ -166,15 +166,15 @@
           ],
           "phase": 1,
           "estimate": 22,
-          "entrants": 8,
+          "entrants": 9,
           "sizes": [
-            4,
+            5,
             4
           ],
           "noSplit": false,
           "byes": 0,
-          "matches": 12,
-          "rounds": 3,
+          "matches": 16,
+          "rounds": 5,
           "ranks": [
             {
               "rank": 1,
@@ -191,14 +191,18 @@
             {
               "rank": 4,
               "count": 2
+            },
+            {
+              "rank": 5,
+              "count": 1
             }
           ],
           "rules": [
             4
           ],
-          "kept": 4,
+          "kept": 5,
           "placeFrom": 5,
-          "placeTo": 8,
+          "placeTo": 9,
           "entry": true,
           "filled": false,
           "confirmed": false,
@@ -251,7 +255,7 @@
           "started": false
         }
       ],
-      "ranked": 8,
+      "ranked": 9,
       "ties": true,
       "locked": false
     }

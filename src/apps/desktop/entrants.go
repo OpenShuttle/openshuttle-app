@@ -26,7 +26,9 @@ type EntrantView struct {
 	ID       engine.EntrantID `json:"id"`
 	Bib      int              `json:"bib"`
 	Complete bool             `json:"complete"`
-	Players  []PlayerView     `json:"players"`
+	// Waiting is a player registered alone in doubles, waiting for a partner.
+	Waiting bool         `json:"waiting"`
+	Players []PlayerView `json:"players"`
 }
 
 // CategoryEntrants lists the entrants of one category, with check-in totals.
@@ -37,6 +39,8 @@ type CategoryEntrants struct {
 	Players          int           `json:"players"`
 	PlayersPresent   int           `json:"playersPresent"`
 	EntrantsComplete int           `json:"entrantsComplete"`
+	// Waiting counts the players waiting for a partner.
+	Waiting int `json:"waiting"`
 }
 
 // EntrantsView is the entrants screen: one section per category.
@@ -52,6 +56,7 @@ type CheckInTeam struct {
 	Bib      int          `json:"bib"`
 	Players  []PlayerView `json:"players"`
 	Complete bool         `json:"complete"`
+	Waiting  bool         `json:"waiting"`
 }
 
 // CheckInView is the check-in screen: every entrant, sorted by the names of
@@ -100,6 +105,27 @@ func (s *TournamentService) rememberClubs(ctx context.Context, players []tournam
 		clubs = append(clubs, p.Club)
 	}
 	_ = updatePresets(ctx, s.app, s.emit, func(p *Presets) { p.Clubs = addClubs(p.Clubs, clubs...) })
+}
+
+// PairEntrants pairs two players waiting for a partner: the partner's
+// player joins the entrant id.
+func (s *TournamentService) PairEntrants(ctx context.Context, id, partner engine.EntrantID) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.PairEntrants(id, partner) })
+}
+
+// AddPartner adds a partner, not registered before, to a player waiting
+// for one.
+func (s *TournamentService) AddPartner(ctx context.Context, id engine.EntrantID, partner tournament.PlayerInput) error {
+	if err := s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddPartner(id, partner) }); err != nil {
+		return err
+	}
+	s.rememberClubs(ctx, []tournament.PlayerInput{partner})
+	return nil
+}
+
+// SplitEntrant takes a player out of a pair: both wait for a partner again.
+func (s *TournamentService) SplitEntrant(ctx context.Context, id engine.EntrantID, player tournament.PlayerID) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SplitEntrant(id, player) })
 }
 
 // RemoveEntrant withdraws an entrant.
@@ -153,7 +179,7 @@ func categoryEntrants(st tournament.State) []CategoryEntrants {
 			if e.Category != ref.Category {
 				continue
 			}
-			ev := EntrantView{ID: e.ID, Bib: e.Bib, Complete: e.Complete()}
+			ev := EntrantView{ID: e.ID, Bib: e.Bib, Complete: e.Complete(), Waiting: e.Waiting()}
 			for _, p := range e.Players {
 				ev.Players = append(ev.Players, playerView(p, dup[p.ID]))
 				ce.Players++
@@ -163,6 +189,9 @@ func categoryEntrants(st tournament.State) []CategoryEntrants {
 			}
 			if ev.Complete {
 				ce.EntrantsComplete++
+			}
+			if ev.Waiting {
+				ce.Waiting++
 			}
 			ce.Entrants = append(ce.Entrants, ev)
 		}
@@ -181,7 +210,7 @@ func checkInView(st tournament.State) CheckInView {
 	for _, e := range st.Entrants {
 		team := CheckInTeam{
 			EntrantID: e.ID, CategoryRef: CategoryRef{Category: e.Category, Slot: slots[e.Category]},
-			Bib: e.Bib, Players: []PlayerView{}, Complete: e.Complete(),
+			Bib: e.Bib, Players: []PlayerView{}, Complete: e.Complete(), Waiting: e.Waiting(),
 		}
 		for _, p := range e.Players {
 			team.Players = append(team.Players, playerView(p, dup[p.ID]))

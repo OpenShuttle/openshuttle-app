@@ -22,6 +22,13 @@ const (
 	CodeWrongPlayerCount   Code = "WRONG_PLAYER_COUNT"
 	CodeEntrantNotFound    Code = "ENTRANT_NOT_FOUND"
 	CodePlayerNotFound     Code = "PLAYER_NOT_FOUND"
+	// CodeNotWaitingPartner: pairing or adding a partner needs a doubles
+	// entrant registered alone.
+	CodeNotWaitingPartner Code = "NOT_WAITING_PARTNER"
+	// CodeNotSameCategory: two waiting players of different categories.
+	CodeNotSameCategory Code = "NOT_SAME_CATEGORY"
+	// CodeNotAPair: only a pair can be split.
+	CodeNotAPair Code = "NOT_A_PAIR"
 
 	CodeInvalidFormat         Code = "INVALID_FORMAT"
 	CodeTimedNeedsOneCategory Code = "TIMED_NEEDS_ONE_CATEGORY"

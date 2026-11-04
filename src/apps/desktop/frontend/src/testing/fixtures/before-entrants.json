@@ -9,6 +9,7 @@
           "id": "e3",
           "bib": 8,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p3.1",
@@ -32,6 +33,7 @@
           "id": "e4",
           "bib": 12,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p4.1",
@@ -55,6 +57,7 @@
           "id": "e5",
           "bib": 14,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p5.1",
@@ -78,6 +81,7 @@
           "id": "e6",
           "bib": 16,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p6.1",
@@ -101,6 +105,7 @@
           "id": "e7",
           "bib": 13,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p7.1",
@@ -124,6 +129,7 @@
           "id": "e8",
           "bib": 7,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p8.1",
@@ -147,6 +153,7 @@
           "id": "e9",
           "bib": 0,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p9.1",
@@ -170,6 +177,7 @@
           "id": "e10",
           "bib": 11,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p10.1",
@@ -193,6 +201,7 @@
           "id": "e11",
           "bib": 15,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p11.1",
@@ -216,6 +225,7 @@
           "id": "e12",
           "bib": 0,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p12.1",
@@ -239,6 +249,7 @@
           "id": "e13",
           "bib": 0,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p13.1",
@@ -262,6 +273,7 @@
           "id": "e14",
           "bib": 6,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p14.1",
@@ -280,11 +292,28 @@
               "duplicate": false
             }
           ]
+        },
+        {
+          "id": "e45",
+          "bib": 0,
+          "complete": false,
+          "waiting": true,
+          "players": [
+            {
+              "id": "p45.1",
+              "name": "Rayane Benali",
+              "club": "ESLV",
+              "checkedIn": false,
+              "checkedInAt": null,
+              "duplicate": false
+            }
+          ]
         }
       ],
-      "players": 24,
+      "players": 25,
       "playersPresent": 15,
-      "entrantsComplete": 6
+      "entrantsComplete": 6,
+      "waiting": 1
     },
     {
       "category": "WD",
@@ -295,6 +324,7 @@
           "id": "e16",
           "bib": 3,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p16.1",
@@ -318,6 +348,7 @@
           "id": "e17",
           "bib": 10,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p17.1",
@@ -341,6 +372,7 @@
           "id": "e18",
           "bib": 4,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p18.1",
@@ -364,6 +396,7 @@
           "id": "e19",
           "bib": 0,
           "complete": false,
+          "waiting": false,
           "players": [
             {
               "id": "p19.1",
@@ -387,6 +420,7 @@
           "id": "e20",
           "bib": 1,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p20.1",
@@ -410,6 +444,7 @@
           "id": "e21",
           "bib": 5,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p21.1",
@@ -433,6 +468,7 @@
           "id": "e22",
           "bib": 2,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p22.1",
@@ -456,6 +492,7 @@
           "id": "e23",
           "bib": 9,
           "complete": true,
+          "waiting": false,
           "players": [
             {
               "id": "p23.1",
@@ -474,11 +511,28 @@
               "duplicate": false
             }
           ]
+        },
+        {
+          "id": "e44",
+          "bib": 0,
+          "complete": false,
+          "waiting": true,
+          "players": [
+            {
+              "id": "p44.1",
+              "name": "Julie Morel",
+              "club": "PLVPB",
+              "checkedIn": true,
+              "checkedInAt": "2026-10-17T09:00:48Z",
+              "duplicate": false
+            }
+          ]
         }
       ],
-      "players": 16,
-      "playersPresent": 13,
-      "entrantsComplete": 6
+      "players": 17,
+      "playersPresent": 14,
+      "entrantsComplete": 6,
+      "waiting": 1
     }
   ]
 }

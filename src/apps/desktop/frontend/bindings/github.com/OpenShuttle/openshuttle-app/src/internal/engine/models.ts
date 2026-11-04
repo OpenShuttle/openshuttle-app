@@ -44,6 +44,22 @@ export enum Code {
     CodeWrongPlayerCount = "WRONG_PLAYER_COUNT",
     CodeEntrantNotFound = "ENTRANT_NOT_FOUND",
     CodePlayerNotFound = "PLAYER_NOT_FOUND",
+
+    /**
+     * CodeNotWaitingPartner: pairing or adding a partner needs a doubles
+     * entrant registered alone.
+     */
+    CodeNotWaitingPartner = "NOT_WAITING_PARTNER",
+
+    /**
+     * CodeNotSameCategory: two waiting players of different categories.
+     */
+    CodeNotSameCategory = "NOT_SAME_CATEGORY",
+
+    /**
+     * CodeNotAPair: only a pair can be split.
+     */
+    CodeNotAPair = "NOT_A_PAIR",
     CodeInvalidFormat = "INVALID_FORMAT",
     CodeTimedNeedsOneCategory = "TIMED_NEEDS_ONE_CATEGORY",
     CodeInvalidSeed = "INVALID_SEED",

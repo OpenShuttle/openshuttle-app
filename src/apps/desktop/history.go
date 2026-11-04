@@ -92,8 +92,12 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 	case tournament.TypeEntrantMoved:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
 		v.Params["pool"] = engine.PoolName(p.Pool)
-	case tournament.TypeEntrantRegistered, tournament.TypeEntrantUpdated:
+	case tournament.TypeEntrantRegistered, tournament.TypeEntrantUpdated, tournament.TypeEntrantsPaired, tournament.TypePartnerAdded:
 		v.Params["names"] = playerNames(p.Players)
+	case tournament.TypeEntrantSplit:
+		// The pair as it was before the split, and the player who left it.
+		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq-1)
+		v.Params["name"] = s.playerNameAt(p.Player, e.Seq-1)
 	case tournament.TypeEntrantRemoved:
 		v.Params["names"] = s.entrantNamesAt(p.ID, e.Seq)
 	case tournament.TypeEntrantsImported:
@@ -132,7 +136,13 @@ func (s *TournamentService) registrations(before uint64, visit func(engine.Entra
 			}
 			continue
 		}
-		if e.Type != tournament.TypeEntrantRegistered && e.Type != tournament.TypeEntrantUpdated {
+		switch e.Type {
+		case tournament.TypeEntrantRegistered, tournament.TypeEntrantUpdated:
+		case tournament.TypeEntrantsPaired, tournament.TypePartnerAdded, tournament.TypeEntrantSplit:
+			if !events.IsActive(s.log, e.Seq) {
+				continue // an undone pairing or split left the players as they were
+			}
+		default:
 			continue
 		}
 		var p struct {
@@ -142,7 +152,21 @@ func (s *TournamentService) registrations(before uint64, visit func(engine.Entra
 		if e.Decode(&p) == nil && !visit(p.ID, p.Players) {
 			return
 		}
+		if e.Type == tournament.TypeEntrantSplit {
+			// The player who left the pair waits alone under a new ID.
+			var split tournament.EntrantSplit
+			if e.Decode(&split) == nil && !visit(split.New, s.splitPlayers(split, i)) {
+				return
+			}
+		}
 	}
+}
+
+// splitPlayers is the player who left a pair in the split at log index i,
+// named as registered before it.
+func (s *TournamentService) splitPlayers(split tournament.EntrantSplit, i int) []tournament.Player {
+	name := s.playerNameAt(split.Player, uint64(i))
+	return []tournament.Player{{ID: split.Player, Name: name}}
 }
 
 func (s *TournamentService) entrantNamesAt(id engine.EntrantID, seq uint64) string {

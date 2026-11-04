@@ -138,18 +138,23 @@ func (s State) scheduleItems() []forecast.Item {
 }
 
 // expectedEntrants is how many entrants a category plays with: those present,
-// or all of them before the check-in.
+// or all of them before the check-in, two players waiting for a partner
+// counting as one pair.
 func (s State) expectedEntrants(c engine.Category) int {
 	if n := len(s.Present(c)); n > 0 {
 		return n
 	}
-	n := 0
+	n, waiting := 0, 0
 	for _, e := range s.Entrants {
-		if e.Category == c {
+		switch {
+		case e.Category != c:
+		case e.Waiting():
+			waiting++
+		default:
 			n++
 		}
 	}
-	return n
+	return n + waiting/2
 }
 
 // filledSizes gives the group sizes of the category's filled stages.

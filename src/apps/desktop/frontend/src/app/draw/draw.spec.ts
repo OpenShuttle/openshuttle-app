@@ -21,6 +21,11 @@ describe('Draw', () => {
     expect(text(f)).toContain(draw.categories[0].ranking![0].players![0].name);
   });
 
+  it('warns about the players waiting for a partner', async () => {
+    const f = await render(Draw);
+    expect(text(f)).toContain('1 player waits for a partner and stays out of the draw. Pair them in Entrants');
+  });
+
   it('draws again, confirms and draws the other category', async () => {
     const f = await render(Draw);
     await click(f, 'Draw again');
