@@ -10,9 +10,27 @@ export interface CourtSlot {
   key: string;
 }
 
-/** The time axis starts with the first match on court, or now (ms). */
+/**
+ * The time axis starts with the first match on court, or now (ms). Before a
+ * tournament starting later (start set), it starts with its first match.
+ */
 export function axisStart(v: ScheduleView): number {
-  return Math.min(new Date(v.now).getTime(), ...(v.slots ?? []).map((s) => new Date(s.start).getTime()));
+  const starts = (v.slots ?? []).map((s) => new Date(s.start).getTime());
+  if (v.start && starts.length > 0) {
+    return Math.min(...starts);
+  }
+  return Math.min(new Date(v.now).getTime(), ...starts);
+}
+
+/** The breaks within the axis, in pixels (clipped to it). */
+export function breakBands(v: ScheduleView, start: number, height: number): { id: string; from: string; to: string; top: number; height: number }[] {
+  return (v.breaks ?? [])
+    .map((b) => {
+      const top = Math.max(0, minutesFrom(start, b.from) * PX_PER_MIN);
+      const bottom = Math.min(height, minutesFrom(start, b.to) * PX_PER_MIN);
+      return { id: b.id, from: b.from, to: b.to, top, height: bottom - top };
+    })
+    .filter((b) => b.height > 0);
 }
 
 /** Minutes from the start of the axis. */
@@ -30,10 +48,12 @@ export function slotHeight(s: ScheduleSlotView): number {
   return Math.max(18, (new Date(s.end).getTime() - new Date(s.start).getTime()) / 60_000) * PX_PER_MIN - 3;
 }
 
-/** The axis height: down to the last end, at least 200 px. */
+/** The axis height: down to the last end (or the end of a break starting before it), at least 200 px. */
 export function axisHeight(v: ScheduleView, start: number): number {
   const ends = (v.slots ?? []).map((s) => minutesFrom(start, s.end));
-  return Math.max(200, Math.max(0, ...ends) * PX_PER_MIN + 40);
+  const last = Math.max(0, ...ends);
+  const breaks = (v.breaks ?? []).filter((b) => minutesFrom(start, b.from) < last).map((b) => minutesFrom(start, b.to));
+  return Math.max(200, Math.max(last, ...breaks) * PX_PER_MIN + 40);
 }
 
 /** Half-hour marks of the axis, labelled by format. */

@@ -1,7 +1,7 @@
 import { ScheduleView, TournamentView } from '@bindings/apps/desktop';
 
 import { FakeBackend } from '../../testing/backend';
-import { choose, click, clickAll, drag, find, render, text } from '../../testing/render';
+import { choose, click, clickAll, drag, find, render, text, type } from '../../testing/render';
 import before from '../../testing/fixtures/before-schedule.json';
 import schedule from '../../testing/fixtures/progress-schedule.json';
 import validated from '../../testing/fixtures/progress-schedule-validated.json';
@@ -13,6 +13,7 @@ describe('Schedule', () => {
   const view = (v: unknown) => go.on('TournamentService.GetScheduleView', v as ScheduleView);
 
   beforeEach(() => {
+    localStorage.clear();
     go = new FakeBackend().on('TournamentService.GetTournamentView', tournament as unknown as TournamentView);
     view(schedule);
   });
@@ -22,6 +23,53 @@ describe('Schedule', () => {
     expect(text(f)).toContain('Order of rounds');
     expect(f.nativeElement.querySelectorAll('.block-row').length).toBe(schedule.blocks.length);
     expect(f.nativeElement.querySelectorAll('.slot').length).toBe(schedule.slots.length);
+  });
+
+  it('names rounds by acronym, k/n and short bracket rounds, colored by pool or bracket', async () => {
+    const f = await render(Schedule);
+    const labels = [...f.nativeElement.querySelectorAll('.block-label')].map((e) => (e as HTMLElement).textContent?.trim());
+    expect(labels).toContain('P A · 2/3');
+    expect(labels).toContain('B · QF');
+    expect(labels).toContain('B · 5th–8th');
+    expect(labels).toContain('B · 3rd place');
+    expect(labels).toContain('B · Final');
+    const badge = f.nativeElement.querySelector('.block-row .badge') as HTMLElement;
+    expect(badge.getAttribute('style')).toContain('--color-group-4');
+  });
+
+  it('shows the acronym typed in the format', async () => {
+    view({ ...schedule, blocks: schedule.blocks.map((b) => ({ ...b, acronym: b.stageKind === 'bracket' ? 'T1' : 'Q' })) });
+    const f = await render(Schedule);
+    expect(text(f)).toContain('T1 · QF');
+    expect(text(f)).toContain('Q A · 2/3');
+  });
+
+  it('adds, draws and removes breaks; shows the start and a late end', async () => {
+    const at = (min: number) => new Date(Date.parse(schedule.slots[0].start) + min * 60_000).toISOString();
+    view({ ...schedule, start: at(0), dayEnd: at(30), late: true, breaks: [{ id: 'k9', from: at(20), to: at(50) }] });
+    const f = await render(Schedule);
+    expect(find(f, '[data-start]').textContent).toContain('Starts');
+    expect(find(f, '[data-late]').textContent).toContain('Ends after');
+    expect(f.nativeElement.querySelectorAll('.break-band').length).toBe(schedule.courts);
+    expect(f.nativeElement.querySelector('.now')).toBeNull();
+    const [from, to] = [...f.nativeElement.querySelectorAll('.break-form input')] as HTMLInputElement[];
+    await type(f, from, '12:00');
+    await type(f, to, '13:30');
+    await click(f, 'Add a break');
+    expect(go.argsOf('TournamentService.AddBreak')).toEqual([['12:00', '13:30']]);
+    (find(f, '.break-remove') as HTMLButtonElement).click();
+    expect(go.argsOf('TournamentService.RemoveBreak')).toEqual([['k9']]);
+  });
+
+  it('folds the order of rounds', async () => {
+    const f = await render(Schedule);
+    (find(f, '.blocks .fold') as HTMLButtonElement).click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-blocks]')).toBeNull();
+    expect(find(f, '.layout').classList).toContain('blocks-folded');
+    (find(f, '.strip') as HTMLButtonElement).click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-blocks]')).not.toBeNull();
   });
 
   it('validates, and asks twice before recomputing or going back', async () => {

@@ -37,6 +37,8 @@ export interface DragItem {
   match: MatchID | null;
   category: Category;
   slot: number;
+  /** The pool's or bracket's color index. */
+  color: number;
   label: string;
 }
 
@@ -98,7 +100,7 @@ export class ScheduleDrag {
   /** A press on a match of the board: it moves once the schedule is validated. */
   slotDown(event: PointerEvent, slot: ScheduleSlotView): void {
     if (slot.movable && slot.match && event.button === 0) {
-      const item: DragItem = { kind: 'match', key: slot.key, match: slot.match.id, category: slot.category, slot: slot.slot, label: this.host.label(slot) };
+      const item: DragItem = { kind: 'match', key: slot.key, match: slot.match.id, category: slot.category, slot: slot.slot, color: slot.color, label: this.host.label(slot) };
       this.start(event, item);
     }
   }
@@ -106,7 +108,7 @@ export class ScheduleDrag {
   /** A press on a block of the list. */
   blockDown(event: PointerEvent, b: ScheduleBlockView): void {
     if (event.button === 0) {
-      this.start(event, { kind: 'block', key: b.key, match: null, category: b.category, slot: b.slot, label: this.host.label(b) });
+      this.start(event, { kind: 'block', key: b.key, match: null, category: b.category, slot: b.slot, color: b.color, label: this.host.label(b) });
     }
   }
 

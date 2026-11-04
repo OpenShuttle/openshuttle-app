@@ -71,7 +71,12 @@
     "lead": "Can be changed until the tournament is archived.",
     "minRestShort": "Minimum rest",
     "fileHint": "Saved automatically at every action, with a backup copy every 5 minutes.",
-    "openFormat": "Open the format"
+    "openFormat": "Open the format",
+    "day": "Date and hours",
+    "date": "Date",
+    "start": "Start",
+    "end": "End",
+    "dayHint": "Until the first match is called, the schedule starts at the start time. It warns when it ends after the end time."
   },
   "history": {
     "TournamentCreated": "Tournament created: {name}",
@@ -114,7 +119,10 @@
     "ScheduleBlocksSet": "Schedule blocks reordered",
     "EntrantsPaired": "Pair formed: {names}",
     "PartnerAdded": "Partner added: {names}",
-    "EntrantSplit": "Pair split: {name} leaves {names}"
+    "EntrantSplit": "Pair split: {name} leaves {names}",
+    "TournamentDaySet": "Date and hours changed",
+    "BreakAdded": "Break added: {from}–{to}",
+    "BreakRemoved": "Break removed: {from}–{to}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -242,7 +250,8 @@
     "NOT_WAITING_PARTNER": "This player already has a partner.",
     "NOT_SAME_CATEGORY": "These players are not in the same category.",
     "NOT_A_PAIR": "Only a pair can be split.",
-    "CLUB_EXISTS": "Another club already has this name or acronym."
+    "CLUB_EXISTS": "Another club already has this name or acronym.",
+    "INVALID_TIME": "This date or time is not valid: the end must come after the start."
   },
   "displayScreen": {
     "monitor": "Monitor",
@@ -525,7 +534,9 @@
     "winPreset": "Apply a win condition preset",
     "tiebreakPreset": "Apply a tiebreak preset",
     "ruleKind": "Kind of rule",
-    "ruleTarget": "Stage the entrants go to"
+    "ruleTarget": "Stage the entrants go to",
+    "stageAcronym": "Acronym",
+    "stageAcronymHint": "Shown on the schedule"
   },
   "tiebreak": {
     "wins": "Wins",
@@ -722,7 +733,16 @@
     "ofN": "Round of {n}",
     "placeMatch": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} place match",
     "places": "Places {from}–{to}",
-    "eighth": "Round of 16"
+    "eighth": "Round of 16",
+    "short": {
+      "final": "Final",
+      "semi": "SF",
+      "quarter": "QF",
+      "eighth": "R16",
+      "ofN": "R{n}",
+      "place": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} place",
+      "places": "{from, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}–{to, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}"
+    }
   },
   "results": {
     "title": "Results",
@@ -809,6 +829,10 @@
     "kind": {
       "pools": "Pools",
       "bracket": "Bracket"
+    },
+    "acronym": {
+      "pools": "P",
+      "bracket": "B"
     }
   },
   "presets": {
@@ -937,7 +961,7 @@
     "courts": "Courts",
     "court": "Court {n}",
     "auto": "Auto ({category})",
-    "pool": "Pool {name}",
+    "pool": "{stage} {name}",
     "round": "round {n}",
     "unknownPlayers": "players not known yet",
     "autoHint": "Not validated: reorder the rounds in the list; the courts follow. Validate to move single matches.",
@@ -948,7 +972,7 @@
     "recomputeConfirm": "Recompute? Moves will be lost",
     "teamsTab": "Teams",
     "validatedHint": "Validated: drag a match onto another to play it just before; drop it on an empty part of a court to play it last. Greyed matches are over.",
-    "poolRound": "Pool {name} · round {n}",
+    "poolRound": "{stage} {name} · {round}/{rounds}",
     "left": "{n, plural, =0 {done} one {# left} other {# left}}",
     "teamsHint": "Matches each team has left in the stage, pool by pool.",
     "onCourt": "on court",
@@ -969,7 +993,19 @@
     "blocksHint": "Drag a round to play it earlier or later. The rounds of a pool keep their order.",
     "blockMatches": "{n, plural, one {# match} other {# matches}}",
     "blockUnrested": "{n} unrested",
-    "blockPending": "to come"
+    "blockPending": "to come",
+    "bracketRound": "{stage} · {round}",
+    "startsAt": "Starts {date} at {time}",
+    "late": "Ends after {time}",
+    "lateHint": "The forecast ends after the tournament's end time (Tournament info): add courts, shorten matches or remove a break.",
+    "breaks": "Breaks",
+    "breaksHint": "Every court stops: no match is planned across a break.",
+    "breakFrom": "From",
+    "breakTo": "to",
+    "addBreak": "Add a break",
+    "removeBreak": "Remove the break {from}–{to}",
+    "break": "Break {from}–{to}",
+    "noBreaks": "No break"
   },
   "panels": {
     "collapseMenu": "Fold the menu",

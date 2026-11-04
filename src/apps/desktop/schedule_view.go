@@ -12,11 +12,24 @@ import (
 func (s *TournamentService) scheduleView(st tournament.State, now time.Time) ScheduleView {
 	settings := st.ScheduleSettings()
 	sched := st.Schedule(now)
-	b := scheduleBuilder{st: st, now: now, mv: s.matchViewer(st), refs: categoryRefs(st), left: map[string]map[engine.EntrantID]int{}}
+	b := scheduleBuilder{
+		st: st, now: now, mv: s.matchViewer(st), refs: categoryRefs(st), left: map[string]map[engine.EntrantID]int{},
+		styles: st.GroupStyles(),
+	}
 	v := ScheduleView{
 		Now: now, Mode: settings.Mode, First: settings.First, Categories: b.refs, Courts: st.Courts(),
 		MinRest: st.MinRest(), Reserved: []CourtReservation{}, Slots: []ScheduleSlotView{},
-		Blocks: []ScheduleBlockView{}, Groups: b.groups(),
+		Blocks: []ScheduleBlockView{}, Groups: b.groups(), Breaks: []BreakView{},
+	}
+	for _, br := range st.BreakTimes(now) {
+		v.Breaks = append(v.Breaks, BreakView{ID: br.ID, From: br.From, To: br.To})
+	}
+	if start := st.ForecastStart(now); start.After(now) {
+		v.Start = &start
+	}
+	if end := st.DayEnd(now); !end.IsZero() {
+		v.DayEnd = &end
+		v.Late = sched.End.After(end)
 	}
 	if at := st.ScheduleValidatedAt(); !at.IsZero() {
 		v.ValidatedAt = &at
@@ -55,6 +68,13 @@ type scheduleBuilder struct {
 	refs      []CategoryRef
 	validated bool
 	left      map[string]map[engine.EntrantID]int // matches left per "<cat>/<stage>"
+	styles    map[string]tournament.GroupStyle
+}
+
+// style is the color, acronym and round count of a pool or bracket stage.
+func (b *scheduleBuilder) style(c engine.Category, stage tournament.Stage, pool int) (string, int, int) {
+	gs := tournament.GroupStyleOf(b.styles, c, stage.ID, pool)
+	return stage.Acronym, gs.Color, gs.Rounds
 }
 
 // leftIn counts, per entrant, the matches it has left in a stage.
@@ -86,6 +106,7 @@ func (b *scheduleBuilder) slot(sl tournament.ScheduleSlot, state string) Schedul
 		Round:      sl.Level + 1, RoundSize: sl.RoundSize, Court: sl.Court, Start: sl.Start, End: sl.End,
 		PlaceFrom: sl.PlaceFrom, Unrested: sl.Unrested,
 	}
+	sv.Acronym, sv.Color, sv.Rounds = b.style(sl.Category, stage, sl.Pool)
 	if sl.Pool >= 0 {
 		sv.Pool = engine.PoolName(sl.Pool)
 	} else if sl.PlaceFrom > 0 {
@@ -141,6 +162,7 @@ func (b *scheduleBuilder) plannedSlots(slots []tournament.ScheduleSlot) ([]Sched
 		if bv == nil {
 			bv = &ScheduleBlockView{
 				Key: sv.Key, CategoryRef: sv.CategoryRef, Stage: sv.Stage, StageName: sv.StageName, StageKind: sv.StageKind,
+				Acronym: sv.Acronym, Color: sv.Color, Rounds: sv.Rounds,
 				EntryStage: sv.EntryStage, Pool: sv.Pool, Round: sv.Round, RoundSize: sv.RoundSize, PlaceFrom: sv.PlaceFrom,
 				PlaceTo: sv.PlaceTo, Pending: sl.Match == "", Start: sl.Start, End: sl.End,
 			}
@@ -187,9 +209,11 @@ func (b *scheduleBuilder) groups() []ScheduleGroupView {
 					CategoryRef: ref, Stage: stage.ID, StageName: stage.Name, StageKind: stage.Kind, EntryStage: i == 0,
 					Teams: []ScheduleTeamView{},
 				}
+				pool := -1
 				if stage.Kind == tournament.StagePools {
-					gv.Pool = engine.PoolName(g)
+					gv.Pool, pool = engine.PoolName(g), g
 				}
+				gv.Acronym, gv.Color, _ = b.style(ref.Category, stage, pool)
 				gv.Key = fmt.Sprintf("%s/%s/%s", ref.Category, stage.ID, gv.Pool)
 				for _, id := range group {
 					if id == "" || l[id] == 0 {
@@ -236,11 +260,18 @@ type ScheduleSlotView struct {
 	StageName  string               `json:"stageName"`
 	StageKind  tournament.StageKind `json:"stageKind"`
 	EntryStage bool                 `json:"entryStage"`
+	// Acronym is the stage's short name typed by the desk ("" for the kind's
+	// default). Color is the pool's, or the bracket's, color index
+	// (--color-group-n).
+	Acronym string `json:"acronym"`
+	Color   int    `json:"color"`
 	// Pool is "A", "B"… in a pools stage, "" in a bracket.
 	Pool string `json:"pool"`
-	// Round is the round of the pool or of the bracket, from 1. RoundSize is,
-	// in a bracket, how many entrants the round starts with (8: quarter-finals).
+	// Round is the round of the pool or of the bracket, from 1. Rounds is how
+	// many rounds the pool plays (0 in a bracket). RoundSize is, in a
+	// bracket, how many entrants the round starts with (8: quarter-finals).
 	Round     int `json:"round"`
+	Rounds    int `json:"rounds"`
 	RoundSize int `json:"roundSize"`
 	// PlaceFrom..PlaceTo are, in a bracket, the places its part of the
 	// bracket plays for (1..4: semi-finals; 5..8: places 5 to 8).
@@ -267,8 +298,11 @@ type ScheduleBlockView struct {
 	StageName  string               `json:"stageName"`
 	StageKind  tournament.StageKind `json:"stageKind"`
 	EntryStage bool                 `json:"entryStage"`
+	Acronym    string               `json:"acronym"`
+	Color      int                  `json:"color"`
 	Pool       string               `json:"pool"`
 	Round      int                  `json:"round"`
+	Rounds     int                  `json:"rounds"`
 	RoundSize  int                  `json:"roundSize"`
 	// PlaceFrom..PlaceTo are, in a bracket, the places its part plays for.
 	PlaceFrom int `json:"placeFrom"`
@@ -298,6 +332,8 @@ type ScheduleGroupView struct {
 	StageName  string               `json:"stageName"`
 	StageKind  tournament.StageKind `json:"stageKind"`
 	EntryStage bool                 `json:"entryStage"`
+	Acronym    string               `json:"acronym"`
+	Color      int                  `json:"color"`
 	Pool       string               `json:"pool"`
 	Teams      []ScheduleTeamView   `json:"teams"`
 }
@@ -335,4 +371,20 @@ type ScheduleView struct {
 	// End is when the last match is expected to end; nil with nothing left.
 	End      *time.Time `json:"end"`
 	Unrested int        `json:"unrested"`
+	// Start is the tournament's start when the forecast starts there (no
+	// match called yet, start still ahead); nil when it starts now.
+	Start *time.Time `json:"start"`
+	// DayEnd is the tournament's end hour, nil when not set; Late: the
+	// forecast ends after it.
+	DayEnd *time.Time `json:"dayEnd"`
+	Late   bool       `json:"late"`
+	// Breaks are the pauses of every court, earliest first.
+	Breaks []BreakView `json:"breaks"`
+}
+
+// BreakView is a pause of every court on the tournament's day.
+type BreakView struct {
+	ID   string    `json:"id"`
+	From time.Time `json:"from"`
+	To   time.Time `json:"to"`
 }

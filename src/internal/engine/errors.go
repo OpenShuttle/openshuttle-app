@@ -101,6 +101,7 @@ const (
 	CodeInvalidName    Code = "INVALID_NAME"
 	CodeNoTournament   Code = "NO_TOURNAMENT"
 	CodeInvalidSetting Code = "INVALID_SETTING"
+	CodeInvalidTime    Code = "INVALID_TIME"
 	CodeInternal       Code = "INTERNAL"
 	CodeInvalidEvent   Code = "INVALID_EVENT"
 

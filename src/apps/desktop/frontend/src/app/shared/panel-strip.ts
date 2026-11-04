@@ -14,7 +14,7 @@ import { Panels } from '../core/panels.service';
     <ng-container *transloco="let t">
       @if (panels.collapsed(key())) {
         <button type="button" class="strip" [attr.aria-label]="t('panels.expand', { name: title() })" (click)="panels.toggle(key())">
-          <span class="round"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
+          <span class="round" [class.right]="side() === 'left'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
           <span class="vertical">{{ title() }}</span>
         </button>
       } @else {
@@ -25,7 +25,7 @@ import { Panels } from '../core/panels.service';
           [attr.title]="t('panels.collapse', { name: title() })"
           (click)="panels.toggle(key())"
         >
-          <span class="round right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
+          <span class="round" [class.right]="side() !== 'left'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></span>
         </button>
       }
     </ng-container>
@@ -92,5 +92,7 @@ import { Panels } from '../core/panels.service';
 export class PanelToggle {
   readonly key = input.required<string>();
   readonly title = input.required<string>();
+  /** Which side of the screen the panel sits on: its chevrons point the other way on the left. */
+  readonly side = input<'left' | 'right'>('right');
   protected readonly panels = inject(Panels);
 }

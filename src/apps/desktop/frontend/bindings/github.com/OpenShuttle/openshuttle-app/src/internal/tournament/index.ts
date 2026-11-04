@@ -12,6 +12,7 @@ export {
 
 export type {
     Club,
+    DaySet,
     EntrantRegistered,
     FormatPreview,
     ImportClub,

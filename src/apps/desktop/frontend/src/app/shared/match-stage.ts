@@ -30,6 +30,34 @@ export function roundLabel(m: Pick<MatchView, 'placeFrom' | 'placeTo' | 'roundSi
 }
 
 /**
+ * Translation key and params of the short name of a bracket round, as the
+ * schedule shows it: "1/4", "Finale", "3e place", "5e–8e" (en: "QF", "Final",
+ * "3rd place", "5th–8th").
+ */
+export function shortRoundLabel(m: Pick<MatchView, 'placeFrom' | 'placeTo' | 'roundSize'>): {
+  key: string;
+  params: Record<string, number>;
+} {
+  if (m.placeFrom > 1) {
+    return m.roundSize === 2
+      ? { key: 'round.short.place', params: { place: m.placeFrom } }
+      : { key: 'round.short.places', params: { from: m.placeFrom, to: m.placeTo } };
+  }
+  switch (m.roundSize) {
+    case 2:
+      return { key: 'round.short.final', params: {} };
+    case 4:
+      return { key: 'round.short.semi', params: {} };
+    case 8:
+      return { key: 'round.short.quarter', params: {} };
+    case 16:
+      return { key: 'round.short.eighth', params: {} };
+    default:
+      return { key: 'round.short.ofN', params: { n: m.roundSize } };
+  }
+}
+
+/**
  * Where a match is played: "Pool A", "Pools 2 · Pool A" in a later stage, or
  * "Main bracket · Semi-final".
  */

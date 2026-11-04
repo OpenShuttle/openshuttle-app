@@ -37,6 +37,15 @@ export interface AppInfo {
 }
 
 /**
+ * BreakView is a pause of every court on the tournament's day.
+ */
+export interface BreakView {
+    "id": string;
+    "from": string;
+    "to": string;
+}
+
+/**
  * CategoryEntrants lists the entrants of one category, with check-in totals.
  */
 export interface CategoryEntrants {
@@ -809,8 +818,11 @@ export interface ScheduleBlockView {
     "stageName": string;
     "stageKind": tournament$0.StageKind;
     "entryStage": boolean;
+    "acronym": string;
+    "color": number;
     "pool": string;
     "round": number;
+    "rounds": number;
     "roundSize": number;
 
     /**
@@ -840,6 +852,8 @@ export interface ScheduleGroupView {
     "stageName": string;
     "stageKind": tournament$0.StageKind;
     "entryStage": boolean;
+    "acronym": string;
+    "color": number;
     "pool": string;
     "teams": ScheduleTeamView[] | null;
 }
@@ -869,15 +883,25 @@ export interface ScheduleSlotView {
     "entryStage": boolean;
 
     /**
+     * Acronym is the stage's short name typed by the desk ("" for the kind's
+     * default). Color is the pool's, or the bracket's, color index
+     * (--color-group-n).
+     */
+    "acronym": string;
+    "color": number;
+
+    /**
      * Pool is "A", "B"… in a pools stage, "" in a bracket.
      */
     "pool": string;
 
     /**
-     * Round is the round of the pool or of the bracket, from 1. RoundSize is,
-     * in a bracket, how many entrants the round starts with (8: quarter-finals).
+     * Round is the round of the pool or of the bracket, from 1. Rounds is how
+     * many rounds the pool plays (0 in a bracket). RoundSize is, in a
+     * bracket, how many entrants the round starts with (8: quarter-finals).
      */
     "round": number;
+    "rounds": number;
     "roundSize": number;
 
     /**
@@ -957,6 +981,24 @@ export interface ScheduleView {
      */
     "end": string | null;
     "unrested": number;
+
+    /**
+     * Start is the tournament's start when the forecast starts there (no
+     * match called yet, start still ahead); nil when it starts now.
+     */
+    "start": string | null;
+
+    /**
+     * DayEnd is the tournament's end hour, nil when not set; Late: the
+     * forecast ends after it.
+     */
+    "dayEnd": string | null;
+    "late": boolean;
+
+    /**
+     * Breaks are the pauses of every court, earliest first.
+     */
+    "breaks": BreakView[] | null;
 }
 
 /**
@@ -1042,6 +1084,12 @@ export interface StagePhase {
      * Name is typed by the desk; empty shows the kind's label.
      */
     "name": string;
+
+    /**
+     * Acronym is the short name the schedule shows ("P", "T", "C"), typed by
+     * the desk; empty shows the kind's default (older files have none).
+     */
+    "acronym"?: string;
     "kind": tournament$0.StageKind;
     "win": engine$0.WinCondition;
     "poolSizes"?: number[] | null;
@@ -1115,6 +1163,12 @@ export interface StageView {
      * Name is typed by the desk; empty shows the kind's label.
      */
     "name": string;
+
+    /**
+     * Acronym is the short name the schedule shows ("P", "T", "C"), typed by
+     * the desk; empty shows the kind's default (older files have none).
+     */
+    "acronym"?: string;
     "kind": tournament$0.StageKind;
     "win": engine$0.WinCondition;
 
@@ -1262,6 +1316,11 @@ export interface TournamentView {
     "availableCategories": engine$0.Category[] | null;
     "courts": number;
     "minRest": number;
+
+    /**
+     * Day is the tournament's date and hours ("" when not set).
+     */
+    "day": tournament$0.DaySet;
     "progress": ProgressView;
 }
 

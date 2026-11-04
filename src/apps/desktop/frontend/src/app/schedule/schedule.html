@@ -12,6 +12,12 @@
         </span>
       </div>
       <div class="head-actions">
+        @if (view().start; as start) {
+          <span class="pill pill-muted" data-start>{{ t('schedule.startsAt', { date: date(start), time: time(start) }) }}</span>
+        }
+        @if (view().late && view().dayEnd; as dayEnd) {
+          <span class="pill pill-finished" data-late [attr.title]="t('schedule.lateHint')">{{ t('schedule.late', { time: time(dayEnd) }) }}</span>
+        }
         @if (view().unrested > 0) {
           <span class="pill pill-finished" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.unrested', { n: view().unrested }) }}</span>
         }
@@ -78,6 +84,42 @@
       </div>
     }
 
+    @if ((view().slots ?? []).length > 0 || (view().breaks ?? []).length > 0) {
+      <div class="card setup breaks" data-breaks>
+        <div class="setup-row">
+          <span class="field-label">{{ t('schedule.breaks') }}</span>
+          @for (b of view().breaks; track b.id) {
+            <span class="break-chip">
+              {{ time(b.from) }}–{{ time(b.to) }}
+              <button
+                type="button"
+                class="break-remove"
+                [attr.aria-label]="t('schedule.removeBreak', { from: time(b.from), to: time(b.to) })"
+                [attr.title]="t('schedule.removeBreak', { from: time(b.from), to: time(b.to) })"
+                (click)="removeBreak(b.id)"
+              >
+                ×
+              </button>
+            </span>
+          } @empty {
+            <span class="hint">{{ t('schedule.noBreaks') }}</span>
+          }
+          <form class="break-form" (submit)="$event.preventDefault(); addBreak()">
+            <label>
+              <span>{{ t('schedule.breakFrom') }}</span>
+              <input class="input" type="time" name="from" [value]="breakFrom()" (input)="breakFrom.set($any($event.target).value)" />
+            </label>
+            <label>
+              <span>{{ t('schedule.breakTo') }}</span>
+              <input class="input" type="time" name="to" [value]="breakTo()" (input)="breakTo.set($any($event.target).value)" />
+            </label>
+            <button type="submit" class="btn btn-sm" [disabled]="!breakFrom() || !breakTo()">{{ t('schedule.addBreak') }}</button>
+          </form>
+          <span class="hint">{{ t('schedule.breaksHint') }}</span>
+        </div>
+      </div>
+    }
+
     @if ((view().slots ?? []).length === 0) {
       <div class="card empty">
         <span>{{ t('schedule.empty') }}</span>
@@ -89,7 +131,7 @@
         <p class="hint" [class.hidden]="drag.info()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
         @if (drag.info(); as d) {
           <p class="drop-info">
-            <app-category-badge [category]="d.item.category" [slot]="d.item.slot" />
+            <app-category-badge [category]="d.item.category" [slot]="d.item.slot" [color]="d.item.color" />
             <strong>{{ d.item.label }}</strong>
             <span>{{ d.text }}</span>
             @if (drag.landing(); as l) {
@@ -99,10 +141,21 @@
           </p>
         }
       </div>
-      <div class="layout" [class.folded]="panels.collapsed('schedule.teams')" [class.with-blocks]="!view().validatedAt && (view().blocks ?? []).length > 0">
+      <div
+        class="layout"
+        [class.folded]="panels.collapsed('schedule.teams')"
+        [class.blocks-folded]="panels.collapsed('schedule.blocks')"
+        [class.with-blocks]="!view().validatedAt && (view().blocks ?? []).length > 0"
+      >
         @if (!view().validatedAt && (view().blocks ?? []).length > 0) {
+          @if (panels.collapsed('schedule.blocks')) {
+            <app-panel-toggle key="schedule.blocks" side="left" [title]="t('schedule.blocksTitle')" />
+          } @else {
           <aside class="card blocks" data-blocks>
-            <span class="blocks-title">{{ t('schedule.blocksTitle') }}</span>
+            <span class="panel-head">
+              <span class="blocks-title">{{ t('schedule.blocksTitle') }}</span>
+              <app-panel-toggle key="schedule.blocks" side="left" [title]="t('schedule.blocksTitle')" />
+            </span>
             <span class="hint">{{ t('schedule.blocksHint') }}</span>
             <ol class="block-list">
               @for (b of view().blocks; track b.key; let i = $index) {
@@ -116,9 +169,9 @@
                   (pointerdown)="drag.blockDown($event, b)"
                 >
                   <span class="block-n">{{ i + 1 }}</span>
-                  <app-category-badge [category]="b.category" [slot]="b.slot" />
+                  <app-category-badge [category]="b.category" [slot]="b.slot" [color]="b.color" />
                   <span class="block-text">
-                    <span class="block-label">{{ label(b) }}</span>
+                    <span class="block-label" [attr.title]="stageName(b)">{{ label(b) }}</span>
                     <span class="block-meta">
                       {{ time(b.start) }} · {{ t('schedule.blockMatches', { n: b.matches }) }}
                       @if (b.pending) {
@@ -137,6 +190,7 @@
               }
             </ol>
           </aside>
+          }
         }
         <div class="card timeline" data-timeline>
           <div class="grid" [style.grid-template-columns]="'56px repeat(' + view().courts + ', minmax(120px, 1fr))'">
@@ -159,7 +213,16 @@
                 @for (tick of ticks(); track tick.top) {
                   <span class="line" [style.top.px]="tick.top"></span>
                 }
-                <span class="now" [style.top.px]="nowTop()"></span>
+                @for (b of breakBands(); track b.id) {
+                  <span class="break-band" [style.top.px]="b.top" [style.height.px]="b.height">
+                    @if (n === 1) {
+                      <span class="break-label">{{ t('schedule.break', { from: time(b.from), to: time(b.to) }) }}</span>
+                    }
+                  </span>
+                }
+                @if (!view().start) {
+                  <span class="now" [style.top.px]="nowTop()"></span>
+                }
                 @for (e of slotsByCourt().get(n) ?? []; track e.key) {
                   @let s = e.slot;
                   <div
@@ -179,7 +242,7 @@
                     (pointerdown)="drag.slotDown($event, s)"
                   >
                     <span class="slot-head">
-                      <app-category-badge [category]="s.category" [slot]="s.slot" />
+                      <app-category-badge [category]="s.category" [slot]="s.slot" [color]="s.color" />
                       <span class="slot-time">{{ time(s.start) }}</span>
                       @if (s.state === 'playing') {
                         <span class="slot-state">{{ t('schedule.playing') }}</span>
@@ -211,7 +274,7 @@
           @for (g of view().groups; track g.key) {
             <section class="group">
               <span class="group-title">
-                <app-category-badge [category]="g.category" [slot]="g.slot" />
+                <app-category-badge [category]="g.category" [slot]="g.slot" [color]="g.color" />
                 <span>{{ label(g) }}</span>
               </span>
               @for (team of g.teams; track team.entrant) {

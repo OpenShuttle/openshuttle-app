@@ -41,6 +41,25 @@
           <span class="hint">{{ t('tournamentInfo.categoriesHint', { max: maxCategories }) }}</span>
         </div>
 
+        <div class="field wide" data-day>
+          <span class="field-label">{{ t('tournamentInfo.day') }}</span>
+          <div class="day">
+            <label class="day-part">
+              <span>{{ t('tournamentInfo.date') }}</span>
+              <input class="input" type="date" name="date" [value]="day().date ?? ''" (change)="setDay('date', $event)" />
+            </label>
+            <label class="day-part">
+              <span>{{ t('tournamentInfo.start') }}</span>
+              <input class="input" type="time" name="start" [value]="day().start ?? ''" (change)="setDay('start', $event)" />
+            </label>
+            <label class="day-part">
+              <span>{{ t('tournamentInfo.end') }}</span>
+              <input class="input" type="time" name="end" [value]="day().end ?? ''" (change)="setDay('end', $event)" />
+            </label>
+          </div>
+          <span class="hint">{{ t('tournamentInfo.dayHint') }}</span>
+        </div>
+
         <div class="step">
           <span class="field-label">{{ t('tournamentInfo.courts') }}</span>
           <div class="stepper">

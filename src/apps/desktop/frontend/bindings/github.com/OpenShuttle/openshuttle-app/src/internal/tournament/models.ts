@@ -48,6 +48,16 @@ export enum CourtState {
 };
 
 /**
+ * DaySet is the payload of TypeDaySet: the tournament's date ("2026-11-14")
+ * and hours ("09:00", "19:00"), each "" when not set. Hours are local time.
+ */
+export interface DaySet {
+    "date"?: string;
+    "start"?: string;
+    "end"?: string;
+}
+
+/**
  * EntrantRegistered is the payload of TypeEntrantRegistered.
  */
 export interface EntrantRegistered {
@@ -310,6 +320,12 @@ export interface StageConfig {
      * Name is typed by the desk; empty shows the kind's label.
      */
     "name": string;
+
+    /**
+     * Acronym is the short name the schedule shows ("P", "T", "C"), typed by
+     * the desk; empty shows the kind's default (older files have none).
+     */
+    "acronym"?: string;
     "kind": StageKind;
     "win": engine$0.WinCondition;
 

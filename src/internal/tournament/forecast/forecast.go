@@ -70,6 +70,13 @@ type Input struct {
 	// Reserved gives a court to a category (reserved mode); a category over
 	// gives its courts to the other.
 	Reserved map[int]engine.Category
+	// Breaks are pauses of every court: no match is placed across one.
+	Breaks []Break
+}
+
+// Break is a pause of every court, from From to To.
+type Break struct {
+	From, To time.Time
 }
 
 // Slot is a placed match: on a court, from Start to End.
@@ -93,7 +100,8 @@ type Result struct {
 // can play: its players are off court, the bracket round before it is over,
 // the stages it waits for are over; on a reserved court, an item of the
 // court's category. Rest is never waited for: an item whose players have not
-// had their minimum rest is placed anyway and flagged Unrested.
+// had their minimum rest is placed anyway and flagged Unrested. A court
+// never starts a match that would run into a break: it waits for its end.
 func Run(in Input) Result {
 	sim := newSim(in)
 	var out Result
@@ -104,11 +112,20 @@ func Run(in Input) Result {
 			break
 		}
 		t := sim.freeAt[c]
+		if end, ok := sim.breakAt(t, 0); ok {
+			sim.freeAt[c] = end
+			continue
+		}
 		pick, next := sim.pick(c, t)
 		if pick == nil {
 			if !sim.wait(c, t, next) {
 				break
 			}
+			continue
+		}
+		if end, ok := sim.breakAt(t, pick.Minutes); ok {
+			sim.unpick(pick)
+			sim.freeAt[c] = end
 			continue
 		}
 		out.Slots = append(out.Slots, sim.place(pick, c, t))
@@ -214,6 +231,28 @@ func (s *sim) pick(c int, t time.Time) (*Item, time.Time) {
 		return it, next
 	}
 	return nil, next
+}
+
+// unpick puts back an item pick took.
+func (s *sim) unpick(it *Item) {
+	for i := range s.items {
+		if &s.items[i] == it {
+			s.done[i] = false
+		}
+	}
+}
+
+// breakAt reports whether a match of that many minutes starting at t runs
+// into a break, and when the latest such break ends.
+func (s *sim) breakAt(t time.Time, minutes int) (time.Time, bool) {
+	end := t.Add(time.Duration(minutes) * time.Minute)
+	var out time.Time
+	for _, b := range s.in.Breaks {
+		if b.To.After(t) && (b.From.Before(end) || (minutes == 0 && !b.From.After(t))) {
+			out = later(out, b.To)
+		}
+	}
+	return out, !out.IsZero()
 }
 
 // allowed reports whether court c may take a match of category cat.

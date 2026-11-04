@@ -13,10 +13,9 @@ import { CategoryBadge } from '../shared/category-badge';
 import { Glide } from '../shared/glide';
 import { fullNames } from '../shared/names';
 import { PanelToggle } from '../shared/panel-strip';
-import { roundLabel } from '../shared/match-stage';
-import { stageLabel } from '../shared/stage-label';
+import { shortRoundLabel } from '../shared/match-stage';
 import { ScheduleDrag } from './schedule-drag';
-import { PX_PER_MIN, axisHeight, axisStart, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
+import { PX_PER_MIN, axisHeight, axisStart, breakBands, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
 
 const EMPTY: ScheduleView = {
   now: '',
@@ -32,6 +31,10 @@ const EMPTY: ScheduleView = {
   groups: [],
   end: null,
   unrested: 0,
+  start: null,
+  dayEnd: null,
+  late: false,
+  breaks: [],
 };
 
 /**
@@ -82,6 +85,12 @@ export class Schedule {
   protected readonly ticks = computed(() => halfHours(this.start(), this.height(), (d) => this.time(d)));
   /** Slots per court, each with its index in the view (drop targets) and its glide key. */
   protected readonly slotsByCourt = computed(() => slotsByCourt(this.view()));
+  /** The breaks on the time axis. */
+  protected readonly breakBands = computed(() => breakBands(this.view(), this.start(), this.height()));
+
+  /** The break being typed: from and to ("12:00"). */
+  protected readonly breakFrom = signal('');
+  protected readonly breakTo = signal('');
 
   constructor() {
     // Matches and blocks glide to their new place on every change.
@@ -116,19 +125,28 @@ export class Schedule {
     return this.language.time(value);
   }
 
-  /** "Pool A · round 2", "Main bracket · Quarter-finals" or "Places 5–8"; a group: "Pool A". */
+  /**
+   * The stage's acronym (typed in the format, else P or T), then "A · 2/5"
+   * for round 2 of the 5 of pool A, or a bracket round: "T · 1/4",
+   * "T · 3e place", "C · 5e–8e". A group: "P A", or "T".
+   */
   protected label(b: ScheduleSlotView | ScheduleBlockView | ScheduleGroupView): string {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
-    const stage = stageLabel(this.transloco, { name: b.stageName, kind: b.stageKind });
+    const stage = b.acronym || t('stage.acronym.' + b.stageKind);
     if (!('round' in b)) {
-      return b.pool ? (b.entryStage ? '' : stage + ' · ') + t('schedule.pool', { name: b.pool }) : stage;
+      return b.pool ? t('schedule.pool', { stage, name: b.pool }) : stage;
     }
     if (b.pool) {
-      return (b.entryStage ? '' : stage + ' · ') + t('schedule.poolRound', { name: b.pool, n: b.round });
+      return t('schedule.poolRound', { stage, name: b.pool, round: b.round, rounds: b.rounds || b.round });
     }
     // A bracket match known: its round and places; a stand-in or a block: its part of the draw and its size.
-    const r = 'match' in b && b.match ? roundLabel(b.match) : roundLabel({ placeFrom: b.placeFrom || 1, placeTo: b.placeTo, roundSize: b.roundSize });
-    return `${stage} · ${t(r.key, r.params)}`;
+    const r = 'match' in b && b.match ? shortRoundLabel(b.match) : shortRoundLabel({ placeFrom: b.placeFrom || 1, placeTo: b.placeTo, roundSize: b.roundSize });
+    return t('schedule.bracketRound', { stage, round: t(r.key, r.params) });
+  }
+
+  /** The full name of a block's stage, as a tooltip: "Main bracket", "Pools". */
+  protected stageName(b: ScheduleSlotView | ScheduleBlockView): string {
+    return b.stageName || this.transloco.translate('stage.kind.' + b.stageKind);
   }
 
   protected bibs(s: ScheduleSlotView): string {
@@ -161,6 +179,21 @@ export class Schedule {
     }
     this.confirming.set(null);
     void this.tournament.unvalidateSchedule();
+  }
+
+  protected date(value: string): string {
+    return this.language.date(value);
+  }
+
+  protected async addBreak(): Promise<void> {
+    if (await this.tournament.addBreak(this.breakFrom(), this.breakTo())) {
+      this.breakFrom.set('');
+      this.breakTo.set('');
+    }
+  }
+
+  protected removeBreak(id: string): void {
+    void this.tournament.removeBreak(id);
   }
 
   protected setMode(mode: ScheduleMode): void {

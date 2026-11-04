@@ -29,6 +29,7 @@
   "availableCategories": [],
   "courts": 7,
   "minRest": 10,
+  "day": {},
   "progress": {
     "entrants": 20,
     "doubles": true,

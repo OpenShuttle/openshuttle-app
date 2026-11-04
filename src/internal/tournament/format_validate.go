@@ -2,6 +2,7 @@ package tournament
 
 import (
 	"slices"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -47,6 +48,10 @@ func validStage(st StageConfig, categories int) (StageConfig, error) {
 	st = cloneConfig(st)
 	st.Name = collapseSpaces(st.Name)
 	if utf8.RuneCountInString(st.Name) > MaxStageNameLength {
+		return st, engine.NewError(engine.CodeInvalidName)
+	}
+	st.Acronym = strings.Join(strings.Fields(st.Acronym), "")
+	if utf8.RuneCountInString(st.Acronym) > MaxStageAcronymLength {
 		return st, engine.NewError(engine.CodeInvalidName)
 	}
 	if err := st.Win.Validate(); err != nil {
@@ -139,7 +144,7 @@ func cloneConfig(st StageConfig) StageConfig {
 }
 
 func configEqual(a, b StageConfig) bool {
-	return a.ID == b.ID && a.Name == b.Name && a.Kind == b.Kind && a.Win == b.Win && a.Pools == b.Pools &&
+	return a.ID == b.ID && a.Name == b.Name && a.Acronym == b.Acronym && a.Kind == b.Kind && a.Win == b.Win && a.Pools == b.Pools &&
 		slices.Equal(a.PoolSizes, b.PoolSizes) && a.CrossPool == b.CrossPool && a.FullPlacement == b.FullPlacement &&
 		slices.Equal(a.Tiebreaks, b.Tiebreaks) && slices.EqualFunc(a.Routing, b.Routing, ruleEqual)
 }

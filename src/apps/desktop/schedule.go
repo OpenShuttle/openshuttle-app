@@ -48,6 +48,25 @@ func (s *TournamentService) UnvalidateSchedule(ctx context.Context) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.UnvalidateSchedule() })
 }
 
+// SetDay sets the tournament's date ("2026-11-14") and its start and end
+// hours ("09:00"), each "" when not set.
+func (s *TournamentService) SetDay(ctx context.Context, date, start, end string) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) {
+		return st.SetDay(tournament.DaySet{Date: date, Start: start, End: end})
+	})
+}
+
+// AddBreak adds a pause of every court from one hour to a later one
+// ("12:00", "13:30").
+func (s *TournamentService) AddBreak(ctx context.Context, from, to string) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddBreak(from, to) })
+}
+
+// RemoveBreak removes a pause.
+func (s *TournamentService) RemoveBreak(ctx context.Context, id string) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveBreak(id) })
+}
+
 // GetScheduleView returns the schedule screen.
 func (s *TournamentService) GetScheduleView() ScheduleView {
 	s.mu.Lock()

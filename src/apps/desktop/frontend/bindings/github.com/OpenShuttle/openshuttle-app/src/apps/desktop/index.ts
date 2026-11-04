@@ -22,6 +22,7 @@ export {
 export type {
     ActionView,
     AppInfo,
+    BreakView,
     CategoryEntrants,
     CategoryRef,
     CheckInTeam,

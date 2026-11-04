@@ -1,4 +1,19 @@
-import { roundLabel } from './match-stage';
+import { roundLabel, shortRoundLabel } from './match-stage';
+
+describe('shortRoundLabel', () => {
+  it.each([
+    [1, 2, 2, 'round.short.final', {}],
+    [1, 4, 4, 'round.short.semi', {}],
+    [1, 8, 8, 'round.short.quarter', {}],
+    [1, 16, 16, 'round.short.eighth', {}],
+    [1, 32, 32, 'round.short.ofN', { n: 32 }],
+    [3, 4, 2, 'round.short.place', { place: 3 }],
+    [5, 6, 2, 'round.short.place', { place: 5 }],
+    [5, 8, 4, 'round.short.places', { from: 5, to: 8 }],
+  ])('places %i–%i, round of %i: %s', (placeFrom, placeTo, roundSize, key, params) => {
+    expect(shortRoundLabel({ placeFrom, placeTo, roundSize })).toEqual({ key, params });
+  });
+});
 
 describe('roundLabel', () => {
   it('names the main rounds', () => {

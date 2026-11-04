@@ -3,8 +3,9 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { Category } from '@bindings/internal/engine';
 
 /**
- * Colored category badge (MD/DH…), colored by the category's slot. Projected
- * content follows the code: `DH · Pool A`.
+ * Colored category badge (MD/DH…), colored by the category's slot, or by a
+ * pool's or bracket's color on the schedule (`color`). Projected content
+ * follows the code: `DH · Pool A`.
  */
 @Component({
   selector: 'app-category-badge',
@@ -12,7 +13,7 @@ import { Category } from '@bindings/internal/engine';
   template: `<span
     *transloco="let t"
     class="badge"
-    [style.background]="'var(--color-category-' + slot() + ')'"
+    [style.background]="color() ? 'var(--color-group-' + color() + ')' : 'var(--color-category-' + slot() + ')'"
     [attr.title]="t('category.name.' + category())"
     [class.ring]="ring()"
     >{{ t('category.short.' + category()) }}<ng-content /></span
@@ -48,4 +49,6 @@ export class CategoryBadge {
   readonly slot = input.required<number>();
   /** White outline, for a badge on a colored background. */
   readonly ring = input(false);
+  /** A pool's or bracket's color index (--color-group-n); 0 keeps the category's. */
+  readonly color = input(0);
 }

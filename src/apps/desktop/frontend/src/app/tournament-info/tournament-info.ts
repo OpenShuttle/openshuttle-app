@@ -10,7 +10,7 @@ import { PanelToggle } from '../shared/panel-strip';
 
 const MAX_CATEGORIES = 2;
 
-/** Tournament info: name, categories, courts, rest and file. */
+/** Tournament info: name, categories, date and hours, courts, rest and file. */
 @Component({
   selector: 'app-tournament-info',
   imports: [TranslocoDirective, RouterLink, PanelToggle],
@@ -26,6 +26,8 @@ export class TournamentInfo {
 
   /** Categories Go still accepts: none sharing a sex with one already added. */
   protected readonly available = computed(() => this.tournament.view().availableCategories ?? []);
+  /** The date and hours, "" when not set. */
+  protected readonly day = computed(() => this.tournament.view().day ?? {});
   protected readonly full = computed(
     () => (this.tournament.view().categories ?? []).length >= MAX_CATEGORIES,
   );
@@ -46,6 +48,15 @@ export class TournamentInfo {
 
   protected toggle(c: Category): void {
     void (this.has(c) ? this.tournament.removeCategory(c) : this.tournament.addCategory(c));
+  }
+
+  /** Saves one of the date and hours; a refused value goes back to the stored one. */
+  protected async setDay(part: 'date' | 'start' | 'end', event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const day = { date: '', start: '', end: '', ...this.day(), [part]: input.value };
+    if (!(await this.tournament.setDay(day.date ?? '', day.start ?? '', day.end ?? ''))) {
+      input.value = this.day()[part] ?? '';
+    }
   }
 
   protected save(): void {

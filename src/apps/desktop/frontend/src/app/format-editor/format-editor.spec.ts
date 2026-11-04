@@ -47,6 +47,15 @@ describe('FormatEditor', () => {
     expect(text(f)).toContain('Tableau principal');
   });
 
+  it('sets a stage acronym, the kind default as placeholder', async () => {
+    const { f, changes } = await editor();
+    const input = f.nativeElement.querySelector('[data-acronym]') as HTMLInputElement;
+    expect(input.placeholder).toBe('P');
+    input.value = 'Q';
+    input.dispatchEvent(new Event('change'));
+    expect(changes.at(-1)?.[0].acronym).toBe('Q');
+  });
+
   it('warns that reshaping a filled later stage empties it', async () => {
     const filled = stages.map((s) => (s.entry ? s : { ...s, filled: true, confirmed: true }));
     const { f, changes } = await editor(false, filled);

@@ -92,6 +92,10 @@ type State struct {
 	scheduleFrozenAt time.Time
 	// scheduleBlocks is the block order set before validation.
 	scheduleBlocks []string
+	// day is the date and hours of the tournament; breaks the pauses of
+	// every court (lunch…).
+	day    DaySet
+	breaks []Break
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -178,6 +182,12 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p DrawConfirmed) { s.setConfirmed(p.Category, false, time.Time{}) })
 	case TypeCourtsSet:
 		return decodeInto(e, func(p CourtsSet) { s.courts = p.Courts })
+	case TypeDaySet:
+		return decodeInto(e, func(p DaySet) { s.day = p })
+	case TypeBreakAdded:
+		return decodeInto(e, func(p BreakAdded) { s.applyBreakAdded(p, e.Seq) })
+	case TypeBreakRemoved:
+		return decodeInto(e, s.applyBreakRemoved)
 	case TypeMinRestSet:
 		return decodeInto(e, func(p MinRestSet) { s.minRest = &p.Minutes })
 	case TypeCourtPrioritySet:

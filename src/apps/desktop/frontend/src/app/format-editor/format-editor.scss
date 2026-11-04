@@ -469,3 +469,18 @@ fieldset.group {
   line-height: 1.2;
   white-space: normal;
 }
+
+// The stage's acronym, shown on the schedule ("P", "T", "C").
+.panel-acronym {
+  @include row(8px);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+
+  .input {
+    width: 64px;
+    height: 30px;
+    text-align: center;
+    font-weight: 800;
+  }
+}

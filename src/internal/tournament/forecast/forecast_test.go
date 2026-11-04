@@ -102,6 +102,21 @@ func TestRun(t *testing.T) {
 			end:  20,
 		},
 		{
+			name: "a break: a match that would run into it waits for its end",
+			// Court 1 plays m1 (0-20), m3 would run 20-40 into the break at 30: it starts at 60.
+			in: Input{Courts: 2, Breaks: []Break{{From: at(30), To: at(60)}},
+				Items: []Item{match("m1", "a", "b"), match("m2", "c", "d"), match("m3", "e", "f"), match("m4", "g", "h")}},
+			want: map[string]placed{"m1": {1, 0, false}, "m2": {2, 0, false}, "m3": {1, 60, false}, "m4": {2, 60, false}},
+			end:  80,
+		},
+		{
+			name: "starting inside a break waits for its end; a match fitting before it plays",
+			in: Input{Courts: 1, Breaks: []Break{{From: at(-10), To: at(10)}, {From: at(50), To: at(55)}},
+				Items: []Item{match("m1", "a", "b"), match("m2", "c", "d"), match("m3", "e", "f")}},
+			want: map[string]placed{"m1": {1, 10, false}, "m2": {1, 30, false}, "m3": {1, 55, false}},
+			end:  75,
+		},
+		{
 			name: "no courts",
 			in:   Input{Courts: 0, Items: []Item{match("m1", "a", "b")}},
 			want: map[string]placed{},

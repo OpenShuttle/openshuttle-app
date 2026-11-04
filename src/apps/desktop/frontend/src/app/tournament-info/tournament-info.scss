@@ -73,3 +73,17 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.day {
+  @include row(16px, wrap);
+}
+
+.day-part {
+  @include row(8px);
+  font-size: 13px;
+  font-weight: 700;
+
+  .input {
+    width: auto;
+  }
+}

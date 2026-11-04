@@ -109,6 +109,18 @@
             [value]="s.name"
             (change)="edit(s, { name: value($event) })"
           />
+          <label class="panel-acronym" [attr.title]="t('format.stageAcronymHint')">
+            <span>{{ t('format.stageAcronym') }}</span>
+            <input
+              class="input"
+              maxlength="3"
+              data-acronym
+              [disabled]="readonly()"
+              [placeholder]="t('stage.acronym.' + s.kind)"
+              [value]="s.acronym ?? ''"
+              (change)="edit(s, { acronym: value($event) })"
+            />
+          </label>
         </div>
 
         <fieldset class="panel-body" [disabled]="readonly()">

@@ -18,6 +18,7 @@ const CLOSED: TournamentView = {
   availableCategories: [],
   courts: 4,
   minRest: 10,
+  day: {},
   progress: {
     entrants: 0,
     doubles: false,
@@ -247,6 +248,19 @@ export class TournamentStore {
 
   setMinRest(minutes: number): Promise<boolean> {
     return this.command(() => Backend.SetMinRest(minutes));
+  }
+
+  /** Sets the date ("2026-11-14") and the start and end hours ("09:00"), each "" when not set. */
+  setDay(date: string, start: string, end: string): Promise<boolean> {
+    return this.command(() => Backend.SetDay(date, start, end));
+  }
+
+  addBreak(from: string, to: string): Promise<boolean> {
+    return this.command(() => Backend.AddBreak(from, to));
+  }
+
+  removeBreak(id: string): Promise<boolean> {
+    return this.command(() => Backend.RemoveBreak(id));
   }
 
   setScheduleMode(mode: ScheduleMode): Promise<boolean> {

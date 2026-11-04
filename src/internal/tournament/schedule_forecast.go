@@ -49,15 +49,25 @@ type Schedule struct {
 	Reserved map[int]engine.Category
 }
 
-// Schedule forecasts the rest of the tournament from now (forecast.Run):
-// courts take the matches in schedule order (ScheduleOrder), then the
-// stand-ins of stages not filled yet, as they free up. A match on court
-// running late ends any minute, never "already".
+// Schedule forecasts the rest of the tournament (forecast.Run) from the
+// tournament's start while no match has been called, from now once it is
+// past or matches started (ForecastStart): courts take the matches in
+// schedule order (ScheduleOrder), then the stand-ins of stages not filled
+// yet, as they free up, around the breaks. A match on court running late
+// ends any minute, never "already".
 func (s State) Schedule(now time.Time) Schedule {
+	return s.forecast(s.ForecastStart(now), now)
+}
+
+// forecast runs the forecast with courts free from start.
+func (s State) forecast(start, now time.Time) Schedule {
 	items := s.orderedItems()
 	in := forecast.Input{
-		Now: now, Courts: s.Courts(), Rest: time.Duration(s.MinRest()) * time.Minute,
+		Now: start, Courts: s.Courts(), Rest: time.Duration(s.MinRest()) * time.Minute,
 		Items: items, Reserved: s.reservedCourts(items),
+	}
+	for _, b := range s.BreakTimes(now) {
+		in.Breaks = append(in.Breaks, forecast.Break{From: b.From, To: b.To})
 	}
 	for _, m := range s.matches {
 		switch {
@@ -246,14 +256,16 @@ func (s State) reservedCourts(items []forecast.Item) map[int]engine.Category {
 }
 
 // Proposals gives each free or finished court the match the schedule starts
-// there now. Timed matches are called by rounds, never one court at a time.
+// there now, even before the tournament's start hour (the desk may start
+// early), never during a break. Timed matches are called by rounds, never one
+// court at a time.
 func (s State) Proposals(now time.Time) map[int]ScheduleSlot {
 	out := map[int]ScheduleSlot{}
 	playing := map[int]bool{}
 	for _, c := range s.CourtStates() {
 		playing[c.Number] = c.State == CourtPlaying
 	}
-	for _, slot := range s.Schedule(now).Slots {
+	for _, slot := range s.forecast(now, now).Slots {
 		if !slot.Start.Equal(now) || playing[slot.Court] || slot.Match == "" {
 			continue
 		}

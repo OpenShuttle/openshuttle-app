@@ -23,6 +23,14 @@ import * as tournament$0 from "../../internal/tournament/models.js";
 import * as $models from "./models.js";
 
 /**
+ * AddBreak adds a pause of every court from one hour to a later one
+ * ("12:00", "13:30").
+ */
+export function AddBreak($from: string, to: string): $CancellablePromise<void> {
+    return $Call.ByID(3354028840, $from, to);
+}
+
+/**
  * AddCategory adds a category (MS, WS, MD, WD, XD) to the tournament.
  */
 export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
@@ -407,6 +415,13 @@ export function ReinstateEntrant(id: engine$0.EntrantID): $CancellablePromise<vo
 }
 
 /**
+ * RemoveBreak removes a pause.
+ */
+export function RemoveBreak(id: string): $CancellablePromise<void> {
+    return $Call.ByID(2832730057, id);
+}
+
+/**
  * RemoveCategory removes a category that has no entrant.
  */
 export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> {
@@ -468,6 +483,14 @@ export function SetCourtCategory(court: number, c: engine$0.Category): $Cancella
  */
 export function SetCourts(n: number): $CancellablePromise<void> {
     return $Call.ByID(1744146534, n);
+}
+
+/**
+ * SetDay sets the tournament's date ("2026-11-14") and its start and end
+ * hours ("09:00"), each "" when not set.
+ */
+export function SetDay(date: string, start: string, end: string): $CancellablePromise<void> {
+    return $Call.ByID(1106392588, date, start, end);
 }
 
 /**

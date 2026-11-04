@@ -44,6 +44,11 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		Player   tournament.PlayerID    `json:"player"`
 		Bib      int                    `json:"bib"`
 		Players  []tournament.Player    `json:"players"`
+		Date     string                 `json:"date"`
+		Start    string                 `json:"start"`
+		End      string                 `json:"end"`
+		From     string                 `json:"from"`
+		To       string                 `json:"to"`
 	}
 	if e.Type != events.TypeUndone && e.Decode(&p) != nil {
 		return v
@@ -82,6 +87,21 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		v.Params["number"] = itoa(p.Number)
 	case tournament.TypeCourtsSet:
 		v.Params["courts"] = itoa(p.Courts)
+	case tournament.TypeDaySet:
+		v.Params["date"], v.Params["start"], v.Params["end"] = p.Date, p.Start, p.End
+	case tournament.TypeBreakAdded:
+		v.Params["from"], v.Params["to"] = p.From, p.To
+	case tournament.TypeBreakRemoved:
+		// The break's ID is the seq of the event that added it: "k12".
+		var r tournament.BreakRemoved
+		if e.Decode(&r) == nil {
+			if seq, err := strconv.Atoi(strings.TrimPrefix(r.ID, "k")); err == nil && seq >= 1 && seq <= len(s.log) {
+				var added tournament.BreakAdded
+				if s.log[seq-1].Decode(&added) == nil {
+					v.Params["from"], v.Params["to"] = added.From, added.To
+				}
+			}
+		}
 	case tournament.TypeMinRestSet:
 		v.Params["minutes"] = itoa(p.Minutes)
 	case tournament.TypeCourtPrioritySet:

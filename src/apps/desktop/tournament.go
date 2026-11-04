@@ -35,7 +35,9 @@ type TournamentView struct {
 	AvailableCategories []engine.Category `json:"availableCategories"`
 	Courts              int               `json:"courts"`
 	MinRest             int               `json:"minRest"`
-	Progress            ProgressView      `json:"progress"`
+	// Day is the tournament's date and hours ("" when not set).
+	Day      tournament.DaySet `json:"day"`
+	Progress ProgressView      `json:"progress"`
 }
 
 // CategoryRef is a category with its slot (1 or 2), which sets its color.
@@ -267,6 +269,7 @@ func (s *TournamentService) GetTournamentView() TournamentView {
 		AvailableCategories: s.state.AvailableCategories(),
 		Courts:              s.state.Courts(),
 		MinRest:             s.state.MinRest(),
+		Day:                 s.state.Day(),
 		Progress:            progressOf(s.state),
 	}
 	if len(s.log) > 0 {

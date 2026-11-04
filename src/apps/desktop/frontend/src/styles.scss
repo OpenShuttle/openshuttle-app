@@ -64,6 +64,20 @@
   --color-tier-7: #5eead4;
   --color-tier-8: #d1d5db;
 
+  // Pools and brackets on the schedule, by the color index Go gives each
+  // (GroupColors in internal/tournament): the category badge of a block or a
+  // match takes its pool's, or its bracket's, color. Dark enough for white
+  // text, away from the category purple and magenta (shown beside them as
+  // the left border); club badges and ranking levels never show there.
+  --color-group-1: #0369a1;
+  --color-group-2: #c05621;
+  --color-group-3: #15803d;
+  --color-group-4: #be123c;
+  --color-group-5: #0e7c86;
+  --color-group-6: #92650a;
+  --color-group-7: #334155;
+  --color-group-8: #7c2d12;
+
   // Display screen (dark, read from 10 m away).
   --color-display-bg: #0b0d12;
   --color-display-surface: #151922;

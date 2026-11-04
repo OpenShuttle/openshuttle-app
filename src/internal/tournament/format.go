@@ -24,6 +24,8 @@ const (
 	MaxStages          = 8
 	MaxPools           = 16
 	MaxStageNameLength = 60
+	// MaxStageAcronymLength is the longest stage acronym, in characters.
+	MaxStageAcronymLength = 3
 )
 
 // DefaultTimedMinutes is the duration of a timed match by default.
@@ -34,9 +36,12 @@ const DefaultTimedMinutes = 12
 type StageConfig struct {
 	ID string `json:"id"`
 	// Name is typed by the desk; empty shows the kind's label.
-	Name string              `json:"name"`
-	Kind StageKind           `json:"kind"`
-	Win  engine.WinCondition `json:"win"`
+	Name string `json:"name"`
+	// Acronym is the short name the schedule shows ("P", "T", "C"), typed by
+	// the desk; empty shows the kind's default (older files have none).
+	Acronym string              `json:"acronym,omitempty"`
+	Kind    StageKind           `json:"kind"`
+	Win     engine.WinCondition `json:"win"`
 	// Pools stages: a fixed number of pools (Pools), or pool sizes in order
 	// of preference (PoolSizes, 4 then 3 then 6), the number of pools then
 	// following the number of entrants. CrossPool compares entrants of the
@@ -386,9 +391,10 @@ func (s State) feedChanged(c engine.Category, id string, stages []StageConfig, p
 }
 
 // sameShape reports whether a started stage keeps what its matches and
-// results depend on: everything but its name, routing and estimate.
+// results depend on: everything but its name, acronym, routing and estimate.
 func sameShape(a, b StageConfig) bool {
 	a.Name, b.Name = "", ""
+	a.Acronym, b.Acronym = "", ""
 	a.Routing, b.Routing = nil, nil
 	a.Win.Estimate, b.Win.Estimate = 0, 0
 	return configEqual(a, b)

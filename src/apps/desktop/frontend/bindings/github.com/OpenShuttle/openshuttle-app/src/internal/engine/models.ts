@@ -140,6 +140,7 @@ export enum Code {
     CodeInvalidName = "INVALID_NAME",
     CodeNoTournament = "NO_TOURNAMENT",
     CodeInvalidSetting = "INVALID_SETTING",
+    CodeInvalidTime = "INVALID_TIME",
     CodeInternal = "INTERNAL",
     CodeInvalidEvent = "INVALID_EVENT",
     CodeFileExists = "FILE_EXISTS",

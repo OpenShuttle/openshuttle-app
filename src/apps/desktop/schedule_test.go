@@ -92,3 +92,60 @@ func TestScheduleView(t *testing.T) {
 	}
 	wantCode(t, f.svc.SetScheduleMode(ctx, "golf"), engine.CodeInvalidSetting)
 }
+
+func TestScheduleDayBreaksAndStyles(t *testing.T) {
+	f := newFixture(t)
+	ctx := f.ctx
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "t.openshuttle"), "Plume"))
+	must(f.svc.AddCategory(ctx, engine.MensSingles))
+	must(f.svc.SetCourts(ctx, 2))
+	for i := range 8 {
+		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{{Name: fmt.Sprint("P N", i)}}))
+	}
+	wantCode(t, f.svc.SetDay(ctx, "2026-10-17", "11:00", "10:00"), engine.CodeInvalidTime)
+	must(f.svc.SetDay(ctx, "2026-10-17", "10:00", "11:00"))
+	must(f.svc.AddBreak(ctx, "12:00", "13:00"))
+	if d := f.svc.GetTournamentView().Day; d != (tournament.DaySet{Date: "2026-10-17", Start: "10:00", End: "11:00"}) {
+		t.Errorf("day = %+v", d)
+	}
+
+	// The clock is 9:00: the forecast starts at 10:00, ends after 11:00.
+	v := f.svc.GetScheduleView()
+	if v.Start == nil || v.Start.Hour() != 10 || v.DayEnd == nil || !v.Late || len(v.Breaks) != 1 || v.Breaks[0].From.Hour() != 12 {
+		t.Fatalf("start %v, end %v, late %v, breaks %+v", v.Start, v.DayEnd, v.Late, v.Breaks)
+	}
+	// Two pools of 4: their own colors, 3 rounds each; the default acronym.
+	colors := map[string]int{}
+	for _, b := range v.Blocks {
+		colors[b.Pool] = b.Color
+		if b.Rounds != 3 || b.Acronym != "" {
+			t.Errorf("block %s: rounds %d, acronym %q", b.Key, b.Rounds, b.Acronym)
+		}
+	}
+	if colors["A"] != 1 || colors["B"] != 2 {
+		t.Errorf("colors = %v", colors)
+	}
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Acronym = "Q" }))
+	if s := f.svc.GetScheduleView().Slots[0]; s.Acronym != "Q" || s.Color == 0 || s.Rounds != 3 {
+		t.Errorf("slot = %+v", s)
+	}
+
+	must(f.svc.RemoveBreak(ctx, v.Breaks[0].ID))
+	h := f.svc.GetHistoryView()
+	var got []map[string]string
+	for _, a := range h.Entries {
+		switch a.Type {
+		case string(tournament.TypeDaySet), string(tournament.TypeBreakAdded), string(tournament.TypeBreakRemoved):
+			got = append(got, a.Params)
+		}
+	}
+	if len(got) != 3 || got[0]["from"] != "12:00" || got[0]["to"] != "13:00" || got[2]["start"] != "10:00" {
+		t.Errorf("history = %v", got)
+	}
+}
