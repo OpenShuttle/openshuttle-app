@@ -1,6 +1,232 @@
 {
   "teams": [
     {
+      "entrantId": "e18",
+      "category": "WD",
+      "slot": 2,
+      "bib": 4,
+      "players": [
+        {
+          "id": "p18.1",
+          "name": "Inès Lambert",
+          "club": "Plumes du Lac",
+          "checkedIn": true,
+          "checkedInAt": "2026-10-17T09:00:33Z",
+          "duplicate": false
+        },
+        {
+          "id": "p18.2",
+          "name": "Chloé André",
+          "club": "Plumes du Lac",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e19",
+      "category": "WD",
+      "slot": 2,
+      "bib": 0,
+      "players": [
+        {
+          "id": "p19.1",
+          "name": "Emma Dumont",
+          "club": "AS Belvédère",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        },
+        {
+          "id": "p19.2",
+          "name": "Clara Blanc",
+          "club": "AS Belvédère",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e3",
+      "category": "MD",
+      "slot": 1,
+      "bib": 8,
+      "players": [
+        {
+          "id": "p3.1",
+          "name": "Lucas Perrin",
+          "club": "Volant des Monts",
+          "checkedIn": true,
+          "checkedInAt": "2026-10-17T09:00:37Z",
+          "duplicate": false
+        },
+        {
+          "id": "p3.2",
+          "name": "Hugo Mathieu",
+          "club": "Volant des Monts",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e9",
+      "category": "MD",
+      "slot": 1,
+      "bib": 0,
+      "players": [
+        {
+          "id": "p9.1",
+          "name": "Lucas Lopez",
+          "club": "Plumes du Lac",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        },
+        {
+          "id": "p9.2",
+          "name": "Hugo Simon",
+          "club": "Plumes du Lac",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e4",
+      "category": "MD",
+      "slot": 1,
+      "bib": 12,
+      "players": [
+        {
+          "id": "p4.1",
+          "name": "Paul Masson",
+          "club": "BC Rive Droite",
+          "checkedIn": true,
+          "checkedInAt": "2026-10-17T09:00:41Z",
+          "duplicate": false
+        },
+        {
+          "id": "p4.2",
+          "name": "Jules Gauthier",
+          "club": "BC Rive Droite",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e13",
+      "category": "MD",
+      "slot": 1,
+      "bib": 0,
+      "players": [
+        {
+          "id": "p13.1",
+          "name": "Victor Lambert",
+          "club": "Plumes du Lac",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        },
+        {
+          "id": "p13.2",
+          "name": "Kevin André",
+          "club": "Plumes du Lac",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e6",
+      "category": "MD",
+      "slot": 1,
+      "bib": 16,
+      "players": [
+        {
+          "id": "p6.1",
+          "name": "Nathan Brun",
+          "club": "AS Belvédère",
+          "checkedIn": true,
+          "checkedInAt": "2026-10-17T09:00:45Z",
+          "duplicate": false
+        },
+        {
+          "id": "p6.2",
+          "name": "Simon Fournier",
+          "club": "AS Belvédère",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e12",
+      "category": "MD",
+      "slot": 1,
+      "bib": 0,
+      "players": [
+        {
+          "id": "p12.1",
+          "name": "Nathan Morin",
+          "club": "BC Rive Droite",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        },
+        {
+          "id": "p12.2",
+          "name": "Simon Laurent",
+          "club": "BC Rive Droite",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": false
+    },
+    {
+      "entrantId": "e45",
+      "category": "MD",
+      "slot": 1,
+      "bib": 0,
+      "players": [
+        {
+          "id": "p45.1",
+          "name": "Rayane Benali",
+          "club": "ESLV",
+          "checkedIn": false,
+          "checkedInAt": null,
+          "duplicate": false
+        }
+      ],
+      "complete": false,
+      "waiting": true
+    },
+    {
       "entrantId": "e20",
       "category": "WD",
       "slot": 2,
@@ -76,58 +302,6 @@
         }
       ],
       "complete": true,
-      "waiting": false
-    },
-    {
-      "entrantId": "e18",
-      "category": "WD",
-      "slot": 2,
-      "bib": 4,
-      "players": [
-        {
-          "id": "p18.1",
-          "name": "Inès Lambert",
-          "club": "Plumes du Lac",
-          "checkedIn": true,
-          "checkedInAt": "2026-10-17T09:00:33Z",
-          "duplicate": false
-        },
-        {
-          "id": "p18.2",
-          "name": "Chloé André",
-          "club": "Plumes du Lac",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
-      "entrantId": "e19",
-      "category": "WD",
-      "slot": 2,
-      "bib": 0,
-      "players": [
-        {
-          "id": "p19.1",
-          "name": "Emma Dumont",
-          "club": "AS Belvédère",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        },
-        {
-          "id": "p19.2",
-          "name": "Clara Blanc",
-          "club": "AS Belvédère",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
       "waiting": false
     },
     {
@@ -209,58 +383,6 @@
       "waiting": false
     },
     {
-      "entrantId": "e3",
-      "category": "MD",
-      "slot": 1,
-      "bib": 8,
-      "players": [
-        {
-          "id": "p3.1",
-          "name": "Lucas Perrin",
-          "club": "Volant des Monts",
-          "checkedIn": true,
-          "checkedInAt": "2026-10-17T09:00:37Z",
-          "duplicate": false
-        },
-        {
-          "id": "p3.2",
-          "name": "Hugo Mathieu",
-          "club": "Volant des Monts",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
-      "entrantId": "e9",
-      "category": "MD",
-      "slot": 1,
-      "bib": 0,
-      "players": [
-        {
-          "id": "p9.1",
-          "name": "Lucas Lopez",
-          "club": "Plumes du Lac",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        },
-        {
-          "id": "p9.2",
-          "name": "Hugo Simon",
-          "club": "Plumes du Lac",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
       "entrantId": "e23",
       "category": "WD",
       "slot": 2,
@@ -339,32 +461,6 @@
       "waiting": false
     },
     {
-      "entrantId": "e4",
-      "category": "MD",
-      "slot": 1,
-      "bib": 12,
-      "players": [
-        {
-          "id": "p4.1",
-          "name": "Paul Masson",
-          "club": "BC Rive Droite",
-          "checkedIn": true,
-          "checkedInAt": "2026-10-17T09:00:41Z",
-          "duplicate": false
-        },
-        {
-          "id": "p4.2",
-          "name": "Jules Gauthier",
-          "club": "BC Rive Droite",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
       "entrantId": "e44",
       "category": "WD",
       "slot": 2,
@@ -381,32 +477,6 @@
       ],
       "complete": false,
       "waiting": true
-    },
-    {
-      "entrantId": "e13",
-      "category": "MD",
-      "slot": 1,
-      "bib": 0,
-      "players": [
-        {
-          "id": "p13.1",
-          "name": "Victor Lambert",
-          "club": "Plumes du Lac",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        },
-        {
-          "id": "p13.2",
-          "name": "Kevin André",
-          "club": "Plumes du Lac",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
     },
     {
       "entrantId": "e7",
@@ -485,76 +555,6 @@
       ],
       "complete": true,
       "waiting": false
-    },
-    {
-      "entrantId": "e6",
-      "category": "MD",
-      "slot": 1,
-      "bib": 16,
-      "players": [
-        {
-          "id": "p6.1",
-          "name": "Nathan Brun",
-          "club": "AS Belvédère",
-          "checkedIn": true,
-          "checkedInAt": "2026-10-17T09:00:45Z",
-          "duplicate": false
-        },
-        {
-          "id": "p6.2",
-          "name": "Simon Fournier",
-          "club": "AS Belvédère",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
-      "entrantId": "e12",
-      "category": "MD",
-      "slot": 1,
-      "bib": 0,
-      "players": [
-        {
-          "id": "p12.1",
-          "name": "Nathan Morin",
-          "club": "BC Rive Droite",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        },
-        {
-          "id": "p12.2",
-          "name": "Simon Laurent",
-          "club": "BC Rive Droite",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": false
-    },
-    {
-      "entrantId": "e45",
-      "category": "MD",
-      "slot": 1,
-      "bib": 0,
-      "players": [
-        {
-          "id": "p45.1",
-          "name": "Rayane Benali",
-          "club": "ESLV",
-          "checkedIn": false,
-          "checkedInAt": null,
-          "duplicate": false
-        }
-      ],
-      "complete": false,
-      "waiting": true
     }
   ],
   "categories": [

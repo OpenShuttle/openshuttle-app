@@ -227,7 +227,9 @@ A tournament goes through six steps.
    players are checked in. Players waiting for a partner are paired on the
    Entrants screen: two of them together, or one with a partner typed on the
    spot; a pair can also be split back. A waiting player gets no bib and is
-   never drawn: the pair gets its bib once formed.
+   never drawn: the pair gets its bib once formed. The list keeps the teams still
+   expected on top: a team whose players are all checked in moves to the
+   bottom.
 3. **Draw**: pools of each category from the present entrants only, with seeds
    ranked by the desk (drag and drop or arrows) and placed in a snake, and
    club mates kept apart. The desk can adjust by hand before confirming.

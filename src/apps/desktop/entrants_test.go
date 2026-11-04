@@ -175,7 +175,8 @@ func TestWaitingPartners(t *testing.T) {
 	}
 	julie, zoe, ana := wd.Entrants[0], wd.Entrants[1], wd.Entrants[2]
 	must(f.svc.CheckInEntrant(ctx, julie.ID))
-	if team := f.svc.GetCheckInView().Teams[1]; !team.Waiting || team.Bib != 0 || !team.Players[0].CheckedIn {
+	// Checked in: her row goes after the others (Ana, Zoé).
+	if team := f.svc.GetCheckInView().Teams[2]; !team.Waiting || team.Bib != 0 || !team.Players[0].CheckedIn {
 		t.Errorf("check-in row = %+v", team)
 	}
 	if d := f.svc.GetDrawView().Categories[0]; d.Waiting != 3 || d.Present != 0 {

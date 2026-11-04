@@ -10,6 +10,8 @@ import (
 
 // sortTeams orders check-in teams by the first of their players' names, the
 // way a French or English reader expects (accents ignored, case-insensitive).
+// Teams whose players are all checked in go last: the desk works on the top
+// of the list.
 func sortTeams(teams []CheckInTeam) {
 	c := collate.New(language.French, collate.IgnoreCase, collate.IgnoreDiacritics)
 	first := func(t CheckInTeam) string {
@@ -21,5 +23,19 @@ func sortTeams(teams []CheckInTeam) {
 		}
 		return name
 	}
-	slices.SortStableFunc(teams, func(a, b CheckInTeam) int { return c.CompareString(first(a), first(b)) })
+	slices.SortStableFunc(teams, func(a, b CheckInTeam) int {
+		if da, db := allCheckedIn(a), allCheckedIn(b); da != db {
+			if da {
+				return 1
+			}
+			return -1
+		}
+		return c.CompareString(first(a), first(b))
+	})
+}
+
+// allCheckedIn reports whether every player of a team is checked in: nothing
+// is left to do for it at check-in.
+func allCheckedIn(t CheckInTeam) bool {
+	return len(t.Players) > 0 && !slices.ContainsFunc(t.Players, func(p PlayerView) bool { return !p.CheckedIn })
 }

@@ -63,7 +63,7 @@ type CheckInTeam struct {
 }
 
 // CheckInView is the check-in screen: every entrant, sorted by the names of
-// its players, with totals per category.
+// its players, the ones fully checked in last, with totals per category.
 type CheckInView struct {
 	Teams      []CheckInTeam      `json:"teams"`
 	Categories []CategoryEntrants `json:"categories"`
