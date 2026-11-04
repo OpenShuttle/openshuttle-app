@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/fs"
 	"log/slog"
 	"os"
 	"slices"
@@ -18,7 +17,7 @@ import (
 // nothing leaves the trash unless the user says so.
 const settingTrashedTournaments = "trashedTournaments"
 
-func readTrash(ctx context.Context, db *store.AppDB) ([]RecentTournament, error) {
+func readTrash(ctx context.Context, db store.Settings) ([]RecentTournament, error) {
 	raw, ok, err := db.Setting(ctx, settingTrashedTournaments)
 	if err != nil || !ok {
 		return []RecentTournament{}, err
@@ -35,7 +34,7 @@ func readTrash(ctx context.Context, db *store.AppDB) ([]RecentTournament, error)
 	return list, nil
 }
 
-func writeTrash(ctx context.Context, db *store.AppDB, list []RecentTournament) error {
+func writeTrash(ctx context.Context, db store.Settings, list []RecentTournament) error {
 	raw, err := json.Marshal(list)
 	if err != nil {
 		return err
@@ -57,58 +56,63 @@ func (s *TournamentService) ListTrashedTournaments(ctx context.Context) ([]Recen
 // stays on disk. The open tournament is closed first.
 func (s *TournamentService) TrashTournament(ctx context.Context, path string) error {
 	s.closeIfOpen(path)
-	recent, err := readRecent(ctx, s.app)
-	if err != nil {
-		return err
-	}
-	i := slices.IndexFunc(recent, func(r RecentTournament) bool { return r.Path == path })
-	if i < 0 {
-		return nil // already out of the list
-	}
-	entry := recent[i]
-	at := s.now().UTC()
-	entry.TrashedAt = &at
-	trash, err := readTrash(ctx, s.app)
-	if err != nil {
-		return err
-	}
-	if err := writeTrash(ctx, s.app, slices.Insert(withoutPath(trash, path), 0, entry)); err != nil {
-		return err
-	}
-	return writeRecent(ctx, s.app, withoutPath(recent, path))
+	return s.app.Update(ctx, func(tx store.Settings) error {
+		recent, err := readRecent(ctx, tx)
+		if err != nil {
+			return err
+		}
+		i := slices.IndexFunc(recent, func(r RecentTournament) bool { return r.Path == path })
+		if i < 0 {
+			return nil // already out of the list
+		}
+		entry := recent[i]
+		at := s.now().UTC()
+		entry.TrashedAt = &at
+		trash, err := readTrash(ctx, tx)
+		if err != nil {
+			return err
+		}
+		if err := writeTrash(ctx, tx, slices.Insert(withoutPath(trash, path), 0, entry)); err != nil {
+			return err
+		}
+		return writeRecent(ctx, tx, withoutPath(recent, path))
+	})
 }
 
 // RestoreTournament puts a tournament of the trash back at the top of the
 // recent list.
 func (s *TournamentService) RestoreTournament(ctx context.Context, path string) error {
-	trash, err := readTrash(ctx, s.app)
-	if err != nil {
-		return err
-	}
-	i := slices.IndexFunc(trash, func(r RecentTournament) bool { return r.Path == path })
-	if i < 0 {
-		return engine.NewError(engine.CodeNotInTrash)
-	}
-	entry := trash[i]
-	entry.TrashedAt = nil
-	recent, err := readRecent(ctx, s.app)
-	if err != nil {
-		return err
-	}
-	recent = slices.Insert(withoutPath(recent, path), 0, entry)
-	if len(recent) > maxRecentTournaments {
-		recent = recent[:maxRecentTournaments]
-	}
-	if err := writeRecent(ctx, s.app, recent); err != nil {
-		return err
-	}
-	return writeTrash(ctx, s.app, withoutPath(trash, path))
+	return s.app.Update(ctx, func(tx store.Settings) error {
+		trash, err := readTrash(ctx, tx)
+		if err != nil {
+			return err
+		}
+		i := slices.IndexFunc(trash, func(r RecentTournament) bool { return r.Path == path })
+		if i < 0 {
+			return engine.NewError(engine.CodeNotInTrash)
+		}
+		entry := trash[i]
+		entry.TrashedAt = nil
+		recent, err := readRecent(ctx, tx)
+		if err != nil {
+			return err
+		}
+		recent = slices.Insert(withoutPath(recent, path), 0, entry)
+		if len(recent) > maxRecentTournaments {
+			recent = recent[:maxRecentTournaments]
+		}
+		if err := writeRecent(ctx, tx, recent); err != nil {
+			return err
+		}
+		return writeTrash(ctx, tx, withoutPath(trash, path))
+	})
 }
 
 // DeleteTournament removes a tournament from the trash for good. With
 // deleteFile, its file is deleted from disk too, with its -wal and -shm
-// siblings; backups are kept. A file that cannot be deleted leaves the
-// tournament in the trash (DELETE_FAILED).
+// siblings; backups are kept. A file open in another instance of the app is
+// kept (FILE_IN_USE), and so is one that cannot be deleted (DELETE_FAILED):
+// the tournament then stays in the trash.
 func (s *TournamentService) DeleteTournament(ctx context.Context, path string, deleteFile bool) error {
 	trash, err := readTrash(ctx, s.app)
 	if err != nil {
@@ -119,27 +123,39 @@ func (s *TournamentService) DeleteTournament(ctx context.Context, path string, d
 	}
 	if deleteFile {
 		s.closeIfOpen(path)
-		for _, p := range []string{path + "-wal", path + "-shm", path} {
-			if err := os.Remove(p); err != nil && !errors.Is(err, fs.ErrNotExist) {
-				slog.Error("delete tournament file", "path", p, "err", err)
-				return engine.NewError(engine.CodeDeleteFailed)
+		if err := store.RemoveTournament(path); err != nil {
+			var e *engine.Error
+			if errors.As(err, &e) {
+				return err
 			}
+			slog.Error("delete tournament file", "path", path, "err", err)
+			return engine.NewError(engine.CodeDeleteFailed)
 		}
 	}
-	return writeTrash(ctx, s.app, withoutPath(trash, path))
+	return s.app.Update(ctx, func(tx store.Settings) error {
+		trash, err := readTrash(ctx, tx)
+		if err != nil {
+			return err
+		}
+		return writeTrash(ctx, tx, withoutPath(trash, path))
+	})
 }
 
 // untrash takes a tournament out of the trash when it is opened again.
 func (s *TournamentService) untrash(ctx context.Context, path string) {
-	if trash, err := readTrash(ctx, s.app); err == nil && slices.ContainsFunc(trash, func(r RecentTournament) bool { return r.Path == path }) {
-		_ = writeTrash(ctx, s.app, withoutPath(trash, path))
-	}
+	_ = s.app.Update(ctx, func(tx store.Settings) error {
+		trash, err := readTrash(ctx, tx)
+		if err != nil || !slices.ContainsFunc(trash, func(r RecentTournament) bool { return r.Path == path }) {
+			return err
+		}
+		return writeTrash(ctx, tx, withoutPath(trash, path))
+	})
 }
 
 // closeIfOpen closes the tournament when it is the open one.
 func (s *TournamentService) closeIfOpen(path string) {
 	s.mu.Lock()
-	open := s.file != nil && s.file.Path() == path
+	open := s.file != nil && sameFile(s.file.Path(), path)
 	s.mu.Unlock()
 	if open {
 		s.CloseTournament()

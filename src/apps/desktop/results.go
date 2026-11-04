@@ -123,9 +123,7 @@ func (s *TournamentService) ArchiveTournament(ctx context.Context) (string, erro
 	if err != nil {
 		return "", err
 	}
-	if list, err := readRecent(ctx, s.app); err == nil {
-		_ = writeRecent(ctx, s.app, markArchived(list, source))
-	}
+	_ = updateRecent(ctx, s.app, func(list []RecentTournament) []RecentTournament { return markArchived(list, source) })
 	s.CloseTournament()
 	return dest, nil
 }

@@ -258,6 +258,12 @@ A tournament goes through six steps.
   confirmation, with an unticked option to also delete the file from disk;
   backup copies are always kept. Opening a trashed file takes it out of the
   trash.
+- **Several windows**: the app can be started more than once, each instance
+  with its own tournament, side by side. A tournament file is open in one
+  instance at a time: opening it in another one is refused with a message
+  ("This tournament is already open in another OpenShuttle window"), and its
+  file cannot be deleted from the trash there. Duplicating it stays possible.
+  A crash or a power cut never leaves a file locked.
 - **Inside a tournament**, a side navigation following the steps in two
   groups: Preparation (Info, Entrants, Format) then On the day (Check-in,
   Draw, Schedule, Control desk, Stages, Results). The current step stands out,

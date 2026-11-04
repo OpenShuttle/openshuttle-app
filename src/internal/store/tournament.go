@@ -3,6 +3,9 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"io/fs"
+	"os"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -47,11 +50,15 @@ func refuseOldEvents(ctx context.Context, tx *sql.Tx) error {
 type TournamentFile struct {
 	db   *sql.DB
 	path string
+	lock *fileLock // nil for a file only peeked at
 }
 
 // CreateTournament creates a new tournament file. It fails with FILE_EXISTS
-// rather than overwrite a file.
+// rather than overwrite a file. Like OpenTournament, it holds the file's lock
+// until Close.
 func CreateTournament(ctx context.Context, path string) (*TournamentFile, error) {
+	// An existing file is refused as such, open elsewhere or not; it is
+	// checked again once locked.
 	exists, err := fileExists(path)
 	if err != nil {
 		return nil, err
@@ -59,22 +66,42 @@ func CreateTournament(ctx context.Context, path string) (*TournamentFile, error)
 	if exists {
 		return nil, engine.NewError(engine.CodeFileExists)
 	}
-	return openTournament(ctx, path)
+	return openTournament(ctx, path, false)
 }
 
-// OpenTournament opens an existing tournament file and migrates it.
+// OpenTournament opens an existing tournament file and migrates it. A file is
+// open in one place at a time: until Close, opening it again, in this
+// instance of the app or another one, fails with FILE_IN_USE.
 func OpenTournament(ctx context.Context, path string) (*TournamentFile, error) {
-	exists, err := fileExists(path)
+	return openTournament(ctx, path, true)
+}
+
+// openTournament takes the lock first, then checks the file: two instances
+// creating the same file cannot both succeed.
+func openTournament(ctx context.Context, path string, existing bool) (*TournamentFile, error) {
+	lock, err := lockTournament(path)
 	if err != nil {
 		return nil, err
 	}
-	if !exists {
-		return nil, engine.NewError(engine.CodeFileNotFound)
+	f, err := openLocked(ctx, path, existing)
+	if err != nil {
+		lock.release()
+		return nil, err
 	}
-	return openTournament(ctx, path)
+	f.lock = lock
+	return f, nil
 }
 
-func openTournament(ctx context.Context, path string) (*TournamentFile, error) {
+func openLocked(ctx context.Context, path string, existing bool) (*TournamentFile, error) {
+	exists, err := fileExists(path)
+	switch {
+	case err != nil:
+		return nil, err
+	case existing && !exists:
+		return nil, engine.NewError(engine.CodeFileNotFound)
+	case !existing && exists:
+		return nil, engine.NewError(engine.CodeFileExists)
+	}
 	db, err := openDB(path)
 	if err != nil {
 		return nil, err
@@ -86,11 +113,40 @@ func openTournament(ctx context.Context, path string) (*TournamentFile, error) {
 	return &TournamentFile{db: db, path: path}, nil
 }
 
+// PeekTournament opens an existing tournament file to read it, without its
+// lock: the file may be open elsewhere, where it keeps being written (SQLite
+// lets readers in alongside the writer). Nothing is written, not even a
+// migration: a file needing one is refused.
+func PeekTournament(ctx context.Context, path string) (*TournamentFile, error) {
+	exists, err := fileExists(path)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, engine.NewError(engine.CodeFileNotFound)
+	}
+	db, err := openDB(path, "_pragma=query_only(1)")
+	if err != nil {
+		return nil, err
+	}
+	if err := check(ctx, db, appIDTournament, tournamentMigrations); err != nil {
+		db.Close()
+		return nil, err
+	}
+	return &TournamentFile{db: db, path: path}, nil
+}
+
 // Path returns the file path.
 func (f *TournamentFile) Path() string { return f.path }
 
-// Close closes the file.
-func (f *TournamentFile) Close() error { return f.db.Close() }
+// Close closes the file, then releases its lock.
+func (f *TournamentFile) Close() error {
+	err := f.db.Close()
+	if lerr := f.lock.release(); err == nil {
+		err = lerr
+	}
+	return err
+}
 
 // Append writes an event at the end of the log and returns it with its seq.
 func (f *TournamentFile) Append(ctx context.Context, d events.Draft) (events.Event, error) {
@@ -150,4 +206,33 @@ func (f *TournamentFile) Version(ctx context.Context) (uint64, error) {
 	var v uint64
 	err := f.db.QueryRowContext(ctx, `SELECT COALESCE(MAX(seq), 0) FROM events`).Scan(&v)
 	return v, err
+}
+
+// RemoveTournament deletes a tournament file with its -wal, -shm and lock
+// files. A file open somewhere, in this instance of the app or another one,
+// is kept (FILE_IN_USE). A file already gone is not an error.
+func RemoveTournament(path string) error {
+	exists, err := fileExists(path)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		for _, p := range []string{path + "-wal", path + "-shm"} {
+			if err := os.Remove(p); err != nil && !errors.Is(err, fs.ErrNotExist) {
+				return err
+			}
+		}
+		return nil
+	}
+	lock, err := lockTournament(path)
+	if err != nil {
+		return err
+	}
+	defer lock.release()
+	for _, p := range []string{path + "-wal", path + "-shm", path} {
+		if err := os.Remove(p); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			return err
+		}
+	}
+	return nil
 }
