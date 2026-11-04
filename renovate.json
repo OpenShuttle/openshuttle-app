@@ -72,9 +72,9 @@
       ]
     },
     {
-      "description": "The Wails CLI version given in CLAUDE.md.",
+      "description": "The Wails CLI version given in CLAUDE.md, README.md and CONTRIBUTING.md.",
       "customType": "regex",
-      "managerFilePatterns": ["/^CLAUDE\\.md$/"],
+      "managerFilePatterns": ["/^(CLAUDE|README|CONTRIBUTING)\\.md$/"],
       "matchStrings": ["wailsapp/wails/v3/cmd/wails3@(?<currentValue>v[^`\\s]+)"],
       "datasourceTemplate": "go",
       "depNameTemplate": "github.com/wailsapp/wails/v3"

@@ -39,7 +39,7 @@ Releases for Windows, macOS and Linux are published on the
 You need Go (version in [src/go.mod](src/go.mod)), Node 24 and the Wails CLI:
 
 ```bash
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.30
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 cd src/apps/desktop/frontend && npm ci
 cd src/apps/desktop && wails3 dev      # or: wails3 build
 ```

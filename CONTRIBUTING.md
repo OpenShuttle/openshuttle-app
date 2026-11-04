@@ -25,7 +25,7 @@ You need Go (version in [src/go.mod](src/go.mod)), Node 24, and the Wails CLI
 at the version pinned in `src/go.mod`:
 
 ```bash
-go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.30
+go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
 ```
 
 On Linux, also: `libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev`.
