@@ -113,7 +113,8 @@ func (s *TournamentService) createdWithDefaults(ctx context.Context, name string
 	return c
 }
 
-// tournamentsDir is where file dialogs open.
+// tournamentsDir is the tournaments folder of the settings, Documents when
+// unset or gone: where file dialogs open when no folder is remembered.
 func (s *TournamentService) tournamentsDir(ctx context.Context) string {
 	if settings, err := loadSettings(ctx, s.app); err == nil {
 		return settings.TournamentsDir

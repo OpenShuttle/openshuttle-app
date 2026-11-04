@@ -81,10 +81,11 @@ func (s *TournamentService) CreateTournament(ctx context.Context, name string) (
 	if err != nil {
 		return "", err
 	}
-	path, err := s.dialogs.SaveTournament(s.tournamentsDir(ctx), fileNameFor(name))
+	path, err := s.dialogs.SaveTournament(s.dialogDir(ctx, dialogNew), fileNameFor(name))
 	if err != nil || path == "" {
 		return "", err
 	}
+	s.rememberDir(ctx, dialogNew, path)
 	return path, s.CreateTournamentAt(ctx, path, name)
 }
 
@@ -126,10 +127,11 @@ func (s *TournamentService) DuplicateTournament(ctx context.Context, source, nam
 	if err != nil {
 		return "", err
 	}
-	path, err := s.dialogs.SaveTournament(s.tournamentsDir(ctx), fileNameFor(name))
+	path, err := s.dialogs.SaveTournament(s.dialogDir(ctx, dialogNew), fileNameFor(name))
 	if err != nil || path == "" {
 		return "", err
 	}
+	s.rememberDir(ctx, dialogNew, path)
 	if !strings.EqualFold(filepath.Ext(path), store.TournamentExtension) {
 		path += store.TournamentExtension
 	}
@@ -164,10 +166,11 @@ func (s *TournamentService) DuplicateTournament(ctx context.Context, source, nam
 // OpenTournamentDialog asks for a tournament file and opens it. It returns
 // the path, or "" when the user cancelled.
 func (s *TournamentService) OpenTournamentDialog(ctx context.Context) (string, error) {
-	path, err := s.dialogs.OpenTournament(s.tournamentsDir(ctx))
+	path, err := s.dialogs.OpenTournament(s.dialogDir(ctx, dialogOpen))
 	if err != nil || path == "" {
 		return "", err
 	}
+	s.rememberDir(ctx, dialogOpen, path)
 	return path, s.OpenTournament(ctx, path)
 }
 

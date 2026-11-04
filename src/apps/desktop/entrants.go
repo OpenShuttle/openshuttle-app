@@ -271,10 +271,11 @@ type ImportFile struct {
 // registration tool such as HelloAsso or a spreadsheet) and reads it. Lines
 // without category go to fallback. A cancelled dialog gives an empty path.
 func (s *TournamentService) ChooseImportFile(ctx context.Context, fallback engine.Category) (ImportFile, error) {
-	path, err := s.dialogs.OpenCSV(s.tournamentsDir(ctx))
+	path, err := s.dialogs.OpenCSV(s.dialogDir(ctx, dialogImport))
 	if err != nil || path == "" {
 		return ImportFile{Lines: []tournament.ImportLine{}}, err
 	}
+	s.rememberDir(ctx, dialogImport, path)
 	lines, err := readImportFile(path)
 	if err != nil {
 		return ImportFile{Lines: []tournament.ImportLine{}}, err
