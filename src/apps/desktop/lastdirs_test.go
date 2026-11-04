@@ -57,60 +57,55 @@ func TestFirstExistingDir(t *testing.T) {
 	}
 }
 
-// TestDialogDirs checks, for each context, that its dialog opens in the
-// default folder, then in the folder last used for it (not another
-// context's), then in its first existing parent once it is gone.
+// TestDialogDirs checks, for each context on a fresh app.db, that its
+// dialog opens in the default folder, then in the folder last used for it,
+// then in its first existing parent once it is gone.
 func TestDialogDirs(t *testing.T) {
-	f := newBareFixture(t)
-	must := func(err error) {
-		t.Helper()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
 	n := 0
 	name := func(ext string) string { n++; return fmt.Sprintf("f%d%s", n, ext) }
 
 	// Each context: run its dialog, which returns a file in dir.
 	contexts := []struct {
 		c   dialogContext
-		run func(dir string)
+		run func(t *testing.T, f *fixture, dir string)
 	}{
-		{dialogImport, func(dir string) {
+		{dialogImport, func(t *testing.T, f *fixture, dir string) {
 			path := filepath.Join(dir, name(".csv"))
-			must(os.WriteFile(path, []byte("Joueur 1;Joueur 2\nZola;Mia\n"), 0o644))
+			mustOK(t, os.WriteFile(path, []byte("Joueur 1;Joueur 2\nZola;Mia\n"), 0o644))
 			f.dialogs.openCSV = path
 			_, err := f.svc.ChooseImportFile(f.ctx, engine.MensDoubles)
-			must(err)
+			mustOK(t, err)
 		}},
-		{dialogExport, func(dir string) {
+		{dialogExport, func(t *testing.T, f *fixture, dir string) {
 			f.dialogs.csv = filepath.Join(dir, name(".csv"))
 			_, err := f.svc.ExportCSV("plume.csv", "a;b\n")
-			must(err)
+			mustOK(t, err)
 		}},
-		{dialogOpen, func(dir string) {
+		{dialogOpen, func(t *testing.T, f *fixture, dir string) {
 			path := filepath.Join(dir, name(".openshuttle"))
-			must(f.svc.CreateTournamentAt(f.ctx, path, "Plume"))
+			mustOK(t, f.svc.CreateTournamentAt(f.ctx, path, "Plume"))
 			f.svc.CloseTournament()
 			f.dialogs.open = path
 			_, err := f.svc.OpenTournamentDialog(f.ctx)
-			must(err)
+			mustOK(t, err)
 		}},
-		{dialogArchive, func(dir string) {
-			must(f.svc.CreateTournamentAt(f.ctx, filepath.Join(f.dir, name(".openshuttle")), "Plume"))
+		{dialogArchive, func(t *testing.T, f *fixture, dir string) {
+			mustOK(t, f.svc.CreateTournamentAt(f.ctx, filepath.Join(f.dir, name(".openshuttle")), "Plume"))
 			f.dialogs.save = filepath.Join(dir, name(""))
 			_, err := f.svc.ArchiveTournament(f.ctx)
-			must(err)
+			mustOK(t, err)
 		}},
-		{dialogNew, func(dir string) {
+		{dialogNew, func(t *testing.T, f *fixture, dir string) {
 			f.dialogs.save = filepath.Join(dir, name(""))
 			_, err := f.svc.CreateTournament(f.ctx, "Plume")
-			must(err)
+			mustOK(t, err)
 		}},
 	}
-	def := f.svc.tournamentsDir(f.ctx)
 	for _, tc := range contexts {
 		t.Run(string(tc.c), func(t *testing.T) {
+			f := newBareFixture(t)
+			def := f.svc.tournamentsDir(f.ctx)
+			run := func(dir string) { t.Helper(); tc.run(t, f, dir) }
 			wantDir := func(want string) {
 				t.Helper()
 				if f.dialogs.dir != want {
@@ -119,35 +114,88 @@ func TestDialogDirs(t *testing.T) {
 			}
 			base := filepath.Join(f.dir, string(tc.c))
 			used := filepath.Join(base, "used")
-			must(os.MkdirAll(used, 0o755))
+			mustOK(t, os.MkdirAll(used, 0o755))
 
-			tc.run(used) // first time: the default folder
+			run(used) // first time: the default folder
 			wantDir(def)
-			tc.run(used)
+			run(used)
 			wantDir(used)
 
-			must(os.RemoveAll(used)) // gone: its parent
-			must(os.MkdirAll(used, 0o755))
-			tc.run(used)
-			must(os.RemoveAll(used))
-			tc.run(base)
+			mustOK(t, os.RemoveAll(used)) // gone: its parent
+			mustOK(t, os.MkdirAll(used, 0o755))
+			run(used)
+			mustOK(t, os.RemoveAll(used))
+			run(base)
 			wantDir(base)
 
-			// Nothing left (or a path from another system): the default.
-			must(f.app.SetSetting(f.ctx, settingLastDir(tc.c), filepath.Join(f.dir, "gone", "deeper")))
-			tc.run(base)
-			wantDir(f.dir)
-			must(f.app.SetSetting(f.ctx, settingLastDir(tc.c), "relative"))
-			tc.run(base)
+			// A path from another system: the default.
+			mustOK(t, f.app.SetSetting(f.ctx, settingLastDir(tc.c), "relative"))
+			run(base)
 			wantDir(def)
+			if got, _, _ := f.app.Setting(f.ctx, settingLastDir(tc.c)); got != base {
+				t.Errorf("%s remembers %q", tc.c, got)
+			}
 		})
 	}
+}
 
-	// Each context kept its own folder.
-	for _, tc := range contexts {
-		if got, _, _ := f.app.Setting(f.ctx, settingLastDir(tc.c)); got != filepath.Join(f.dir, string(tc.c)) {
-			t.Errorf("%s remembers %q", tc.c, got)
-		}
+// TestDialogDirFallbacks: a context with no folder yet takes the folder of
+// the next context along its fallbacks.
+func TestDialogDirFallbacks(t *testing.T) {
+	tests := []struct {
+		c          dialogContext
+		remembered []dialogContext
+		want       dialogContext // "" for the default
+	}{
+		{dialogImport, nil, ""},
+		{dialogImport, []dialogContext{dialogExport, dialogOpen}, dialogExport},
+		{dialogImport, []dialogContext{dialogOpen, dialogNew}, dialogOpen},
+		{dialogImport, []dialogContext{dialogNew, dialogArchive}, dialogNew},
+		{dialogImport, []dialogContext{dialogArchive}, ""},
+		{dialogExport, []dialogContext{dialogImport, dialogOpen}, dialogImport},
+		{dialogExport, []dialogContext{dialogOpen, dialogNew}, dialogOpen},
+		{dialogExport, []dialogContext{dialogNew}, dialogNew},
+		{dialogOpen, []dialogContext{dialogNew, dialogArchive, dialogImport}, dialogNew},
+		{dialogOpen, []dialogContext{dialogArchive, dialogImport}, dialogArchive},
+		{dialogOpen, []dialogContext{dialogImport, dialogExport}, ""},
+		{dialogNew, []dialogContext{dialogOpen, dialogArchive}, dialogOpen},
+		{dialogNew, []dialogContext{dialogArchive}, dialogArchive},
+		{dialogArchive, []dialogContext{dialogOpen, dialogNew}, dialogOpen},
+		{dialogArchive, []dialogContext{dialogNew, dialogImport}, dialogNew},
+		{dialogArchive, []dialogContext{dialogExport}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%s from %v", tt.c, tt.remembered), func(t *testing.T) {
+			f := newBareFixture(t)
+			for _, c := range tt.remembered {
+				dir := filepath.Join(f.dir, string(c))
+				mustOK(t, os.MkdirAll(dir, 0o755))
+				mustOK(t, f.app.SetSetting(f.ctx, settingLastDir(c), dir))
+			}
+			want := f.svc.tournamentsDir(f.ctx)
+			if tt.want != "" {
+				want = filepath.Join(f.dir, string(tt.want))
+			}
+			if got := f.svc.dialogDir(f.ctx, tt.c); got != want {
+				t.Errorf("dialogDir(%s) = %q, want %q", tt.c, got, want)
+			}
+		})
+	}
+	// A context whose folder is gone but has a parent keeps to that parent.
+	f := newBareFixture(t)
+	mustOK(t, f.app.SetSetting(f.ctx, settingLastDir(dialogImport), filepath.Join(f.dir, "gone")))
+	export := filepath.Join(f.dir, "export")
+	mustOK(t, os.MkdirAll(export, 0o755))
+	mustOK(t, f.app.SetSetting(f.ctx, settingLastDir(dialogExport), export))
+	if got := f.svc.dialogDir(f.ctx, dialogImport); got != f.dir {
+		t.Errorf("dialogDir(import) = %q, want the parent %q", got, f.dir)
+	}
+}
+
+func mustOK(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

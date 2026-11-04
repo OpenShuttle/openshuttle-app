@@ -45,17 +45,32 @@ func isDir(path string) bool {
 	return err == nil && info.IsDir()
 }
 
-// dialogDir is where a file dialog for c opens: the folder last used for c,
-// or its first existing parent, or the tournaments folder (Documents when
-// unset). A new tournament opens in the tournaments folder when one is set in
-// the settings, the folder it was last saved in otherwise.
+// dialogFallbacks are the contexts whose folder a dialog takes, in order,
+// when its own context has none yet: CSV files go together, then follow
+// the tournaments.
+var dialogFallbacks = map[dialogContext][]dialogContext{
+	dialogImport:  {dialogImport, dialogExport, dialogOpen, dialogNew},
+	dialogExport:  {dialogExport, dialogImport, dialogOpen, dialogNew},
+	dialogOpen:    {dialogOpen, dialogNew, dialogArchive},
+	dialogNew:     {dialogNew, dialogOpen, dialogArchive},
+	dialogArchive: {dialogArchive, dialogOpen, dialogNew},
+}
+
+// dialogDir is where a file dialog for c opens: the first folder remembered
+// along its fallbacks (or that folder's first existing parent), else the
+// tournaments folder (Documents when unset). A new tournament opens in the
+// tournaments folder when one is set in the settings.
 func (s *TournamentService) dialogDir(ctx context.Context, c dialogContext) string {
 	if c == dialogNew {
 		if dir, _, err := s.app.Setting(ctx, settingTournamentsDir); err == nil && dir != "" && isDir(dir) {
 			return dir
 		}
 	}
-	if last, _, err := s.app.Setting(ctx, settingLastDir(c)); err == nil {
+	for _, fc := range dialogFallbacks[c] {
+		last, _, err := s.app.Setting(ctx, settingLastDir(fc))
+		if err != nil {
+			break
+		}
 		if dir := firstExistingDir(last, isDir); dir != "" {
 			return dir
 		}
