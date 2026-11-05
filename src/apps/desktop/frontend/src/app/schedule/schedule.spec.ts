@@ -31,7 +31,7 @@ describe('Schedule', () => {
     const labels = [...f.nativeElement.querySelectorAll('.block-label')].map((e) => (e as HTMLElement).textContent?.trim());
     expect(labels).toContain('P A · 2/3');
     expect(labels).toContain('B · QF');
-    expect(labels).toContain('B · 5th–8th');
+    expect(labels).toContain('B · 5th place');
     expect(labels).toContain('B · 3rd place');
     expect(labels).toContain('B · Final');
     const badge = f.nativeElement.querySelector('.block-row .badge') as HTMLElement;
