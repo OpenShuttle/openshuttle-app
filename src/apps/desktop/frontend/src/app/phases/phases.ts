@@ -116,7 +116,7 @@ export class Phases {
     const s = this.stage();
     return s?.kind === 'bracket' && s.confirmed ? bracketTree(s.rounds ?? []) : null;
   });
-  protected readonly geometry = computed(() => treeGeometry(this.correction()));
+  protected readonly geometry = computed(() => treeGeometry(this.correction(), this.tree()?.titled));
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   /** Column at the left of the drawing, for the previous and next buttons. */
   protected readonly activeCol = signal(0);
@@ -125,8 +125,8 @@ export class Phases {
     return cardLeft(this.geometry(), col);
   }
 
-  protected top(row: number): number {
-    return cardTop(this.geometry(), row);
+  protected top(t: BracketTree, row: number): number {
+    return cardTop(this.geometry(), t.gaps, row);
   }
 
   protected treeWidth(t: BracketTree): number {
@@ -136,13 +136,13 @@ export class Phases {
 
   protected treeHeight(t: BracketTree): number {
     const g = this.geometry();
-    return cardTop(g, t.rows - 1) + g.cardH + g.rowGap;
+    return cardTop(g, t.gaps, t.rows - 1) + g.cardH + g.rowGap;
   }
 
   protected path(t: BracketTree, l: TreeLink): string {
     const from = t.matches.find((m) => m.match.id === l.from);
     const to = t.matches.find((m) => m.match.id === l.to);
-    return from && to ? linkPath(this.geometry(), from, to) : '';
+    return from && to ? linkPath(this.geometry(), t.gaps, from, to) : '';
   }
 
   /** A link whose source match is decided: the one its entrants really took. */

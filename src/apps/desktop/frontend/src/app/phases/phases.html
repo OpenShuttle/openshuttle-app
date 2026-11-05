@@ -170,6 +170,13 @@
                       {{ t('phases.tree.round', { n: col.col + 1, size: col.size }) }}
                     </span>
                   }
+                  @if (tr.titled) {
+                    @for (n of tr.nodes; track n.col + '-' + n.from) {
+                      <span class="field-label tree-block-title" [style.left.px]="left(n.col)" [style.top.px]="top(tr, n.row) - g.title">
+                        {{ t('round.places', { from: n.from, to: n.to }) }}
+                      </span>
+                    }
+                  }
                   @for (tm of tr.matches; track tm.match.id) {
                     @let m = tm.match;
                     <div
@@ -177,7 +184,7 @@
                       [class.bye]="m.byeA || m.byeB"
                       [attr.data-match]="m.id"
                       [style.left.px]="left(tm.col)"
-                      [style.top.px]="top(tm.row)"
+                      [style.top.px]="top(tr, tm.row)"
                     >
                       <div class="bmatch-head">
                         @let sr = shortRound(m);

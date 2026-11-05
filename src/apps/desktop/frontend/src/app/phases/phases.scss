@@ -349,6 +349,13 @@
   stroke-dasharray: 5 4;
 }
 
+.tree-block-title {
+  position: absolute;
+  white-space: nowrap;
+  color: var(--color-text);
+  line-height: 18px;
+}
+
 .tree-col-title {
   position: absolute;
   top: 0;
