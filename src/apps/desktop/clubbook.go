@@ -29,6 +29,22 @@ func (s *TournamentService) clubBook() tournament.ClubBook {
 	return b
 }
 
+// showBibs tells whether the history names entrants with their bib: only
+// when the showBibs setting is on, as on every other screen.
+func (s *TournamentService) showBibs() bool {
+	if b := s.bibs.Load(); b != nil {
+		return *b
+	}
+	b := readShowBibs(context.Background(), s.app)
+	s.bibs.Store(&b)
+	return b
+}
+
+func readShowBibs(ctx context.Context, db *store.AppDB) bool {
+	v, _, _ := db.Setting(ctx, settingShowBibs)
+	return v == "true"
+}
+
 // project projects a log, resolving clubs with the club list of this PC.
 func (s *TournamentService) project(log []events.Event) (tournament.State, error) {
 	st, err := tournament.Project(log)
@@ -40,6 +56,8 @@ func (s *TournamentService) project(log []events.Event) (tournament.State, error
 func (s *TournamentService) refreshClubs(ctx context.Context) {
 	b := readClubBook(ctx, s.app)
 	s.clubs.Store(&b)
+	bibs := readShowBibs(ctx, s.app)
+	s.bibs.Store(&bibs)
 	s.mu.Lock()
 	open := s.file != nil
 	s.state = s.state.WithClubs(b)

@@ -633,7 +633,7 @@
     "endedAt": "Ended at {time}",
     "scorePendingClick": "Score pending · click to enter",
     "nextProposed": "Next proposed · {id}",
-    "proposed": "Proposed · {id}",
+    "proposed": "Proposed",
     "startNext": "Start next",
     "call": "Call",
     "noMatchReady": "The remaining entrants are playing or resting.",

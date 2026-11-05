@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -54,6 +55,15 @@ func TestControlDesk(t *testing.T) {
 	if a := f.svc.GetTournamentView().LastAction; a.Type != "MatchCalled" || a.Params["court"] != "1" || a.Params["a"] == "" {
 		t.Errorf("call action = %+v", a)
 	}
+	// The history names the teams without bibs unless they are shown.
+	if a := f.svc.GetTournamentView().LastAction; strings.Contains(a.Params["a"], "#") {
+		t.Errorf("bibs hidden, call action = %+v", a)
+	}
+	must(f.settings.SetShowBibs(ctx, true))
+	if a := f.svc.GetTournamentView().LastAction; !strings.HasPrefix(a.Params["a"], "#") {
+		t.Errorf("bibs shown, call action = %+v", a)
+	}
+	must(f.settings.SetShowBibs(ctx, false))
 	d := f.svc.GetDisplayView()
 	if len(d.Boards) != 1 || d.Boards[0].Pool != "A" || len(d.Boards[0].Standings) != 4 {
 		t.Errorf("boards = %+v", d.Boards)
@@ -92,5 +102,36 @@ func TestControlDesk(t *testing.T) {
 	}
 	if tv := f.svc.GetTournamentView(); tv.Courts != 2 || tv.MinRest != 10 {
 		t.Errorf("settings = %+v", tv)
+	}
+}
+
+// A swap in the history names the teams of both matches, never their codes.
+func TestHistorySwapNamesTeams(t *testing.T) {
+	f := newFixture(t)
+	f.svc.rng = func() *rand.Rand { return rand.New(rand.NewPCG(3, 4)) }
+	ctx := f.ctx
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "t.openshuttle"), "Plume"))
+	must(f.svc.AddCategory(ctx, engine.MensSingles))
+	for i := range 4 {
+		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{{Name: fmt.Sprint("P N", i)}}))
+	}
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
+	}
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools = 1 }))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
+	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
+	must(f.svc.SwapMatches(ctx, "MS-A2", "MS-A3"))
+	a := f.svc.GetTournamentView().LastAction
+	for _, k := range []string{"first", "second"} {
+		if p := a.Params[k]; !strings.Contains(p, " – ") || strings.Contains(p, "MS-") || strings.Contains(p, "#") {
+			t.Errorf("%s = %q", k, p)
+		}
 	}
 }
