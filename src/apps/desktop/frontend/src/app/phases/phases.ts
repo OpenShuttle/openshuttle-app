@@ -183,15 +183,15 @@ export class Phases {
     return s.complete ? 'finished' : s.started ? 'inProgress' : 'ready';
   }
 
-  /** Side label inside a bracket: names, "bye", or "to be decided". */
-  protected sideLabel(side: SideView, bye: boolean): { key?: string; text?: string } {
+  /** Side label inside a bracket: "bye" or "to be decided"; empty when the names show. */
+  protected sideLabel(side: SideView, bye: boolean): { key?: string } {
     if (bye) {
       return { key: 'phases.bye' };
     }
     if (!side.entrant) {
       return { key: 'phases.tbd' };
     }
-    return { text: `#${side.bib} ${fullNames(side)}` };
+    return {};
   }
 
   protected place(from: number, to: number): string {
