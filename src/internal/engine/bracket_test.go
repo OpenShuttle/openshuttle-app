@@ -223,3 +223,16 @@ func TestSeedBracketBestFourthAvoidsItsWinner(t *testing.T) {
 	}
 	checkSeeding(t, "16 with A4", in, slots)
 }
+
+// Five pools, top three: two of each pool share a half, but no pool mates
+// meet before the semi-finals.
+func TestSeedBracketPoolMatesMeetLate(t *testing.T) {
+	slots := SeedBracket(routed(5, 3))
+	for i, a := range slots {
+		for j := i + 1; j < len(slots); j++ {
+			if a != "" && slots[j] != "" && poolOf(a) == poolOf(slots[j]) && MeetRound(i, j) < 3 {
+				t.Errorf("%s and %s meet in round %d: %v", a, slots[j], MeetRound(i, j), slots)
+			}
+		}
+	}
+}
