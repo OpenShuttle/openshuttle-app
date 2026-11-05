@@ -12,17 +12,17 @@
           "rank": 1,
           "tied": false,
           "entrant": {
-            "entrant": "e4",
-            "bib": 9,
+            "entrant": "e15",
+            "bib": 7,
             "names": [
-              "Lucas Perrin",
-              "Hugo Mathieu"
+              "Mathis Dumont",
+              "Félix Blanc"
             ],
             "clubs": [
-              "Volant des Monts"
+              "AS Belvédère"
             ],
             "clubNames": [
-              "Volant des Monts"
+              "AS Belvédère"
             ],
             "withdrawn": false
           },
@@ -60,30 +60,6 @@
           "rank": 3,
           "tied": false,
           "entrant": {
-            "entrant": "e13",
-            "bib": 20,
-            "names": [
-              "Nathan Morin",
-              "Simon Laurent"
-            ],
-            "clubs": [
-              "BC Rive Droite"
-            ],
-            "clubNames": [
-              "BC Rive Droite"
-            ],
-            "withdrawn": false
-          },
-          "stage": "S2",
-          "stageName": "Tableau principal",
-          "stageKind": "bracket",
-          "entryStage": false,
-          "stageRank": 3
-        },
-        {
-          "rank": 4,
-          "tied": false,
-          "entrant": {
             "entrant": "e7",
             "bib": 19,
             "names": [
@@ -102,23 +78,47 @@
           "stageName": "Tableau principal",
           "stageKind": "bracket",
           "entryStage": false,
+          "stageRank": 3
+        },
+        {
+          "rank": 4,
+          "tied": false,
+          "entrant": {
+            "entrant": "e13",
+            "bib": 20,
+            "names": [
+              "Nathan Morin",
+              "Simon Laurent"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
+              "BC Rive Droite"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
           "stageRank": 4
         },
         {
           "rank": 5,
           "tied": false,
           "entrant": {
-            "entrant": "e14",
-            "bib": 15,
+            "entrant": "e4",
+            "bib": 9,
             "names": [
-              "Victor Lambert",
-              "Kevin André"
+              "Lucas Perrin",
+              "Hugo Mathieu"
             ],
             "clubs": [
-              "Plumes du Lac"
+              "Volant des Monts"
             ],
             "clubNames": [
-              "Plumes du Lac"
+              "Volant des Monts"
             ],
             "withdrawn": false
           },
@@ -132,17 +132,17 @@
           "rank": 6,
           "tied": false,
           "entrant": {
-            "entrant": "e15",
-            "bib": 7,
+            "entrant": "e14",
+            "bib": 15,
             "names": [
-              "Mathis Dumont",
-              "Félix Blanc"
+              "Victor Lambert",
+              "Kevin André"
             ],
             "clubs": [
-              "AS Belvédère"
+              "Plumes du Lac"
             ],
             "clubNames": [
-              "AS Belvédère"
+              "Plumes du Lac"
             ],
             "withdrawn": false
           },

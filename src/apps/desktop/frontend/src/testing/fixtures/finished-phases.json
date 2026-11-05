@@ -1679,17 +1679,17 @@
           "pools": [],
           "slots": [
             {
-              "entrant": "e13",
-              "bib": 20,
+              "entrant": "e7",
+              "bib": 19,
               "names": [
-                "Nathan Morin",
-                "Simon Laurent"
+                "Nathan Brun",
+                "Simon Fournier"
               ],
               "clubs": [
-                "BC Rive Droite"
+                "AS Belvédère"
               ],
               "clubNames": [
-                "BC Rive Droite"
+                "AS Belvédère"
               ],
               "withdrawn": false
             },
@@ -1699,6 +1699,21 @@
               "names": [],
               "clubs": [],
               "clubNames": [],
+              "withdrawn": false
+            },
+            {
+              "entrant": "e14",
+              "bib": 15,
+              "names": [
+                "Victor Lambert",
+                "Kevin André"
+              ],
+              "clubs": [
+                "Plumes du Lac"
+              ],
+              "clubNames": [
+                "Plumes du Lac"
+              ],
               "withdrawn": false
             },
             {
@@ -1713,21 +1728,6 @@
               ],
               "clubNames": [
                 "AS Belvédère"
-              ],
-              "withdrawn": false
-            },
-            {
-              "entrant": "e4",
-              "bib": 9,
-              "names": [
-                "Lucas Perrin",
-                "Hugo Mathieu"
-              ],
-              "clubs": [
-                "Volant des Monts"
-              ],
-              "clubNames": [
-                "Volant des Monts"
               ],
               "withdrawn": false
             },
@@ -1755,32 +1755,32 @@
               "withdrawn": false
             },
             {
-              "entrant": "e7",
-              "bib": 19,
+              "entrant": "e13",
+              "bib": 20,
               "names": [
-                "Nathan Brun",
-                "Simon Fournier"
+                "Nathan Morin",
+                "Simon Laurent"
               ],
               "clubs": [
-                "AS Belvédère"
+                "BC Rive Droite"
               ],
               "clubNames": [
-                "AS Belvédère"
+                "BC Rive Droite"
               ],
               "withdrawn": false
             },
             {
-              "entrant": "e14",
-              "bib": 15,
+              "entrant": "e4",
+              "bib": 9,
               "names": [
-                "Victor Lambert",
-                "Kevin André"
+                "Lucas Perrin",
+                "Hugo Mathieu"
               ],
               "clubs": [
-                "Plumes du Lac"
+                "Volant des Monts"
               ],
               "clubNames": [
-                "Plumes du Lac"
+                "Volant des Monts"
               ],
               "withdrawn": false
             }
@@ -1798,17 +1798,17 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e13",
-                    "bib": 20,
+                    "entrant": "e7",
+                    "bib": 19,
                     "names": [
-                      "Nathan Morin",
-                      "Simon Laurent"
+                      "Nathan Brun",
+                      "Simon Fournier"
                     ],
                     "clubs": [
-                      "BC Rive Droite"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "BC Rive Droite"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -1849,6 +1849,21 @@
                   "pool": "",
                   "round": 0,
                   "a": {
+                    "entrant": "e14",
+                    "bib": 15,
+                    "names": [
+                      "Victor Lambert",
+                      "Kevin André"
+                    ],
+                    "clubs": [
+                      "Plumes du Lac"
+                    ],
+                    "clubNames": [
+                      "Plumes du Lac"
+                    ],
+                    "withdrawn": false
+                  },
+                  "b": {
                     "entrant": "e15",
                     "bib": 7,
                     "names": [
@@ -1860,21 +1875,6 @@
                     ],
                     "clubNames": [
                       "AS Belvédère"
-                    ],
-                    "withdrawn": false
-                  },
-                  "b": {
-                    "entrant": "e4",
-                    "bib": 9,
-                    "names": [
-                      "Lucas Perrin",
-                      "Hugo Mathieu"
-                    ],
-                    "clubs": [
-                      "Volant des Monts"
-                    ],
-                    "clubNames": [
-                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -1969,32 +1969,32 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e7",
-                    "bib": 19,
+                    "entrant": "e13",
+                    "bib": 20,
                     "names": [
-                      "Nathan Brun",
-                      "Simon Fournier"
+                      "Nathan Morin",
+                      "Simon Laurent"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "BC Rive Droite"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "BC Rive Droite"
                     ],
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e14",
-                    "bib": 15,
+                    "entrant": "e4",
+                    "bib": 9,
                     "names": [
-                      "Victor Lambert",
-                      "Kevin André"
+                      "Lucas Perrin",
+                      "Hugo Mathieu"
                     ],
                     "clubs": [
-                      "Plumes du Lac"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "Plumes du Lac"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2045,32 +2045,32 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e13",
-                    "bib": 20,
+                    "entrant": "e7",
+                    "bib": 19,
                     "names": [
-                      "Nathan Morin",
-                      "Simon Laurent"
+                      "Nathan Brun",
+                      "Simon Fournier"
                     ],
                     "clubs": [
-                      "BC Rive Droite"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "BC Rive Droite"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e4",
-                    "bib": 9,
+                    "entrant": "e15",
+                    "bib": 7,
                     "names": [
-                      "Lucas Perrin",
-                      "Hugo Mathieu"
+                      "Mathis Dumont",
+                      "Félix Blanc"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -2129,17 +2129,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e7",
-                    "bib": 19,
+                    "entrant": "e13",
+                    "bib": 20,
                     "names": [
-                      "Nathan Brun",
-                      "Simon Fournier"
+                      "Nathan Morin",
+                      "Simon Laurent"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "BC Rive Droite"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "BC Rive Droite"
                     ],
                     "withdrawn": false
                   },
@@ -2198,17 +2198,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e15",
-                    "bib": 7,
+                    "entrant": "e14",
+                    "bib": 15,
                     "names": [
-                      "Mathis Dumont",
-                      "Félix Blanc"
+                      "Victor Lambert",
+                      "Kevin André"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "Plumes du Lac"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "Plumes du Lac"
                     ],
                     "withdrawn": false
                   },
@@ -2249,17 +2249,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e14",
-                    "bib": 15,
+                    "entrant": "e4",
+                    "bib": 9,
                     "names": [
-                      "Victor Lambert",
-                      "Kevin André"
+                      "Lucas Perrin",
+                      "Hugo Mathieu"
                     ],
                     "clubs": [
-                      "Plumes du Lac"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "Plumes du Lac"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2299,17 +2299,17 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e4",
-                    "bib": 9,
+                    "entrant": "e15",
+                    "bib": 7,
                     "names": [
-                      "Lucas Perrin",
-                      "Hugo Mathieu"
+                      "Mathis Dumont",
+                      "Félix Blanc"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -2375,21 +2375,6 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e13",
-                    "bib": 20,
-                    "names": [
-                      "Nathan Morin",
-                      "Simon Laurent"
-                    ],
-                    "clubs": [
-                      "BC Rive Droite"
-                    ],
-                    "clubNames": [
-                      "BC Rive Droite"
-                    ],
-                    "withdrawn": false
-                  },
-                  "b": {
                     "entrant": "e7",
                     "bib": 19,
                     "names": [
@@ -2401,6 +2386,21 @@
                     ],
                     "clubNames": [
                       "AS Belvédère"
+                    ],
+                    "withdrawn": false
+                  },
+                  "b": {
+                    "entrant": "e13",
+                    "bib": 20,
+                    "names": [
+                      "Nathan Morin",
+                      "Simon Laurent"
+                    ],
+                    "clubs": [
+                      "BC Rive Droite"
+                    ],
+                    "clubNames": [
+                      "BC Rive Droite"
                     ],
                     "withdrawn": false
                   },
@@ -2451,21 +2451,6 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e15",
-                    "bib": 7,
-                    "names": [
-                      "Mathis Dumont",
-                      "Félix Blanc"
-                    ],
-                    "clubs": [
-                      "AS Belvédère"
-                    ],
-                    "clubNames": [
-                      "AS Belvédère"
-                    ],
-                    "withdrawn": false
-                  },
-                  "b": {
                     "entrant": "e14",
                     "bib": 15,
                     "names": [
@@ -2477,6 +2462,21 @@
                     ],
                     "clubNames": [
                       "Plumes du Lac"
+                    ],
+                    "withdrawn": false
+                  },
+                  "b": {
+                    "entrant": "e4",
+                    "bib": 9,
+                    "names": [
+                      "Lucas Perrin",
+                      "Hugo Mathieu"
+                    ],
+                    "clubs": [
+                      "Volant des Monts"
+                    ],
+                    "clubNames": [
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2572,17 +2572,17 @@
               "from": 1,
               "to": 1,
               "entrant": {
-                "entrant": "e4",
-                "bib": 9,
+                "entrant": "e15",
+                "bib": 7,
                 "names": [
-                  "Lucas Perrin",
-                  "Hugo Mathieu"
+                  "Mathis Dumont",
+                  "Félix Blanc"
                 ],
                 "clubs": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "clubNames": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "withdrawn": false
               }
@@ -2610,25 +2610,6 @@
               "from": 3,
               "to": 3,
               "entrant": {
-                "entrant": "e13",
-                "bib": 20,
-                "names": [
-                  "Nathan Morin",
-                  "Simon Laurent"
-                ],
-                "clubs": [
-                  "BC Rive Droite"
-                ],
-                "clubNames": [
-                  "BC Rive Droite"
-                ],
-                "withdrawn": false
-              }
-            },
-            {
-              "from": 4,
-              "to": 4,
-              "entrant": {
                 "entrant": "e7",
                 "bib": 19,
                 "names": [
@@ -2645,8 +2626,46 @@
               }
             },
             {
+              "from": 4,
+              "to": 4,
+              "entrant": {
+                "entrant": "e13",
+                "bib": 20,
+                "names": [
+                  "Nathan Morin",
+                  "Simon Laurent"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              }
+            },
+            {
               "from": 5,
               "to": 5,
+              "entrant": {
+                "entrant": "e4",
+                "bib": 9,
+                "names": [
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              }
+            },
+            {
+              "from": 6,
+              "to": 6,
               "entrant": {
                 "entrant": "e14",
                 "bib": 15,
@@ -2659,25 +2678,6 @@
                 ],
                 "clubNames": [
                   "Plumes du Lac"
-                ],
-                "withdrawn": false
-              }
-            },
-            {
-              "from": 6,
-              "to": 6,
-              "entrant": {
-                "entrant": "e15",
-                "bib": 7,
-                "names": [
-                  "Mathis Dumont",
-                  "Félix Blanc"
-                ],
-                "clubs": [
-                  "AS Belvédère"
-                ],
-                "clubNames": [
-                  "AS Belvédère"
                 ],
                 "withdrawn": false
               }

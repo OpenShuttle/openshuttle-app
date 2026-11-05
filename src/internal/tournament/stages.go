@@ -170,11 +170,28 @@ func (s State) Routed(c engine.Category, id string) []engine.BracketEntrant {
 		to := s.Assignment(c, src.ID)
 		for _, e := range s.rankedEntrants(c, src) {
 			if to[e.ID] == id {
-				out = append(out, engine.BracketEntrant{ID: e.ID, Rank: e.Rank, Pool: si*MaxPools + s.groupOf(src, e.ID)})
+				played, last := s.playedBefore(c, target, e.ID)
+				out = append(out, engine.BracketEntrant{ID: e.ID, Rank: e.Rank, Pool: si*MaxPools + s.groupOf(src, e.ID), Played: played, LastEnd: last})
 			}
 		}
 	}
 	return out
+}
+
+// playedBefore counts the matches an entrant played in the stages before the
+// stage at index target (walkovers left out) and when the last one ended.
+func (s State) playedBefore(c engine.Category, target int, id engine.EntrantID) (int, time.Time) {
+	n, last := 0, time.Time{}
+	for _, m := range s.matches {
+		if m.Category != c || !m.Has(id) || s.stageIndex(c, m.Stage) >= target || s.Walkover(m) || !m.Ended() && m.Score == nil {
+			continue
+		}
+		n++
+		if m.EndedAt.After(last) {
+			last = m.EndedAt
+		}
+	}
+	return n, last
 }
 
 func (s State) groupOf(st *Stage, id engine.EntrantID) int {

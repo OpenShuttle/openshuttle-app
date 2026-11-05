@@ -3,6 +3,7 @@ package engine
 import (
 	"math/bits"
 	"slices"
+	"time"
 )
 
 // NextPowerOfTwo returns the smallest power of two >= n (1 for n <= 1).
@@ -74,66 +75,273 @@ type BracketEntrant struct {
 	ID   EntrantID
 	Rank int // position in its pool, 1 is first
 	Pool int // 0 is A
+	// Played counts the matches it played in the stages before (walkovers
+	// left out), LastEnd is when the last one ended: byes go to the entrants
+	// who played the most, then the latest.
+	Played  int
+	LastEnd time.Time
 }
 
 // SeedBracket places entrants into the first-round slots of a bracket whose
 // size is the next power of two. Empty slots are byes, given to the best
 // seeds.
 //
-// Entrants are seeded by rank in their pool, then by pool (A1, B1, C1, A2…).
-// Entrants of equal rank share a tier of slots; within a tier, each takes the
-// slot where it would meet entrants from its own pool as late as possible, so
-// pool mates never meet in the first round when it can be avoided, and the
-// winner and runner-up of a pool sit in opposite halves.
+// Entrants come best first: by rank in their pool, and within a rank in the
+// given order (their results compared across pools). Entrants of one rank
+// share the slots of their seed numbers and, by order of priority:
+//
+//  1. the two best entrants of a pool (its winner and runner-up) sit in
+//     opposite halves: they can only meet in the final;
+//  2. pool mates never meet in the first round;
+//  3. pool mates meet as late as possible;
+//  4. the better entrant takes the better slot (the weakest opponent).
+//
+// Byes go to the best rank and, within it, to the entrants who played the
+// most matches, then whose last match ended the latest: they need the rest
+// (a bye moves only when rules 1 and 2 cannot hold otherwise).
+//
+// When a rank cannot keep rules 1 and 2 on its own slots (a single best
+// fourth facing the top seed from its pool), an entrant swaps with a seed of
+// another rank: the swap meeting pool mates the latest, then the closest
+// seeds, the weaker ones first.
 func SeedBracket(entrants []BracketEntrant) []EntrantID {
 	sorted := slices.Clone(entrants)
-	slices.SortStableFunc(sorted, func(a, b BracketEntrant) int {
-		if a.Rank != b.Rank {
-			return a.Rank - b.Rank
-		}
-		return a.Pool - b.Pool
-	})
-	size := NextPowerOfTwo(len(sorted))
-	order := StandardOrder(size)
-	slotOfSeed := make([]int, size+1)
-	for slot, seed := range order {
-		slotOfSeed[seed] = slot
-	}
-
-	slots := make([]EntrantID, size)
-	placedPool := make([]int, size) // pool of the entrant in each slot, -1 if none
-	for i := range placedPool {
-		placedPool[i] = -1
-	}
+	slices.SortStableFunc(sorted, func(a, b BracketEntrant) int { return a.Rank - b.Rank })
+	sorted = byesFirst(sorted, NextPowerOfTwo(len(sorted))-len(sorted))
+	b := newSeeding(sorted)
 	for start := 0; start < len(sorted); {
 		end := start
 		for end < len(sorted) && sorted[end].Rank == sorted[start].Rank {
 			end++
 		}
-		tier := sorted[start:end]
-		free := make([]int, 0, len(tier))
-		for seed := start + 1; seed <= end; seed++ {
-			free = append(free, slotOfSeed[seed])
-		}
-		for _, e := range tier {
-			best, bestScore := -1, -1
-			for i, slot := range free {
-				score := MeetRound(0, size-1) + 1 // nobody from this pool yet
-				for other, pool := range placedPool {
-					if pool == e.Pool {
-						score = min(score, MeetRound(slot, other))
-					}
-				}
-				if score > bestScore {
-					best, bestScore = i, score
-				}
-			}
-			slot := free[best]
-			free = slices.Delete(free, best, best+1)
-			slots[slot] = e.ID
-			placedPool[slot] = e.Pool
-		}
+		b.placeTier(start, end)
 		start = end
 	}
+	b.repair()
+	slots := make([]EntrantID, b.size)
+	for i, slot := range b.slotOf {
+		slots[slot] = sorted[i].ID
+	}
 	return slots
+}
+
+// byesFirst moves the entrants getting the byes to the front of their rank
+// (sorted by rank): the best rank first, the most matches played, then the
+// latest last match; the order of the others is kept.
+func byesFirst(sorted []BracketEntrant, byes int) []BracketEntrant {
+	if byes == 0 {
+		return sorted
+	}
+	idx := make([]int, len(sorted))
+	for i := range idx {
+		idx[i] = i
+	}
+	slices.SortStableFunc(idx, func(x, y int) int {
+		a, b := sorted[x], sorted[y]
+		switch {
+		case a.Rank != b.Rank:
+			return a.Rank - b.Rank
+		case a.Played != b.Played:
+			return b.Played - a.Played
+		default:
+			return b.LastEnd.Compare(a.LastEnd)
+		}
+	})
+	bye := make([]bool, len(sorted))
+	for _, i := range idx[:min(byes, len(idx))] {
+		bye[i] = true
+	}
+	out := make([]BracketEntrant, 0, len(sorted))
+	for _, i := range idx[:min(byes, len(idx))] {
+		out = append(out, sorted[i])
+	}
+	for i, e := range sorted {
+		if !bye[i] {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+// seedCost counts what a placement breaks, compared in order: a pool's two
+// best not in opposite halves, pool mates in round 1, then how early pool
+// mates meet (each pair 2^(rounds before the final) - 1, so one early
+// meeting weighs more than several late ones).
+type seedCost [3]int
+
+func (c seedCost) add(o seedCost) seedCost {
+	return seedCost{c[0] + o[0], c[1] + o[1], c[2] + o[2]}
+}
+
+func (c seedCost) less(o seedCost) bool {
+	for k := range c {
+		if c[k] != o[k] {
+			return c[k] < o[k]
+		}
+	}
+	return false
+}
+
+// broken reports whether rule 1 or 2 is broken.
+func (c seedCost) broken() bool { return c[0] > 0 || c[1] > 0 }
+
+// seeding places the entrants of a bracket, best first.
+type seeding struct {
+	entrants []BracketEntrant
+	size     int
+	final    int   // round of the final
+	byes     int   // the first entrants take the slots of seeds 1..byes
+	order    []int // seed number of each slot
+	slotOf   []int // slot of each entrant, -1 until placed
+	at       []int // entrant in each slot, -1 if none
+	pair     []int // the other one of the two best of its pool, -1 if none
+	mates    [][]int
+}
+
+func newSeeding(sorted []BracketEntrant) *seeding {
+	size := NextPowerOfTwo(len(sorted))
+	b := &seeding{entrants: sorted, size: size, final: MeetRound(0, size-1), byes: size - len(sorted), order: StandardOrder(size)}
+	b.slotOf = slices.Repeat([]int{-1}, len(sorted))
+	b.at = slices.Repeat([]int{-1}, size)
+	b.pair = slices.Repeat([]int{-1}, len(sorted))
+	b.mates = make([][]int, len(sorted))
+	byPool := map[int][]int{}
+	for i, e := range sorted {
+		for _, j := range byPool[e.Pool] {
+			b.mates[i] = append(b.mates[i], j)
+			b.mates[j] = append(b.mates[j], i)
+		}
+		byPool[e.Pool] = append(byPool[e.Pool], i)
+	}
+	for _, all := range byPool {
+		if len(all) >= 2 {
+			b.pair[all[0]], b.pair[all[1]] = all[1], all[0]
+		}
+	}
+	return b
+}
+
+// cost is what entrant i in a slot breaks against its placed pool mates.
+func (b *seeding) cost(i, slot int) seedCost {
+	var c seedCost
+	for _, j := range b.mates[i] {
+		other := b.slotOf[j]
+		if other < 0 {
+			continue
+		}
+		meet := MeetRound(slot, other)
+		if j == b.pair[i] && meet < b.final {
+			c[0]++
+		}
+		if meet == 1 {
+			c[1]++
+		}
+		c[2] += 1<<(b.final-meet) - 1
+	}
+	return c
+}
+
+func (b *seeding) place(i, slot int) {
+	b.slotOf[i], b.at[slot] = slot, i
+}
+
+func (b *seeding) unplace(i int) {
+	b.at[b.slotOf[i]], b.slotOf[i] = -1, -1
+}
+
+// placeTier gives the entrants start..end-1 (one rank) the slots of their
+// seed numbers at the lowest cost; among equal ways, the better entrant
+// takes the better slot (the first way found).
+func (b *seeding) placeTier(start, end int) {
+	slotOfSeed := make([]int, b.size+1)
+	for slot, seed := range b.order {
+		slotOfSeed[seed] = slot
+	}
+	var free []int
+	for seed := start + 1; seed <= end; seed++ {
+		free = append(free, slotOfSeed[seed])
+	}
+	used := make([]bool, len(free))
+	var best []int
+	bestCost := seedCost{1 << 30}
+	cur := make([]int, 0, len(free))
+	budget := 200000 // large ranks: keep the best way found
+	var dfs func(i int, c seedCost)
+	dfs = func(i int, c seedCost) {
+		budget--
+		if !c.less(bestCost) || budget < 0 {
+			return
+		}
+		if i == end {
+			best, bestCost = slices.Clone(cur), c
+			return
+		}
+		for k, slot := range free {
+			if used[k] || (i < b.byes) != (b.order[slot] <= b.byes) {
+				continue
+			}
+			used[k] = true
+			cost := b.cost(i, slot)
+			b.place(i, slot)
+			cur = append(cur, slot)
+			dfs(i+1, c.add(cost))
+			cur = cur[:len(cur)-1]
+			b.unplace(i)
+			used[k] = false
+		}
+	}
+	dfs(start, seedCost{})
+	for k, slot := range best {
+		b.place(start+k, slot)
+	}
+}
+
+// total is the cost of the whole placement (each pair counted twice).
+func (b *seeding) total() seedCost {
+	var t seedCost
+	for i, slot := range b.slotOf {
+		t = t.add(b.cost(i, slot))
+	}
+	return t
+}
+
+// repair swaps entrants of different ranks while rules 1 or 2 are broken
+// and a swap breaks them less: the swap meeting pool mates the latest, then
+// between the closest seeds, the weaker ones first.
+func (b *seeding) repair() {
+	for range len(b.entrants) {
+		now := b.total()
+		if !now.broken() {
+			return
+		}
+		bx, by, bestCost, bestDist, bestLow := -1, -1, seedCost{}, 0, 0
+		for x := range b.entrants {
+			for y := x + 1; y < len(b.entrants); y++ {
+				if b.entrants[x].Rank == b.entrants[y].Rank {
+					continue
+				}
+				b.swap(x, y)
+				c := b.total()
+				b.swap(x, y)
+				if !(seedCost{c[0], c[1]}).less(seedCost{now[0], now[1]}) {
+					continue
+				}
+				sx, sy := b.order[b.slotOf[x]], b.order[b.slotOf[y]]
+				dist, low := max(sx-sy, sy-sx), min(sx, sy)
+				if bx < 0 || c.less(bestCost) || c == bestCost && (dist < bestDist || dist == bestDist && low > bestLow) {
+					bx, by, bestCost, bestDist, bestLow = x, y, c, dist, low
+				}
+			}
+		}
+		if bx < 0 {
+			return
+		}
+		b.swap(bx, by)
+	}
+}
+
+func (b *seeding) swap(x, y int) {
+	sx, sy := b.slotOf[x], b.slotOf[y]
+	b.slotOf[x], b.slotOf[y] = sy, sx
+	b.at[sx], b.at[sy] = y, x
 }

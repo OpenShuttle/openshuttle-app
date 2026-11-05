@@ -2,8 +2,10 @@ package engine
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"testing"
+	"time"
 )
 
 func TestStandardOrder(t *testing.T) {
@@ -138,4 +140,125 @@ func TestBracketCounts(t *testing.T) {
 			t.Errorf("RoundRobinRounds(%d) = %d, want %d", n, got, want)
 		}
 	}
+}
+
+// checkSeeding reports a pool's winner and runner-up meeting before the
+// final, or pool mates meeting in round 1.
+func checkSeeding(t *testing.T, name string, in []BracketEntrant, slots []EntrantID) {
+	t.Helper()
+	pool := map[EntrantID]int{}
+	best := map[int][]int{}
+	sorted := slices.Clone(in)
+	slices.SortStableFunc(sorted, func(a, b BracketEntrant) int { return a.Rank - b.Rank })
+	for _, e := range sorted {
+		pool[e.ID] = e.Pool
+		if len(best[e.Pool]) < 2 {
+			best[e.Pool] = append(best[e.Pool], slices.Index(slots, e.ID))
+		}
+	}
+	final := MeetRound(0, len(slots)-1)
+	for p, two := range best {
+		if len(two) == 2 && len(slots) > 2 && MeetRound(two[0], two[1]) != final {
+			t.Errorf("%s: the two best of pool %d meet before the final: %v", name, p, slots)
+		}
+	}
+	// A pool of more entrants than the first-round matches has two of them
+	// in one match: then only the halves are checked.
+	count := map[int]int{}
+	for _, e := range in {
+		count[e.Pool]++
+	}
+	matches := len(in) - len(slots)/2
+	if slices.Max(slices.Collect(maps.Values(count))) > matches {
+		return
+	}
+	for i := 0; i < len(slots); i += 2 {
+		if slots[i] != "" && slots[i+1] != "" && pool[slots[i]] == pool[slots[i+1]] {
+			t.Errorf("%s: pool mates %s and %s meet in round 1: %v", name, slots[i], slots[i+1], slots)
+		}
+	}
+}
+
+func TestSeedBracketRules(t *testing.T) {
+	for pools := 2; pools <= 8; pools++ {
+		for per := 1; per <= 4; per++ {
+			in := routed(pools, per)
+			checkSeeding(t, fmt.Sprintf("%d pools x %d", pools, per), in, SeedBracket(in))
+			for extra := range pools {
+				// Plus the best of the next rank, from any pool.
+				more := append(slices.Clone(in), BracketEntrant{ID: EntrantID(fmt.Sprintf("%s%d", PoolName(extra), per+1)), Rank: per + 1, Pool: extra})
+				checkSeeding(t, fmt.Sprintf("%d pools x %d + %s", pools, per, more[len(more)-1].ID), more, SeedBracket(more))
+			}
+		}
+	}
+}
+
+// Within a rank, the given order (results across pools) decides: the best
+// first takes the bye and the slot facing the weakest seed.
+func TestSeedBracketBestOfRankFirst(t *testing.T) {
+	var in []BracketEntrant
+	for r := 1; r <= 3; r++ {
+		for _, p := range []int{2, 0, 4, 1, 3} { // C best, then A, E, B, D
+			in = append(in, BracketEntrant{ID: EntrantID(fmt.Sprintf("%s%d", PoolName(p), r)), Rank: r, Pool: p})
+		}
+	}
+	slots := SeedBracket(in)
+	if slots[0] != "C1" || slots[1] != "" {
+		t.Errorf("the best winner should get the bye: %v", slots)
+	}
+	if i := slices.Index(slots, EntrantID("A1")); i != 8 {
+		t.Errorf("the second best winner should take seed 2: %v", slots)
+	}
+	checkSeeding(t, "15 of 5 pools", in, slots)
+}
+
+// Sixteen: the best fourth comes from the top seed's pool, so it swaps with
+// the closest weaker seed instead of facing its pool winner.
+func TestSeedBracketBestFourthAvoidsItsWinner(t *testing.T) {
+	in := routed(5, 3)
+	slices.SortStableFunc(in, func(a, b BracketEntrant) int { return a.Rank - b.Rank })
+	in = append(in, BracketEntrant{ID: "A4", Rank: 4, Pool: 0})
+	slots := SeedBracket(in)
+	if slots[0] != "A1" || slots[1] == "A4" || slices.Index(slots, EntrantID("A4")) == -1 {
+		t.Errorf("slots = %v", slots)
+	}
+	checkSeeding(t, "16 with A4", in, slots)
+}
+
+// Five pools, top three: two of each pool share a half, but no pool mates
+// meet before the semi-finals.
+func TestSeedBracketPoolMatesMeetLate(t *testing.T) {
+	slots := SeedBracket(routed(5, 3))
+	for i, a := range slots {
+		for j := i + 1; j < len(slots); j++ {
+			if a != "" && slots[j] != "" && poolOf(a) == poolOf(slots[j]) && MeetRound(i, j) < 3 {
+				t.Errorf("%s and %s meet in round %d: %v", a, slots[j], MeetRound(i, j), slots)
+			}
+		}
+	}
+}
+
+// Byes go to the best rank that played the most matches, then the latest:
+// pools A and B of five played four matches, B1 finished last, so B1 gets
+// the bye even though C1 has the best results.
+func TestSeedBracketByesToTheMostPlayed(t *testing.T) {
+	at := func(min int) time.Time { return time.Date(2026, 5, 1, 10, min, 0, 0, time.UTC) }
+	var in []BracketEntrant
+	for r := 1; r <= 3; r++ {
+		for _, p := range []int{2, 0, 4, 1, 3} { // C best, then A, E, B, D
+			played := 3
+			if p < 2 {
+				played = 4
+			}
+			in = append(in, BracketEntrant{ID: EntrantID(fmt.Sprintf("%s%d", PoolName(p), r)), Rank: r, Pool: p, Played: played, LastEnd: at(p)})
+		}
+	}
+	slots := SeedBracket(in)
+	if slots[0] != "B1" || slots[1] != "" {
+		t.Errorf("B1 should get the bye: %v", slots)
+	}
+	if slots[8] != "C1" {
+		t.Errorf("the best of the others should take seed 2: %v", slots)
+	}
+	checkSeeding(t, "15 of 5 pools", in, slots)
 }
