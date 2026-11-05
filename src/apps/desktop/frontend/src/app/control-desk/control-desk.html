@@ -100,42 +100,6 @@
                   </div>
                 }
               </article>
-            } @else if (c.state === 'finished' && c.match; as m) {
-              <article class="court finished">
-                <header class="court-head">
-                  <span class="court-number">{{ c.number }}</span>
-                  <span class="court-state">
-                    <span class="court-label">{{ t('desk.court') }}</span>
-                    <span class="court-state-name">{{ t('desk.endedAt', { time: time(m.endedAt) }) }}</span>
-                  </span>
-                  <app-category-badge [category]="m.category" [slot]="m.slot" [color]="m.color" [ring]="true"> · <app-match-stage [match]="m" /></app-category-badge>
-                </header>
-                <button type="button" class="pending-match" (click)="scoring.set(m)">
-                  <span class="line"><span class="bib">{{ m.a.bib }}</span><span class="line-names">{{ short(m.a) }}</span></span>
-                  <span class="line"><span class="bib">{{ m.b.bib }}</span><span class="line-names">{{ short(m.b) }}</span></span>
-                  <span class="cta">{{ t('desk.scorePendingClick') }}</span>
-                </button>
-                @if (!view().rounds.active && c.proposal; as p) {
-                  <div class="next">
-                    <span class="kicker">{{ t('desk.nextProposed', { id: p.id }) }}</span>
-                    @if (c.proposalUnrested) {
-                      <span class="rest-warn">{{ t('desk.unrested', { rest: view().minRest }) }}</span>
-                    }
-                    <span class="line"><span class="bib bib-outline">{{ p.a.bib }}</span><span class="line-names">{{ short(p.a) }}</span></span>
-                    <span class="line"><span class="bib bib-outline">{{ p.b.bib }}</span><span class="line-names">{{ short(p.b) }}</span></span>
-                  </div>
-                } @else {
-                  <div class="next next-none">{{ t(view().rounds.active ? 'rounds.courtWaiting' : 'desk.noMatchReady') }}</div>
-                }
-                <div class="finished-actions">
-                  <button type="button" class="score-btn" (click)="scoring.set(m)">{{ t('desk.enterScore') }}</button>
-                  @if (!view().rounds.active) {
-                    <button type="button" class="next-btn" [disabled]="!c.proposal" (click)="call(c)">
-                      {{ t('desk.startNext') }}
-                    </button>
-                  }
-                </div>
-              </article>
             } @else {
               <article class="court free">
                 <header class="court-head">
