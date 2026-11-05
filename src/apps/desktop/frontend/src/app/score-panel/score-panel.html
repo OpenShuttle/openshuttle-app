@@ -21,22 +21,29 @@
         }
         @for (side of [0, 1]; track side) {
           @let s = side === 0 ? match().a : match().b;
-          <div class="side">
+          <div class="side" [style.grid-row]="side + 2" style="grid-column: 1">
             <span class="bib">{{ s.bib || '–' }}</span>
             <span class="side-text">
               <span class="names">{{ names(s) }}</span>
               <span class="club">{{ clubs(s) }}</span>
             </span>
           </div>
-          @for (i of sets(); track i) {
+        }
+        <!-- Set by set, both sides: Tab goes down, then to the next set. -->
+        @for (i of sets(); track i) {
+          @for (side of [0, 1]; track side) {
+            @let s = side === 0 ? match().a : match().b;
             <input
               #point
               class="point"
+              [style.grid-row]="side + 2"
+              [style.grid-column]="i + 2"
               [attr.aria-label]="(timed() ? t('desk.points') : t('desk.setN', { n: i + 1 })) + ' · ' + names(s)"
               type="number"
               min="0"
               max="99"
               inputmode="numeric"
+              [disabled]="unplayed(i)"
               [value]="points()[side][i] ?? ''"
               (input)="set(side, i, $event); confirmingForfeit.set(null)"
             />
@@ -63,6 +70,7 @@
               type="button"
               tabindex="-1"
               class="wo"
+              [disabled]="decidedAfter() > 0"
               [class.confirm]="confirmingForfeit() === s.entrant"
               (click)="walkover(s.entrant)"
             >
@@ -76,8 +84,8 @@
 
     <footer class="foot">
       <span class="hint">{{ t('desk.scoreKeys') }}</span>
-      <button type="button" class="btn" (click)="closed.emit()">{{ t('common.cancel') }}</button>
-      <button type="submit" class="btn btn-primary">{{ t('desk.saveScore') }}</button>
+      <button type="button" class="btn" tabindex="-1" (click)="closed.emit()">{{ t('common.cancel') }}</button>
+      <button #saveButton type="submit" class="btn btn-primary">{{ t('desk.saveScore') }}</button>
     </footer>
   </form>
 </ng-container>

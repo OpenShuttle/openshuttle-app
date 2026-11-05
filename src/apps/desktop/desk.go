@@ -124,6 +124,13 @@ func (s *TournamentService) RecordScore(ctx context.Context, id tournament.Match
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RecordScore(id, score) })
 }
 
+// ScoreDecidedAfter returns how many sets of a score being typed decide the
+// match under its win condition, 0 while it is not decided: the score entry
+// leaves out the sets after them and the forfeit.
+func (s *TournamentService) ScoreDecidedAfter(win engine.WinCondition, score engine.Score) int {
+	return engine.DecidedAfter(win, score)
+}
+
 // WithdrawEntrant declares a forfeit: all the entrant's pool matches become walkovers.
 func (s *TournamentService) WithdrawEntrant(ctx context.Context, id engine.EntrantID) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.WithdrawEntrant(id) })

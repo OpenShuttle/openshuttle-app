@@ -153,6 +153,14 @@
     border-color: var(--color-link);
     box-shadow: 0 0 0 3px var(--color-playing-bg);
   }
+
+  // A set after the ones deciding the match.
+  &:disabled {
+    border-color: var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    opacity: 0.5;
+  }
 }
 
 .golden {
@@ -203,8 +211,13 @@
   font-weight: 700;
   font-size: 14px;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--color-alert-bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
   &.confirm {

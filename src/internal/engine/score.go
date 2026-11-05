@@ -169,3 +169,29 @@ func validSet(w WinCondition, set SetScore) bool {
 	// Deuce: a 2-point lead, or the cap point.
 	return won-lost == 2 || (won == limit && lost == limit-1)
 }
+
+// DecidedAfter returns how many sets of the score decide the match: the
+// first sets, each ended legally, until a side has won SetsToWin of them.
+// It returns 0 while the match is not decided yet, and always for a timed
+// match (its single set is the whole score). The score entry uses it to
+// leave out the sets that cannot be played.
+func DecidedAfter(w WinCondition, s Score) int {
+	if w.Kind == WinByTime || w.Validate() != nil {
+		return 0
+	}
+	var wonA, wonB int
+	for i, set := range s.Sets {
+		if !validSet(w, set) {
+			return 0
+		}
+		if set.Winner() == SideA {
+			wonA++
+		} else {
+			wonB++
+		}
+		if wonA == w.SetsToWin || wonB == w.SetsToWin {
+			return i + 1
+		}
+	}
+	return 0
+}

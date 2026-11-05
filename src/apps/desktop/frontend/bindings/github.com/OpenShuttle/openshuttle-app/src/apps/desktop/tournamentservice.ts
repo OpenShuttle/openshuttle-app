@@ -506,6 +506,15 @@ export function SaveFormatPreset(c: engine$0.Category, name: string, description
 }
 
 /**
+ * ScoreDecidedAfter returns how many sets of a score being typed decide the
+ * match under its win condition, 0 while it is not decided: the score entry
+ * leaves out the sets after them and the forfeit.
+ */
+export function ScoreDecidedAfter(win: engine$0.WinCondition, score: engine$0.Score): $CancellablePromise<number> {
+    return $Call.ByID(941247610, win, score);
+}
+
+/**
  * SetCourts sets the number of courts.
  */
 export function SetCourts(n: number): $CancellablePromise<void> {
