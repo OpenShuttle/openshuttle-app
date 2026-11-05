@@ -207,7 +207,8 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   one).
 - Each pool, and each bracket stage (main, consolation…), has its own color,
   across both categories (16 colors before one comes back): the category
-  badge of its rounds and matches takes it. Rounds are named
+  badge of its rounds and matches takes it, on the schedule and the control
+  desk alike. Rounds are named
   short: the stage's acronym (typed in the format, P for pools and T for a
   bracket by default), then the pool and "round/rounds" (`P A · 2/5`), or the
   bracket round (`T · 1/8`, `1/4`, `1/2`, `Finale`, `3e place`, `5e–8e`;

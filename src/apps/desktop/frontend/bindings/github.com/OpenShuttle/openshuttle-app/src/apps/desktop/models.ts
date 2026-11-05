@@ -505,6 +505,12 @@ export interface MatchView {
     "entryStage": boolean;
 
     /**
+     * Color is the pool's or bracket's color index (--color-group-n), the
+     * one the schedule gives it.
+     */
+    "color": number;
+
+    /**
      * Bracket matches: Pool is empty, the round plays for places
      * PlaceFrom..PlaceTo with RoundSize entrants (2 for a final).
      */

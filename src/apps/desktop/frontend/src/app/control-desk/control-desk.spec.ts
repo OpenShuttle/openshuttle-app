@@ -26,6 +26,13 @@ describe('ControlDesk', () => {
     expect(page).toContain('1 score pending');
   });
 
+  it('colors each match badge like its pool on the schedule', async () => {
+    const f = await render(ControlDesk);
+    const styles = [...f.nativeElement.querySelectorAll('.badge')].map((b) => (b as HTMLElement).getAttribute('style'));
+    expect(styles).toContainEqual(expect.stringContaining(`--color-group-${desk.courts[1].match!.color}`));
+    expect(styles).toContainEqual(expect.stringContaining(`--color-group-${desk.queue[0].match.color}`));
+  });
+
   it('calls the proposed match on a finished court', async () => {
     const f = await render(ControlDesk);
     await click(f, 'Start next');

@@ -41,6 +41,9 @@ type MatchView struct {
 	StageName  string               `json:"stageName"`
 	StageKind  tournament.StageKind `json:"stageKind"`
 	EntryStage bool                 `json:"entryStage"`
+	// Color is the pool's or bracket's color index (--color-group-n), the
+	// one the schedule gives it.
+	Color int `json:"color"`
 	// Bracket matches: Pool is empty, the round plays for places
 	// PlaceFrom..PlaceTo with RoundSize entrants (2 for a final).
 	PlaceFrom int  `json:"placeFrom"`
@@ -221,6 +224,7 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 		slots[ref.Category] = ref.Slot
 	}
 	side := sideViewer(st)
+	styles := st.GroupStyles()
 	return func(m tournament.Match) MatchView {
 		v := MatchView{
 			ID: m.ID, CategoryRef: CategoryRef{m.Category, slots[m.Category]},
@@ -231,6 +235,7 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 		stage, _ := st.Stage(m.Category, m.Stage)
 		v.Stage, v.StageName, v.StageKind = m.Stage, stage.Name, stage.Kind
 		v.EntryStage = st.Stages(m.Category)[0].ID == m.Stage
+		v.Color = tournament.GroupStyleOf(styles, m.Category, m.Stage, m.Pool).Color
 		if m.IsBracket() {
 			v.Pool, v.Round = "", 0
 			v.PlaceFrom, v.PlaceTo, v.RoundSize = m.Start, m.Start+m.Size-1, m.Size

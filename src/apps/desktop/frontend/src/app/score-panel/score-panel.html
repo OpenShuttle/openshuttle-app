@@ -6,7 +6,7 @@
       <span class="head-text">
         <span class="title">{{ match().court ? t('desk.scoreTitleCourt', { n: match().court }) : t('desk.scoreTitle') }}</span>
         <span class="sub">
-          <app-category-badge [category]="match().category" [slot]="match().slot"> · <app-match-stage [match]="match()" /></app-category-badge>
+          <app-category-badge [category]="match().category" [slot]="match().slot" [color]="match().color"> · <app-match-stage [match]="match()" /></app-category-badge>
           {{ match().id }}
         </span>
       </span>
