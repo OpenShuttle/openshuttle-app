@@ -70,9 +70,34 @@ describe('bracketTree', () => {
     const g = treeGeometry(false);
     const t = bracketTree(rounds(4, true));
     const [a, b] = [t.matches[0], t.matches[2]];
-    expect(linkPath(g, a, b)).toContain(
-      `M${cardLeft(g, 0) + g.cardW} ${cardTop(g, a.row) + g.cardH / 2}`,
+    expect(linkPath(g, t.gaps, a, b)).toContain(
+      `M${cardLeft(g, 0) + g.cardW} ${cardTop(g, t.gaps, a.row) + g.cardH / 2}`,
     );
     expect(treeGeometry(true).cardH).toBeGreaterThan(g.cardH);
+  });
+
+  it('sets blocks apart, the coarser the wider, and titles them', () => {
+    const t = bracketTree(rounds(8, true));
+    expect(t.titled).toBe(true);
+    // Last column: finals of 1–2, 3–4, 5–6, 7–8, each opening a gap; the 5–8 block's is wider.
+    expect(t.gaps.map((g) => [g.row, g.level])).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, 1],
+    ]);
+    const g = treeGeometry(false, true);
+    expect(cardTop(g, t.gaps, 2) - cardTop(g, t.gaps, 1)).toBeGreaterThan(cardTop(g, t.gaps, 1) - cardTop(g, t.gaps, 0));
+    expect(t.nodes.filter((n) => n.col === 2).map((n) => [n.from, n.to])).toEqual([
+      [1, 2],
+      [3, 4],
+      [5, 6],
+      [7, 8],
+    ]);
+  });
+
+  it('has no gap or title without full placement', () => {
+    const t = bracketTree(rounds(8, false));
+    expect(t.titled).toBe(false);
+    expect(t.gaps).toEqual([]);
   });
 });
