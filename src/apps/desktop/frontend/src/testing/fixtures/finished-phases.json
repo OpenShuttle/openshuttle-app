@@ -1702,21 +1702,6 @@
               "withdrawn": false
             },
             {
-              "entrant": "e15",
-              "bib": 7,
-              "names": [
-                "Mathis Dumont",
-                "Félix Blanc"
-              ],
-              "clubs": [
-                "AS Belvédère"
-              ],
-              "clubNames": [
-                "AS Belvédère"
-              ],
-              "withdrawn": false
-            },
-            {
               "entrant": "e4",
               "bib": 9,
               "names": [
@@ -1732,26 +1717,18 @@
               "withdrawn": false
             },
             {
-              "entrant": "e8",
-              "bib": 16,
+              "entrant": "e15",
+              "bib": 7,
               "names": [
-                "Victor Moreau",
-                "Kevin Henry"
+                "Mathis Dumont",
+                "Félix Blanc"
               ],
               "clubs": [
-                "Volant des Monts"
+                "AS Belvédère"
               ],
               "clubNames": [
-                "Volant des Monts"
+                "AS Belvédère"
               ],
-              "withdrawn": false
-            },
-            {
-              "entrant": "",
-              "bib": 0,
-              "names": [],
-              "clubs": [],
-              "clubNames": [],
               "withdrawn": false
             },
             {
@@ -1766,6 +1743,29 @@
               ],
               "clubNames": [
                 "AS Belvédère"
+              ],
+              "withdrawn": false
+            },
+            {
+              "entrant": "",
+              "bib": 0,
+              "names": [],
+              "clubs": [],
+              "clubNames": [],
+              "withdrawn": false
+            },
+            {
+              "entrant": "e8",
+              "bib": 16,
+              "names": [
+                "Victor Moreau",
+                "Kevin Henry"
+              ],
+              "clubs": [
+                "Volant des Monts"
+              ],
+              "clubNames": [
+                "Volant des Monts"
               ],
               "withdrawn": false
             },
@@ -1849,21 +1849,6 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e15",
-                    "bib": 7,
-                    "names": [
-                      "Mathis Dumont",
-                      "Félix Blanc"
-                    ],
-                    "clubs": [
-                      "AS Belvédère"
-                    ],
-                    "clubNames": [
-                      "AS Belvédère"
-                    ],
-                    "withdrawn": false
-                  },
-                  "b": {
                     "entrant": "e4",
                     "bib": 9,
                     "names": [
@@ -1875,6 +1860,21 @@
                     ],
                     "clubNames": [
                       "Volant des Monts"
+                    ],
+                    "withdrawn": false
+                  },
+                  "b": {
+                    "entrant": "e15",
+                    "bib": 7,
+                    "names": [
+                      "Mathis Dumont",
+                      "Félix Blanc"
+                    ],
+                    "clubs": [
+                      "AS Belvédère"
+                    ],
+                    "clubNames": [
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -1918,17 +1918,17 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e8",
-                    "bib": 16,
+                    "entrant": "e7",
+                    "bib": 19,
                     "names": [
-                      "Victor Moreau",
-                      "Kevin Henry"
+                      "Nathan Brun",
+                      "Simon Fournier"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -1969,17 +1969,17 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e7",
-                    "bib": 19,
+                    "entrant": "e8",
+                    "bib": 16,
                     "names": [
-                      "Nathan Brun",
-                      "Simon Fournier"
+                      "Victor Moreau",
+                      "Kevin Henry"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2060,17 +2060,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e4",
-                    "bib": 9,
+                    "entrant": "e15",
+                    "bib": 7,
                     "names": [
-                      "Lucas Perrin",
-                      "Hugo Mathieu"
+                      "Mathis Dumont",
+                      "Félix Blanc"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -2114,21 +2114,6 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e8",
-                    "bib": 16,
-                    "names": [
-                      "Victor Moreau",
-                      "Kevin Henry"
-                    ],
-                    "clubs": [
-                      "Volant des Monts"
-                    ],
-                    "clubNames": [
-                      "Volant des Monts"
-                    ],
-                    "withdrawn": false
-                  },
-                  "b": {
                     "entrant": "e7",
                     "bib": 19,
                     "names": [
@@ -2140,6 +2125,21 @@
                     ],
                     "clubNames": [
                       "AS Belvédère"
+                    ],
+                    "withdrawn": false
+                  },
+                  "b": {
+                    "entrant": "e8",
+                    "bib": 16,
+                    "names": [
+                      "Victor Moreau",
+                      "Kevin Henry"
+                    ],
+                    "clubs": [
+                      "Volant des Monts"
+                    ],
+                    "clubNames": [
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2198,17 +2198,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e15",
-                    "bib": 7,
+                    "entrant": "e4",
+                    "bib": 9,
                     "names": [
-                      "Mathis Dumont",
-                      "Félix Blanc"
+                      "Lucas Perrin",
+                      "Hugo Mathieu"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2299,32 +2299,32 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e4",
-                    "bib": 9,
+                    "entrant": "e15",
+                    "bib": 7,
                     "names": [
-                      "Lucas Perrin",
-                      "Hugo Mathieu"
+                      "Mathis Dumont",
+                      "Félix Blanc"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e8",
-                    "bib": 16,
+                    "entrant": "e7",
+                    "bib": 19,
                     "names": [
-                      "Victor Moreau",
-                      "Kevin Henry"
+                      "Nathan Brun",
+                      "Simon Fournier"
                     ],
                     "clubs": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "clubNames": [
-                      "Volant des Monts"
+                      "AS Belvédère"
                     ],
                     "withdrawn": false
                   },
@@ -2390,17 +2390,17 @@
                     "withdrawn": false
                   },
                   "b": {
-                    "entrant": "e7",
-                    "bib": 19,
+                    "entrant": "e8",
+                    "bib": 16,
                     "names": [
-                      "Nathan Brun",
-                      "Simon Fournier"
+                      "Victor Moreau",
+                      "Kevin Henry"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2451,17 +2451,17 @@
                   "pool": "",
                   "round": 0,
                   "a": {
-                    "entrant": "e15",
-                    "bib": 7,
+                    "entrant": "e4",
+                    "bib": 9,
                     "names": [
-                      "Mathis Dumont",
-                      "Félix Blanc"
+                      "Lucas Perrin",
+                      "Hugo Mathieu"
                     ],
                     "clubs": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "clubNames": [
-                      "AS Belvédère"
+                      "Volant des Monts"
                     ],
                     "withdrawn": false
                   },
@@ -2572,17 +2572,17 @@
               "from": 1,
               "to": 1,
               "entrant": {
-                "entrant": "e4",
-                "bib": 9,
+                "entrant": "e15",
+                "bib": 7,
                 "names": [
-                  "Lucas Perrin",
-                  "Hugo Mathieu"
+                  "Mathis Dumont",
+                  "Félix Blanc"
                 ],
                 "clubs": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "clubNames": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "withdrawn": false
               }
@@ -2591,17 +2591,17 @@
               "from": 2,
               "to": 2,
               "entrant": {
-                "entrant": "e8",
-                "bib": 16,
+                "entrant": "e7",
+                "bib": 19,
                 "names": [
-                  "Victor Moreau",
-                  "Kevin Henry"
+                  "Nathan Brun",
+                  "Simon Fournier"
                 ],
                 "clubs": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "clubNames": [
-                  "Volant des Monts"
+                  "AS Belvédère"
                 ],
                 "withdrawn": false
               }
@@ -2629,17 +2629,17 @@
               "from": 4,
               "to": 4,
               "entrant": {
-                "entrant": "e7",
-                "bib": 19,
+                "entrant": "e8",
+                "bib": 16,
                 "names": [
-                  "Nathan Brun",
-                  "Simon Fournier"
+                  "Victor Moreau",
+                  "Kevin Henry"
                 ],
                 "clubs": [
-                  "AS Belvédère"
+                  "Volant des Monts"
                 ],
                 "clubNames": [
-                  "AS Belvédère"
+                  "Volant des Monts"
                 ],
                 "withdrawn": false
               }
@@ -2667,17 +2667,17 @@
               "from": 6,
               "to": 6,
               "entrant": {
-                "entrant": "e15",
-                "bib": 7,
+                "entrant": "e4",
+                "bib": 9,
                 "names": [
-                  "Mathis Dumont",
-                  "Félix Blanc"
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
                 ],
                 "clubs": [
-                  "AS Belvédère"
+                  "Volant des Monts"
                 ],
                 "clubNames": [
-                  "AS Belvédère"
+                  "Volant des Monts"
                 ],
                 "withdrawn": false
               }
