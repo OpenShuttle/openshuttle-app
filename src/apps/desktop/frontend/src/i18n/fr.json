@@ -735,7 +735,14 @@
     "drawBracket": "Remplir depuis les poules",
     "redrawBracket": "Remplir à nouveau",
     "waitPools": "Disponible quand toutes les poules sont terminées et les égalités tranchées.",
-    "mainBracket": "Tableau principal",
+    "tree": {
+      "round": "Tour {n} · {size}",
+      "previous": "Tour précédent",
+      "next": "Tour suivant",
+      "blocks": "Aller à",
+      "winner": "Vainqueur",
+      "loser": "Perdant"
+    },
     "firstRoundSlots": "Premier tour",
     "slotsHint": "Cliquez deux places pour les inverser.",
     "bye": "Exempt",

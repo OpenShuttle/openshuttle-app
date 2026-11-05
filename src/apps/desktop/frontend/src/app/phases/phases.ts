@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -7,7 +7,6 @@ import {
   PhaseCategory,
   PhasesView,
   PoolPhase,
-  RoundView,
   SideView,
   StagePhase,
   TournamentService,
@@ -20,16 +19,19 @@ import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
-import { roundLabel, shortRoundLabel } from '../shared/match-stage';
+import { shortRoundLabel } from '../shared/match-stage';
 import { fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
-
-/** A sub-bracket of the phases screen: the places it plays for and its rounds. */
-interface BracketSection {
-  start: number;
-  end: number;
-  rounds: RoundView[];
-}
+import {
+  BracketTree,
+  TreeBlock,
+  TreeLink,
+  bracketTree,
+  cardLeft,
+  cardTop,
+  linkPath,
+  treeGeometry,
+} from './bracket-tree';
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
@@ -40,7 +42,9 @@ interface BracketSection {
 })
 export class Phases {
   protected readonly tournament = inject(TournamentStore);
-  protected readonly view = liveView<PhasesView>(() => TournamentService.GetPhasesView(), { categories: [] });
+  protected readonly view = liveView<PhasesView>(() => TournamentService.GetPhasesView(), {
+    categories: [],
+  });
 
   private readonly shown = inject(CategoryShown);
   protected readonly current = computed(() => this.shown.pick(this.view().categories));
@@ -59,7 +63,12 @@ export class Phases {
   /** Stage shown: the chosen one, else the first not over (the one holding the next match), else the last. */
   protected readonly stage = computed(() => {
     const stages = this.current()?.stages ?? [];
-    return stages.find((s) => s.id === this.stageKey()) ?? stages.find((s) => !s.complete) ?? stages[stages.length - 1] ?? null;
+    return (
+      stages.find((s) => s.id === this.stageKey()) ??
+      stages.find((s) => !s.complete) ??
+      stages[stages.length - 1] ??
+      null
+    );
   });
   protected readonly scoring = signal<MatchView | null>(null);
   /** First match picked for a swap. */
@@ -96,32 +105,73 @@ export class Phases {
     this.swappingSlot.set(null);
   }
 
-  protected round(r: RoundView): { key: string; params: Record<string, number> } {
-    return roundLabel({ placeFrom: r.from, placeTo: r.to, roundSize: r.size });
-  }
-
   protected shortRound(m: MatchView): { key: string; params: Record<string, number> } {
     return shortRoundLabel(m);
   }
 
-  /**
-   * A bracket cut into sub-brackets, one under the other: the main draw (with
-   * the third place match), then each part playing for lower places (5–8…).
-   * A part is rooted at a round of 4 or more starting after place 1; the
-   * rounds starting at or after its root, up to the next root, belong to it.
-   */
-  protected sections(b: StagePhase): BracketSection[] {
-    const rounds = b.rounds ?? [];
-    const roots = [...new Set(rounds.filter((r) => r.size >= 4 && r.from > 1).map((r) => r.from))].sort((x, y) => x - y);
-    const out = new Map<number, BracketSection>();
-    for (const r of rounds) {
-      const start = roots.filter((s) => s <= r.from).pop() ?? 1;
-      const sec = out.get(start) ?? { start, end: start, rounds: [] };
-      sec.end = Math.max(sec.end, r.to);
-      sec.rounds.push(r);
-      out.set(start, sec);
+  /** The bracket shown, laid out as a tree (none for pools or a bracket not drawn). */
+  protected readonly tree = computed(() => {
+    const s = this.stage();
+    return s?.kind === 'bracket' && s.confirmed ? bracketTree(s.rounds ?? []) : null;
+  });
+  protected readonly geometry = computed(() => treeGeometry(this.correction()));
+  private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
+  /** Column at the left of the drawing, for the previous and next buttons. */
+  protected readonly activeCol = signal(0);
+
+  protected left(col: number): number {
+    return cardLeft(this.geometry(), col);
+  }
+
+  protected top(row: number): number {
+    return cardTop(this.geometry(), row);
+  }
+
+  protected treeWidth(t: BracketTree): number {
+    const g = this.geometry();
+    return cardLeft(g, t.columns.length - 1) + g.cardW;
+  }
+
+  protected treeHeight(t: BracketTree): number {
+    const g = this.geometry();
+    return cardTop(g, t.rows - 1) + g.cardH + g.rowGap;
+  }
+
+  protected path(t: BracketTree, l: TreeLink): string {
+    const from = t.matches.find((m) => m.match.id === l.from);
+    const to = t.matches.find((m) => m.match.id === l.to);
+    return from && to ? linkPath(this.geometry(), from, to) : '';
+  }
+
+  /** A link whose source match is decided: the one its entrants really took. */
+  protected decided(t: BracketTree, from: string): boolean {
+    const m = t.matches.find((x) => x.match.id === from)?.match;
+    return !!m && (!!m.score || m.walkover);
+  }
+
+  protected onScroll(): void {
+    const el = this.scroller()?.nativeElement;
+    if (el) {
+      const g = this.geometry();
+      this.activeCol.set(Math.round(el.scrollLeft / (g.cardW + g.colGap)));
     }
-    return [...out.values()].sort((x, y) => x.start - y.start);
+  }
+
+  /** Brings a column of the drawing to the left of the view. */
+  protected goColumn(t: BracketTree, col: number): void {
+    const c = t.columns[Math.max(0, Math.min(col, t.columns.length - 1))];
+    this.activeCol.set(t.columns.indexOf(c));
+    this.reveal(c.first, 'nearest');
+  }
+
+  /** Brings a part of the bracket (places 5–8…) to the middle of the view. */
+  protected goBlock(b: TreeBlock): void {
+    this.reveal(b.first, 'center');
+  }
+
+  private reveal(match: string, block: ScrollLogicalPosition): void {
+    const card = this.scroller()?.nativeElement.querySelector(`[data-match="${match}"]`);
+    card?.scrollIntoView?.({ behavior: 'smooth', block, inline: 'start' });
   }
 
   protected status(s: StagePhase): string {
@@ -183,7 +233,6 @@ export class Phases {
   protected waiting(m: MatchView): boolean {
     return !m.court && !m.score && !m.walkover;
   }
-
 
   protected async swap(m: MatchView): Promise<void> {
     const first = this.swapping();

@@ -735,7 +735,14 @@
     "drawBracket": "Fill from the pools",
     "redrawBracket": "Fill again",
     "waitPools": "Available once every pool is complete and ties are broken.",
-    "mainBracket": "Main draw",
+    "tree": {
+      "round": "Round {n} · {size}",
+      "previous": "Previous round",
+      "next": "Next round",
+      "blocks": "Jump to",
+      "winner": "Winner",
+      "loser": "Loser"
+    },
     "firstRoundSlots": "First round",
     "slotsHint": "Click two slots to swap them.",
     "bye": "Bye",
