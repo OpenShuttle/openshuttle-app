@@ -36,6 +36,30 @@
           "rank": 2,
           "tied": false,
           "entrant": {
+            "entrant": "e8",
+            "bib": 16,
+            "names": [
+              "Victor Moreau",
+              "Kevin Henry"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "clubNames": [
+              "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 2
+        },
+        {
+          "rank": 3,
+          "tied": false,
+          "entrant": {
             "entrant": "e7",
             "bib": 19,
             "names": [
@@ -54,10 +78,10 @@
           "stageName": "Tableau principal",
           "stageKind": "bracket",
           "entryStage": false,
-          "stageRank": 2
+          "stageRank": 3
         },
         {
-          "rank": 3,
+          "rank": 4,
           "tied": false,
           "entrant": {
             "entrant": "e13",
@@ -78,58 +102,10 @@
           "stageName": "Tableau principal",
           "stageKind": "bracket",
           "entryStage": false,
-          "stageRank": 3
-        },
-        {
-          "rank": 4,
-          "tied": false,
-          "entrant": {
-            "entrant": "e8",
-            "bib": 16,
-            "names": [
-              "Victor Moreau",
-              "Kevin Henry"
-            ],
-            "clubs": [
-              "Volant des Monts"
-            ],
-            "clubNames": [
-              "Volant des Monts"
-            ],
-            "withdrawn": false
-          },
-          "stage": "S2",
-          "stageName": "Tableau principal",
-          "stageKind": "bracket",
-          "entryStage": false,
           "stageRank": 4
         },
         {
           "rank": 5,
-          "tied": false,
-          "entrant": {
-            "entrant": "e14",
-            "bib": 15,
-            "names": [
-              "Victor Lambert",
-              "Kevin André"
-            ],
-            "clubs": [
-              "Plumes du Lac"
-            ],
-            "clubNames": [
-              "Plumes du Lac"
-            ],
-            "withdrawn": false
-          },
-          "stage": "S2",
-          "stageName": "Tableau principal",
-          "stageKind": "bracket",
-          "entryStage": false,
-          "stageRank": 5
-        },
-        {
-          "rank": 6,
           "tied": false,
           "entrant": {
             "entrant": "e4",
@@ -143,6 +119,30 @@
             ],
             "clubNames": [
               "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "stage": "S2",
+          "stageName": "Tableau principal",
+          "stageKind": "bracket",
+          "entryStage": false,
+          "stageRank": 5
+        },
+        {
+          "rank": 6,
+          "tied": false,
+          "entrant": {
+            "entrant": "e14",
+            "bib": 15,
+            "names": [
+              "Victor Lambert",
+              "Kevin André"
+            ],
+            "clubs": [
+              "Plumes du Lac"
+            ],
+            "clubNames": [
+              "Plumes du Lac"
             ],
             "withdrawn": false
           },

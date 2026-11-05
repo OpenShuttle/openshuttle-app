@@ -5,6 +5,7 @@ import (
 	"maps"
 	"slices"
 	"testing"
+	"time"
 )
 
 func TestStandardOrder(t *testing.T) {
@@ -235,4 +236,29 @@ func TestSeedBracketPoolMatesMeetLate(t *testing.T) {
 			}
 		}
 	}
+}
+
+// Byes go to the best rank that played the most matches, then the latest:
+// pools A and B of five played four matches, B1 finished last, so B1 gets
+// the bye even though C1 has the best results.
+func TestSeedBracketByesToTheMostPlayed(t *testing.T) {
+	at := func(min int) time.Time { return time.Date(2026, 5, 1, 10, min, 0, 0, time.UTC) }
+	var in []BracketEntrant
+	for r := 1; r <= 3; r++ {
+		for _, p := range []int{2, 0, 4, 1, 3} { // C best, then A, E, B, D
+			played := 3
+			if p < 2 {
+				played = 4
+			}
+			in = append(in, BracketEntrant{ID: EntrantID(fmt.Sprintf("%s%d", PoolName(p), r)), Rank: r, Pool: p, Played: played, LastEnd: at(p)})
+		}
+	}
+	slots := SeedBracket(in)
+	if slots[0] != "B1" || slots[1] != "" {
+		t.Errorf("B1 should get the bye: %v", slots)
+	}
+	if slots[8] != "C1" {
+		t.Errorf("the best of the others should take seed 2: %v", slots)
+	}
+	checkSeeding(t, "15 of 5 pools", in, slots)
 }

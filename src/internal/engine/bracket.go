@@ -3,6 +3,7 @@ package engine
 import (
 	"math/bits"
 	"slices"
+	"time"
 )
 
 // NextPowerOfTwo returns the smallest power of two >= n (1 for n <= 1).
@@ -74,6 +75,11 @@ type BracketEntrant struct {
 	ID   EntrantID
 	Rank int // position in its pool, 1 is first
 	Pool int // 0 is A
+	// Played counts the matches it played in the stages before (walkovers
+	// left out), LastEnd is when the last one ended: byes go to the entrants
+	// who played the most, then the latest.
+	Played  int
+	LastEnd time.Time
 }
 
 // SeedBracket places entrants into the first-round slots of a bracket whose
@@ -88,8 +94,11 @@ type BracketEntrant struct {
 //     opposite halves: they can only meet in the final;
 //  2. pool mates never meet in the first round;
 //  3. pool mates meet as late as possible;
-//  4. the better entrant takes the better slot (the bye, the weakest
-//     opponent).
+//  4. the better entrant takes the better slot (the weakest opponent).
+//
+// Byes go to the best rank and, within it, to the entrants who played the
+// most matches, then whose last match ended the latest: they need the rest
+// (a bye moves only when rules 1 and 2 cannot hold otherwise).
 //
 // When a rank cannot keep rules 1 and 2 on its own slots (a single best
 // fourth facing the top seed from its pool), an entrant swaps with a seed of
@@ -98,6 +107,7 @@ type BracketEntrant struct {
 func SeedBracket(entrants []BracketEntrant) []EntrantID {
 	sorted := slices.Clone(entrants)
 	slices.SortStableFunc(sorted, func(a, b BracketEntrant) int { return a.Rank - b.Rank })
+	sorted = byesFirst(sorted, NextPowerOfTwo(len(sorted))-len(sorted))
 	b := newSeeding(sorted)
 	for start := 0; start < len(sorted); {
 		end := start
@@ -113,6 +123,44 @@ func SeedBracket(entrants []BracketEntrant) []EntrantID {
 		slots[slot] = sorted[i].ID
 	}
 	return slots
+}
+
+// byesFirst moves the entrants getting the byes to the front of their rank
+// (sorted by rank): the best rank first, the most matches played, then the
+// latest last match; the order of the others is kept.
+func byesFirst(sorted []BracketEntrant, byes int) []BracketEntrant {
+	if byes == 0 {
+		return sorted
+	}
+	idx := make([]int, len(sorted))
+	for i := range idx {
+		idx[i] = i
+	}
+	slices.SortStableFunc(idx, func(x, y int) int {
+		a, b := sorted[x], sorted[y]
+		switch {
+		case a.Rank != b.Rank:
+			return a.Rank - b.Rank
+		case a.Played != b.Played:
+			return b.Played - a.Played
+		default:
+			return b.LastEnd.Compare(a.LastEnd)
+		}
+	})
+	bye := make([]bool, len(sorted))
+	for _, i := range idx[:min(byes, len(idx))] {
+		bye[i] = true
+	}
+	out := make([]BracketEntrant, 0, len(sorted))
+	for _, i := range idx[:min(byes, len(idx))] {
+		out = append(out, sorted[i])
+	}
+	for i, e := range sorted {
+		if !bye[i] {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 // seedCost counts what a placement breaks, compared in order: a pool's two
@@ -142,6 +190,7 @@ type seeding struct {
 	entrants []BracketEntrant
 	size     int
 	final    int   // round of the final
+	byes     int   // the first entrants take the slots of seeds 1..byes
 	order    []int // seed number of each slot
 	slotOf   []int // slot of each entrant, -1 until placed
 	at       []int // entrant in each slot, -1 if none
@@ -151,7 +200,7 @@ type seeding struct {
 
 func newSeeding(sorted []BracketEntrant) *seeding {
 	size := NextPowerOfTwo(len(sorted))
-	b := &seeding{entrants: sorted, size: size, final: MeetRound(0, size-1), order: StandardOrder(size)}
+	b := &seeding{entrants: sorted, size: size, final: MeetRound(0, size-1), byes: size - len(sorted), order: StandardOrder(size)}
 	b.slotOf = slices.Repeat([]int{-1}, len(sorted))
 	b.at = slices.Repeat([]int{-1}, size)
 	b.pair = slices.Repeat([]int{-1}, len(sorted))
@@ -228,7 +277,7 @@ func (b *seeding) placeTier(start, end int) {
 			return
 		}
 		for k, slot := range free {
-			if used[k] {
+			if used[k] || (i < b.byes) != (b.order[slot] <= b.byes) {
 				continue
 			}
 			used[k] = true
