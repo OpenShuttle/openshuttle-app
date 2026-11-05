@@ -12,11 +12,11 @@
           "rank": 1,
           "tied": false,
           "entrant": {
-            "entrant": "e15",
-            "bib": 7,
+            "entrant": "e7",
+            "bib": 19,
             "names": [
-              "Mathis Dumont",
-              "Félix Blanc"
+              "Nathan Brun",
+              "Simon Fournier"
             ],
             "clubs": [
               "AS Belvédère"
@@ -60,11 +60,11 @@
           "rank": 3,
           "tied": false,
           "entrant": {
-            "entrant": "e7",
-            "bib": 19,
+            "entrant": "e15",
+            "bib": 7,
             "names": [
-              "Nathan Brun",
-              "Simon Fournier"
+              "Mathis Dumont",
+              "Félix Blanc"
             ],
             "clubs": [
               "AS Belvédère"
@@ -308,11 +308,11 @@
           "rank": 1,
           "tied": false,
           "entrant": {
-            "entrant": "e18",
-            "bib": 12,
+            "entrant": "e22",
+            "bib": 6,
             "names": [
-              "Jade Morin",
-              "Manon Laurent"
+              "Élise Masson",
+              "Lou Gauthier"
             ],
             "clubs": [
               "BC Rive Droite"
@@ -332,11 +332,11 @@
           "rank": 2,
           "tied": false,
           "entrant": {
-            "entrant": "e22",
-            "bib": 6,
+            "entrant": "e18",
+            "bib": 12,
             "names": [
-              "Élise Masson",
-              "Lou Gauthier"
+              "Jade Morin",
+              "Manon Laurent"
             ],
             "clubs": [
               "BC Rive Droite"

@@ -601,18 +601,18 @@
             ],
             "withdrawn": false
           },
-          "court": 1,
-          "calledAt": "2026-10-17T13:09:48Z",
-          "endedAt": "2026-10-17T13:40:52Z",
+          "court": 2,
+          "calledAt": "2026-10-17T13:09:49Z",
+          "endedAt": "2026-10-17T13:40:55Z",
           "score": {
             "sets": [
               {
-                "a": 9,
+                "a": 17,
                 "b": 15
               },
               {
-                "a": 12,
-                "b": 15
+                "a": 15,
+                "b": 8
               }
             ]
           },
@@ -670,18 +670,18 @@
             ],
             "withdrawn": false
           },
-          "court": 2,
-          "calledAt": "2026-10-17T13:09:49Z",
-          "endedAt": "2026-10-17T13:40:54Z",
+          "court": 3,
+          "calledAt": "2026-10-17T13:09:50Z",
+          "endedAt": "2026-10-17T13:40:57Z",
           "score": {
             "sets": [
               {
-                "a": 17,
-                "b": 15
+                "a": 15,
+                "b": 11
               },
               {
                 "a": 15,
-                "b": 8
+                "b": 9
               }
             ]
           },
@@ -710,11 +710,11 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e15",
-            "bib": 7,
+            "entrant": "e7",
+            "bib": 19,
             "names": [
-              "Mathis Dumont",
-              "Félix Blanc"
+              "Nathan Brun",
+              "Simon Fournier"
             ],
             "clubs": [
               "AS Belvédère"
@@ -739,8 +739,8 @@
             ],
             "withdrawn": false
           },
-          "court": 3,
-          "calledAt": "2026-10-17T13:44:03Z",
+          "court": 2,
+          "calledAt": "2026-10-17T13:44:05Z",
           "endedAt": "2026-10-17T14:15:08Z",
           "score": {
             "sets": [
@@ -779,11 +779,11 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e7",
-            "bib": 19,
+            "entrant": "e15",
+            "bib": 7,
             "names": [
-              "Nathan Brun",
-              "Simon Fournier"
+              "Mathis Dumont",
+              "Félix Blanc"
             ],
             "clubs": [
               "AS Belvédère"
@@ -808,8 +808,8 @@
             ],
             "withdrawn": false
           },
-          "court": 2,
-          "calledAt": "2026-10-17T13:44:02Z",
+          "court": 1,
+          "calledAt": "2026-10-17T13:44:04Z",
           "endedAt": "2026-10-17T14:15:06Z",
           "score": {
             "sets": [
@@ -878,8 +878,8 @@
             "withdrawn": false
           },
           "court": 1,
-          "calledAt": "2026-10-17T13:44:01Z",
-          "endedAt": "2026-10-17T14:15:04Z",
+          "calledAt": "2026-10-17T13:09:48Z",
+          "endedAt": "2026-10-17T13:40:53Z",
           "score": {
             "sets": [
               {
@@ -1340,22 +1340,18 @@
             ],
             "withdrawn": false
           },
-          "court": 4,
-          "calledAt": "2026-10-17T13:09:51Z",
-          "endedAt": "2026-10-17T13:40:58Z",
+          "court": 5,
+          "calledAt": "2026-10-17T13:09:52Z",
+          "endedAt": "2026-10-17T13:41:01Z",
           "score": {
             "sets": [
               {
-                "a": 13,
+                "a": 9,
                 "b": 15
               },
               {
-                "a": 15,
-                "b": 12
-              },
-              {
-                "a": 15,
-                "b": 10
+                "a": 12,
+                "b": 15
               }
             ]
           },
@@ -1413,18 +1409,22 @@
             ],
             "withdrawn": false
           },
-          "court": 3,
-          "calledAt": "2026-10-17T13:09:50Z",
-          "endedAt": "2026-10-17T13:40:56Z",
+          "court": 4,
+          "calledAt": "2026-10-17T13:09:51Z",
+          "endedAt": "2026-10-17T13:40:59Z",
           "score": {
             "sets": [
               {
-                "a": 15,
-                "b": 11
+                "a": 13,
+                "b": 15
               },
               {
                 "a": 15,
-                "b": 9
+                "b": 12
+              },
+              {
+                "a": 15,
+                "b": 10
               }
             ]
           },

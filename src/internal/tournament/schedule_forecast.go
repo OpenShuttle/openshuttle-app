@@ -2,7 +2,6 @@ package tournament
 
 import (
 	"fmt"
-	"math/bits"
 	"slices"
 	"time"
 
@@ -231,7 +230,7 @@ func (s State) waitingItems(st Stage, base forecast.Item) []forecast.Item {
 		it.Pool, it.Match, it.A, it.B, it.RoundSize = m.Pool, string(m.ID), m.A, m.B, m.Size
 		if m.IsBracket() {
 			it.Level, it.PlaceFrom = s.bracketLevel(m), m.Start
-			it.Key = blocks.BracketKey(base.Category, st.ID, it.Level, it.PlaceFrom)
+			it.Key = s.MatchBlock(m)
 		} else {
 			it.Level = m.Round
 			it.Key = blocks.PoolKey(base.Category, st.ID, m.Pool, m.Round)
@@ -268,48 +267,17 @@ func standIns(st Stage, p StagePreview, base forecast.Item) []forecast.Item {
 		return nil
 	}
 	size := engine.NextPowerOfTwo(p.Entrants)
-	for _, m := range bracketShape(size, p.Entrants, st.FullPlacement) {
+	var present []bool
+	for _, seed := range engine.StandardOrder(size) {
+		present = append(present, seed <= p.Entrants) // byes go to the top seeds
+	}
+	for _, m := range bracketShape(present, st.FullPlacement) {
 		it := base
 		it.Pool, it.Level, it.RoundSize, it.PlaceFrom = -1, m.Level, m.Size, m.Start
-		it.Key = blocks.BracketKey(c, st.ID, m.Level, m.Start)
+		it.Key = blocks.BracketKey(c, st.ID, m.Tree, m.Start)
 		items = append(items, it)
 	}
 	return items
-}
-
-// shapeMatch is a match of a bracket not filled yet: its round (0 first)
-// and its sub-bracket.
-type shapeMatch struct {
-	Level, Start, Size int
-}
-
-// bracketShape lists the matches a bracket of the given size with n
-// entrants plays: the empty slots are those of the seeds above n (byes go to
-// the top seeds), a match with a bye side is never played, its winner is the
-// other side and its loser a bye.
-func bracketShape(size, n int, full bool) []shapeMatch {
-	in := map[subBracket][]bool{} // whether each slot can hold an entrant
-	root := subBracket{1, size}
-	for _, seed := range engine.StandardOrder(size) {
-		in[root] = append(in[root], seed <= n)
-	}
-	var out []shapeMatch
-	for _, node := range subBrackets(size, full) {
-		if node.Size < 2 {
-			continue
-		}
-		level := bits.Len(uint(size/node.Size)) - 1
-		winners, losers := subBracket{node.Start, node.Size / 2}, subBracket{node.Start + node.Size/2, node.Size / 2}
-		for i := range node.Size / 2 {
-			a, b := in[node][2*i], in[node][2*i+1]
-			if a && b {
-				out = append(out, shapeMatch{level, node.Start, node.Size})
-			}
-			in[winners] = append(in[winners], a || b)
-			in[losers] = append(in[losers], a && b)
-		}
-	}
-	return out
 }
 
 // Proposals gives each free or finished court the match the schedule starts
