@@ -1,6 +1,6 @@
-import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChildren } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { MatchView, SideView } from '@bindings/apps/desktop';
+import { MatchView, SideView, TournamentService } from '@bindings/apps/desktop';
 import { EntrantID, Score, WinConditionKind } from '@bindings/internal/engine';
 
 import { TournamentStore } from '../core/tournament.service';
@@ -22,6 +22,20 @@ export function scoreFrom(points: string[][], goldenPoint: boolean): Score {
   return { sets, goldenPoint };
 }
 
+/** The sets typed in full on both sides, from the first one up to the first gap. */
+export function typedSets(points: string[][]): Score['sets'] {
+  const sets = [];
+  for (let i = 0; i < points[0].length; i++) {
+    const a = points[0][i].trim();
+    const b = points[1][i].trim();
+    if (a === '' || b === '') {
+      break;
+    }
+    sets.push({ a: Number(a), b: Number(b) });
+  }
+  return sets;
+}
+
 /** Score entry for one match: opened from a court or the pending list. */
 @Component({
   selector: 'app-score-panel',
@@ -36,6 +50,8 @@ export class ScorePanel {
 
   private readonly tournament = inject(TournamentStore);
   private readonly fields = viewChildren<ElementRef<HTMLInputElement>>('point');
+  private readonly saveButton = viewChild<ElementRef<HTMLButtonElement>>('saveButton');
+  private decideSeq = 0;
 
   protected readonly timed = computed(() => this.match().win.kind === WinConditionKind.WinByTime);
   protected readonly setCount = computed(() => {
@@ -47,6 +63,12 @@ export class ScorePanel {
   protected readonly goldenPoint = signal(false);
   /** Entrant whose forfeit waits for a second click to confirm. */
   protected readonly confirmingForfeit = signal<EntrantID | null>(null);
+  /**
+   * How many sets decide the match, as Go reads the typed score (0: not
+   * decided yet). The sets after them and the forfeit are disabled, so Tab
+   * goes from the deciding set straight to saving.
+   */
+  protected readonly decidedAfter = signal(0);
 
   constructor() {
     // Start from the recorded score when correcting one.
@@ -64,6 +86,32 @@ export class ScorePanel {
       this.goldenPoint.set(this.match().score?.goldenPoint ?? false);
     });
     effect(() => this.fields()[0]?.nativeElement.focus());
+    effect(() => {
+      const win = this.match().win;
+      const sets = typedSets(this.points());
+      const seq = ++this.decideSeq;
+      void TournamentService.ScoreDecidedAfter(win, { sets, goldenPoint: false }).then(
+        (n) => seq === this.decideSeq && this.decide(n),
+        () => seq === this.decideSeq && this.decide(0),
+      );
+    });
+  }
+
+  private decide(n: number): void {
+    // Tab may have reached a set the answer now disables: go on to saving.
+    const active = document.activeElement;
+    const fields = this.fields().map((f) => f.nativeElement);
+    const lost = n > 0 && fields.some((f, k) => f === active && Math.floor(k / 2) >= n);
+    this.decidedAfter.set(n);
+    if (lost) {
+      setTimeout(() => this.saveButton()?.nativeElement.focus());
+    }
+  }
+
+  /** A set after the ones deciding the match: never played. */
+  protected unplayed(set: number): boolean {
+    const n = this.decidedAfter();
+    return n > 0 && set >= n;
   }
 
   protected set(side: number, set: number, event: Event): void {
@@ -72,7 +120,9 @@ export class ScorePanel {
   }
 
   protected async save(): Promise<void> {
-    const score = scoreFrom(this.points(), this.timed() && this.goldenPoint());
+    const n = this.decidedAfter();
+    const points = n > 0 ? this.points().map((row) => row.slice(0, n)) : this.points();
+    const score = scoreFrom(points, this.timed() && this.goldenPoint());
     if (await this.tournament.recordScore(this.match().id, score)) {
       this.closed.emit();
     }

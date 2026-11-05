@@ -150,3 +150,31 @@ func TestErrorJSON(t *testing.T) {
 		}
 	}
 }
+
+func TestDecidedAfter(t *testing.T) {
+	tests := []struct {
+		name  string
+		w     WinCondition
+		score Score
+		want  int
+	}{
+		{"nothing typed", bestOfThree21, Score{}, 0},
+		{"one set won", bestOfThree21, Score{Sets: sets([2]int{21, 15})}, 0},
+		{"straight sets", bestOfThree21, Score{Sets: sets([2]int{21, 15}, [2]int{21, 19})}, 2},
+		{"a third set typed after", bestOfThree21, Score{Sets: sets([2]int{21, 15}, [2]int{21, 19}, [2]int{3, 0})}, 2},
+		{"one set each", bestOfThree21, Score{Sets: sets([2]int{21, 15}, [2]int{19, 21})}, 0},
+		{"three sets", bestOfThree21, Score{Sets: sets([2]int{21, 15}, [2]int{19, 21}, [2]int{21, 10})}, 3},
+		{"second set still going", bestOfThree21, Score{Sets: sets([2]int{21, 15}, [2]int{21, 20})}, 0},
+		{"first set not over", bestOfThree21, Score{Sets: sets([2]int{20, 15}, [2]int{21, 0}, [2]int{21, 0})}, 0},
+		{"single set", oneSet21, Score{Sets: sets([2]int{30, 29})}, 1},
+		{"timed", timed12, Score{Sets: sets([2]int{11, 9})}, 0},
+		{"invalid win condition", WinCondition{Kind: WinBySets}, Score{Sets: sets([2]int{21, 0})}, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DecidedAfter(tt.w, tt.score); got != tt.want {
+				t.Errorf("DecidedAfter = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
