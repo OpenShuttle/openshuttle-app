@@ -126,42 +126,55 @@
         <span class="hint kind-hint">{{ t('schedule.rules.kindHints.' + kind()) }}</span>
         <div class="form-row">
           <label class="form-label" for="court-rule-target">{{ t('schedule.rules.target') }}</label>
-          @if (selected(); as sc) {
-            <app-category-badge
-              [category]="sc.scope.category"
-              [slot]="sc.slot"
-              [color]="sc.color"
-            />
+          @for (sc of selected(); track $index) {
+            <span class="rule-chip target-chip" data-target>
+              <app-category-badge
+                [category]="sc.scope.category"
+                [slot]="sc.slot"
+                [color]="sc.color"
+              />
+              <span class="rule-scope">{{ label(sc) }}</span>
+              <button
+                type="button"
+                class="break-remove"
+                [attr.aria-label]="t('schedule.rules.unpick', { scope: label(sc) })"
+                [attr.title]="t('schedule.rules.unpick', { scope: label(sc) })"
+                (click)="unpickTarget(sc)"
+              >
+                ×
+              </button>
+            </span>
           }
           <select
+            #picker
             id="court-rule-target"
             class="input target"
             name="scope"
-            (change)="scope.set(+$any($event.target).value)"
+            (change)="pickTarget(picker)"
           >
-            <option value="-1" [selected]="scope() < 0">
-              {{ t('schedule.rules.pickTarget') }}
+            <option value="" selected>
+              {{ t(selected().length ? 'schedule.rules.pickMore' : 'schedule.rules.pickTarget') }}
             </option>
             @for (g of scopeGroups(); track g.category.scope.category) {
               <optgroup [label]="t('category.name.' + g.category.scope.category)">
-                @for (o of g.options; track o.index) {
-                  <option [value]="o.index" [selected]="scope() === o.index">
+                @for (o of g.options; track o.key) {
+                  <option [value]="o.key" [disabled]="o.picked">
                     {{ optionLabel(o) }}
                   </option>
                 }
               </optgroup>
             }
           </select>
-          <button type="submit" class="btn btn-sm btn-primary" [disabled]="!rule()">
-            {{ t('schedule.rules.add') }}
+          <button type="submit" class="btn btn-sm btn-primary" [disabled]="!rules()">
+            {{ t('schedule.rules.add', { n: selected().length * courts().length }) }}
           </button>
-          @if (rule()) {
+          @if (rules() || selected().length > 0) {
             <button type="button" class="btn btn-sm" (click)="reset()">
               {{ t('common.cancel') }}
             </button>
           }
         </div>
-        @if (rule()) {
+        @if (rules()) {
           <span class="hint previewing" data-previewing>{{ t('schedule.rules.previewing') }}</span>
         }
       </form>

@@ -2,6 +2,7 @@ package forecast
 
 import (
 	"maps"
+	"slices"
 	"testing"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -20,6 +21,7 @@ func TestRunCourtRules(t *testing.T) {
 	}
 	final := Item{Key: "MD/S2/R1", Category: md, Stage: "S2", Pool: -1, RoundSize: 2, PlaceFrom: 1, Match: "F", After: []string{"S1"}, Minutes: 20}
 	third := Item{Key: "MD/S2/R1/P3", Category: md, Stage: "S2", Pool: -1, RoundSize: 2, PlaceFrom: 3, Match: "T3", After: []string{"S1"}, Minutes: 20}
+	semi := Item{Key: "MD/S2/R0", Category: md, Stage: "S2", Pool: -1, RoundSize: 4, PlaceFrom: 1, Match: "SF", After: []string{"S1"}, Minutes: 20}
 	wdPools := Scope{Category: wd, Stage: "S1"}
 	tests := []struct {
 		name string
@@ -95,10 +97,30 @@ func TestRunCourtRules(t *testing.T) {
 			off:  []string{"w1"},
 		},
 		{
-			name: "a ghost match keeps its turn on a priority court",
-			in: Input{Courts: 1, Items: []Item{m("m1", "a", "b"), {Ghost: "g1", Court: 1, Minutes: 10, AfterMatch: "m1"}, m("m2", "c", "d"), w("w1", "A", "e", "f")},
-				Rules: map[int][]Rule{1: {{Kind: RulePriority, Level: 1, Scope: wdPools}}}},
-			want: map[string]placed{"w1": {1, 0, false}, "m1": {1, 20, false}, "g1": {1, 40, false}, "m2": {1, 50, false}},
+			// Court 1 never takes the pools, court 2 waits for the semi-final
+			// only: the pool match goes against the rules at once (it used to
+			// start in 2038, freezing the timeline).
+			name: "impossible rules: the stuck item placed now, the others keep their rules",
+			in: Input{Courts: 2, Items: []Item{m("m1", "a", "b"), semi},
+				Rules: map[int][]Rule{
+					1: {{Kind: RuleNever, Scope: Scope{Category: md, Stage: "S1"}}},
+					2: {{Kind: RuleOnly, Scope: Scope{Category: md, Stage: "S2", RoundSize: 4, PlaceFrom: 1}}},
+				}},
+			want: map[string]placed{"m1": {2, 0, false}, "SF": {2, 20, false}},
+			off:  []string{"m1"},
+		},
+		{
+			// No court may take WD: once MD is placed, its matches share the
+			// courts at once, not one by one.
+			name: "items no court can take spread over the courts",
+			in: Input{Courts: 3, Items: []Item{m("m1", "a", "b"), m("m2", "c", "d"), w("w1", "A", "a", "b"), w("w2", "A", "c", "d")},
+				Rules: map[int][]Rule{
+					1: {{Kind: RuleNever, Scope: Scope{Category: wd}}},
+					2: {{Kind: RuleNever, Scope: Scope{Category: wd}}},
+					3: {{Kind: RuleNever, Scope: Scope{Category: wd}}},
+				}},
+			want: map[string]placed{"m1": {1, 0, false}, "m2": {2, 0, false}, "w1": {1, 20, false}, "w2": {2, 20, false}},
+			off:  []string{"w1", "w2"},
 		},
 	}
 	for _, tt := range tests {
@@ -115,7 +137,7 @@ func TestRunCourtRules(t *testing.T) {
 					off = append(off, sl.Match)
 				}
 			}
-			if len(off) != len(tt.off) || (len(off) > 0 && off[0] != tt.off[0]) {
+			if !slices.Equal(off, tt.off) {
 				t.Errorf("off rules %v, want %v", off, tt.off)
 			}
 		})

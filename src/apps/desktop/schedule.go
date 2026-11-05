@@ -9,21 +9,16 @@ import (
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
-// SetScheduleMode chooses how two categories share the courts: "alternate"
-// or "reserved".
-func (s *TournamentService) SetScheduleMode(ctx context.Context, mode tournament.ScheduleMode) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetScheduleMode(mode) })
-}
-
-// SetScheduleFirst chooses the category opening each round in alternate mode.
+// SetScheduleFirst chooses the category opening each round.
 func (s *TournamentService) SetScheduleFirst(ctx context.Context, c engine.Category) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetScheduleFirst(c) })
 }
 
-// AddCourtRule gives courts a rule (a priority, only, never) for a scope; a
-// court's rule of the same scope is replaced.
-func (s *TournamentService) AddCourtRule(ctx context.Context, courts []int, rule tournament.CourtRule) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddCourtRule(courts, rule) })
+// AddCourtRules gives courts rules (a priority, only, never), one per
+// scope, in one undoable event; a court's rule of the same scope is
+// replaced.
+func (s *TournamentService) AddCourtRules(ctx context.Context, courts []int, rules []tournament.CourtRule) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddCourtRules(courts, rules) })
 }
 
 // RemoveCourtRule removes a court's rule of a scope.
@@ -36,10 +31,10 @@ func (s *TournamentService) ClearCourtRules(ctx context.Context, court int) erro
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.ClearCourtRules(court) })
 }
 
-// PreviewCourtRule returns the schedule screen as it would be with a court
-// rule added: what the desk sees while choosing it. Nothing is saved.
-func (s *TournamentService) PreviewCourtRule(courts []int, rule tournament.CourtRule) ScheduleView {
-	return s.previewSchedule(func(st tournament.State) (tournament.Change, error) { return st.AddCourtRule(courts, rule) })
+// PreviewCourtRules returns the schedule screen as it would be with court
+// rules added: what the desk sees while choosing them. Nothing is saved.
+func (s *TournamentService) PreviewCourtRules(courts []int, rules []tournament.CourtRule) ScheduleView {
+	return s.previewSchedule(func(st tournament.State) (tournament.Change, error) { return st.AddCourtRules(courts, rules) })
 }
 
 // ValidateSchedule fixes the order of the waiting matches from the rules
@@ -82,18 +77,6 @@ func (s *TournamentService) AddBreak(ctx context.Context, from, to string) error
 // RemoveBreak removes a pause.
 func (s *TournamentService) RemoveBreak(ctx context.Context, id string) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveBreak(id) })
-}
-
-// AddGhostMatch leaves a court empty for some minutes in its turn, after a
-// match ("": as soon as the court is free). Only the schedule screen's
-// forecast counts it.
-func (s *TournamentService) AddGhostMatch(ctx context.Context, court, minutes int, after tournament.MatchID) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddGhostMatch(court, minutes, after) })
-}
-
-// RemoveGhostMatch removes a ghost match.
-func (s *TournamentService) RemoveGhostMatch(ctx context.Context, id string) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveGhostMatch(id) })
 }
 
 // GetScheduleView returns the schedule screen.

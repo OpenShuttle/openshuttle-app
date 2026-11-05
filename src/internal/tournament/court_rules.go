@@ -51,9 +51,10 @@ func (s State) CourtRules() map[int][]CourtRule {
 	return s.ScheduleSettings().Rules
 }
 
-// AddCourtRule gives several courts a rule; a court's rule of the same
-// scope is replaced, so a court has one rule per scope.
-func (s State) AddCourtRule(courts []int, rule CourtRule) (Change, error) {
+// AddCourtRules gives several courts rules, one per scope (a priority on
+// pools A and B: two rules), in one event; a court's rule of the same scope
+// is replaced, so a court has one rule per scope (the last one given wins).
+func (s State) AddCourtRules(courts []int, rules []CourtRule) (Change, error) {
 	if len(courts) == 0 {
 		return Change{}, engine.NewError(engine.CodeInvalidCourt)
 	}
@@ -62,14 +63,22 @@ func (s State) AddCourtRule(courts []int, rule CourtRule) (Change, error) {
 			return Change{}, engine.NewError(engine.CodeInvalidCourt)
 		}
 	}
-	rule, err := s.checkCourtRule(rule)
-	if err != nil {
-		return Change{}, err
+	if len(rules) == 0 {
+		return Change{}, engine.NewError(engine.CodeInvalidSetting)
+	}
+	checked := make([]CourtRule, len(rules))
+	for i, r := range rules {
+		var err error
+		if checked[i], err = s.checkCourtRule(r); err != nil {
+			return Change{}, err
+		}
 	}
 	return s.scheduleChange(func(p *ScheduleSet) {
 		for _, c := range courts {
-			rules := slices.DeleteFunc(slices.Clone(p.Rules[c]), func(r CourtRule) bool { return r.Scope == rule.Scope })
-			p.Rules[c] = append(rules, rule)
+			for _, rule := range checked {
+				rs := slices.DeleteFunc(slices.Clone(p.Rules[c]), func(r CourtRule) bool { return r.Scope == rule.Scope })
+				p.Rules[c] = append(rs, rule)
+			}
 		}
 	})
 }
@@ -156,8 +165,8 @@ func poolIndex(name string) int {
 
 // courtRules reads the rules of a schedule setup: rules of courts out of
 // range or naming what the tournament no longer has are left out. Courts
-// reserved by hand in older files (reserved mode) read as an only rule for
-// their category.
+// reserved by hand in older files (reserved mode, now gone) read as an only
+// rule for their category.
 func (s State) courtRules(p ScheduleSet) map[int][]CourtRule {
 	out := map[int][]CourtRule{}
 	for court, rules := range p.Rules {
@@ -170,7 +179,7 @@ func (s State) courtRules(p ScheduleSet) map[int][]CourtRule {
 			}
 		}
 	}
-	if p.Mode == ScheduleReserved {
+	if p.Mode == legacyReserved {
 		for court, c := range p.Courts {
 			if court >= 1 && court <= s.Courts() && s.HasCategory(c) && len(out[court]) == 0 {
 				out[court] = []CourtRule{{Kind: CourtOnly, Scope: CourtScope{Category: c}}}
@@ -239,7 +248,7 @@ func (s State) CourtScopes() []CourtScope {
 		for _, st := range s.Stages(c) {
 			var parts []CourtScope
 			for _, it := range items {
-				if it.Category != c || it.Stage != st.ID || it.Ghost != "" {
+				if it.Category != c || it.Stage != st.ID {
 					continue
 				}
 				if it.Pool >= 0 {

@@ -1,6 +1,6 @@
 # 12. Court rules steer which matches each court takes
 
-- Status: accepted, amends ADR 6
+- Status: accepted, amends ADR 6, amended by ADR 13 (no reserved mode, several targets, impossible rules)
 - Date: 2026-11-05
 
 ## Context

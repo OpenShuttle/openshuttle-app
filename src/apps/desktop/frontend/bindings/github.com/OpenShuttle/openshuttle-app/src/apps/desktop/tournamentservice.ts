@@ -38,20 +38,12 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
- * AddCourtRule gives courts a rule (a priority, only, never) for a scope; a
- * court's rule of the same scope is replaced.
+ * AddCourtRules gives courts rules (a priority, only, never), one per
+ * scope, in one undoable event; a court's rule of the same scope is
+ * replaced.
  */
-export function AddCourtRule(courts: number[] | null, rule: tournament$0.CourtRule): $CancellablePromise<void> {
-    return $Call.ByID(2513356550, courts, rule);
-}
-
-/**
- * AddGhostMatch leaves a court empty for some minutes in its turn, after a
- * match ("": as soon as the court is free). Only the schedule screen's
- * forecast counts it.
- */
-export function AddGhostMatch(court: number, minutes: number, after: tournament$0.MatchID): $CancellablePromise<void> {
-    return $Call.ByID(2862259777, court, minutes, after);
+export function AddCourtRules(courts: number[] | null, rules: tournament$0.CourtRule[] | null): $CancellablePromise<void> {
+    return $Call.ByID(1233386799, courts, rules);
 }
 
 /**
@@ -396,11 +388,11 @@ export function PairEntrants(id: engine$0.EntrantID, partner: engine$0.EntrantID
 }
 
 /**
- * PreviewCourtRule returns the schedule screen as it would be with a court
- * rule added: what the desk sees while choosing it. Nothing is saved.
+ * PreviewCourtRules returns the schedule screen as it would be with court
+ * rules added: what the desk sees while choosing them. Nothing is saved.
  */
-export function PreviewCourtRule(courts: number[] | null, rule: tournament$0.CourtRule): $CancellablePromise<$models.ScheduleView> {
-    return $Call.ByID(2408255163, courts, rule);
+export function PreviewCourtRules(courts: number[] | null, rules: tournament$0.CourtRule[] | null): $CancellablePromise<$models.ScheduleView> {
+    return $Call.ByID(3219670232, courts, rules);
 }
 
 /**
@@ -478,13 +470,6 @@ export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void>
 }
 
 /**
- * RemoveGhostMatch removes a ghost match.
- */
-export function RemoveGhostMatch(id: string): $CancellablePromise<void> {
-    return $Call.ByID(3512603730, id);
-}
-
-/**
  * RemoveStage removes a stage with no entrants yet.
  */
 export function RemoveStage(c: engine$0.Category, id: string): $CancellablePromise<void> {
@@ -550,18 +535,10 @@ export function SetMinRest(minutes: number): $CancellablePromise<void> {
 }
 
 /**
- * SetScheduleFirst chooses the category opening each round in alternate mode.
+ * SetScheduleFirst chooses the category opening each round.
  */
 export function SetScheduleFirst(c: engine$0.Category): $CancellablePromise<void> {
     return $Call.ByID(1540816543, c);
-}
-
-/**
- * SetScheduleMode chooses how two categories share the courts: "alternate"
- * or "reserved".
- */
-export function SetScheduleMode(mode: tournament$0.ScheduleMode): $CancellablePromise<void> {
-    return $Call.ByID(2033836052, mode);
 }
 
 /**

@@ -15,7 +15,7 @@ import {
   ScheduleView,
   TournamentService,
 } from '@bindings/apps/desktop';
-import { CourtRule, CourtRuleKind } from '@bindings/internal/tournament';
+import { CourtRule, CourtRuleKind, CourtScope } from '@bindings/internal/tournament';
 
 import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
@@ -24,6 +24,11 @@ import { shortRoundLabel } from '../shared/match-stage';
 
 /** The highest priority level (1 goes first), as Go's MaxCourtPriority. */
 const MAX_LEVEL = 9;
+
+/** Identifies a scope among the view's: its category, stage, pool and round. */
+export function scopeKey(sc: CourtScope): string {
+  return [sc.category, sc.stage ?? '', sc.pool ?? '', sc.round ?? 0, sc.from ?? 0].join('/');
+}
 
 /** Names a scope: "whole category", "P · Pools", "P A", "T · Final". */
 export function scopeLabel(
@@ -79,11 +84,11 @@ export class CourtRules {
   ];
   protected readonly maxLevel = MAX_LEVEL;
 
-  /** The rule being chosen: its courts, kind, level and scope (index in the view's scopes, -1 none). */
+  /** The rules being chosen: their courts, kind, level and targets (scope keys, in the order picked). */
   protected readonly courts = signal<number[]>([]);
   protected readonly kind = signal<CourtRuleKind>(CourtRuleKind.CourtPriority);
   protected readonly level = signal(1);
-  protected readonly scope = signal(-1);
+  protected readonly targets = signal<string[]>([]);
 
   protected readonly courtNumbers = computed(() =>
     Array.from({ length: this.view().courts }, (_, i) => i + 1),
@@ -99,55 +104,57 @@ export class CourtRules {
     (this.view().courtRules ?? []).reduce((n, c) => n + (c.rules ?? []).length, 0),
   );
 
-  /** The scopes grouped by category, for the target picker. */
+  /** The scopes grouped by category, for the target picker; the ones picked already are disabled. */
   protected readonly scopeGroups = computed(() => {
+    const picked = new Set(this.targets());
     const groups: {
       category: CourtScopeView;
-      options: { index: number; scope: CourtScopeView; depth: number }[];
+      options: { key: string; scope: CourtScopeView; depth: number; picked: boolean }[];
     }[] = [];
-    (this.view().scopes ?? []).forEach((sc, index) => {
+    for (const sc of this.view().scopes ?? []) {
       if (!sc.scope.stage) {
         groups.push({ category: sc, options: [] });
       }
       const depth = !sc.scope.stage ? 0 : sc.scope.pool || sc.scope.round ? 2 : 1;
-      groups.at(-1)?.options.push({ index, scope: sc, depth });
-    });
+      const key = scopeKey(sc.scope);
+      groups.at(-1)?.options.push({ key, scope: sc, depth, picked: picked.has(key) });
+    }
     return groups;
   });
 
-  /** The scope chosen, null before. */
-  protected readonly selected = computed(() => (this.view().scopes ?? [])[this.scope()] ?? null);
+  /** The targets picked, still in the tournament, in the order picked. */
+  protected readonly selected = computed(() => {
+    const byKey = new Map((this.view().scopes ?? []).map((sc) => [scopeKey(sc.scope), sc]));
+    return this.targets().flatMap((k) => byKey.get(k) ?? []);
+  });
 
-  /** The rule ready to add, null while incomplete. */
-  protected readonly rule = computed<CourtRule | null>(() => {
-    const sc = this.selected();
+  /** The rules ready to add, one per target; null while incomplete. */
+  protected readonly rules = computed<CourtRule[] | null>(() => {
+    const targets = this.selected();
     const courts = this.courts().filter((n) => n <= this.view().courts);
-    if (!sc || courts.length === 0) {
+    if (targets.length === 0 || courts.length === 0) {
       return null;
     }
-    return {
-      kind: this.kind(),
-      level: this.kind() === CourtRuleKind.CourtPriority ? this.level() : 0,
-      scope: sc.scope,
-    };
+    const level = this.kind() === CourtRuleKind.CourtPriority ? this.level() : 0;
+    return targets.map((sc) => ({ kind: this.kind(), level, scope: sc.scope }));
   });
 
   private previewSeq = 0;
 
   constructor() {
-    // The timeline previews the rule being chosen, again after each change
+    // The timeline previews the rules being chosen, again after each change
     // of the tournament.
     effect(() => {
-      const rule = this.rule();
+      const rules = this.rules();
       const courts = this.courts();
       // Reading the view's time refetches the preview after each update.
       const live = this.view().now !== '';
       const seq = ++this.previewSeq;
-      if (!rule || !live) {
+      if (!rules || !live) {
         untracked(() => this.preview.emit(null));
         return;
       }
-      void TournamentService.PreviewCourtRule(courts, rule).then(
+      void TournamentService.PreviewCourtRules(courts, rules).then(
         (v) => seq === this.previewSeq && this.preview.emit(v),
         () => seq === this.previewSeq && this.preview.emit(null),
       );
@@ -182,16 +189,30 @@ export class CourtRules {
     this.level.set(Math.min(MAX_LEVEL, Math.max(1, level)));
   }
 
+  /** Picks a target from the picker, which goes back to its prompt. */
+  protected pickTarget(select: HTMLSelectElement): void {
+    const key = select.value;
+    select.value = '';
+    if (key && !this.targets().includes(key)) {
+      this.targets.update((ts) => [...ts, key]);
+    }
+  }
+
+  protected unpickTarget(sc: CourtScopeView): void {
+    const key = scopeKey(sc.scope);
+    this.targets.update((ts) => ts.filter((k) => k !== key));
+  }
+
   protected async add(): Promise<void> {
-    const rule = this.rule();
-    if (rule && (await this.store.addCourtRule(this.courts(), rule))) {
+    const rules = this.rules();
+    if (rules && (await this.store.addCourtRules(this.courts(), rules))) {
       this.reset();
     }
   }
 
   protected reset(): void {
     this.courts.set([]);
-    this.scope.set(-1);
+    this.targets.set([]);
   }
 
   protected remove(court: number, r: CourtRuleView): void {

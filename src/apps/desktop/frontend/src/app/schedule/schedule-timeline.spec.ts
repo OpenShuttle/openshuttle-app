@@ -1,7 +1,7 @@
 import { ScheduleSlotView, ScheduleView } from '@bindings/apps/desktop';
 
 import schedule from '../../testing/fixtures/progress-schedule.json';
-import { PX_PER_MIN, axisHeight, axisStart, breakBands, ghostsByCourt, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
+import { PX_PER_MIN, axisHeight, axisStart, breakBands, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
 
 const view = schedule as unknown as ScheduleView;
 
@@ -34,27 +34,6 @@ describe('schedule timeline', () => {
     const bands = breakBands(v, start, height);
     expect(bands.map((b) => b.id)).toEqual(['k1', 'k2']);
     expect(bands[0]).toMatchObject({ top: 0, height: 10 * PX_PER_MIN });
-  });
-
-  it('places the ghost matches on their courts and grows the axis to their end', () => {
-    const start = Date.parse('2026-10-17T09:00:00Z');
-    const v = {
-      ...view,
-      slots: [{ start: '2026-10-17T09:00:00Z', end: '2026-10-17T10:00:00Z' } as ScheduleSlotView],
-      breaks: [],
-      ghosts: [
-        { id: 'g1', court: 2, minutes: 30, after: null, start: '2026-10-17T10:00:00Z', end: '2026-10-17T10:30:00Z' },
-        { id: 'g2', court: 2, minutes: 5, after: null, start: '2026-10-17T09:00:00Z', end: '2026-10-17T09:05:00Z' },
-        { id: 'g3', court: 1, minutes: 30, after: null, start: null, end: null },
-      ],
-    };
-    expect(axisHeight(v, start)).toBe(90 * PX_PER_MIN + 40);
-    const byCourt = ghostsByCourt(v, start);
-    expect(byCourt.get(1)).toBeUndefined();
-    expect(byCourt.get(2)).toEqual([
-      { ghost: v.ghosts[0], top: 60 * PX_PER_MIN, height: 30 * PX_PER_MIN - 3 },
-      { ghost: v.ghosts[1], top: 0, height: 18 - 3 },
-    ]);
   });
 
   it('measures slots and the axis', () => {

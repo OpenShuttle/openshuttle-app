@@ -28,11 +28,8 @@ type ScheduleSlot struct {
 	// PlaceFrom is, in a bracket, the first place its part of the bracket
 	// plays for: 1 for the main draw, 5 for places 5 to 8 (0 in pools).
 	PlaceFrom int
-	// Match is "" in a stage not filled yet: who plays is not known, and in
-	// a ghost match.
+	// Match is "" in a stage not filled yet: who plays is not known.
 	Match MatchID
-	// Ghost is the ID of a ghost match: its court stays empty, nobody plays.
-	Ghost string
 	A, B  engine.EntrantID
 	Court int
 	Start time.Time
@@ -51,38 +48,23 @@ type Schedule struct {
 	Slots []ScheduleSlot
 	// End is when the last match is expected to end.
 	End time.Time
-	// Reserved is the category of each court shared in reserved mode (the
-	// courts without an only rule).
-	Reserved map[int]engine.Category
 }
 
 // Schedule forecasts the rest of the tournament (forecast.Run) from the
 // tournament's start while no match has been called, from now once it is
 // past or matches started (ForecastStart): courts take the matches in
 // schedule order (ScheduleOrder), then the stand-ins of stages not filled
-// yet, as they free up, around the breaks. A match on court running late
-// ends any minute, never "already". Ghost matches are left out: this is the
-// control desk's schedule.
+// yet, as they free up, steered by the court rules, around the breaks. A
+// match on court running late ends any minute, never "already".
 func (s State) Schedule(now time.Time) Schedule {
-	return s.forecast(s.ForecastStart(now), now, false)
+	return s.forecast(s.ForecastStart(now), now)
 }
 
-// ScheduleWithGhosts is the Schedule screen's forecast: Schedule with the
-// ghost matches keeping their courts empty in their turn.
-func (s State) ScheduleWithGhosts(now time.Time) Schedule {
-	return s.forecast(s.ForecastStart(now), now, true)
-}
-
-// forecast runs the forecast with courts free from start, with the ghost
-// matches or not.
-func (s State) forecast(start, now time.Time, ghosts bool) Schedule {
-	items := s.orderedItems()
+// forecast runs the forecast with courts free from start.
+func (s State) forecast(start, now time.Time) Schedule {
 	in := forecast.Input{
 		Now: start, Courts: s.Courts(), Rest: time.Duration(s.MinRest()) * time.Minute,
-		Items: items, Reserved: s.reservedCourts(items), Rules: forecastRules(s.CourtRules()),
-	}
-	if ghosts {
-		in.Items = s.withGhosts(items, now)
+		Items: s.orderedItems(), Rules: forecastRules(s.CourtRules()),
 	}
 	for _, b := range s.BreakTimes(now) {
 		in.Breaks = append(in.Breaks, forecast.Break{From: b.From, To: b.To})
@@ -98,15 +80,25 @@ func (s State) forecast(start, now time.Time, ghosts bool) Schedule {
 		}
 	}
 	res := forecast.Run(in)
-	out := Schedule{End: res.End, Reserved: in.Reserved}
+	out := Schedule{End: res.End}
 	for _, sl := range res.Slots {
 		out.Slots = append(out.Slots, ScheduleSlot{
 			Key: sl.Key, Category: sl.Category, Stage: sl.Stage, Pool: sl.Pool, Level: sl.Level,
-			RoundSize: sl.RoundSize, PlaceFrom: sl.PlaceFrom, Match: MatchID(sl.Match), Ghost: sl.Ghost, A: sl.A, B: sl.B,
+			RoundSize: sl.RoundSize, PlaceFrom: sl.PlaceFrom, Match: MatchID(sl.Match), A: sl.A, B: sl.B,
 			Court: sl.Court, Start: sl.Start, End: sl.End, Unrested: sl.Unrested, OffRules: sl.OffRules,
 		})
 	}
 	return out
+}
+
+// estimatedEnd is when a match on court should end: at its estimate, any
+// minute when running late.
+func (s State) estimatedEnd(m Match, now time.Time) time.Time {
+	end := m.CalledAt.Add(time.Duration(s.WinCondition(m).EstimatedMinutes()) * time.Minute)
+	if !end.After(now) {
+		end = now.Add(time.Minute)
+	}
+	return end
 }
 
 // orderedItems lists the matches to place. While the order is made of
@@ -291,31 +283,6 @@ func standIns(st Stage, p StagePreview, base forecast.Item) []forecast.Item {
 	return items
 }
 
-// reservedCourts gives each court without an only rule its category in
-// reserved mode (forecast.ReserveCourts), from the matches left; a court
-// with only rules counts for the category of the first.
-func (s State) reservedCourts(items []forecast.Item) map[int]engine.Category {
-	settings := s.ScheduleSettings()
-	if settings.Mode != ScheduleReserved {
-		return map[int]engine.Category{}
-	}
-	left := map[engine.Category]int{}
-	for _, it := range items {
-		left[it.Category]++
-	}
-	fixed := map[int]engine.Category{}
-	for court, rules := range settings.Rules {
-		if i := slices.IndexFunc(rules, func(r CourtRule) bool { return r.Kind == CourtOnly }); i >= 0 {
-			fixed[court] = rules[i].Scope.Category
-		}
-	}
-	out := forecast.ReserveCourts(s.Courts(), fixed, s.Categories, left)
-	for court := range fixed {
-		delete(out, court)
-	}
-	return out
-}
-
 // Proposals gives each free or finished court the match the schedule starts
 // there now, even before the tournament's start hour (the desk may start
 // early), never during a break. Timed matches are called by rounds, never one
@@ -326,7 +293,7 @@ func (s State) Proposals(now time.Time) map[int]ScheduleSlot {
 	for _, c := range s.CourtStates() {
 		playing[c.Number] = c.State == CourtPlaying
 	}
-	for _, slot := range s.forecast(now, now, false).Slots {
+	for _, slot := range s.forecast(now, now).Slots {
 		if !slot.Start.Equal(now) || playing[slot.Court] || slot.Match == "" {
 			continue
 		}

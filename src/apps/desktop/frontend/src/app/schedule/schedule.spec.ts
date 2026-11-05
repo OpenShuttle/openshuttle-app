@@ -62,41 +62,6 @@ describe('Schedule', () => {
     expect(go.argsOf('TournamentService.RemoveBreak')).toEqual([['k9']]);
   });
 
-  it('adds a ghost match after a match of its court, draws it and removes it', async () => {
-    const anchor = schedule.slots.find((s) => s.state === 'planned' && s.match && s.court === 2)!;
-    const elsewhere = schedule.slots.find((s) => s.state === 'planned' && s.match && s.court === 1)!;
-    const at = (min: number) => new Date(Date.parse(anchor.end) + min * 60_000).toISOString();
-    view({ ...schedule, ghosts: [{ id: 'g9', court: 2, minutes: 20, after: anchor.match, start: at(0), end: at(20) }] });
-    const f = await render(Schedule);
-    const ghost = find(f, '[data-lane="2"] [data-ghost="g9"]');
-    expect(ghost.textContent).toContain('Ghost match');
-    expect(ghost.textContent).toContain('20 min');
-    expect(ghost.getAttribute('title')).toContain(`after ${anchor.match!.id}`);
-    expect(find(f, '[data-ghosts]').textContent).toContain('Court 2 · 20 min');
-
-    const [court, after] = [...f.nativeElement.querySelectorAll('[data-ghosts] select')] as HTMLSelectElement[];
-    await choose(f, court, '2');
-    const options = [...after.options].map((o) => o.value);
-    expect(options[0]).toBe('');
-    expect(options).toContain(anchor.match!.id);
-    expect(options).not.toContain(elsewhere.match!.id);
-    await choose(f, after, anchor.match!.id);
-    await type(f, find(f, '[data-ghosts] input') as HTMLInputElement, '30');
-    await click(f, 'Add a ghost match');
-    expect(go.argsOf('TournamentService.AddGhostMatch')).toEqual([[2, 30, anchor.match!.id]]);
-
-    (find(f, '[data-ghosts] .break-remove') as HTMLButtonElement).click();
-    (ghost.querySelector('button') as HTMLButtonElement).click();
-    expect(go.argsOf('TournamentService.RemoveGhostMatch')).toEqual([['g9'], ['g9']]);
-  });
-
-  it('adds a ghost match emptying a court as soon as it is free', async () => {
-    const f = await render(Schedule);
-    expect(find(f, '[data-ghosts]').textContent).toContain('No ghost match');
-    await click(f, 'Add a ghost match');
-    expect(go.argsOf('TournamentService.AddGhostMatch')).toEqual([[1, 20, '']]);
-  });
-
   it('folds the order of rounds', async () => {
     const f = await render(Schedule);
     (find(f, '.blocks .fold') as HTMLButtonElement).click();
@@ -125,10 +90,9 @@ describe('Schedule', () => {
     expect(go.called('TournamentService.UnvalidateSchedule')).toBe(true);
   });
 
-  it('shares the courts between two categories', async () => {
+  it('chooses the category opening each round', async () => {
     const f = await render(Schedule);
-    await click(f, 'Reserved courts');
-    expect(go.argsOf('TournamentService.SetScheduleMode')).toEqual([['reserved']]);
+    expect(text(f)).not.toContain('Reserved courts');
     await click(f, "Women's doubles");
     expect(go.argsOf('TournamentService.SetScheduleFirst')).toEqual([['WD']]);
   });
@@ -164,9 +128,9 @@ describe('Schedule', () => {
     expect(titles.filter((t) => t.includes('against the court rules'))).toHaveLength(1);
   });
 
-  it('previews a rule for several courts, then adds it', async () => {
+  it('previews a rule for several courts and targets, then adds one rule per target', async () => {
     const preview = { ...schedule, slots: schedule.slots.slice(0, 3) };
-    go.on('TournamentService.PreviewCourtRule', preview);
+    go.on('TournamentService.PreviewCourtRules', preview);
     const f = await render(Schedule);
     const toggles = [...f.nativeElement.querySelectorAll('.court-toggle')] as HTMLButtonElement[];
     toggles[0].click();
@@ -177,20 +141,35 @@ describe('Schedule', () => {
     f.detectChanges();
     expect(find(f, '[data-level]').textContent).toContain('2');
     const target = find(f, '[data-rule-form] select') as HTMLSelectElement;
-    const poolA = schedule.scopes.findIndex((sc) => sc.scope.category === 'WD' && sc.scope.pool === 'A');
     expect([...target.options].map((o) => o.textContent?.trim())).toContain('P A');
-    await choose(f, target, String(poolA));
-    expect(find(f, '[data-rule-form] .badge').textContent).toContain('WD');
+    const option = (category: string, pool: string) =>
+      [...target.options].find((o) => o.value === `${category}/S1/${pool}/0/0`)!;
+    await choose(f, target, option('WD', 'A').value);
+    // The picker goes back to its prompt, the target shows as a chip and
+    // can no longer be picked.
+    expect(target.value).toBe('');
+    expect(option('WD', 'A').disabled).toBe(true);
+    await choose(f, target, option('WD', 'B').value);
+    const chips = [...f.nativeElement.querySelectorAll('[data-target]')] as HTMLElement[];
+    expect(chips.map((c) => c.textContent)).toEqual([expect.stringContaining('P A'), expect.stringContaining('P B')]);
+    expect(chips[0].querySelector('.badge')?.textContent).toContain('WD');
     await new Promise((r) => setTimeout(r, 10));
     f.detectChanges();
-    const rule = { kind: 'priority', level: 2, scope: { category: 'WD', stage: 'S1', pool: 'A' } };
-    expect(go.argsOf('TournamentService.PreviewCourtRule').at(-1)).toEqual([[1, 2], rule]);
+    const rule = (pool: string) => ({ kind: 'priority', level: 2, scope: { category: 'WD', stage: 'S1', pool } });
+    expect(go.argsOf('TournamentService.PreviewCourtRules').at(-1)).toEqual([[1, 2], [rule('A'), rule('B')]]);
     expect(find(f, '[data-previewing]').textContent).toContain('Preview');
     expect(f.nativeElement.querySelectorAll('.slot').length).toBe(3);
 
-    go.on('TournamentService.AddCourtRule', null);
-    await click(f, 'Add the rule');
-    expect(go.argsOf('TournamentService.AddCourtRule')).toEqual([[[1, 2], rule]]);
+    // A target taken back leaves the other.
+    (chips[0].querySelector('button') as HTMLButtonElement).click();
+    f.detectChanges();
+    await new Promise((r) => setTimeout(r, 10));
+    expect(go.argsOf('TournamentService.PreviewCourtRules').at(-1)).toEqual([[1, 2], [rule('B')]]);
+    await choose(f, target, option('WD', 'A').value);
+
+    go.on('TournamentService.AddCourtRules', null);
+    await click(f, 'Add 4 rules');
+    expect(go.argsOf('TournamentService.AddCourtRules')).toEqual([[[1, 2], [rule('B'), rule('A')]]]);
     f.detectChanges();
     expect(f.nativeElement.querySelector('[data-previewing]')).toBeNull();
     expect(f.nativeElement.querySelectorAll('.slot').length).toBe(schedule.slots.length);
@@ -204,15 +183,16 @@ describe('Schedule', () => {
     expect(f.nativeElement.querySelector('[data-level]')).toBeNull();
     expect(text(f)).toContain('the desk can still call one there');
     const target = find(f, '[data-rule-form] select') as HTMLSelectElement;
-    await choose(f, target, '0');
+    await choose(f, target, 'MD///0/0');
     await click(f, 'Cancel');
+    expect(f.nativeElement.querySelector('[data-target]')).toBeNull();
     expect(f.nativeElement.querySelector('[data-previewing]')).toBeNull();
     expect(f.nativeElement.querySelectorAll('.court-toggle.active')).toHaveLength(0);
     (find(f, '.court-toggle') as HTMLButtonElement).click();
     await click(f, 'Only');
-    await choose(f, target, '0');
+    await choose(f, target, 'MD///0/0');
     await click(f, 'Add the rule');
-    expect(go.argsOf('TournamentService.AddCourtRule')).toEqual([[[1], { kind: 'only', level: 0, scope: { category: 'MD' } }]]);
+    expect(go.argsOf('TournamentService.AddCourtRules')).toEqual([[[1], [{ kind: 'only', level: 0, scope: { category: 'MD' } }]]]);
   });
 
   it('removes a rule, clears a court and folds the panel', async () => {

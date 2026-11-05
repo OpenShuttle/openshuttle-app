@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"maps"
 	"slices"
 	"testing"
 
@@ -25,7 +26,7 @@ func rule(kind CourtRuleKind, level int, c engine.Category, stage, pool string, 
 	return CourtRule{Kind: kind, Level: level, Scope: CourtScope{Category: c, Stage: stage, Pool: pool, Round: round, From: from}}
 }
 
-func TestAddCourtRule(t *testing.T) {
+func TestAddCourtRules(t *testing.T) {
 	g, main := rulesGame(t)
 	tests := []struct {
 		name   string
@@ -52,10 +53,10 @@ func TestAddCourtRule(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			g.t = t
 			if tt.code != "" {
-				g.fails(tt.code, func(s State) (Change, error) { return s.AddCourtRule(tt.courts, tt.rule) })
+				g.fails(tt.code, func(s State) (Change, error) { return s.AddCourtRules(tt.courts, []CourtRule{tt.rule}) })
 				return
 			}
-			g.do(func(s State) (Change, error) { return s.AddCourtRule(tt.courts, tt.rule) })
+			g.do(func(s State) (Change, error) { return s.AddCourtRules(tt.courts, []CourtRule{tt.rule}) })
 		})
 	}
 	g.t = t
@@ -75,7 +76,7 @@ func TestAddCourtRule(t *testing.T) {
 	// One rule per scope: adding it again replaces it; the rules sort only,
 	// priorities by level, never.
 	g.do(func(s State) (Change, error) {
-		return s.AddCourtRule([]int{4}, rule(CourtPriority, 3, ms, main, "", 2, 1))
+		return s.AddCourtRules([]int{4}, []CourtRule{rule(CourtPriority, 3, ms, main, "", 2, 1)})
 	})
 	if got := g.state().CourtRules()[4]; len(got) != 2 || got[0].Kind != CourtPriority || got[0].Level != 3 || got[1].Kind != CourtNever {
 		t.Errorf("replaced = %+v", got)
@@ -98,14 +99,63 @@ func TestAddCourtRule(t *testing.T) {
 
 }
 
+func TestAddCourtRulesSeveralScopes(t *testing.T) {
+	g, main := rulesGame(t)
+	pool := func(name string, level int) CourtRule { return rule(CourtPriority, level, ms, "S1", name, 0, 0) }
+	tests := []struct {
+		name   string
+		courts []int
+		rules  []CourtRule
+		code   engine.Code
+		want   map[int][]CourtRule
+	}{
+		{
+			name: "one rule per scope on each court", courts: []int{1, 2}, rules: []CourtRule{pool("A", 1), pool("B", 1)},
+			want: map[int][]CourtRule{1: {pool("A", 1), pool("B", 1)}, 2: {pool("A", 1), pool("B", 1)}},
+		},
+		{
+			name: "a scope already ruled is updated, the same scope twice kept once (the last)", courts: []int{2},
+			rules: []CourtRule{pool("B", 3), pool("B", 2), rule(CourtNever, 0, ms, main, "", 0, 0)},
+			want:  map[int][]CourtRule{1: {pool("A", 1), pool("B", 1)}, 2: {pool("A", 1), pool("B", 2), rule(CourtNever, 0, ms, main, "", 0, 0)}},
+		},
+		{name: "no rule", courts: []int{1}, code: engine.CodeInvalidSetting},
+		{name: "one invalid rule refuses them all", courts: []int{3}, rules: []CourtRule{pool("A", 1), rule(CourtOnly, 0, ms, main, "A", 0, 0)}, code: engine.CodeInvalidSetting},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g.t = t
+			if tt.code != "" {
+				g.fails(tt.code, func(s State) (Change, error) { return s.AddCourtRules(tt.courts, tt.rules) })
+				return
+			}
+			before := len(g.log)
+			g.do(func(s State) (Change, error) { return s.AddCourtRules(tt.courts, tt.rules) })
+			if len(g.log) != before+1 {
+				t.Errorf("%d events, want one", len(g.log)-before)
+			}
+			if got := g.state().CourtRules(); !maps.EqualFunc(got, tt.want, slices.Equal) {
+				t.Errorf("rules = %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+	g.t = t
+	// One undo takes them all back.
+	g.undo()
+	if got := g.state().CourtRules()[2]; len(got) != 2 {
+		t.Errorf("after undo = %+v", got)
+	}
+}
+
 func TestCourtRulesOfRemovedStage(t *testing.T) {
 	g := newGame(t, ms)
 	main := g.addStage(ms, StageBracket, "Main", true)
 	g.route(ms, "S1", main, main)
 	g.do(func(s State) (Change, error) {
-		return s.AddCourtRule([]int{2}, rule(CourtNever, 0, ms, main, "", 0, 0))
+		return s.AddCourtRules([]int{2}, []CourtRule{rule(CourtNever, 0, ms, main, "", 0, 0)})
 	})
-	g.do(func(s State) (Change, error) { return s.AddCourtRule([]int{2}, rule(CourtOnly, 0, ms, "S1", "", 0, 0)) })
+	g.do(func(s State) (Change, error) {
+		return s.AddCourtRules([]int{2}, []CourtRule{rule(CourtOnly, 0, ms, "S1", "", 0, 0)})
+	})
 	g.do(func(s State) (Change, error) { return s.RemoveStage(ms, main) })
 	if got := g.state().CourtRules(); len(got[2]) != 1 || got[2][0].Kind != CourtOnly {
 		t.Errorf("rules of a removed stage = %+v", got)
@@ -154,7 +204,7 @@ func TestCourtRulesForecast(t *testing.T) {
 			g, _ := rulesGame(t)
 			for court, rs := range tt.rules {
 				for _, r := range rs {
-					g.do(func(s State) (Change, error) { return s.AddCourtRule([]int{court}, r) })
+					g.do(func(s State) (Change, error) { return s.AddCourtRules([]int{court}, []CourtRule{r}) })
 				}
 			}
 			st := g.state()
@@ -187,7 +237,9 @@ func mapsEqual(a, b map[int]engine.Category) bool {
 
 func TestCourtRulesFinalOnItsCourt(t *testing.T) {
 	g, main := rulesGame(t)
-	g.do(func(s State) (Change, error) { return s.AddCourtRule([]int{4}, rule(CourtOnly, 0, ms, main, "", 2, 1)) })
+	g.do(func(s State) (Change, error) {
+		return s.AddCourtRules([]int{4}, []CourtRule{rule(CourtOnly, 0, ms, main, "", 2, 1)})
+	})
 	sc := g.state().Schedule(t0)
 	var final *ScheduleSlot
 	for i, s := range sc.Slots {
@@ -207,7 +259,7 @@ func TestCourtRulesEnd(t *testing.T) {
 	g, _ := rulesGame(t)
 	wsScope := CourtScope{Category: ws}
 	g.do(func(s State) (Change, error) {
-		return s.AddCourtRule([]int{1}, CourtRule{Kind: CourtOnly, Scope: wsScope})
+		return s.AddCourtRules([]int{1}, []CourtRule{CourtRule{Kind: CourtOnly, Scope: wsScope}})
 	})
 	m := g.state().Matches()[0]
 	if m.Category != ms {
@@ -234,25 +286,65 @@ func TestCourtRulesEnd(t *testing.T) {
 
 func TestCourtRulesOlderFiles(t *testing.T) {
 	g, _ := rulesGame(t)
-	// Reserved mode, court 4 reserved for MS by hand: an only rule.
-	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: ScheduleReserved, Courts: map[int]engine.Category{4: ms}}})
+	plain := firstWave(g.state().Schedule(t0))
+	// Reserved mode is gone: a file in it alternates the categories.
+	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: legacyReserved}})
+	if got := firstWave(g.state().Schedule(t0)); !mapsEqual(got, plain) {
+		t.Errorf("reserved mode = %v, want %v", got, plain)
+	}
+	// Court 4 reserved for MS by hand: an only rule.
+	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: legacyReserved, Courts: map[int]engine.Category{4: ms}}})
 	want := []CourtRule{{Kind: CourtOnly, Scope: CourtScope{Category: ms}}}
 	if got := g.state().CourtRules(); len(got) != 1 || !slices.Equal(got[4], want) {
 		t.Errorf("reserved court = %+v", got)
 	}
-	if r := g.state().Schedule(t0).Reserved; r[4] != "" || len(r) != 3 {
-		t.Errorf("shared courts = %v", r)
-	}
 	// Alternate mode ignored the reserved courts: no rule.
-	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: ScheduleAlternate, Courts: map[int]engine.Category{4: ms}}})
+	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: "alternate", Courts: map[int]engine.Category{4: ms}}})
 	if got := g.state().CourtRules(); len(got) != 0 {
 		t.Errorf("alternate = %+v", got)
 	}
-	// A change writes rules, never courts.
-	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: ScheduleReserved, Courts: map[int]engine.Category{4: ms}}})
-	ch := g.do(func(s State) (Change, error) { return s.AddCourtRule([]int{1}, rule(CourtNever, 0, ws, "", "", 0, 0)) })
-	if p := ch.Data.(ScheduleSet); p.Courts != nil || len(p.Rules) != 2 {
+	// A change writes rules, never courts nor a mode.
+	g.append(Change{TypeScheduleSet, ScheduleSet{Mode: legacyReserved, Courts: map[int]engine.Category{4: ms}}})
+	ch := g.do(func(s State) (Change, error) {
+		return s.AddCourtRules([]int{1}, []CourtRule{rule(CourtNever, 0, ws, "", "", 0, 0)})
+	})
+	if p := ch.Data.(ScheduleSet); p.Courts != nil || p.Mode != "" || len(p.Rules) != 2 {
 		t.Errorf("written = %+v", p)
+	}
+}
+
+// TestCourtRulesFirstWave is a desk's setup: seven courts, MS in five pools,
+// WS in two; WS first on courts 1 and 2, MS pools A and B on courts 3 to 5,
+// D and E on courts 6 and 7. A file from the reserved mode follows them too.
+func TestCourtRulesFirstWave(t *testing.T) {
+	for _, mode := range []string{"", legacyReserved} {
+		t.Run("mode "+mode, func(t *testing.T) {
+			g := newGame(t, ms, ws)
+			g.do(func(s State) (Change, error) { return s.SetCourts(7) })
+			g.confirmedPools(ms, 5, 25)
+			g.confirmedPools(ws, 2, 10)
+			if mode != "" {
+				g.append(Change{TypeScheduleSet, ScheduleSet{Mode: mode}})
+			}
+			priority := func(courts []int, c engine.Category, pools ...string) {
+				for _, p := range pools {
+					g.do(func(s State) (Change, error) {
+						return s.AddCourtRules(courts, []CourtRule{rule(CourtPriority, 1, c, "S1", p, 0, 0)})
+					})
+				}
+			}
+			priority([]int{1, 2}, ws, "")
+			priority([]int{3, 4, 5}, ms, "A", "B")
+			priority([]int{6, 7}, ms, "D", "E")
+			pools := map[int]string{}
+			for _, sl := range startsAt(g.state().Schedule(t0), t0) {
+				pools[sl.Court] = string(sl.Category) + " " + engine.PoolName(sl.Pool)
+			}
+			want := map[int]string{1: "WS A", 2: "WS A", 3: "MS A", 4: "MS A", 5: "MS B", 6: "MS D", 7: "MS D"}
+			if !maps.Equal(pools, want) {
+				t.Errorf("first wave = %v, want %v", pools, want)
+			}
+		})
 	}
 }
 
