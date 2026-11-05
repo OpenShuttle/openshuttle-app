@@ -83,6 +83,35 @@ func TestRun(t *testing.T) {
 			end:  40,
 		},
 		{
+			name: "a stage waits for its pause after its sources; the other category plays meanwhile",
+			// m1 ends at 20, the bracket waits 60 minutes: court 2 plays the WD matches.
+			in: Input{Courts: 2, Items: []Item{
+				{Key: "MD/S2/R1", Category: md, Stage: "S2", Pool: -1, Minutes: 20, After: []string{"S1"}, Pause: time.Hour, Match: "stand-in"},
+				match("m1", "a", "b"),
+				{Key: "WD/S1/A/1", Category: wd, Stage: "S1", Match: "w1", A: "e", B: "f", Minutes: 20},
+				{Key: "WD/S1/A/2", Category: wd, Stage: "S1", Match: "w2", A: "e", B: "g", Minutes: 20},
+			}},
+			want: map[string]placed{"m1": {1, 0, false}, "w1": {2, 0, false}, "w2": {1, 20, false}, "stand-in": {1, 80, false}},
+			end:  100,
+		},
+		{
+			name: "a pause already running counts from the real end of the sources",
+			in: Input{Courts: 1, Items: []Item{
+				{Key: "MD/S2/R1", Category: md, Stage: "S2", Pool: -1, Minutes: 20, Pause: time.Hour, NotBefore: at(45), Match: "f"},
+			}},
+			want: map[string]placed{"f": {1, 45, false}},
+			end:  65,
+		},
+		{
+			name: "a pause ending inside a break waits for the break",
+			in: Input{Courts: 1, Breaks: []Break{{From: at(60), To: at(90)}}, Items: []Item{
+				{Key: "MD/S2/R1", Category: md, Stage: "S2", Pool: -1, Minutes: 20, After: []string{"S1"}, Pause: 45 * time.Minute, Match: "f"},
+				match("m1", "a", "b"),
+			}},
+			want: map[string]placed{"m1": {1, 0, false}, "f": {1, 90, false}},
+			end:  110,
+		},
+		{
 			name: "reserved courts until the category is over",
 			in: Input{Courts: 2, Reserved: map[int]engine.Category{1: md, 2: wd}, Items: []Item{
 				match("m1", "a", "b"), match("m2", "c", "d"),

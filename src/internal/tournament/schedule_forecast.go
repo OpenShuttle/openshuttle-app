@@ -95,8 +95,11 @@ func (s State) forecast(start, now time.Time) Schedule {
 	return out
 }
 
-// orderedItems lists the matches to place: the waiting matches in schedule
-// order, then the stand-ins of stages not filled yet, in block order.
+// orderedItems lists the matches to place. While the order is made of
+// blocks, every match follows its block, stand-ins of stages not filled yet
+// included: a bracket round ordered before a pool round is placed before
+// it. Once the schedule is validated, the waiting matches follow the frozen
+// order and the stand-ins join the end, in block order.
 func (s State) orderedItems() []forecast.Item {
 	all := s.scheduleItems()
 	byMatch := map[MatchID]forecast.Item{}
@@ -117,13 +120,28 @@ func (s State) orderedItems() []forecast.Item {
 	for i, b := range s.blockOrder() {
 		rank[b.Key] = i
 	}
-	slices.SortStableFunc(stand, func(a, b forecast.Item) int { return rank[a.Key] - rank[b.Key] })
+	byBlock := func(a, b forecast.Item) int { return blockRank(rank, a.Key) - blockRank(rank, b.Key) }
+	if s.scheduleFrozenAt.IsZero() {
+		out = append(out, stand...)
+		slices.SortStableFunc(out, byBlock)
+		return out
+	}
+	slices.SortStableFunc(stand, byBlock)
 	return append(out, stand...)
+}
+
+// blockRank is a block's place in the order; a block not listed goes last.
+func blockRank(rank map[string]int, key string) int {
+	if r, ok := rank[key]; ok {
+		return r
+	}
+	return len(rank)
 }
 
 // scheduleItems lists the matches left: waiting matches of filled stages,
 // and stand-in matches for stages not filled yet, played after the stages
-// feeding them.
+// feeding them. A stage not started yet waits for its pause after them,
+// from their real end once they are over.
 func (s State) scheduleItems() []forecast.Item {
 	var items []forecast.Item
 	for _, c := range s.Categories {
@@ -131,6 +149,12 @@ func (s State) scheduleItems() []forecast.Item {
 		preview := PreviewFormat(s.StageConfigs(c), s.expectedEntrants(c), s.filledSizes(c))
 		for i, st := range stages {
 			base := forecast.Item{Category: c, Stage: st.ID, Minutes: st.Win.EstimatedMinutes()}
+			if i > 0 && st.Pause > 0 && !s.stageStarted(c, st.ID) {
+				base.Pause = time.Duration(st.Pause) * time.Minute
+				if end := s.stagesEnd(c, s.Sources(c, st.ID)); !end.IsZero() {
+					base.NotBefore = end.Add(base.Pause)
+				}
+			}
 			if st.Confirmed {
 				items = append(items, s.waitingItems(st, base)...)
 				continue
@@ -145,6 +169,18 @@ func (s State) scheduleItems() []forecast.Item {
 		}
 	}
 	return items
+}
+
+// stagesEnd is when the last match played in those stages ended (zero when
+// none did): a stage's pause counts from there.
+func (s State) stagesEnd(c engine.Category, stages []string) time.Time {
+	var end time.Time
+	for _, m := range s.matches {
+		if m.Category == c && slices.Contains(stages, m.Stage) && m.EndedAt.After(end) {
+			end = m.EndedAt
+		}
+	}
+	return end
 }
 
 // expectedEntrants is how many entrants a category plays with: those present,

@@ -26,6 +26,8 @@ const (
 	MaxStageNameLength = 60
 	// MaxStageAcronymLength is the longest stage acronym, in characters.
 	MaxStageAcronymLength = 3
+	// MaxStagePause is the longest pause before a stage, in minutes.
+	MaxStagePause = 480
 )
 
 // DefaultTimedMinutes is the duration of a timed match by default.
@@ -56,6 +58,9 @@ type StageConfig struct {
 	// Routing sends entrants to later stages; the others keep their final
 	// rank here.
 	Routing []RouteRule `json:"routing,omitempty"`
+	// Pause is how long the stage waits, in minutes, after the last match of
+	// the stages feeding it (0 for the entry stage; older files have none).
+	Pause int `json:"pause,omitempty"`
 }
 
 // FormatSet is the payload of TypeFormatSet: the whole format of a category.

@@ -205,6 +205,13 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   court stops, no match is planned across a break, the next ones start at
   its end. Matches are not proposed during a break (the desk can still call
   one).
+- **Pause before a phase**: each phase after the first can have a pause
+  (in the format, by quarter hours, "1 h" in one click; 0 by default), for
+  example one hour between the pools and the bracket. The phase starts no
+  earlier than the last match of the phases feeding it plus the pause,
+  forecast first, then from their real end. Meanwhile the other category
+  keeps playing. Its matches are not proposed before the pause is over (the
+  desk can still call one). Presets and duplicated tournaments keep it.
 - Each pool, and each bracket stage (main, consolation…), has its own color,
   across both categories (16 colors before one comes back): the category
   badge of its rounds and matches takes it, on the schedule and the control

@@ -286,6 +286,21 @@
             <span class="note">{{ t(s.win.estimate ? 'format.estimateSet' : 'format.estimateAuto') }}</span>
           </div>
 
+          @if (!s.entry) {
+            <div class="section" data-pause>
+              <span class="field-label">{{ t('format.pause') }}</span>
+              <div class="line">
+                <div class="stepper">
+                  <button type="button" [attr.aria-label]="t('format.pauseLess')" [disabled]="frozen || (s.pause ?? 0) <= 0" (click)="stepPause(s, -1)">−</button>
+                  <span class="stepper-value">{{ pauseText(s.pause ?? 0) }}</span>
+                  <button type="button" [attr.aria-label]="t('format.pauseMore')" [disabled]="frozen || (s.pause ?? 0) >= maxPause" (click)="stepPause(s, 1)">+</button>
+                </div>
+                <button type="button" class="btn btn-sm" [disabled]="frozen || s.pause === 60" (click)="edit(s, { pause: 60 })">{{ t('format.pauseHour') }}</button>
+              </div>
+              <span class="note">{{ t('format.pauseHint') }}</span>
+            </div>
+          }
+
           @if (s.kind === stageKinds.StagePools) {
             <div class="section">
               <div class="section-head">

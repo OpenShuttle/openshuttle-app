@@ -2,7 +2,7 @@ import { FormatView, Presets, Settings, StageView } from '@bindings/apps/desktop
 import { StageConfig } from '@bindings/internal/tournament';
 
 import { FakeBackend } from '../../testing/backend';
-import { choose, clickAll, render, text } from '../../testing/render';
+import { choose, click, clickAll, render, text } from '../../testing/render';
 import format from '../../testing/fixtures/before-format.json';
 import presets from '../../testing/fixtures/presets.json';
 import settings from '../../testing/fixtures/settings.json';
@@ -54,6 +54,33 @@ describe('FormatEditor', () => {
     input.value = 'Q';
     input.dispatchEvent(new Event('change'));
     expect(changes.at(-1)?.[0].acronym).toBe('Q');
+  });
+
+  it('sets the pause before a later stage, by quarter hours or an hour at once', async () => {
+    const { f, changes } = await editor();
+    // The entry stage has none: nothing feeds it.
+    expect(f.nativeElement.querySelector('[data-pause]')).toBeNull();
+    const later = [...f.nativeElement.querySelectorAll('.node:not(.output)')][1] as HTMLElement;
+    later.click();
+    f.detectChanges();
+    const pause = f.nativeElement.querySelector('[data-pause]') as HTMLElement;
+    expect(pause.textContent).toContain('None');
+    (pause.querySelector('[aria-label="Longer pause"]') as HTMLButtonElement).click();
+    expect(changes.at(-1)?.[1].pause).toBe(15);
+    await click(f, '1 h', '[data-pause] button');
+    expect(changes.at(-1)?.[1].pause).toBe(60);
+    // The other stages keep their settings.
+    expect(changes.at(-1)?.[0]).toEqual(expect.objectContaining({ id: stages[0].id, acronym: stages[0].acronym }));
+  });
+
+  it('shows the pause in hours and minutes', async () => {
+    const paused = stages.map((s, i) => (i === 1 ? { ...s, pause: 90 } : s));
+    const { f, changes } = await editor(false, paused);
+    ([...f.nativeElement.querySelectorAll('.node:not(.output)')][1] as HTMLElement).click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-pause]').textContent).toContain('1 h 30');
+    (f.nativeElement.querySelector('[aria-label="Shorter pause"]') as HTMLButtonElement).click();
+    expect(changes.at(-1)?.[1].pause).toBe(75);
   });
 
   it('warns that reshaping a filled later stage empties it', async () => {
