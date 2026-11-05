@@ -277,30 +277,90 @@
   color: var(--color-text-muted);
 }
 
-.rounds {
-  display: flex;
-  gap: 28px;
-  overflow: auto;
-  padding-bottom: 4px;
+// The bracket drawn as a tree: cards placed by `bracket-tree.ts`, linked by curves.
+.tree-nav {
+  @include row(6px, true);
 }
 
-.round {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 250px;
-  flex: none;
+.tree-nav-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--color-border-strong);
 }
 
-.round-matches {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: 14px;
-  flex: 1;
+.tree-legend {
+  @include row(14px);
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.legend-win,
+.legend-lose {
+  @include row(6px);
+
+  &::before {
+    content: '';
+    width: 22px;
+    border-top: 3px solid var(--color-free);
+  }
+}
+
+.legend-lose {
+  color: var(--color-text-muted);
+
+  &::before {
+    border-top: 3px dashed var(--color-alert);
+  }
+}
+
+.tree-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.tree {
+  position: relative;
+}
+
+.tree-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.link {
+  fill: none;
+  stroke-width: 2;
+  opacity: 0.45;
+
+  &.done {
+    opacity: 1;
+  }
+}
+
+.link-win {
+  stroke: var(--color-free);
+}
+
+.link-lose {
+  stroke: var(--color-alert);
+  stroke-dasharray: 5 4;
+}
+
+.tree-col-title {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
 }
 
 .bmatch {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: var(--card-w);
+  height: var(--card-h);
   background: #fff;
   border: 1px solid #d6d9de;
   border-radius: var(--radius-md);
@@ -322,6 +382,7 @@
 }
 
 .bside {
+  flex: 1;
   padding: 7px 10px;
   border-top: 1px solid #ecedf0;
   min-height: 36px;
@@ -384,20 +445,4 @@
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
   font: 700 11px var(--font-mono);
-}
-
-.sub-bracket {
-  @include stack(10px);
-
-  & + & {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border);
-  }
-}
-
-.sub-bracket-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
 }
