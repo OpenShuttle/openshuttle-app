@@ -1,6 +1,7 @@
 package tournament
 
 import (
+	"maps"
 	"slices"
 	"testing"
 	"time"
@@ -330,5 +331,38 @@ func TestStandInsFollowTheBlockOrder(t *testing.T) {
 			t.Logf("%s court %d %s", sl.Start.Format("15:04"), sl.Court, sl.Key)
 		}
 		t.Errorf("final = %+v, women's pools end at %v", fin, poolsEnd)
+	}
+}
+
+// Six entrants in a full-placement bracket of eight: the top two seeds skip
+// the quarter-finals, so the places 5 to 8 hold a single match, the fifth
+// place, and no seventh place: seven matches, before and after the fill.
+func TestBracketByesInEverySubBracket(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 2, 6)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.route(engine.MensSingles, "S1", main, main, main)
+
+	keys := func() map[string]int {
+		out := map[string]int{}
+		for _, sl := range g.state().Schedule(t0).Slots {
+			if sl.Stage == main {
+				out[sl.Key]++
+			}
+		}
+		return out
+	}
+	p := "MS/" + main + "/"
+	want := map[string]int{p + "R1": 2, p + "R2": 2, p + "R3": 1, p + "R3/P3": 1, p + "R3/P5": 1}
+	if got := keys(); !maps.Equal(got, want) {
+		t.Errorf("stand-ins = %v, want %v", got, want)
+	}
+	g.finishPools(engine.MensSingles)
+	g.fill(engine.MensSingles, main)
+	if got := keys(); !maps.Equal(got, want) {
+		t.Errorf("filled = %v, want %v", got, want)
+	}
+	if got := len(g.state().ScheduleBlocks()); got != 5 {
+		t.Errorf("blocks = %v", g.state().ScheduleBlocks())
 	}
 }

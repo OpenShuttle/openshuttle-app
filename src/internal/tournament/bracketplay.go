@@ -145,18 +145,20 @@ func (s *State) refreshBracket(c engine.Category, b *Stage) []Place {
 	return places
 }
 
-// bracketResult returns the winner and loser slots of a bracket match.
+// bracketResult returns the winner and loser slots of a bracket match. A bye
+// side loses at once, even before the other side is known: its loser slot
+// is a bye, so the match it feeds is a bye too.
 func (s *State) bracketResult(m Match, a, b slot) (win, lose slot) {
 	bye := slot{state: slotBye}
 	switch {
-	case a.state == slotPending || b.state == slotPending:
-		return slot{}, slot{}
 	case a.state == slotBye && b.state == slotBye:
 		return bye, bye
 	case a.state == slotBye:
 		return b, bye
 	case b.state == slotBye:
 		return a, bye
+	case a.state == slotPending || b.state == slotPending:
+		return slot{}, slot{}
 	}
 	// Both entrants known: a forfeit, then the score.
 	outA, outB := s.withdrawnFrom(a.id, m), s.withdrawnFrom(b.id, m)

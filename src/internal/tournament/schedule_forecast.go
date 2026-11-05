@@ -243,7 +243,9 @@ func (s State) waitingItems(st Stage, base forecast.Item) []forecast.Item {
 
 // standIns are the matches a stage not filled yet will hold, from its
 // preview: every round-robin pairing of each pool (placeholder entrants, so
-// a pool's rounds keep apart), or every bracket match but first-round byes.
+// a pool's rounds keep apart), or every bracket match two entrants can reach:
+// byes follow the top seeds' slots through every sub-bracket (a first-round
+// bye leaves no loser, so places 5 to 8 of 6 entrants are a single match).
 func standIns(st Stage, p StagePreview, base forecast.Item) []forecast.Item {
 	c := base.Category
 	var items []forecast.Item
@@ -266,21 +268,48 @@ func standIns(st Stage, p StagePreview, base forecast.Item) []forecast.Item {
 		return nil
 	}
 	size := engine.NextPowerOfTwo(p.Entrants)
-	byes := size - p.Entrants
-	for _, node := range subBrackets(size, st.FullPlacement) {
-		level := bits.Len(uint(size/node.Size)) - 1
-		for range node.Size / 2 {
-			if level == 0 && byes > 0 {
-				byes--
-				continue
-			}
-			it := base
-			it.Pool, it.Level, it.RoundSize, it.PlaceFrom = -1, level, node.Size, node.Start
-			it.Key = blocks.BracketKey(c, st.ID, level, node.Start)
-			items = append(items, it)
-		}
+	for _, m := range bracketShape(size, p.Entrants, st.FullPlacement) {
+		it := base
+		it.Pool, it.Level, it.RoundSize, it.PlaceFrom = -1, m.Level, m.Size, m.Start
+		it.Key = blocks.BracketKey(c, st.ID, m.Level, m.Start)
+		items = append(items, it)
 	}
 	return items
+}
+
+// shapeMatch is a match of a bracket not filled yet: its round (0 first)
+// and its sub-bracket.
+type shapeMatch struct {
+	Level, Start, Size int
+}
+
+// bracketShape lists the matches a bracket of the given size with n
+// entrants plays: the empty slots are those of the seeds above n (byes go to
+// the top seeds), a match with a bye side is never played, its winner is the
+// other side and its loser a bye.
+func bracketShape(size, n int, full bool) []shapeMatch {
+	in := map[subBracket][]bool{} // whether each slot can hold an entrant
+	root := subBracket{1, size}
+	for _, seed := range engine.StandardOrder(size) {
+		in[root] = append(in[root], seed <= n)
+	}
+	var out []shapeMatch
+	for _, node := range subBrackets(size, full) {
+		if node.Size < 2 {
+			continue
+		}
+		level := bits.Len(uint(size/node.Size)) - 1
+		winners, losers := subBracket{node.Start, node.Size / 2}, subBracket{node.Start + node.Size/2, node.Size / 2}
+		for i := range node.Size / 2 {
+			a, b := in[node][2*i], in[node][2*i+1]
+			if a && b {
+				out = append(out, shapeMatch{level, node.Start, node.Size})
+			}
+			in[winners] = append(in[winners], a || b)
+			in[losers] = append(in[losers], a && b)
+		}
+	}
+	return out
 }
 
 // Proposals gives each free or finished court the match the schedule starts
