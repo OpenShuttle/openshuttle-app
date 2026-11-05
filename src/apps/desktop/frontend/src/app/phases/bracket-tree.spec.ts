@@ -1,6 +1,6 @@
 import { MatchView, RoundView } from '@bindings/apps/desktop';
 
-import { bracketTree, cardLeft, cardTop, linkPath, treeGeometry } from './bracket-tree';
+import { LinkFilter, bracketTree, cardLeft, cardTop, linkPath, showsLink, treeGeometry } from './bracket-tree';
 
 /** Rounds of a bracket of `size`, as Go lists them: parents before children. */
 function rounds(size: number, full: boolean): RoundView[] {
@@ -70,7 +70,7 @@ describe('bracketTree', () => {
     const g = treeGeometry(false);
     const t = bracketTree(rounds(4, true));
     const [a, b] = [t.matches[0], t.matches[2]];
-    expect(linkPath(g, a, b)).toContain(
+    expect(linkPath(g, 'win', a, b)).toContain(
       `M${cardLeft(g, 0) + g.cardW} ${cardTop(g, a.row) + g.cardH / 2}`,
     );
     expect(treeGeometry(true).cardH).toBeGreaterThan(g.cardH);
@@ -104,4 +104,21 @@ describe('bracketTree', () => {
     const t = bracketTree(rounds(8, false));
     expect(t.titled).toBe(false);
       });
+
+  it('draws links with square runs and picks the ones shown', () => {
+    const g = treeGeometry(false);
+    const t = bracketTree(rounds(4, true));
+    const [a, b] = [t.matches[0], t.matches[2]];
+    const win = linkPath(g, 'win', a, b);
+    const lose = linkPath(g, 'lose', a, b);
+    expect(win).toMatch(/^M[\d.]+ [\d.]+ H[\d.]+ Q.* V.* Q.* H[\d.]+$/);
+    expect(win).not.toBe(lose);
+    expect(linkPath(g, 'win', a, { ...a, col: 1 })).toMatch(/ H[\d.]+$/);
+    expect(['all', 'win', 'lose', 'none'].map((f) => [showsLink(f as LinkFilter, 'win'), showsLink(f as LinkFilter, 'lose')])).toEqual([
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false],
+    ]);
+  });
 });

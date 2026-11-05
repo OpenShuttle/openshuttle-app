@@ -176,12 +176,32 @@ export function cardTop(g: TreeGeometry, row: number): number {
   return g.head + row * (g.cardH + g.rowGap);
 }
 
-/** SVG path of a link: out of the right middle of a card, into the left middle of the next. */
-export function linkPath(g: TreeGeometry, from: TreeMatch, to: TreeMatch): string {
+/** Which links of the drawing are shown. */
+export type LinkFilter = 'all' | 'win' | 'lose' | 'none';
+
+export function showsLink(filter: LinkFilter, kind: TreeLink['kind']): boolean {
+  return filter === 'all' || filter === kind;
+}
+
+/**
+ * SVG path of a link: out of the right middle of a card, a vertical run with
+ * rounded corners, into the left middle of the next. Winner and loser runs
+ * keep to either side of the middle so they never share a line.
+ */
+export function linkPath(g: TreeGeometry, kind: TreeLink['kind'], from: TreeMatch, to: TreeMatch): string {
   const x1 = cardLeft(g, from.col) + g.cardW;
   const y1 = cardTop(g, from.row) + g.cardH / 2;
   const x2 = cardLeft(g, to.col);
   const y2 = cardTop(g, to.row) + g.cardH / 2;
-  const mid = (x1 + x2) / 2;
-  return `M${x1} ${y1} C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`;
+  const dy = y2 - y1;
+  if (Math.abs(dy) < 1) {
+    return `M${x1} ${y1} H${x2}`;
+  }
+  const xv = (x1 + x2) / 2 + (kind === 'win' ? -RUN_OFFSET : RUN_OFFSET);
+  const r = Math.min(CORNER, Math.abs(dy) / 2);
+  const s = Math.sign(dy);
+  return `M${x1} ${y1} H${xv - r} Q${xv} ${y1} ${xv} ${y1 + s * r} V${y2 - s * r} Q${xv} ${y2} ${xv + r} ${y2} H${x2}`;
 }
+
+const RUN_OFFSET = 7;
+const CORNER = 10;

@@ -741,7 +741,12 @@
       "next": "Tour suivant",
       "blocks": "Aller à",
       "winner": "Vainqueur",
-      "loser": "Perdant"
+      "loser": "Perdant",
+      "links": "Liens",
+      "links_all": "Tous",
+      "links_win": "Vainqueurs",
+      "links_lose": "Perdants",
+      "links_none": "Aucun"
     },
     "firstRoundSlots": "Premier tour",
     "slotsHint": "Cliquez deux places pour les inverser.",

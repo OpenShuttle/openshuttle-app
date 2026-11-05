@@ -30,10 +30,23 @@ import {
   bracketTree,
   cardLeft,
   cardTop,
+  LinkFilter,
   linkPath,
+  showsLink,
   treeGeometry,
 } from './bracket-tree';
 
+
+const LINKS_KEY = 'phases.links';
+
+function storedLinks(): LinkFilter {
+  try {
+    const v = localStorage.getItem(LINKS_KEY);
+    return v === 'win' || v === 'lose' || v === 'none' ? v : 'all';
+  } catch {
+    return 'all';
+  }
+}
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
@@ -116,6 +129,20 @@ export class Phases {
     const s = this.stage();
     return s?.kind === 'bracket' && s.confirmed ? bracketTree(s.rounds ?? []) : null;
   });
+  /** Links shown on the drawing, remembered on this PC. */
+  protected readonly links = signal<LinkFilter>(storedLinks());
+  protected readonly linkOptions: LinkFilter[] = ['all', 'win', 'lose', 'none'];
+  protected readonly showsLink = showsLink;
+
+  protected setLinks(filter: LinkFilter): void {
+    this.links.set(filter);
+    try {
+      localStorage.setItem(LINKS_KEY, filter);
+    } catch {
+      // Not remembered: a convenience only.
+    }
+  }
+
   protected readonly geometry = computed(() => treeGeometry(this.correction(), this.tree()?.titled));
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   /** Column at the left of the drawing, for the previous and next buttons. */
@@ -142,7 +169,7 @@ export class Phases {
   protected path(t: BracketTree, l: TreeLink): string {
     const from = t.matches.find((m) => m.match.id === l.from);
     const to = t.matches.find((m) => m.match.id === l.to);
-    return from && to ? linkPath(this.geometry(), from, to) : '';
+    return from && to ? linkPath(this.geometry(), l.kind, from, to) : '';
   }
 
   /** A link whose source match is decided: the one its entrants really took. */

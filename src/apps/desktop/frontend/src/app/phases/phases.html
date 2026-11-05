@@ -138,6 +138,11 @@
                   }
                 }
                 <span class="tree-legend">
+                  <span class="seg seg-sm" role="group" [attr.aria-label]="t('phases.tree.links')">
+                    @for (o of linkOptions; track o) {
+                      <button type="button" class="seg-option" [class.active]="links() === o" (click)="setLinks(o)">{{ t('phases.tree.links_' + o) }}</button>
+                    }
+                  </span>
                   <span class="legend-win">{{ t('phases.tree.winner') }}</span>
                   <span class="legend-lose">{{ t('phases.tree.loser') }}</span>
                 </span>
@@ -158,11 +163,13 @@
                     aria-hidden="true"
                   >
                     @for (l of tr.links; track l.from + l.to) {
+                      @if (showsLink(links(), l.kind)) {
                       <path
                         [attr.d]="path(tr, l)"
                         [class]="'link link-' + l.kind"
                         [class.done]="decided(tr, l.from)"
                       />
+                      }
                     }
                   </svg>
                   @if (tr.titled) {
