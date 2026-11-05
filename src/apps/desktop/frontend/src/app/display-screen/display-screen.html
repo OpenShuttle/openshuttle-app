@@ -87,7 +87,7 @@
                 <div class="previous-row">
                   <span class="previous-court">{{ m.court }}</span>
                   <span class="previous-text">
-                    {{ t('category.short.' + m.category) }} · #{{ m.a.bib }} {{ short(m.a) }} — #{{ m.b.bib }} {{ short(m.b) }}
+                    {{ t('category.short.' + m.category) }} · {{ m.a | withBib }} — {{ m.b | withBib }}
                   </span>
                   <span class="previous-time">{{ time(m.calledAt) }}</span>
                 </div>
@@ -116,12 +116,12 @@
                   </span>
                   @if (c.match; as m) {
                     @if (state !== 'free') {
-                      <span class="tile-line">#{{ m.a.bib }} {{ short(m.a) }}</span>
-                      <span class="tile-line">#{{ m.b.bib }} {{ short(m.b) }}</span>
+                      <span class="tile-line">{{ m.a | withBib }}</span>
+                      <span class="tile-line">{{ m.b | withBib }}</span>
                     }
                   } @else if (c.proposal; as p) {
-                    <span class="tile-line">{{ t('displayScreen.soon', { bib: p.a.bib, names: short(p.a) }) }}</span>
-                    <span class="tile-line">{{ t('displayScreen.against', { bib: p.b.bib, names: short(p.b) }) }}</span>
+                    <span class="tile-line">{{ t('displayScreen.soon', { names: p.a | withBib }) }}</span>
+                    <span class="tile-line">{{ t('displayScreen.against', { names: p.b | withBib }) }}</span>
                   }
                 </span>
               </div>
@@ -160,7 +160,7 @@
           @for (r of b.standings; track r.entrant.entrant) {
             <div class="board-row">
               <span class="b-rank">{{ r.rank }}</span>
-              <span class="b-name">#{{ r.entrant.bib }} {{ short(r.entrant) }}</span>
+              <span class="b-name">{{ r.entrant | withBib }}</span>
               <span class="b-num strong">{{ r.wins }}</span>
               <span class="b-num">{{ diff(r.pointsWon, r.pointsLost) }}</span>
             </div>
@@ -168,7 +168,7 @@
         } @else {
           @for (m of b.matches; track m.id) {
             <div class="board-row match-row">
-              <span class="b-name">#{{ m.a.bib }} {{ short(m.a) }} — #{{ m.b.bib }} {{ short(m.b) }}</span>
+              <span class="b-name">{{ m.a | withBib }} — {{ m.b | withBib }}</span>
               <span class="b-num">{{ m.walkover ? 'WO' : score(m) }}</span>
             </div>
           }

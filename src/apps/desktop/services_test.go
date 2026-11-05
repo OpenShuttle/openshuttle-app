@@ -171,6 +171,10 @@ func TestSettings(t *testing.T) {
 	must(f.settings.SetDefaultPreset(f.ctx, PresetKindTiebreaks, "b-differences-first"))
 	must(f.settings.SetClubDisplay(f.ctx, tournament.ClubDisplayAcronym))
 	must(f.settings.SetCheckUpdates(f.ctx, false))
+	if s, _ := f.settings.GetSettings(f.ctx); s.ShowBibs {
+		t.Error("bibs are hidden by default")
+	}
+	must(f.settings.SetShowBibs(f.ctx, true))
 	wantCode(t, f.settings.SetClubDisplay(f.ctx, "logo"), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 3), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
@@ -190,7 +194,7 @@ func TestSettings(t *testing.T) {
 	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 12,
 		DefaultCourts: 6, DefaultMinRest: 0, TournamentsDir: f.dir,
 		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first",
-		ClubDisplay: tournament.ClubDisplayAcronym, CheckUpdates: false}
+		ClubDisplay: tournament.ClubDisplayAcronym, CheckUpdates: false, ShowBibs: true}
 	if s != want {
 		t.Errorf("settings = %+v, want %+v", s, want)
 	}

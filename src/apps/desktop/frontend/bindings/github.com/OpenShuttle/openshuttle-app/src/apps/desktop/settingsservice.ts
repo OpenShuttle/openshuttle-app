@@ -96,3 +96,10 @@ export function SetOperator(name: string): $CancellablePromise<void> {
 export function SetRotationSeconds(seconds: number): $CancellablePromise<void> {
     return $Call.ByID(462653687, seconds);
 }
+
+/**
+ * SetShowBibs shows or hides the bib numbers on every screen.
+ */
+export function SetShowBibs(on: boolean): $CancellablePromise<void> {
+    return $Call.ByID(2354729611, on);
+}
