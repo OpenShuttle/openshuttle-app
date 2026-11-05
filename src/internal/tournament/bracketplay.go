@@ -2,6 +2,7 @@ package tournament
 
 import (
 	"fmt"
+	"math/bits"
 	"slices"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -36,6 +37,71 @@ func subBrackets(size int, full bool) []subBracket {
 			}
 		}
 		level = next
+	}
+	return out
+}
+
+// treeLevel is the round of a sub-bracket of the given size in a bracket of
+// size bracket, byes counted: 0 for the first round, the final's last.
+func treeLevel(bracket, size int) int {
+	if size < 1 || bracket < size {
+		return 0
+	}
+	return bits.Len(uint(bracket/size)) - 1
+}
+
+// shapeMatch is a bracket match two entrants can reach: its sub-bracket and
+// index there, its round in the full tree (Tree, naming its block) and the
+// round it plays in (Level, 0 the first).
+type shapeMatch struct {
+	Start, Size, Index int
+	Tree, Level        int
+}
+
+// bracketShape lists the matches a bracket plays, from which of its slots
+// hold an entrant (in slot order, false for a bye). A match with a bye side
+// is never played: its winner is the other side and its loser a bye. A part
+// of the bracket (a sub-bracket) plays its round once the matches feeding it
+// are over: its level is one more than the latest of them, byes passed
+// through, so places 5 to 8 of 6 entrants in a bracket of 8 are a single
+// match right after the quarter-finals, beside the semi-finals.
+func bracketShape(present []bool, full bool) []shapeMatch {
+	type side struct {
+		in    bool
+		after int // the level of the last match played to get here, -1 none
+	}
+	size := len(present)
+	sides := map[subBracket][]side{}
+	root := subBracket{1, size}
+	for _, p := range present {
+		sides[root] = append(sides[root], side{p, -1})
+	}
+	var out []shapeMatch
+	for _, node := range subBrackets(size, full) {
+		if node.Size < 2 {
+			continue
+		}
+		in := sides[node]
+		level := 0
+		for i := range node.Size / 2 {
+			if a, b := in[2*i], in[2*i+1]; a.in && b.in {
+				level = max(level, a.after+1, b.after+1)
+			}
+		}
+		winners, losers := subBracket{node.Start, node.Size / 2}, subBracket{node.Start + node.Size/2, node.Size / 2}
+		for i := range node.Size / 2 {
+			a, b := in[2*i], in[2*i+1]
+			win, lose := a, side{}
+			switch {
+			case a.in && b.in:
+				out = append(out, shapeMatch{node.Start, node.Size, i, treeLevel(size, node.Size), level})
+				win, lose = side{true, level}, side{true, level}
+			case b.in:
+				win = b
+			}
+			sides[winners] = append(sides[winners], win)
+			sides[losers] = append(sides[losers], lose)
+		}
 	}
 	return out
 }

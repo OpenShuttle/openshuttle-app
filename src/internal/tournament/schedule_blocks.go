@@ -1,7 +1,6 @@
 package tournament
 
 import (
-	"math/bits"
 	"slices"
 	"time"
 
@@ -95,7 +94,7 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]blocks.Block {
 			for len(waves) <= l {
 				waves = append(waves, nil)
 			}
-			key := blocks.BracketKey(c, st.ID, l, m.Start)
+			key := s.MatchBlock(m)
 			i := slices.IndexFunc(waves[l], func(b blocks.Block) bool { return b.Key == key })
 			if i < 0 {
 				waves[l] = append(waves[l], blocks.Block{Key: key, Group: key, Series: string(c) + "/" + st.ID, Round: l, Place: m.Start})
@@ -286,18 +285,24 @@ func (s State) UnvalidateSchedule() (Change, error) {
 }
 
 // MatchBlock is the schedule block of a match: its round of a pool
-// ("MD/S1/A/2") or its bracket round ("MD/S2/R1").
+// ("MD/S1/A/2") or its bracket round ("MD/S2/R1"). A bracket round is named
+// by its round in the full tree, whatever byes move it earlier, so its key
+// stays the same once the stage is filled.
 func (s State) MatchBlock(m Match) string {
 	if m.IsBracket() {
-		return blocks.BracketKey(m.Category, m.Stage, s.bracketLevel(m), m.Start)
+		return blocks.BracketKey(m.Category, m.Stage, s.bracketTree(m), m.Start)
 	}
 	return blocks.PoolKey(m.Category, m.Stage, m.Pool, m.Round)
 }
 
-// BracketLevel is the round of a bracket match: 0 for the first round.
+// BracketLevel is the round a bracket match plays in: 0 for the first round.
 func (s State) BracketLevel(m Match) int { return s.bracketLevel(m) }
 
-// bracketLevel is the round of a bracket match: 0 for the first round.
+// bracketLevel is the round a bracket match plays in, 0 for the first: one
+// more than the latest round feeding it, byes passed through (bracketShape).
+// With 6 entrants in a bracket of 8, the 5th place match follows the
+// quarter-finals, beside the semi-finals. Byes are read from the slots, never
+// from forfeits, so a match keeps its round once the stage is filled.
 func (s State) bracketLevel(m Match) int {
 	if !m.IsBracket() || m.Size == 0 {
 		return 0
@@ -306,9 +311,28 @@ func (s State) bracketLevel(m Match) int {
 	if st == nil {
 		return 0
 	}
-	size := len(st.Slots())
-	if size < m.Size {
+	slots := st.Slots()
+	present := make([]bool, len(slots))
+	for i, id := range slots {
+		present[i] = id != ""
+	}
+	for _, sm := range bracketShape(present, st.FullPlacement) {
+		if sm.Start == m.Start && sm.Size == m.Size && sm.Index == m.Index {
+			return sm.Level
+		}
+	}
+	return s.bracketTree(m) // never played: a bye
+}
+
+// bracketTree is the round of a bracket match in the full tree, byes
+// counted: 0 for the first round.
+func (s State) bracketTree(m Match) int {
+	if !m.IsBracket() || m.Size == 0 {
 		return 0
 	}
-	return bits.Len(uint(size/m.Size)) - 1
+	st := s.stage(m.Category, m.Stage)
+	if st == nil {
+		return 0
+	}
+	return treeLevel(len(st.Slots()), m.Size)
 }

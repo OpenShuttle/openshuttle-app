@@ -366,3 +366,85 @@ func TestBracketByesInEverySubBracket(t *testing.T) {
 		t.Errorf("blocks = %v", g.state().ScheduleBlocks())
 	}
 }
+
+// The fifth place of six entrants in a bracket of eight is fed by the
+// quarter-finals alone (the places 5 to 8 semi-finals are byes): it plays
+// right after them, beside the semi-finals, not after them. Its block keeps
+// its key, and a forfeit later on changes nothing.
+func TestBracketRoundsSkipByes(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.do(func(s State) (Change, error) { return s.SetCourts(4) })
+	g.confirmedPools(engine.MensSingles, 2, 6)
+	main := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.route(engine.MensSingles, "S1", main, main, main)
+	p := "MS/" + main + "/"
+
+	check := func(when string) {
+		t.Helper()
+		var semis, fifth ScheduleSlot
+		for _, sl := range g.state().Schedule(t0).Slots {
+			switch sl.Key {
+			case p + "R2":
+				semis = sl
+			case p + "R3/P5":
+				fifth = sl
+			}
+		}
+		if fifth.Level != 1 || semis.Level != 1 || !fifth.Start.Equal(semis.Start) {
+			t.Errorf("%s: fifth place %+v, semi-final %+v", when, fifth, semis)
+		}
+		b := g.state().ScheduleBlocks()
+		if slices.Index(b, p+"R3/P5") > slices.Index(b, p+"R2") {
+			t.Errorf("%s: blocks = %v", when, b)
+		}
+	}
+	check("stand-ins")
+	g.finishPools(engine.MensSingles)
+	g.fill(engine.MensSingles, main)
+	check("filled")
+	quarter := g.bracketMatches(engine.MensSingles, main)[1]
+	g.do(func(s State) (Change, error) { return s.WithdrawEntrant(quarter.A) })
+	for _, m := range g.bracketMatches(engine.MensSingles, main) {
+		if m.Start == 5 && m.Size == 2 && (g.state().MatchBlock(m) != p+"R3/P5" || g.state().BracketLevel(m) != 1) {
+			t.Errorf("after a forfeit: %s level %d", g.state().MatchBlock(m), g.state().BracketLevel(m))
+		}
+	}
+}
+
+func TestBracketShape(t *testing.T) {
+	type m = shapeMatch
+	tests := []struct {
+		name    string
+		present string // slots holding an entrant, in slot order
+		full    bool
+		want    []shapeMatch
+	}{
+		{"four", "xxxx", true, []m{{1, 4, 0, 0, 0}, {1, 4, 1, 0, 0}, {1, 2, 0, 1, 1}, {3, 2, 0, 1, 1}}},
+		{"three", "x-xx", true, []m{{1, 4, 1, 0, 0}, {1, 2, 0, 1, 1}}},
+		{"six of eight", "x-xxxx-x", true, []m{
+			{1, 8, 1, 0, 0}, {1, 8, 2, 0, 0},
+			{1, 4, 0, 1, 1}, {1, 4, 1, 1, 1},
+			{1, 2, 0, 2, 2}, {3, 2, 0, 2, 2}, {5, 2, 0, 2, 1},
+		}},
+		{"six of eight, no full placement", "x-xxxx-x", false, []m{
+			{1, 8, 1, 0, 0}, {1, 8, 2, 0, 0}, {1, 4, 0, 1, 1}, {1, 4, 1, 1, 1}, {1, 2, 0, 2, 2},
+		}},
+		{"five of eight", "x-xx----", true, []m{{1, 8, 1, 0, 0}, {1, 4, 0, 1, 1}}},
+		{"seven of eight", "x-xxxxxx", true, []m{
+			{1, 8, 1, 0, 0}, {1, 8, 2, 0, 0}, {1, 8, 3, 0, 0},
+			{1, 4, 0, 1, 1}, {1, 4, 1, 1, 1}, {5, 4, 1, 1, 1},
+			{1, 2, 0, 2, 2}, {3, 2, 0, 2, 2}, {5, 2, 0, 2, 2},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			present := make([]bool, len(tt.present))
+			for i, c := range tt.present {
+				present[i] = c == 'x'
+			}
+			if got := bracketShape(present, tt.full); !slices.Equal(got, tt.want) {
+				t.Errorf("got  %v\nwant %v", got, tt.want)
+			}
+		})
+	}
+}
