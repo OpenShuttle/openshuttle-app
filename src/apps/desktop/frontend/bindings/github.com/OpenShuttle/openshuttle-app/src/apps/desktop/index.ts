@@ -71,6 +71,7 @@ export type {
     RoundsView,
     ScheduleBlockView,
     ScheduleGroupView,
+    ScheduleHighlightView,
     ScheduleSlotView,
     ScheduleTeamView,
     ScheduleView,

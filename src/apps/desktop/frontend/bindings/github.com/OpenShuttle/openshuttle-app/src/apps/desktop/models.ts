@@ -904,6 +904,11 @@ export interface ScheduleBlockView {
     "acronym": string;
     "color": number;
     "pool": string;
+
+    /**
+     * Group is the key of its pool or bracket stage.
+     */
+    "group": string;
     "round": number;
     "rounds": number;
     "roundSize": number;
@@ -942,6 +947,32 @@ export interface ScheduleGroupView {
 }
 
 /**
+ * ScheduleHighlightView is a pool or a bracket stage the desk can highlight
+ * on the schedule: its matches and blocks carry its key as Group.
+ */
+export interface ScheduleHighlightView {
+    "key": string;
+    "category": engine$0.Category;
+    "slot": number;
+    "stage": string;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
+
+    /**
+     * Acronym is the stage's short name ("" for the kind's default); Color
+     * the pool's or bracket's color index.
+     */
+    "acronym": string;
+    "color": number;
+
+    /**
+     * Pool is "A", "B"… in a pools stage, "" for a bracket.
+     */
+    "pool": string;
+}
+
+/**
  * ScheduleSlotView is a match of the schedule screen, on a court with its
  * times: real for matches played or playing, estimated for the others.
  */
@@ -977,6 +1008,12 @@ export interface ScheduleSlotView {
      * Pool is "A", "B"… in a pools stage, "" in a bracket.
      */
     "pool": string;
+
+    /**
+     * Group is the key of its pool or bracket stage, as in
+     * ScheduleView.Highlights.
+     */
+    "group": string;
 
     /**
      * Round is the round of the pool or of the bracket, from 1. Rounds is how
@@ -1071,6 +1108,13 @@ export interface ScheduleView {
      * each team has left.
      */
     "groups": ScheduleGroupView[] | null;
+
+    /**
+     * Highlights lists every pool and bracket stage, stand-ins of stages
+     * not filled yet included: the desk highlights their matches on the
+     * timeline and their blocks (nothing is stored).
+     */
+    "highlights": ScheduleHighlightView[] | null;
 
     /**
      * End is when the last match is expected to end; nil with nothing left.

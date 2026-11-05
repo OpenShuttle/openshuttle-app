@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, afterEveryRender, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { GhostMatchView, ScheduleBlockView, ScheduleGroupView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
+import { GhostMatchView, ScheduleBlockView, ScheduleGroupView, ScheduleHighlightView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 import { ScheduleMode } from '@bindings/internal/tournament';
 
@@ -32,6 +32,7 @@ const EMPTY: ScheduleView = {
   blocks: [],
   validatedAt: null,
   groups: [],
+  highlights: [],
   end: null,
   unrested: 0,
   offRules: 0,
@@ -114,6 +115,30 @@ export class Schedule {
     (this.view().slots ?? []).filter((s) => s.match && s.state !== 'played' && s.court === this.ghostCourt()),
   );
 
+  /**
+   * The pools and brackets the desk highlights (keys of view.highlights).
+   * A view convenience: never stored, reset on leaving the screen.
+   */
+  private readonly selected = signal<ReadonlySet<string>>(new Set());
+  /** The highlighted keys still in the tournament. */
+  protected readonly lit = computed<ReadonlySet<string>>(() => {
+    const keys = new Set((this.live().highlights ?? []).map((h) => h.key));
+    return new Set([...this.selected()].filter((k) => keys.has(k)));
+  });
+  /** The toggles, category by category. */
+  protected readonly highlightGroups = computed(() => {
+    const out: { category: Category; items: ScheduleHighlightView[] }[] = [];
+    for (const h of this.live().highlights ?? []) {
+      const last = out.at(-1);
+      if (last?.category === h.category) {
+        last.items.push(h);
+      } else {
+        out.push({ category: h.category, items: [h] });
+      }
+    }
+    return out;
+  });
+
   constructor() {
     // Matches and blocks glide to their new place on every change.
     const glide = new Glide(inject<ElementRef<HTMLElement>>(ElementRef).nativeElement);
@@ -128,6 +153,27 @@ export class Schedule {
   @HostListener('document:pointerup')
   protected onPointerUp(): void {
     this.drag.up();
+  }
+
+  protected toggleHighlight(key: string): void {
+    const next = new Set(this.lit());
+    if (!next.delete(key)) {
+      next.add(key);
+    }
+    this.selected.set(next);
+  }
+
+  protected clearHighlights(): void {
+    this.selected.set(new Set());
+  }
+
+  /** Lit: its pool or bracket is highlighted; dimmed: others are, not it. */
+  protected lights(group: string): 'lit' | 'dimmed' | null {
+    const lit = this.lit();
+    if (lit.size === 0) {
+      return null;
+    }
+    return lit.has(group) ? 'lit' : 'dimmed';
   }
 
   protected reservedFor(court: number): { category: Category; slot: number } | null {
@@ -162,7 +208,7 @@ export class Schedule {
    * for round 2 of the 5 of pool A, or a bracket round: "T · 1/4",
    * "T · 3e place", "C · 5e–8e". A group: "P A", or "T".
    */
-  protected label(b: ScheduleSlotView | ScheduleBlockView | ScheduleGroupView): string {
+  protected label(b: ScheduleSlotView | ScheduleBlockView | ScheduleGroupView | ScheduleHighlightView): string {
     const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
     const stage = b.acronym || t('stage.acronym.' + b.stageKind);
     if (!('round' in b)) {
@@ -177,7 +223,7 @@ export class Schedule {
   }
 
   /** The full name of a block's stage, as a tooltip: "Main bracket", "Pools". */
-  protected stageName(b: ScheduleSlotView | ScheduleBlockView): string {
+  protected stageName(b: ScheduleSlotView | ScheduleBlockView | ScheduleHighlightView): string {
     return b.stageName || this.transloco.translate('stage.kind.' + b.stageKind);
   }
 
