@@ -641,3 +641,24 @@ func TestBracketByeToTheMostPlayed(t *testing.T) {
 		t.Errorf("the winner of the pool of four should get a bye: %v", slots)
 	}
 }
+
+func TestOrigins(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.presentSingles(engine.MensSingles, []string{"a", "b", "c", "d", "e", "f", "g", "h"}, 8)
+	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.Pools, st.PoolSizes = 2, nil })
+	br := g.addStage(engine.MensSingles, StageBracket, "Main", true)
+	g.editStage(engine.MensSingles, "S1", func(st *StageConfig) { st.Routing = RanksRules(br, br, br, br) })
+	g.do(func(s State) (Change, error) { return s.DrawEntry(engine.MensSingles, rng()) })
+	g.do(func(s State) (Change, error) { return s.ConfirmDraw(engine.MensSingles) })
+	g.finishPools(engine.MensSingles)
+	got := g.state().Origins(engine.MensSingles, br)
+	counts := map[string]int{}
+	for _, label := range got {
+		counts[label]++
+	}
+	for _, want := range []string{"A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"} {
+		if counts[want] != 1 {
+			t.Fatalf("origins = %v, want one %s", got, want)
+		}
+	}
+}

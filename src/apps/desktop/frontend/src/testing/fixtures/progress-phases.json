@@ -1585,6 +1585,7 @@
             }
           ],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         },
@@ -1608,6 +1609,7 @@
           "canFill": false,
           "pools": [],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         }
@@ -2614,6 +2616,7 @@
             }
           ],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         },
@@ -2637,6 +2640,7 @@
           "canFill": false,
           "pools": [],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         }
