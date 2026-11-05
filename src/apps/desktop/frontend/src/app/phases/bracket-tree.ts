@@ -5,7 +5,7 @@ export interface TreeMatch {
   match: MatchView;
   /** Column, 0 for the first round. */
   col: number;
-  /** Row, in card heights (fractional when centred between the matches feeding it). */
+  /** Row, in card pitches (fractional when centred on what it feeds or is fed by). */
   row: number;
 }
 
@@ -22,6 +22,8 @@ export interface TreeColumn {
   size: number;
   /** First match of the column, to scroll to. */
   first: string;
+  /** Row of its topmost block, where its title goes. */
+  row: number;
 }
 
 /** A part of the bracket playing for places `from`..`to` (a sub-bracket to jump to). */
@@ -40,18 +42,10 @@ export interface TreeNode {
   row: number;
 }
 
-/** Space opened before a row where a block starts, in the drawing's gap units. */
-export interface TreeGap {
-  row: number;
-  /** How coarse the block is: 1 for a final, 2 for 4 entrants, 3 for 8… */
-  level: number;
-}
-
 export interface BracketTree {
   /** Blocks (sub-brackets), titled in the drawing when the bracket has several per column. */
   nodes: TreeNode[];
   titled: boolean;
-  gaps: TreeGap[];
   matches: TreeMatch[];
   links: TreeLink[];
   columns: TreeColumn[];
@@ -61,6 +55,9 @@ export interface BracketTree {
 
 /** Entrants of the sub-brackets offered as jump buttons (places 1–4, 5–8…). */
 const BLOCK_SIZE = 4;
+
+/** Rows between the smallest blocks (finals) of a titled drawing: room for a title. */
+const LEAF_PITCH = 1.75;
 
 /**
  * Lays a bracket out as a tree, left to right: one column per round (32, 16,
@@ -93,9 +90,28 @@ export function bracketTree(source: RoundView[]): BracketTree {
     });
   }
 
+  // With full placement the blocks (sub-brackets) are laid out as a tree of
+  // their own, from the right: the smallest ones evenly spaced, each larger one
+  // centred on the two it feeds, its matches stacked and titled. Without it the
+  // drawing is a plain bracket: a match sits between the two feeding it.
+  const titled = sizes.some((size) => rounds.filter((r) => r.size === size).length > 1);
+  const rowOf = new Map<string, number>();
+  if (titled) {
+    let leaf = 0;
+    const place = (r: (typeof rounds)[number]): number => {
+      const half = r.size / 2;
+      const kids = [byNode.get(`${r.from}/${half}`), byNode.get(`${r.from + half}/${half}`)].filter((k) => !!k);
+      const centre = kids.length > 0 ? kids.reduce((sum, k) => sum + place(k), 0) / kids.length : leaf++ * LEAF_PITCH;
+      r.matches.forEach((m, i) => rowOf.set(m.id, centre - (r.matches.length - 1) / 2 + i));
+      return centre;
+    };
+    rounds.filter((r) => r.size === sizes[0]).forEach(place);
+    const top = Math.min(...rowOf.values());
+    rowOf.forEach((row, id) => rowOf.set(id, row - top));
+  }
+
   const columns: TreeColumn[] = [];
   const matches: TreeMatch[] = [];
-  const rowOf = new Map<string, number>();
   let rows = 0;
   sizes.forEach((size, c) => {
     const column = rounds
@@ -105,18 +121,18 @@ export function bracketTree(source: RoundView[]): BracketTree {
     if (column.length === 0) {
       return;
     }
-    columns.push({ col: c, size, first: column[0].id });
-    // A column as full as the previous one (full placement) is a grid; a
-    // narrower one (winners only) sits between the matches feeding it.
     const previous = matches.filter((t) => t.col === c - 1).length;
     column.forEach((m, i) => {
-      const feeders = links.filter((l) => l.to === m.id).map((l) => rowOf.get(l.from) ?? i);
-      const grid = c === 0 || column.length === previous || feeders.length === 0;
-      const row = grid ? i : feeders.reduce((a, b) => a + b, 0) / feeders.length;
-      rowOf.set(m.id, row);
+      if (!rowOf.has(m.id)) {
+        const feeders = links.filter((l) => l.to === m.id).map((l) => rowOf.get(l.from) ?? i);
+        const grid = c === 0 || column.length === previous || feeders.length === 0;
+        rowOf.set(m.id, grid ? i : feeders.reduce((a, b) => a + b, 0) / feeders.length);
+      }
+      const row = rowOf.get(m.id) ?? i;
       matches.push({ match: m, col: c, row });
       rows = Math.max(rows, row + 1);
     });
+    columns.push({ col: c, size, first: column[0].id, row: Math.min(...column.map((m) => rowOf.get(m.id) ?? 0)) });
   });
 
   const nodes: TreeNode[] = [];
@@ -127,32 +143,13 @@ export function bracketTree(source: RoundView[]): BracketTree {
     }
   }
   nodes.sort((a, b) => a.col - b.col || a.row - b.row);
-  const titled = nodes.some((n, i) => nodes.findIndex((o) => o.col === n.col) !== i);
-  // A block opens a gap before its first row, wider for coarser blocks; the
-  // first row needs none. Every column shares the gaps so its cards stay level.
-  const gaps: TreeGap[] = [];
-  if (titled) {
-    for (const r of rounds) {
-      const first = matches.find((t) => t.match.id === r.matches[0]?.id);
-      if (first && first.row > 0) {
-        const level = Math.log2(r.size);
-        const known = gaps.find((g) => g.row === first.row);
-        if (known) {
-          known.level = Math.max(known.level, level);
-        } else {
-          gaps.push({ row: first.row, level });
-        }
-      }
-    }
-    gaps.sort((a, b) => a.row - b.row);
-  }
 
   const blocks = rounds
     .filter((r) => r.size === BLOCK_SIZE && r.matches.length > 0)
     .sort((a, b) => a.from - b.from)
     .map((r) => ({ from: r.from, to: r.to, first: r.matches[0].id }));
 
-  return { nodes, titled, gaps, matches, links, columns, blocks, rows };
+  return { nodes, titled, matches, links, columns, blocks, rows };
 }
 
 /** Geometry of the drawing, in px (the cards' height changes in correction mode). */
@@ -163,31 +160,28 @@ export interface TreeGeometry {
   rowGap: number;
   /** Space above the cards for the column titles (and the first block's). */
   head: number;
-  /** Height of a block's title, opened above it. */
+  /** Height of a block's title, above its first card. */
   title: number;
-  /** Extra space per level of a block starting a row. */
-  sep: number;
 }
 
 export function treeGeometry(correction: boolean, titled = false): TreeGeometry {
-  return { cardW: 250, cardH: correction ? 152 : 110, colGap: 64, rowGap: 18, head: titled ? 58 : 34, title: 22, sep: 12 };
+  return { cardW: 250, cardH: correction ? 152 : 110, colGap: 64, rowGap: 18, head: titled ? 58 : 34, title: 22 };
 }
 
 export function cardLeft(g: TreeGeometry, col: number): number {
   return col * (g.cardW + g.colGap);
 }
 
-export function cardTop(g: TreeGeometry, gaps: TreeGap[], row: number): number {
-  const extra = gaps.filter((x) => x.row <= row).reduce((sum, x) => sum + g.title + x.level * g.sep, 0);
-  return g.head + row * (g.cardH + g.rowGap) + extra;
+export function cardTop(g: TreeGeometry, row: number): number {
+  return g.head + row * (g.cardH + g.rowGap);
 }
 
 /** SVG path of a link: out of the right middle of a card, into the left middle of the next. */
-export function linkPath(g: TreeGeometry, gaps: TreeGap[], from: TreeMatch, to: TreeMatch): string {
+export function linkPath(g: TreeGeometry, from: TreeMatch, to: TreeMatch): string {
   const x1 = cardLeft(g, from.col) + g.cardW;
-  const y1 = cardTop(g, gaps, from.row) + g.cardH / 2;
+  const y1 = cardTop(g, from.row) + g.cardH / 2;
   const x2 = cardLeft(g, to.col);
-  const y2 = cardTop(g, gaps, to.row) + g.cardH / 2;
+  const y2 = cardTop(g, to.row) + g.cardH / 2;
   const mid = (x1 + x2) / 2;
   return `M${x1} ${y1} C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`;
 }

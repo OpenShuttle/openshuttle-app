@@ -166,7 +166,7 @@
                     }
                   </svg>
                   @for (col of tr.columns; track col.col) {
-                    <span class="field-label tree-col-title" [style.left.px]="left(col.col)">
+                    <span class="field-label tree-col-title" [style.left.px]="left(col.col)" [style.top.px]="tr.titled ? top(tr, col.row) - g.title - 22 : 0">
                       {{ t('phases.tree.round', { n: col.col + 1, size: col.size }) }}
                     </span>
                   }
