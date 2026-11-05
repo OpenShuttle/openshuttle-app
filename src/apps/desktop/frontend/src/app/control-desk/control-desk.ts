@@ -14,6 +14,7 @@ import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
 import { clubs, fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
+import { WithBibPipe } from '../shared/with-bib';
 
 /** Pending scores older than this are highlighted. */
 const LATE_SCORE_MINUTES = 10;
@@ -34,7 +35,7 @@ const EMPTY: ControlDeskView = {
 /** Control desk: courts, pending scores, queue, alerts. */
 @Component({
   selector: 'app-control-desk',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge, ScorePanel, MatchStage],
+  imports: [TranslocoDirective, RouterLink, CategoryBadge, ScorePanel, MatchStage, WithBibPipe],
   templateUrl: './control-desk.html',
   styleUrl: './control-desk.scss',
 })

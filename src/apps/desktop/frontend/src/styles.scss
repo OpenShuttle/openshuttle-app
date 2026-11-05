@@ -324,6 +324,11 @@ button {
   font: 700 13px var(--font-mono);
 }
 
+// Bib numbers are assigned and stored but shown only when Settings say so.
+html:not(.show-bibs) :is(.bib, .call-bib, .bib-number) {
+  display: none !important;
+}
+
 // Small colored label.
 .pill {
   display: inline-block;

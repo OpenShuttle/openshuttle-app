@@ -195,7 +195,7 @@
 
 .mrow {
   display: grid;
-  grid-template-columns: 56px 84px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   padding: 4px 0;
@@ -207,14 +207,9 @@
   }
 }
 
-.mid {
-  font: 500 12px var(--font-mono);
-  color: var(--color-text-muted);
-}
-
 .vs {
-  font-family: var(--font-mono);
   font-weight: 700;
+  @include ellipsis;
 }
 
 .result {

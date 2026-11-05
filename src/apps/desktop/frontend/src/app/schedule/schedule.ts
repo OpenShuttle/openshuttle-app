@@ -5,6 +5,7 @@ import { ScheduleBlockView, ScheduleGroupView, ScheduleHighlightView, ScheduleSl
 import { Category } from '@bindings/internal/engine';
 
 import { LanguageService } from '../core/language.service';
+import { AppSettings } from '../core/settings.service';
 import { Panels } from '../core/panels.service';
 import { liveView } from '../core/live-view';
 import { TournamentStore } from '../core/tournament.service';
@@ -56,6 +57,7 @@ export class Schedule {
   protected readonly panels = inject(Panels);
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
+  private readonly settings = inject(AppSettings);
   private readonly live = liveView<ScheduleView>(() => TournamentService.GetScheduleView(), EMPTY, 60_000);
   protected readonly drag: ScheduleDrag = new ScheduleDrag({
     live: this.live,
@@ -201,8 +203,14 @@ export class Schedule {
     return b.stageName || this.transloco.translate('stage.kind.' + b.stageKind);
   }
 
+  /** The two sides of a slot: their bibs when shown (Settings), else their players. */
   protected bibs(s: ScheduleSlotView): string {
-    return s.match ? `#${s.match.a.bib || '–'} · #${s.match.b.bib || '–'}` : '';
+    if (!s.match) {
+      return '';
+    }
+    return this.settings.showBibs()
+      ? `#${s.match.a.bib || '–'} · #${s.match.b.bib || '–'}`
+      : `${fullNames(s.match.a)} · ${fullNames(s.match.b)}`;
   }
 
   protected title(s: ScheduleSlotView): string {

@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Presets, Settings } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
 
+import { AppSettings } from '../core/settings.service';
 import { FakeBackend, backendFailure } from '../../testing/backend';
 import { choose, click, find, render, text, type } from '../../testing/render';
 import presets from '../../testing/fixtures/presets.json';
@@ -10,11 +12,20 @@ import { CategoryBadge } from './category-badge';
 import { ClubSelect, clubKey, findClub } from './club-select';
 import { Glide } from './glide';
 import { PanelToggle } from './panel-strip';
+import { WithBibPipe } from './with-bib';
 
 describe('shared components', () => {
   beforeEach(() => {
     localStorage.clear();
     new FakeBackend().on('PresetService.GetPresets', presets as unknown as Presets).on('SettingsService.GetSettings', settings as unknown as Settings);
+  });
+
+  it('WithBibPipe prefixes the bib only when Settings show it', () => {
+    const side = { entrant: 'e1', bib: 12, names: ['Victor Gauthier', 'David Michel'] } as never;
+    const pipe = TestBed.runInInjectionContext(() => new WithBibPipe());
+    expect(pipe.transform(side)).toBe('Victor Gauthier / David Michel');
+    TestBed.inject(AppSettings).value.set({ ...(settings as unknown as Settings), showBibs: true });
+    expect(pipe.transform(side)).toBe('#12 Victor Gauthier / David Michel');
   });
 
   it('CategoryBadge shows the short code in the UI language', async () => {

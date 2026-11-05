@@ -10,5 +10,6 @@
   "defaultTiebreaks": "b-standard",
   "tournamentsDir": "/home/julie/Documents/OpenShuttle",
   "clubDisplay": "name",
-  "checkUpdates": true
+  "checkUpdates": true,
+  "showBibs": false
 }

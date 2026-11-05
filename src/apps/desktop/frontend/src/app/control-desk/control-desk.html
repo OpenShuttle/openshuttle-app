@@ -200,11 +200,11 @@
               </span>
               <span class="pending-text">
                 <span class="pending-meta">
-                  {{ m.id }} · {{ t('category.short.' + m.category) }} · <app-match-stage [match]="m" /> ·
+                  {{ t('category.short.' + m.category) }} · <app-match-stage [match]="m" /> ·
                   {{ t('desk.endedMinutesAgo', { time: time(m.endedAt), minutes: minutesSince(m.endedAt) }) }}
                 </span>
-                <span class="pending-side">#{{ m.a.bib }} {{ short(m.a) }}</span>
-                <span class="pending-side">#{{ m.b.bib }} {{ short(m.b) }}</span>
+                <span class="pending-side">{{ m.a | withBib }}</span>
+                <span class="pending-side">{{ m.b | withBib }}</span>
               </span>
               <span class="pending-cta">{{ t('desk.enter') }}</span>
             </button>
@@ -235,7 +235,6 @@
           <div class="queue-item">
             <div class="queue-top">
               <app-category-badge [category]="q.match.category" [slot]="q.match.slot" [color]="q.match.color"> · <app-match-stage [match]="q.match" /></app-category-badge>
-              <span class="queue-id">{{ q.match.id }}</span>
               @if (proposedCourt(q.match.id); as court) {
                 <span class="pill pill-free queue-status">{{ t('desk.status.proposed', { court }) }}</span>
               } @else if (q.reason) {

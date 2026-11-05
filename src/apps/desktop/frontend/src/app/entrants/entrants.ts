@@ -14,6 +14,7 @@ import { CategoryBadge } from '../shared/category-badge';
 import { ClubSelect } from '../shared/club-select';
 import { ImportMapping } from './import-mapping';
 import { toCsv } from '../shared/csv';
+import { AppSettings } from '../core/settings.service';
 
 const emptyPlayers = (count: number): PlayerInput[] =>
   Array.from({ length: count }, () => ({ name: '', club: '' }));
@@ -27,6 +28,7 @@ const emptyPlayers = (count: number): PlayerInput[] =>
 })
 export class Entrants {
   protected readonly tournament = inject(TournamentStore);
+  protected readonly showBibs = inject(AppSettings).showBibs;
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
   protected readonly importReport = signal<ImportReport | null>(null);

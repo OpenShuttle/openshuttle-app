@@ -23,6 +23,7 @@ import { ScorePanel } from '../score-panel/score-panel';
 import { roundLabel, shortRoundLabel } from '../shared/match-stage';
 import { fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
+import { WithBibPipe } from '../shared/with-bib';
 
 /** A sub-bracket of the phases screen: the places it plays for and its rounds. */
 interface BracketSection {
@@ -34,7 +35,7 @@ interface BracketSection {
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel],
+  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })
