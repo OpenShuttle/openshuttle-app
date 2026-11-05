@@ -310,8 +310,9 @@ func TestStandInBlocks(t *testing.T) {
 	g.route(engine.MensSingles, "S1", main, main)
 	r1, final, third := "MS/"+main+"/R1", "MS/"+main+"/R2", "MS/"+main+"/R2/P3"
 
+	// The lowest stakes first: the third place before the final.
 	b := g.state().ScheduleBlocks()
-	if !slices.Contains(b, r1) || slices.Index(b, final) > slices.Index(b, third) {
+	if !slices.Contains(b, r1) || slices.Index(b, third) > slices.Index(b, final) {
 		t.Fatalf("blocks = %v", b)
 	}
 	for _, sl := range g.state().Schedule(t0).Slots {
@@ -319,11 +320,11 @@ func TestStandInBlocks(t *testing.T) {
 			t.Errorf("third place stand-in = %+v", sl)
 		}
 	}
-	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock(third, final) })
+	g.do(func(s State) (Change, error) { return s.MoveScheduledBlock(final, third) })
 	g.finishPools(engine.MensSingles)
 	g.fill(engine.MensSingles, main)
 	b = g.state().ScheduleBlocks()
-	if !slices.Equal(b, []string{r1, third, final}) {
+	if !slices.Equal(b, []string{r1, final, third}) {
 		t.Errorf("blocks once filled = %v", b)
 	}
 }

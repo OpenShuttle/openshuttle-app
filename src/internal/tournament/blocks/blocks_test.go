@@ -91,10 +91,23 @@ func TestOrder(t *testing.T) {
 }
 
 func TestSortByPlace(t *testing.T) {
-	waves := [][]Block{{{Key: "P5", Place: 5}, {Key: "main", Place: 1}}}
+	waves := [][]Block{{{Key: "B", Place: 1}, {Key: "A", Place: 0}, {Key: "C", Place: 2}}}
 	SortByPlace(waves)
-	if waves[0][0].Key != "main" {
-		t.Errorf("wave = %v", keys(waves[0]))
+	if got := keys(waves[0]); !slices.Equal(got, []string{"A", "B", "C"}) {
+		t.Errorf("wave = %v", got)
+	}
+}
+
+func TestSortByStakes(t *testing.T) {
+	// The last round of a 16 full placement bracket: every match for a place.
+	waves := [][]Block{{
+		{Key: "final", Place: 1}, {Key: "P3", Place: 3}, {Key: "P5", Place: 5}, {Key: "P7", Place: 7},
+		{Key: "P9", Place: 9}, {Key: "P11", Place: 11}, {Key: "P13", Place: 13}, {Key: "P15", Place: 15},
+	}}
+	SortByStakes(waves)
+	want := []string{"P15", "P13", "P11", "P9", "P7", "P5", "P3", "final"}
+	if got := keys(waves[0]); !slices.Equal(got, want) {
+		t.Errorf("wave = %v, want %v", got, want)
 	}
 }
 

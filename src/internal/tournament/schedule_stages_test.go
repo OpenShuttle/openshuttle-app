@@ -50,8 +50,9 @@ func TestSamePhaseStagesInterleave(t *testing.T) {
 			blocks = append(blocks, k)
 		}
 	}
-	want := []string{"MS/" + main + "/R1", "MS/" + others + "/A/1", "MS/" + others + "/A/2", "MS/" + main + "/R2"}
-	if len(blocks) < 4 || !slices.Equal(blocks[:4], want) {
+	// In the final round, the third place comes before the final.
+	want := []string{"MS/" + main + "/R1", "MS/" + others + "/A/1", "MS/" + others + "/A/2", "MS/" + main + "/R2/P3", "MS/" + main + "/R2"}
+	if len(blocks) < 5 || !slices.Equal(blocks[:5], want) {
 		t.Errorf("blocks = %v, want %v…", blocks, want)
 	}
 	// Bracket rounds carry their size: semi-finals, then finals.
