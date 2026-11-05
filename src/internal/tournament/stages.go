@@ -193,6 +193,20 @@ func (s State) Origins(c engine.Category, id string) map[engine.EntrantID]string
 	return out
 }
 
+// OriginColors gives, for each entrant of Origins, the color index of the pool
+// it comes from (the one of the schedule, --color-group-n).
+func (s State) OriginColors(c engine.Category, id string) map[engine.EntrantID]int {
+	out := map[engine.EntrantID]int{}
+	styles := s.GroupStyles()
+	for _, e := range s.Routed(c, id) {
+		src := s.formats[c][e.Pool/MaxPools]
+		if src.Kind == StagePools && e.Rank > 0 {
+			out[e.ID] = GroupStyleOf(styles, c, src.ID, e.Pool%MaxPools).Color
+		}
+	}
+	return out
+}
+
 // playedBefore counts the matches an entrant played in the stages before the
 // stage at index target (walkovers left out) and when the last one ended.
 func (s State) playedBefore(c engine.Category, target int, id engine.EntrantID) (int, time.Time) {

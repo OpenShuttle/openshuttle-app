@@ -469,4 +469,8 @@
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
   font: 700 11px var(--font-mono);
+
+  &.colored {
+    color: #fff;
+  }
 }

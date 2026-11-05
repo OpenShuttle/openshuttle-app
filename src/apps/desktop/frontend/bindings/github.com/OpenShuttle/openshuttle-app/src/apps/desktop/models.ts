@@ -1288,6 +1288,11 @@ export interface StagePhase {
      * Origins maps an entrant to the pool and rank it comes from ("A1").
      */
     "origins": { [_ in engine$0.EntrantID]?: string } | null;
+
+    /**
+     * OriginColors maps the same entrants to their pool's color index.
+     */
+    "originColors": { [_ in engine$0.EntrantID]?: number } | null;
     "rounds": RoundView[] | null;
     "places": PlaceView[] | null;
 }

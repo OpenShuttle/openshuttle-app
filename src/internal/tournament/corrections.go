@@ -117,6 +117,7 @@ func (s *State) applyScoreCleared(p ScoreCleared) {
 
 func (s *State) applyEntrantReinstated(p EntrantReinstated) {
 	delete(s.withdrawn, p.Entrant)
+	delete(s.keptResult, p.Entrant)
 }
 
 func (s *State) applyMatchesSwapped(p MatchesSwapped) {

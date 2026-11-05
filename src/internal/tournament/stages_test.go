@@ -289,6 +289,34 @@ func TestBracketForfeitKeepsPoolResults(t *testing.T) {
 	}
 }
 
+func TestBracketForfeitIsNotRetroactive(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 2, 8)
+	p := g.addStage(engine.MensSingles, StageBracket, "P", false)
+	g.route(engine.MensSingles, "S1", p, p)
+	g.finishPools(engine.MensSingles)
+	g.fill(engine.MensSingles, p)
+
+	ms := g.bracketMatches(engine.MensSingles, p)
+	g.win(ms[0].ID, engine.SideA) // played before the forfeit
+	played := ms[0]
+	g.do(func(s State) (Change, error) { return s.WithdrawEntrant(played.A) })
+
+	st := g.state()
+	first, _ := st.Match(played.ID)
+	if st.Walkover(first) {
+		t.Errorf("a scored bracket match must keep its result")
+	}
+	if a, b := st.WalkoverSides(first); a || b {
+		t.Errorf("sides = %v %v, want none", a, b)
+	}
+	for _, m := range g.bracketMatches(engine.MensSingles, p)[1:] {
+		if m.Has(played.A) && st.Playable(m) && !st.Walkover(m) {
+			t.Errorf("%s: later match of the forfeiting entrant should be a walkover", m.ID)
+		}
+	}
+}
+
 func TestDrawBracketPreconditions(t *testing.T) {
 	// A perfect three-way tie in the pool; the bracket takes the given ranks.
 	setup := func(routing ...string) (*game, string) {

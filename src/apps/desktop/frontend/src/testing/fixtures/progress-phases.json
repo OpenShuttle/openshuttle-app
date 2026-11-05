@@ -1622,6 +1622,7 @@
           ],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         },
@@ -1646,6 +1647,7 @@
           "pools": [],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         }
@@ -2677,6 +2679,7 @@
           ],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         },
@@ -2701,6 +2704,7 @@
           "pools": [],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         }

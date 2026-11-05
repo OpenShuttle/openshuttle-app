@@ -89,7 +89,7 @@
                   @for (sl of b.slots; track $index; let i = $index) {
                     <button type="button" class="slot" [class.picked]="swappingSlot() === b.id + ':' + i" (click)="swapSlot(c, b, i)">
                       <span class="slot-n">{{ i + 1 }}</span>
-                      @if (b.origins?.[sl.entrant]; as o) {<span class="origin">{{ o }}</span>}
+                      @if (b.origins?.[sl.entrant]; as o) {<span class="origin" [class.colored]="!!b.originColors?.[sl.entrant]" [style.background]="b.originColors?.[sl.entrant] ? 'var(--color-group-' + b.originColors?.[sl.entrant] + ')' : null">{{ o }}</span>}
                       {{ sl.entrant ? (sl | withBib) : t('phases.bye') }}
                     </button>
                   }
@@ -195,7 +195,7 @@
                           <span [attr.title]="m.id">{{ t(sr.key, sr.params) }}</span>
                           <span class="bmatch-result">
                             @if (m.walkover) {
-                              <span class="pill pill-alert">WO</span>
+                              <!-- the WO sits on the side that forfeited -->
                             } @else if (m.score) {
                               {{ scoreText(m) }}
                             } @else if (m.court && !m.endedAt) {
@@ -214,7 +214,7 @@
                           [class.lost]="winner(m) === 'b'"
                         >
                           @if (b.origins?.[m.a.entrant]; as o) {
-                            <span class="origin">{{ o }}</span>
+                            <span class="origin" [class.colored]="!!b.originColors?.[m.a.entrant]" [style.background]="b.originColors?.[m.a.entrant] ? 'var(--color-group-' + b.originColors?.[m.a.entrant] + ')' : null">{{ o }}</span>
                           }
                           {{ a.key ? t(a.key) : (m.a | withBib) }}
                         @if (m.walkoverA) {
@@ -228,7 +228,7 @@
                           [class.lost]="winner(m) === 'a'"
                         >
                           @if (b.origins?.[m.b.entrant]; as o) {
-                            <span class="origin">{{ o }}</span>
+                            <span class="origin" [class.colored]="!!b.originColors?.[m.b.entrant]" [style.background]="b.originColors?.[m.b.entrant] ? 'var(--color-group-' + b.originColors?.[m.b.entrant] + ')' : null">{{ o }}</span>
                           }
                           {{ bb.key ? t(bb.key) : (m.b | withBib) }}
                         @if (m.walkoverB) {

@@ -78,7 +78,9 @@ type State struct {
 	priority  string
 	matches   []Match
 	withdrawn map[engine.EntrantID]string // stage of the forfeit
-	lots      map[PoolRef]map[engine.EntrantID]int
+	// keptResult: bracket matches already decided when an entrant forfeited.
+	keptResult map[engine.EntrantID]map[MatchID]bool
+	lots       map[PoolRef]map[engine.EntrantID]int
 
 	places map[string][]Place // "<category>/<stage>"
 	// clubs resolves the clubs typed for players against the club list of

@@ -1692,6 +1692,7 @@
           ],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         },
@@ -1829,6 +1830,14 @@
             "e4": "C2",
             "e7": "C1",
             "e8": "B1"
+          },
+          "originColors": {
+            "e13": 1,
+            "e14": 1,
+            "e15": 2,
+            "e4": 3,
+            "e7": 3,
+            "e8": 2
           },
           "rounds": [
             {
@@ -3903,6 +3912,7 @@
           ],
           "slots": [],
           "origins": {},
+          "originColors": {},
           "rounds": [],
           "places": []
         },
@@ -3992,6 +4002,12 @@
             "e18": "A1",
             "e21": "A2",
             "e22": "B1"
+          },
+          "originColors": {
+            "e17": 6,
+            "e18": 5,
+            "e21": 5,
+            "e22": 6
           },
           "rounds": [
             {

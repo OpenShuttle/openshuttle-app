@@ -114,6 +114,11 @@ func (s State) withdrawnBy(id engine.EntrantID, c engine.Category, si int) bool 
 
 // withdrawnFrom reports whether a forfeit applies to a match of the entrant.
 func (s State) withdrawnFrom(id engine.EntrantID, m Match) bool {
+	// A forfeit in a bracket is not retroactive: the matches already decided
+	// (scored or walkover) when it was declared stay as they were.
+	if s.keptResult[id][m.ID] {
+		return false
+	}
 	return id != "" && s.withdrawnBy(id, m.Category, s.stageIndex(m.Category, m.Stage))
 }
 
@@ -127,7 +132,7 @@ func (s State) WalkoverSides(m Match) (a, b bool) {
 }
 
 // Walkover reports whether a match is a walkover: one side forfeited in this
-// stage or an earlier one.
+// stage or an earlier one (a scored bracket match keeps its result).
 func (s State) Walkover(m Match) bool {
 	return s.Playable(m) && (s.withdrawnFrom(m.A, m) || s.withdrawnFrom(m.B, m))
 }
@@ -282,6 +287,19 @@ func (s *State) applyEntrantWithdrawn(p EntrantWithdrawn, at time.Time) {
 	if s.withdrawn == nil {
 		s.withdrawn = map[engine.EntrantID]string{}
 	}
+	// Bracket matches already decided keep their result; pools turn every
+	// match of the entrant into a walkover.
+	s.refreshBrackets() // projections are refreshed once at the end: bring them up to date
+	kept := map[MatchID]bool{}
+	for _, m := range s.matches {
+		if m.IsBracket() && m.Has(p.Entrant) && s.Playable(m) && (m.Score != nil || s.Walkover(m)) {
+			kept[m.ID] = true
+		}
+	}
+	if s.keptResult == nil {
+		s.keptResult = map[engine.EntrantID]map[MatchID]bool{}
+	}
+	s.keptResult[p.Entrant] = kept
 	s.withdrawn[p.Entrant] = p.Stage
 	// A match in progress stops: the court is free again.
 	for i, m := range s.matches {
