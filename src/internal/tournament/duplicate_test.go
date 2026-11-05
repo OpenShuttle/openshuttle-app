@@ -20,6 +20,7 @@ func TestDuplicate(t *testing.T) {
 		g.addStage(engine.MensDoubles, StageBracket, name, false)
 	}
 	g.do(func(s State) (Change, error) { return s.RemoveStage(engine.MensDoubles, "S2") })
+	g.editStage(engine.MensDoubles, "S3", func(st *StageConfig) { st.Pause = 60 })
 	g.route(engine.MensDoubles, "S1", "S3", "S3", "S4", "")
 
 	changes, err := Duplicate(g.state(), "  Plume 2027 ")
@@ -52,7 +53,7 @@ func TestDuplicate(t *testing.T) {
 	for _, st := range stages {
 		names = append(names, st.ID+" "+st.Name)
 	}
-	if !slices.Equal(names, []string{"S1 ", "S2 Principal", "S3 Consolante"}) || stages[0].Pools != 3 {
+	if !slices.Equal(names, []string{"S1 ", "S2 Principal", "S3 Consolante"}) || stages[0].Pools != 3 || stages[1].Pause != 60 {
 		t.Errorf("stages = %v", names)
 	}
 	if r := stages[0].Routing; !slices.EqualFunc(r, RanksRules("S2", "S2", "S3"), ruleEqual) {

@@ -39,6 +39,11 @@ type Item struct {
 	// After lists the stages of the category that must be over first (a
 	// stage not filled yet waits for its sources).
 	After []string
+	// Pause is how long the item waits after the stages of After are over.
+	Pause time.Duration
+	// NotBefore is the earliest start: the real end of the stages feeding
+	// the item's stage plus its pause, when they are over already.
+	NotBefore time.Time
 }
 
 // OnCourt is a match being played, until its (estimated) end.
@@ -98,8 +103,8 @@ type Result struct {
 
 // Run places the items. Each court, as it frees up, takes the first item it
 // can play: its players are off court, the bracket round before it is over,
-// the stages it waits for are over; on a reserved court, an item of the
-// court's category. Rest is never waited for: an item whose players have not
+// the stages it waits for are over and its pause after them too; on a
+// reserved court, an item of the court's category. Rest is never waited for: an item whose players have not
 // had their minimum rest is placed anyway and flagged Unrested. A court
 // never starts a match that would run into a break: it waits for its end.
 func Run(in Input) Result {
@@ -272,6 +277,10 @@ func (s *sim) ready(it *Item) (time.Time, bool) {
 		}
 		at = later(at, s.stageEnd[k])
 	}
+	if !at.IsZero() {
+		at = at.Add(it.Pause)
+	}
+	at = later(at, it.NotBefore)
 	if it.Pool < 0 {
 		sk := stageKey(it.Category, it.Stage)
 		for l := 0; l < it.Level; l++ {

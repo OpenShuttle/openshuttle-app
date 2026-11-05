@@ -13,6 +13,9 @@ const POOL_SIZE_CHOICES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const DEFAULT_SETS: WinCondition = { kind: WinConditionKind.WinBySets, setsToWin: 2, pointsPerSet: 21, cap: 30 };
 const DEFAULT_TIMED: WinCondition = { kind: WinConditionKind.WinByTime, minutes: 12 };
 const POINT_CHOICES = [11, 15, 21];
+/** The pause before a stage moves by quarter hours, up to 8 hours (Go's MaxStagePause). */
+const PAUSE_STEP = 15;
+const MAX_PAUSE = 480;
 
 /** A new stage needs a pools stage to feed it: a bracket routes nobody on. */
 export function canAddStage(stages: readonly { kind: StageKind }[]): boolean {
@@ -62,6 +65,7 @@ export class FormatEditor {
   protected readonly nodeW = NODE_W;
   protected readonly nodeH = NODE_H;
   protected readonly outputW = OUTPUT_W;
+  protected readonly maxPause = MAX_PAUSE;
 
   /** Selected stage ID; the entry stage by default. */
   readonly selectedID = signal('');
@@ -206,6 +210,26 @@ export class FormatEditor {
     this.edit(stage, { win: { ...stage.win, estimate: Math.max(1, stage.estimate + delta) } });
   }
 
+  /** Moves the pause before a stage by a quarter hour. */
+  protected stepPause(stage: StageView, delta: number): void {
+    this.edit(stage, { pause: Math.min(MAX_PAUSE, Math.max(0, (stage.pause ?? 0) + delta * PAUSE_STEP)) });
+  }
+
+  /** "None", "45 min", "1 h", "1 h 30". */
+  protected pauseText(minutes: number): string {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (minutes <= 0) {
+      return this.transloco.translate('format.pauseNone');
+    }
+    if (h === 0) {
+      return this.transloco.translate('format.pauseMinutes', { n: m });
+    }
+    return m === 0
+      ? this.transloco.translate('format.pauseHours', { h })
+      : this.transloco.translate('format.pauseHoursMinutes', { h, m: String(m).padStart(2, '0') });
+  }
+
   protected setPoints(stage: StageView, points: number): void {
     this.edit(stage, { win: { ...stage.win, pointsPerSet: points } });
   }
@@ -330,6 +354,7 @@ export function config(s: StageView): StageConfig {
   return {
     id: s.id,
     name: s.name,
+    acronym: s.acronym,
     kind: s.kind,
     win: s.win,
     pools: s.pools,
@@ -338,5 +363,6 @@ export function config(s: StageView): StageConfig {
     crossPool: s.crossPool,
     fullPlacement: s.fullPlacement,
     routing: s.routing,
+    pause: s.pause,
   };
 }

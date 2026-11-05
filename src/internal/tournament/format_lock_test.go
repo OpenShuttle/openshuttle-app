@@ -63,6 +63,7 @@ func TestStartedStageLocked(t *testing.T) {
 		{"started: routing to an unfilled stage", setStage("S1", func(st *StageConfig) { st.Routing = RanksRules("S2", "S2", "S2") }), ""},
 		{"started: removed", func(s State) (Change, error) { return s.RemoveStage(engine.MensSingles, "S1") }, engine.CodeStageStarted},
 		{"later: win condition", setStage("S2", func(st *StageConfig) { st.Win = sets15 }), ""},
+		{"later: pause", setStage("S2", func(st *StageConfig) { st.Pause = 60 }), ""},
 		{"later: full placement", setStage("S2", func(st *StageConfig) { st.FullPlacement = false }), ""},
 		{"later: kind", setStage("S2", func(st *StageConfig) {
 			st.Kind, st.Pools, st.Tiebreaks, st.FullPlacement = StagePools, 1, slices.Clone(engine.DefaultTiebreaks), false
@@ -92,6 +93,7 @@ func TestFilledStageChanges(t *testing.T) {
 	}{
 		{"win condition", setStage("S2", func(st *StageConfig) { st.Win = sets15 }), false},
 		{"name", setStage("S2", func(st *StageConfig) { st.Name = "Finale" }), false},
+		{"pause", setStage("S2", func(st *StageConfig) { st.Pause = 45 }), false},
 		{"full placement", setStage("S2", func(st *StageConfig) { st.FullPlacement = false }), false},
 		{"kind", setStage("S2", func(st *StageConfig) {
 			st.Kind, st.Pools, st.Tiebreaks, st.FullPlacement = StagePools, 1, slices.Clone(engine.DefaultTiebreaks), false

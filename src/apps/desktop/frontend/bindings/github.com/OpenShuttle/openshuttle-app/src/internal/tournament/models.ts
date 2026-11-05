@@ -351,6 +351,12 @@ export interface StageConfig {
      * rank here.
      */
     "routing"?: RouteRule[] | null;
+
+    /**
+     * Pause is how long the stage waits, in minutes, after the last match of
+     * the stages feeding it (0 for the entry stage; older files have none).
+     */
+    "pause"?: number;
 }
 
 /**

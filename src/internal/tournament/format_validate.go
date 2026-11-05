@@ -37,6 +37,9 @@ func validFormat(stages []StageConfig, categories int) ([]StageConfig, error) {
 				return nil, err
 			}
 		}
+		if i == 0 {
+			st.Pause = 0 // nothing feeds the entry stage
+		}
 		out[i] = st
 	}
 	return out, nil
@@ -56,6 +59,9 @@ func validStage(st StageConfig, categories int) (StageConfig, error) {
 	}
 	if err := st.Win.Validate(); err != nil {
 		return st, err
+	}
+	if st.Pause < 0 || st.Pause > MaxStagePause {
+		return st, engine.NewError(engine.CodeInvalidFormat)
 	}
 	if st.Win.Kind == engine.WinByTime {
 		if categories > 1 {
@@ -145,6 +151,6 @@ func cloneConfig(st StageConfig) StageConfig {
 
 func configEqual(a, b StageConfig) bool {
 	return a.ID == b.ID && a.Name == b.Name && a.Acronym == b.Acronym && a.Kind == b.Kind && a.Win == b.Win && a.Pools == b.Pools &&
-		slices.Equal(a.PoolSizes, b.PoolSizes) && a.CrossPool == b.CrossPool && a.FullPlacement == b.FullPlacement &&
+		slices.Equal(a.PoolSizes, b.PoolSizes) && a.CrossPool == b.CrossPool && a.FullPlacement == b.FullPlacement && a.Pause == b.Pause &&
 		slices.Equal(a.Tiebreaks, b.Tiebreaks) && slices.EqualFunc(a.Routing, b.Routing, ruleEqual)
 }

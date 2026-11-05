@@ -1132,6 +1132,12 @@ export interface StagePhase {
      * rank here.
      */
     "routing"?: tournament$0.RouteRule[] | null;
+
+    /**
+     * Pause is how long the stage waits, in minutes, after the last match of
+     * the stages feeding it (0 for the entry stage; older files have none).
+     */
+    "pause"?: number;
     "phase": number;
     "entry": boolean;
 
@@ -1219,6 +1225,12 @@ export interface StageView {
      * rank here.
      */
     "routing"?: tournament$0.RouteRule[] | null;
+
+    /**
+     * Pause is how long the stage waits, in minutes, after the last match of
+     * the stages feeding it (0 for the entry stage; older files have none).
+     */
+    "pause"?: number;
     "phase": number;
 
     /**

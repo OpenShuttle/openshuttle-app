@@ -27,12 +27,26 @@ want the schedule to show it.
   forecast (`forecast.Input.Breaks`) a court never starts a match that would
   run into a break: it waits for its end. A shorter match is not looked for.
   Matches are not proposed during a break.
+- **Pause before a stage**: each stage after the entry stage has a pause in
+  minutes (`StageConfig.Pause`, in `FormatSet` and presets, 0 to 480, 0 by
+  default), for "one hour between the pools and the bracket". The stage's
+  first match starts no earlier than the end of the last match of the
+  stages feeding it, plus the pause: in the forecast (`forecast.Item.Pause`
+  after `After`), and from their real end once they are played
+  (`forecast.Item.NotBefore`). Only that stage waits: the other category,
+  and stages of the same category not fed by those, keep playing. Its
+  matches are not proposed before the pause is over, but the desk can call
+  them (like rest, never enforced). It locks with the stage (ADR 9) and is
+  ignored once the stage has started. The schedule shows no band for it: the
+  gap before the stage's first match is the pause.
 - Breaks inserted in the order with a duration (wait for every round before,
   then pause) were considered: they idle courts and depend on the order, which
-  changes at validation. Rejected for now.
+  changes at validation. Rejected for now; the pause before a stage is tied
+  to the format instead.
 
 ## Consequences
 
 - Older files have no day and no break: the forecast starts now, as before.
+  Their stages have no pause.
 - A tournament over two days is not supported: the breaks and hours are on
   one day.
