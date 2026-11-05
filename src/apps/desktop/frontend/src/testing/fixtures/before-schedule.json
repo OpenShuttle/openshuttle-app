@@ -15,6 +15,364 @@
   "courts": 4,
   "minRest": 10,
   "reserved": [],
+  "courtRules": [
+    {
+      "number": 1,
+      "rules": []
+    },
+    {
+      "number": 2,
+      "rules": []
+    },
+    {
+      "number": 3,
+      "rules": []
+    },
+    {
+      "number": 4,
+      "rules": []
+    }
+  ],
+  "scopes": [
+    {
+      "scope": {
+        "category": "MD"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "",
+      "entryStage": false,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S1"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S1",
+        "pool": "A"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 1,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S1",
+        "pool": "B"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 2,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S1",
+        "pool": "C"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 3,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 8,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 4,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 2,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 3
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 4,
+        "from": 5
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 5
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 6,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 7
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "",
+      "entryStage": false,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1",
+        "pool": "A"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 5,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1",
+        "pool": "B"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 6,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 4,
+        "from": 1
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 2,
+        "from": 1
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 2,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 2,
+        "from": 3
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 4,
+      "left": true
+    }
+  ],
   "slots": [
     {
       "key": "MD/S1/A/1",
@@ -39,6 +397,7 @@
       "start": "2026-10-17T09:00:51Z",
       "end": "2026-10-17T09:22:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -65,6 +424,7 @@
       "start": "2026-10-17T09:00:51Z",
       "end": "2026-10-17T09:22:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -91,6 +451,7 @@
       "start": "2026-10-17T09:00:51Z",
       "end": "2026-10-17T09:22:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -117,6 +478,7 @@
       "start": "2026-10-17T09:00:51Z",
       "end": "2026-10-17T09:22:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -143,6 +505,7 @@
       "start": "2026-10-17T09:22:51Z",
       "end": "2026-10-17T09:44:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -169,6 +532,7 @@
       "start": "2026-10-17T09:22:51Z",
       "end": "2026-10-17T09:44:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -195,6 +559,7 @@
       "start": "2026-10-17T09:22:51Z",
       "end": "2026-10-17T09:44:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -221,6 +586,7 @@
       "start": "2026-10-17T09:22:51Z",
       "end": "2026-10-17T09:44:51Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -247,6 +613,7 @@
       "start": "2026-10-17T09:44:51Z",
       "end": "2026-10-17T10:06:51Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -273,6 +640,7 @@
       "start": "2026-10-17T09:44:51Z",
       "end": "2026-10-17T10:06:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -299,6 +667,7 @@
       "start": "2026-10-17T09:44:51Z",
       "end": "2026-10-17T10:06:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -325,6 +694,7 @@
       "start": "2026-10-17T09:44:51Z",
       "end": "2026-10-17T10:06:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -351,6 +721,7 @@
       "start": "2026-10-17T10:06:51Z",
       "end": "2026-10-17T10:28:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -377,6 +748,7 @@
       "start": "2026-10-17T10:06:51Z",
       "end": "2026-10-17T10:28:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -403,6 +775,7 @@
       "start": "2026-10-17T10:06:51Z",
       "end": "2026-10-17T10:28:51Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -429,6 +802,7 @@
       "start": "2026-10-17T10:28:51Z",
       "end": "2026-10-17T10:50:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -455,6 +829,7 @@
       "start": "2026-10-17T10:28:51Z",
       "end": "2026-10-17T10:50:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -481,6 +856,7 @@
       "start": "2026-10-17T10:28:51Z",
       "end": "2026-10-17T10:50:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -507,6 +883,7 @@
       "start": "2026-10-17T10:28:51Z",
       "end": "2026-10-17T10:50:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -533,6 +910,7 @@
       "start": "2026-10-17T10:50:51Z",
       "end": "2026-10-17T11:12:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -559,6 +937,7 @@
       "start": "2026-10-17T10:50:51Z",
       "end": "2026-10-17T11:12:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -585,6 +964,7 @@
       "start": "2026-10-17T11:12:51Z",
       "end": "2026-10-17T11:34:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -611,6 +991,7 @@
       "start": "2026-10-17T11:12:51Z",
       "end": "2026-10-17T11:34:51Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     }
@@ -1039,6 +1420,7 @@
   "groups": [],
   "end": "2026-10-17T11:34:51Z",
   "unrested": 3,
+  "offRules": 0,
   "start": null,
   "dayEnd": null,
   "late": false,

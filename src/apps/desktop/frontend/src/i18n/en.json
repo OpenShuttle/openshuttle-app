@@ -691,7 +691,8 @@
     "unrested": "Under {rest} min of rest",
     "callAnyway": "Call anyway",
     "unrestedAlert": "{n, plural, one {Court {courts}: the next match} other {Courts {courts}: the next matches}} would start before the {rest} min of rest. Call anyway, or change the order in the schedule.",
-    "openSchedule": "Open the schedule"
+    "openSchedule": "Open the schedule",
+    "offCourt": "Court rules keep this match off court {court}: calling it there is allowed."
   },
   "priority": {
     "balanced": "Balanced",
@@ -988,11 +989,9 @@
     "alternate": "In turn",
     "reserved": "Reserved courts",
     "alternateHint": "Round 1 of one category, round 1 of the other, then round 2…",
-    "reservedHint": "Each category keeps its courts until it is over; its courts then go to the other.",
+    "reservedHint": "Each category keeps its courts until it is over, then gives them to the other. Courts with an \"only\" rule are left out of the share.",
     "first": "Opening each round",
-    "courts": "Courts",
     "court": "Court {n}",
-    "auto": "Auto ({category})",
     "pool": "{stage} {name}",
     "round": "round {n}",
     "unknownPlayers": "players not known yet",
@@ -1050,7 +1049,48 @@
     "ghostChip": "Court {court} · {minutes} min",
     "ghost": "Ghost match",
     "ghostLength": "{minutes} min",
-    "noGhosts": "No ghost match"
+    "noGhosts": "No ghost match",
+    "rules": {
+      "title": "Court rules",
+      "summary": "{n, plural, =0 {no rule} one {# rule} other {# rules}}",
+      "show": "Show",
+      "hide": "Hide",
+      "hint": "Which courts a category, a stage, a pool or a bracket round takes. A rule ends on its own once its matches are played.",
+      "clear": "Remove all",
+      "remove": "Remove the rule of court {court}: {scope}",
+      "over": "over",
+      "overHint": "Its matches are played: the rule no longer applies.",
+      "wholeCategory": "whole category",
+      "stage": "{stage} · {name}",
+      "courts": "Courts",
+      "kind": "Rule",
+      "kinds": {
+        "priority": "Priority",
+        "only": "Only",
+        "never": "Never"
+      },
+      "chip": {
+        "priority": "Priority {level}",
+        "only": "Only",
+        "never": "Never"
+      },
+      "kindHints": {
+        "priority": "When it frees up, the court takes a ready match of this target before the order. Level 1 goes first; at the same level, the order decides.",
+        "only": "The court takes nothing else until these matches are played, even if it stays empty meanwhile.",
+        "never": "The schedule and the proposals never put these matches on the court; the desk can still call one there."
+      },
+      "level": "Level",
+      "levelUp": "Higher priority",
+      "levelDown": "Lower priority",
+      "target": "For",
+      "pickTarget": "Choose a category, stage, pool or round…",
+      "add": "Add the rule",
+      "previewing": "Preview: the schedule shows the rule before it is added.",
+      "offRules": "{n, plural, one {# match against the court rules} other {# matches against the court rules}}",
+      "offRulesHint": "No court the rules allow can take them: they are planned anyway. Change the court rules.",
+      "offRuleSlot": "against the court rules",
+      "free": "{n, plural, one {Court {courts} has no rule: it follows} other {Courts {courts} have no rule: they follow}} the order."
+    }
   },
   "panels": {
     "collapseMenu": "Fold the menu",

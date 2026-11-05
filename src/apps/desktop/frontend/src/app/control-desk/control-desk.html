@@ -262,7 +262,15 @@
                 <div class="launch">
                   <span class="launch-label">{{ t(q.reason ? 'desk.forceOn' : 'desk.launchOn') }}</span>
                   @for (n of openCourts(); track n) {
-                    <button type="button" class="launch-court" [class.force]="q.reason" (click)="launch(q.match, n)">{{ n }}</button>
+                    <button
+                      type="button"
+                      class="launch-court"
+                      [class.force]="q.reason || (q.offCourts ?? []).includes(n)"
+                      [attr.title]="(q.offCourts ?? []).includes(n) ? t('desk.offCourt', { court: n }) : null"
+                      (click)="launch(q.match, n)"
+                    >
+                      {{ n }}
+                    </button>
                   } @empty {
                     <span class="launch-none">{{ t('desk.noOpenCourt') }}</span>
                   }

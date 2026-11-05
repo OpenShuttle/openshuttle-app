@@ -218,11 +218,17 @@ func TestScheduleReserved(t *testing.T) {
 	if got := courtsOf(sc); !slices.Equal(got["MS"], []int{1, 2}) || !slices.Equal(got["WS"], []int{3, 4}) {
 		t.Errorf("default share = %v (%v)", got, sc.Reserved)
 	}
-	g.do(func(s State) (Change, error) { return s.SetCourtCategory(4, engine.MensSingles) })
-	if r := g.state().Schedule(t0).Reserved; r[4] != "MS" || r[3] != "WS" {
-		t.Errorf("court 4 reserved for MS = %v", r)
+	// Court 4 only for MS: it no longer counts in the share, which gives MS
+	// one court more than its due (courts 1 and 4), WS the others.
+	g.do(func(s State) (Change, error) {
+		return s.AddCourtRule([]int{4}, CourtRule{Kind: CourtOnly, Scope: CourtScope{Category: engine.MensSingles}})
+	})
+	if r := g.state().Schedule(t0).Reserved; r[4] != "" || r[3] != "WS" {
+		t.Errorf("court 4 out of the share = %v", r)
 	}
-	g.fails(engine.CodeInvalidCourt, func(s State) (Change, error) { return s.SetCourtCategory(9, engine.MensSingles) })
+	if got := courtsOf(g.state().Schedule(t0)); !slices.Contains(got["MS"], 4) || slices.Contains(got["WS"], 4) {
+		t.Errorf("court 4 only MS = %v", got)
+	}
 }
 
 func TestSchedulePlaceholders(t *testing.T) {

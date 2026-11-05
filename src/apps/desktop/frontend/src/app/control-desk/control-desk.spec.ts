@@ -5,6 +5,7 @@ import { buttons, click, clickAll, render, text } from '../../testing/render';
 import before from '../../testing/fixtures/before-desk.json';
 import finished from '../../testing/fixtures/finished-desk.json';
 import desk from '../../testing/fixtures/progress-desk.json';
+import deskRules from '../../testing/fixtures/progress-desk-rules.json';
 import tournament from '../../testing/fixtures/progress-tournament.json';
 import rounds from '../../testing/fixtures/rounds-desk.json';
 import { ControlDesk } from './control-desk';
@@ -82,5 +83,21 @@ describe('ControlDesk', () => {
     view(finished);
     f = await render(ControlDesk);
     await clickAll(f);
+  });
+
+  it('warns when the rules of a court keep a queued match off it', async () => {
+    // Court 3 free: it never takes WD.
+    view({ ...deskRules, courts: deskRules.courts.map((c) => (c.number === 3 ? { ...c, state: 'free', match: null } : c)) });
+    const f = await render(ControlDesk);
+    const q = deskRules.queue.find((x) => x.offCourts.length > 0 && x.reason !== 'playing')!;
+    const row = [...f.nativeElement.querySelectorAll('.launch-btn')] as HTMLButtonElement[];
+    row[deskRules.queue.filter((x) => x.reason !== 'playing').indexOf(q)].click();
+    f.detectChanges();
+    const courts = [...f.nativeElement.querySelectorAll('.launch-court')] as HTMLButtonElement[];
+    const off = courts.filter((b) => b.getAttribute('title')?.includes('Court rules keep this match off'));
+    expect(off.map((b) => b.textContent?.trim())).toEqual(['3']);
+    expect(courts.find((b) => b.textContent?.trim() === '1')?.getAttribute('title')).toBeNull();
+    expect(off.every((b) => b.classList.contains('force'))).toBe(true);
+    expect(off.map((b) => Number(b.textContent?.trim())).every((n) => q.offCourts.includes(n))).toBe(true);
   });
 });

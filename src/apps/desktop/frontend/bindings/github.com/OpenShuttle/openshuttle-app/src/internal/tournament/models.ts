@@ -30,6 +30,57 @@ export enum ClubDisplay {
 };
 
 /**
+ * CourtRule is a rule of a court: a kind, a level for a priority, a scope.
+ */
+export interface CourtRule {
+    "kind": CourtRuleKind;
+    "level"?: number;
+    "scope": CourtScope;
+}
+
+/**
+ * CourtRuleKind is what a court rule does (ADR 12).
+ */
+export enum CourtRuleKind {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    /**
+     * CourtPriority: the court takes a ready match of the scope before the
+     * matches ahead of it in the schedule order, the lowest level first.
+     */
+    CourtPriority = "priority",
+
+    /**
+     * CourtOnly: the court takes nothing else while the scope has matches
+     * left (with several, any of their scopes).
+     */
+    CourtOnly = "only",
+
+    /**
+     * CourtNever: the forecast and the proposals never put a match of the
+     * scope on the court; the desk still can, with a warning.
+     */
+    CourtNever = "never",
+};
+
+/**
+ * CourtScope is what a court rule targets: a category, a stage of it, a
+ * pool of a pools stage ("A") or a round of a bracket stage, named by how
+ * many entrants it starts with and the first place it plays for (2 and 1:
+ * the final; 2 and 3: the third place; 4 and 5: places 5 to 8).
+ */
+export interface CourtScope {
+    "category": engine$0.Category;
+    "stage"?: string;
+    "pool"?: string;
+    "round"?: number;
+    "from"?: number;
+}
+
+/**
  * CourtState is the state of a court.
  */
 export enum CourtState {

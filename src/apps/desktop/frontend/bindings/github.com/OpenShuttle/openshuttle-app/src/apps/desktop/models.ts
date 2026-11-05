@@ -145,16 +145,61 @@ export interface ControlDeskView {
 }
 
 /**
- * CourtReservation is the category a court plays in reserved mode.
+ * CourtReservation is the category a court without an only rule plays in
+ * reserved mode, by the default share.
  */
 export interface CourtReservation {
     "number": number;
     "category": engine$0.Category;
+}
+
+/**
+ * CourtRuleView is a rule of a court.
+ */
+export interface CourtRuleView {
+    "kind": tournament$0.CourtRuleKind;
+    "level": number;
+    "scope": CourtScopeView;
+}
+
+/**
+ * CourtRulesView is a court with its rules: only rules, priorities by
+ * level, never rules.
+ */
+export interface CourtRulesView {
+    "number": number;
+    "rules": CourtRuleView[] | null;
+}
+
+/**
+ * CourtScopeView is what a court rule targets, with what names it: a
+ * category, a stage, a pool or a bracket round.
+ */
+export interface CourtScopeView {
+    "scope": tournament$0.CourtScope;
+    "category": engine$0.Category;
+    "slot": number;
+    "stageName": string;
+    "stageKind": tournament$0.StageKind;
+    "entryStage": boolean;
 
     /**
-     * Manual: reserved by hand, else by the default share.
+     * Acronym is the stage's short name typed by the desk ("" for the
+     * kind's default); Color the pool's or bracket's color index (0 for a
+     * category or a pools stage).
      */
-    "manual": boolean;
+    "acronym": string;
+    "color": number;
+
+    /**
+     * PlaceTo is, for a bracket round, the last place its part plays for.
+     */
+    "placeTo": number;
+
+    /**
+     * Left: the scope still has matches to play; a rule ends with it.
+     */
+    "left": boolean;
 }
 
 /**
@@ -736,6 +781,12 @@ export interface QueueView {
     "reason": tournament$0.NotReady;
     "court": number;
     "restingSince": string | null;
+
+    /**
+     * OffCourts are the courts whose rules keep the match off (never, or
+     * only for something else): calling it there is a warning.
+     */
+    "offCourts": number[] | null;
 }
 
 /**
@@ -953,6 +1004,12 @@ export interface ScheduleSlotView {
     "unrested": boolean;
 
     /**
+     * OffRules: the court rules left no court for the match, so it is
+     * placed against them.
+     */
+    "offRules": boolean;
+
+    /**
      * LeftA and LeftB count the matches each side has not started in the
      * stage (a waiting match counts itself).
      */
@@ -984,6 +1041,13 @@ export interface ScheduleView {
     "reserved": CourtReservation[] | null;
 
     /**
+     * CourtRules lists every court with its rules (ADR 12); Scopes what a
+     * rule can target, category by category.
+     */
+    "courtRules": CourtRulesView[] | null;
+    "scopes": CourtScopeView[] | null;
+
+    /**
      * Slots is the timeline: matches played and playing, then waiting
      * matches and stand-ins of stages not filled yet, by start time.
      */
@@ -1013,6 +1077,12 @@ export interface ScheduleView {
      */
     "end": string | null;
     "unrested": number;
+
+    /**
+     * OffRules counts the matches placed against the court rules: no court
+     * they allow could take them.
+     */
+    "offRules": number;
 
     /**
      * Start is the tournament's start when the forecast starts there (no

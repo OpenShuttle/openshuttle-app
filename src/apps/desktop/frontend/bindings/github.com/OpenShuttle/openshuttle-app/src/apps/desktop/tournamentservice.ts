@@ -38,6 +38,14 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * AddCourtRule gives courts a rule (a priority, only, never) for a scope; a
+ * court's rule of the same scope is replaced.
+ */
+export function AddCourtRule(courts: number[] | null, rule: tournament$0.CourtRule): $CancellablePromise<void> {
+    return $Call.ByID(2513356550, courts, rule);
+}
+
+/**
  * AddGhostMatch leaves a court empty for some minutes in its turn, after a
  * match ("": as soon as the court is free). Only the schedule screen's
  * forecast counts it.
@@ -112,6 +120,13 @@ export function CheckInPlayer(id: tournament$0.PlayerID): $CancellablePromise<vo
  */
 export function ChooseImportFile(fallback: engine$0.Category): $CancellablePromise<$models.ImportFile> {
     return $Call.ByID(659107208, fallback);
+}
+
+/**
+ * ClearCourtRules removes every rule of a court.
+ */
+export function ClearCourtRules(court: number): $CancellablePromise<void> {
+    return $Call.ByID(3468383973, court);
 }
 
 /**
@@ -381,6 +396,14 @@ export function PairEntrants(id: engine$0.EntrantID, partner: engine$0.EntrantID
 }
 
 /**
+ * PreviewCourtRule returns the schedule screen as it would be with a court
+ * rule added: what the desk sees while choosing it. Nothing is saved.
+ */
+export function PreviewCourtRule(courts: number[] | null, rule: tournament$0.CourtRule): $CancellablePromise<$models.ScheduleView> {
+    return $Call.ByID(2408255163, courts, rule);
+}
+
+/**
  * PreviewImport is what importing the file with this mapping would do,
  * nothing saved.
  */
@@ -441,6 +464,13 @@ export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> 
 }
 
 /**
+ * RemoveCourtRule removes a court's rule of a scope.
+ */
+export function RemoveCourtRule(court: number, scope: tournament$0.CourtScope): $CancellablePromise<void> {
+    return $Call.ByID(796078067, court, scope);
+}
+
+/**
  * RemoveEntrant withdraws an entrant.
  */
 export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
@@ -488,13 +518,6 @@ export function RestoreTournament(path: string): $CancellablePromise<void> {
  */
 export function SaveFormatPreset(c: engine$0.Category, name: string, description: string): $CancellablePromise<void> {
     return $Call.ByID(3355808563, c, name, description);
-}
-
-/**
- * SetCourtCategory reserves a court for a category ("" for the default share).
- */
-export function SetCourtCategory(court: number, c: engine$0.Category): $CancellablePromise<void> {
-    return $Call.ByID(3782271309, court, c);
 }
 
 /**

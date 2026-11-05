@@ -85,6 +85,55 @@ type Input struct {
 	Reserved map[int]engine.Category
 	// Breaks are pauses of every court: no match is placed across one.
 	Breaks []Break
+	// Rules steer each court: what it takes first, only, or never. A rule
+	// ends once no item of its scope is left to place.
+	Rules map[int][]Rule
+}
+
+// RuleKind is what a court rule does.
+type RuleKind string
+
+const (
+	// RulePriority: the court takes a ready item of the scope before the
+	// items ahead of it in the order (the lowest level first).
+	RulePriority RuleKind = "priority"
+	// RuleOnly: the court takes nothing else while the scope has items left
+	// (with several, any of their scopes).
+	RuleOnly RuleKind = "only"
+	// RuleNever: the court never takes an item of the scope.
+	RuleNever RuleKind = "never"
+)
+
+// Rule is a court rule: a kind, a level for a priority (1 first), a scope.
+type Rule struct {
+	Kind  RuleKind
+	Level int
+	Scope Scope
+}
+
+// Scope is a set of items: a category, a stage of it, a pool of a pools
+// stage or a round of a bracket stage.
+type Scope struct {
+	Category engine.Category
+	Stage    string // "" every stage
+	// Pool is the pool's index plus one; 0 any pool.
+	Pool int
+	// RoundSize and PlaceFrom name a round of a bracket (2 and 1: the
+	// final); 0 any round.
+	RoundSize, PlaceFrom int
+}
+
+// Matches reports whether an item is in the scope.
+func (sc Scope) Matches(it Item) bool {
+	switch {
+	case it.Category != sc.Category, sc.Stage != "" && it.Stage != sc.Stage:
+		return false
+	case sc.Pool > 0:
+		return it.Pool == sc.Pool-1
+	case sc.RoundSize > 0:
+		return it.Pool < 0 && it.RoundSize == sc.RoundSize && (sc.PlaceFrom == 0 || it.PlaceFrom == sc.PlaceFrom)
+	}
+	return true
 }
 
 // Break is a pause of every court, from From to To.
@@ -100,6 +149,9 @@ type Slot struct {
 	End   time.Time
 	// Unrested: no rested match fitted the rules here. The desk is warned.
 	Unrested bool
+	// OffRules: no court the rules allow could ever take the item, so it was
+	// placed against them.
+	OffRules bool
 }
 
 // Result is the forecast: every placed match by start time, then court.
@@ -112,8 +164,11 @@ type Result struct {
 // Run places the items. Each court, as it frees up, takes the first item it
 // can play: its players are off court, the bracket round before it is over,
 // the stages it waits for are over and its pause after them too; on a
-// reserved court, an item of the court's category. Rest is never waited for: an item whose players have not
-// had their minimum rest is placed anyway and flagged Unrested. A court
+// reserved court, an item of the court's category; one its rules allow,
+// the ready item of its highest priority scope first, in order on a tie.
+// When the rules leave items no court can take, they are dropped and those
+// items flagged OffRules. Rest is never waited for: an item whose players
+// have not had their minimum rest is placed anyway and flagged Unrested. A court
 // never starts a match that would run into a break: it waits for its end.
 // A ghost match keeps its court empty in its turn, after the match it
 // follows; it does not count in End.
@@ -124,6 +179,9 @@ func Run(in Input) Result {
 	for pending > 0 {
 		c := sim.firstFreeCourt()
 		if c == 0 {
+			if sim.relax() {
+				continue
+			}
 			break
 		}
 		t := sim.freeAt[c]
@@ -131,19 +189,21 @@ func Run(in Input) Result {
 			sim.freeAt[c] = end
 			continue
 		}
-		pick, next := sim.pick(c, t)
-		if pick == nil {
-			if !sim.wait(c, t, next) {
+		i, next := sim.pick(c, t)
+		if i < 0 {
+			if !sim.wait(c, t, next) && !sim.relax() {
 				break
 			}
 			continue
 		}
+		pick := &sim.items[i]
 		if end, ok := sim.breakAt(t, pick.Minutes); ok {
-			sim.unpick(pick)
+			sim.done[i] = false
 			sim.freeAt[c] = end
 			continue
 		}
-		out.Slots = append(out.Slots, sim.place(pick, c, t))
+		out.Slots = append(out.Slots, sim.place(i, c, t))
+		sim.revive(t)
 		pending--
 		if pick.Ghost == "" {
 			out.End = later(out.End, out.Slots[len(out.Slots)-1].End)
@@ -175,6 +235,21 @@ type sim struct {
 	// ones placed.
 	queued map[string]bool
 	ended  map[string]time.Time
+	// rules flattens the court rules; ruleLeft counts the items of each
+	// rule's scope not placed yet, itemRules the rules matching each item.
+	rules     []courtRule
+	ruleLeft  []int
+	itemRules [][]int
+	// relaxed: the rules left items no court could take; they no longer
+	// apply. idleAt is when a court found nothing left for it.
+	relaxed bool
+	idleAt  []time.Time
+}
+
+// courtRule is a rule of a court.
+type courtRule struct {
+	Rule
+	court int
 }
 
 func newSim(in Input) *sim {
@@ -184,6 +259,24 @@ func newSim(in Input) *sim {
 		busyUntil: map[engine.EntrantID]time.Time{}, lastEnd: map[engine.EntrantID]time.Time{},
 		stageEnd: map[string]time.Time{}, levelEnd: map[string]time.Time{}, left: map[string]int{},
 		queued: map[string]bool{}, ended: map[string]time.Time{},
+		itemRules: make([][]int, len(in.Items)), idleAt: make([]time.Time, in.Courts+1),
+	}
+	for c := 1; c <= in.Courts; c++ {
+		for _, r := range in.Rules[c] {
+			s.rules = append(s.rules, courtRule{r, c})
+		}
+	}
+	s.ruleLeft = make([]int, len(s.rules))
+	for i, it := range in.Items {
+		if it.Ghost != "" {
+			continue
+		}
+		for r, cr := range s.rules {
+			if cr.Scope.Matches(it) {
+				s.itemRules[i] = append(s.itemRules[i], r)
+				s.ruleLeft[r]++
+			}
+		}
 	}
 	for i := range s.freeAt {
 		s.freeAt[i] = in.Now
@@ -225,24 +318,51 @@ func stageKey(c engine.Category, stage string) string { return string(c) + "/" +
 
 func levelKey(stageKey string, level int) string { return fmt.Sprintf("%s/%d", stageKey, level) }
 
-// firstFreeCourt is the court free first, 0 without courts.
+// firstFreeCourt is the court free first, 0 without courts. Of courts free
+// together, one with an only rule running goes first, then one with a
+// priority running, then the lowest number: the courts set for a scope get
+// its items.
 func (s *sim) firstFreeCourt() int {
 	c := 0
 	for i := 1; i <= s.in.Courts; i++ {
-		if c == 0 || s.freeAt[i].Before(s.freeAt[c]) {
+		if c == 0 || s.freeAt[i].Before(s.freeAt[c]) || (s.freeAt[i].Equal(s.freeAt[c]) && s.claim(i) < s.claim(c)) {
 			c = i
 		}
 	}
 	return c
 }
 
-// pick is the first item court c can start at t; else nil and the earliest
-// time an item it waits for could start (zero when none is known).
-func (s *sim) pick(c int, t time.Time) (*Item, time.Time) {
+// claim ranks a court among courts free together: 0 with an only rule
+// running, 1 with a priority running, 2 otherwise.
+func (s *sim) claim(c int) int {
+	out := 2
+	if s.relaxed {
+		return out
+	}
+	for r, cr := range s.rules {
+		if cr.court != c || s.ruleLeft[r] == 0 {
+			continue
+		}
+		switch cr.Kind {
+		case RuleOnly:
+			return 0
+		case RulePriority:
+			out = 1
+		}
+	}
+	return out
+}
+
+// pick is the item court c starts at t: of the ready items it may take, the
+// one of its highest priority scope, the first in order on a tie; else -1
+// and the earliest time an item it waits for could start (zero when none is
+// known).
+func (s *sim) pick(c int, t time.Time) (int, time.Time) {
 	next := time.Time{}
+	best, bestLevel := -1, 0
 	for i := range s.items {
 		it := &s.items[i]
-		if s.done[i] || (it.Court != 0 && it.Court != c) || (it.Ghost == "" && !s.allowed(c, it.Category)) {
+		if s.done[i] || (it.Court != 0 && it.Court != c) || (it.Ghost == "" && (!s.allowed(c, it.Category) || !s.allowedByRules(c, i))) {
 			continue
 		}
 		at, known := s.ready(it)
@@ -255,19 +375,91 @@ func (s *sim) pick(c int, t time.Time) (*Item, time.Time) {
 			}
 			continue
 		}
-		s.done[i] = true
-		return it, next
-	}
-	return nil, next
-}
-
-// unpick puts back an item pick took.
-func (s *sim) unpick(it *Item) {
-	for i := range s.items {
-		if &s.items[i] == it {
-			s.done[i] = false
+		if level := s.level(c, i); best < 0 || level < bestLevel {
+			best, bestLevel = i, level
 		}
 	}
+	if best >= 0 {
+		s.done[best] = true
+	}
+	return best, next
+}
+
+// allowedByRules reports whether court c's rules let it take item i: no
+// never rule of the court holds it, and when the court has only rules
+// still running, one of them holds it.
+func (s *sim) allowedByRules(c, i int) bool {
+	if s.relaxed {
+		return true
+	}
+	return s.ruleAllows(c, i)
+}
+
+// ruleAllows applies court c's running rules to item i.
+func (s *sim) ruleAllows(c, i int) bool {
+	only, inOnly := false, false
+	for r, cr := range s.rules {
+		if cr.court != c || s.ruleLeft[r] == 0 {
+			continue
+		}
+		holds := slices.Contains(s.itemRules[i], r)
+		switch cr.Kind {
+		case RuleNever:
+			if holds {
+				return false
+			}
+		case RuleOnly:
+			only = true
+			inOnly = inOnly || holds
+		}
+	}
+	return !only || inOnly
+}
+
+// level is item i's priority on court c: the lowest level of the court's
+// running priority rules holding it. A ghost match keeps its turn on a
+// court with priorities.
+func (s *sim) level(c, i int) int {
+	level, any := math.MaxInt, false
+	for r, cr := range s.rules {
+		if cr.court != c || cr.Kind != RulePriority || s.ruleLeft[r] == 0 {
+			continue
+		}
+		any = true
+		if slices.Contains(s.itemRules[i], r) {
+			level = min(level, cr.Level)
+		}
+	}
+	if s.items[i].Ghost != "" && any {
+		return math.MinInt
+	}
+	return level
+}
+
+// revive wakes the courts that found nothing left at t, once an item is
+// placed: items waiting for it become known, and a rule may have ended.
+func (s *sim) revive(t time.Time) {
+	for c := 1; c <= s.in.Courts; c++ {
+		if s.freeAt[c].Equal(never) {
+			s.freeAt[c] = later(s.idleAt[c], t)
+		}
+	}
+}
+
+// relax drops the rules once they leave items no court can take: the
+// courts left idle by them take items again from when they went idle. false
+// when nothing changes.
+func (s *sim) relax() bool {
+	if s.relaxed || len(s.rules) == 0 {
+		return false
+	}
+	s.relaxed = true
+	for c := 1; c <= s.in.Courts; c++ {
+		if s.freeAt[c].Equal(never) && !s.idleAt[c].IsZero() {
+			s.freeAt[c] = s.idleAt[c]
+		}
+	}
+	return true
 }
 
 // breakAt reports whether a match of that many minutes starting at t runs
@@ -342,7 +534,7 @@ func (s *sim) wait(c int, t, next time.Time) bool {
 		s.freeAt[c] = next
 		return true
 	}
-	s.freeAt[c] = never // nothing left for this court
+	s.freeAt[c], s.idleAt[c] = never, t // nothing left for this court
 	for _, f := range s.freeAt[1:] {
 		if !f.Equal(never) {
 			return true
@@ -354,13 +546,18 @@ func (s *sim) wait(c int, t, next time.Time) bool {
 // never marks a court with nothing left to play.
 var never = time.Unix(math.MaxInt32, 0)
 
-// place puts an item on court c at t.
-func (s *sim) place(it *Item, c int, t time.Time) Slot {
+// place puts item i on court c at t.
+func (s *sim) place(i, c int, t time.Time) Slot {
+	it := &s.items[i]
 	end := t.Add(time.Duration(it.Minutes) * time.Minute)
 	slot := Slot{Item: *it, Court: c, Start: t, End: end, Unrested: !s.rested(it.A, t) || !s.rested(it.B, t)}
 	s.freeAt[c] = end
 	if it.Ghost != "" {
 		return slot
+	}
+	slot.OffRules = s.relaxed && !s.ruleAllows(c, i)
+	for _, r := range s.itemRules[i] {
+		s.ruleLeft[r]--
 	}
 	if it.Match != "" {
 		s.ended[it.Match] = end

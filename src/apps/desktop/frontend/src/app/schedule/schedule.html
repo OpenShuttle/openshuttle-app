@@ -18,6 +18,9 @@
         @if (view().late && view().dayEnd; as dayEnd) {
           <span class="pill pill-finished" data-late [attr.title]="t('schedule.lateHint')">{{ t('schedule.late', { time: time(dayEnd) }) }}</span>
         }
+        @if (view().offRules > 0) {
+          <span class="pill pill-finished" data-off-rules [attr.title]="t('schedule.rules.offRulesHint')">{{ t('schedule.rules.offRules', { n: view().offRules }) }}</span>
+        }
         @if (view().unrested > 0) {
           <span class="pill pill-finished" [attr.title]="t('schedule.unrestedHint')">{{ t('schedule.unrested', { n: view().unrested }) }}</span>
         }
@@ -61,27 +64,12 @@
               }
             </div>
           </div>
-        } @else {
-          <div class="setup-row courts-row">
-            <span class="field-label">{{ t('schedule.courts') }}</span>
-            <div class="court-picks">
-              @for (n of courts(); track n) {
-                <label class="court-pick">
-                  <span>{{ t('schedule.court', { n }) }}</span>
-                  <select (change)="reserve(n, $event)">
-                    <option value="" [selected]="!reservedFor(n)?.manual">{{ t('schedule.auto', { category: reservedFor(n) ? t('category.short.' + reservedFor(n)!.category) : '–' }) }}</option>
-                    @for (c of view().categories; track c.category) {
-                      <option [value]="c.category" [selected]="reservedFor(n)?.manual && reservedFor(n)?.category === c.category">
-                        {{ t('category.name.' + c.category) }}
-                      </option>
-                    }
-                  </select>
-                </label>
-              }
-            </div>
-          </div>
         }
       </div>
+    }
+
+    @if (liveView().courts > 0 && ((liveView().slots ?? []).length > 0 || hasRules())) {
+      <app-court-rules [view]="liveView()" (preview)="rulePreview.set($event)" />
     }
 
     @if ((view().slots ?? []).length > 0 || (view().breaks ?? []).length > 0 || (view().ghosts ?? []).length > 0) {
@@ -256,6 +244,9 @@
                 @if (reservedFor(n); as r) {
                   <app-category-badge [category]="r.category" [slot]="r.slot" />
                 }
+                @if (rulesOf(n); as rules) {
+                  <span class="court-flag" [attr.title]="rules" [attr.aria-label]="rules">⚑</span>
+                }
               </span>
             }
             <div class="axis" [style.height.px]="height()">
@@ -304,7 +295,7 @@
                     [class.played]="s.state === 'played'"
                     [class.playing]="s.state === 'playing'"
                     [class.movable]="s.movable"
-                    [class.unrested]="s.unrested && s.state === 'planned'"
+                    [class.unrested]="(s.unrested || s.offRules) && s.state === 'planned'"
                     [class.unknown]="!s.match"
                     [class.carried]="drag.carried(s)"
                     [style.top.px]="top(s)"

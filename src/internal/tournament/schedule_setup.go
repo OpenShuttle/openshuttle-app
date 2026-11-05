@@ -51,9 +51,12 @@ type ScheduleSet struct {
 	Mode ScheduleMode `json:"mode"`
 	// First opens every round in alternate mode ("" the first category).
 	First engine.Category `json:"first,omitempty"`
-	// Courts reserves courts for a category (reserved mode); courts left out
-	// follow the default share.
+	// Courts reserved courts for a category in reserved mode in files
+	// written before court rules: each reads as an only rule (courtRules).
 	Courts map[int]engine.Category `json:"courts,omitempty"`
+	// Rules are each court's rules (ADR 12): priorities, only, never. In
+	// reserved mode, the courts without an only rule share the categories.
+	Rules map[int][]CourtRule `json:"rules,omitempty"`
 	// Pinned held blocks moved up by hand in files written before the
 	// schedule could be validated; it is ignored.
 	Pinned []string `json:"pinned,omitempty"`
@@ -72,12 +75,8 @@ func (s State) ScheduleSettings() ScheduleSet {
 			out.First = c
 		}
 	}
-	out.Courts = map[int]engine.Category{}
-	for court, c := range s.schedule.Courts {
-		if court >= 1 && court <= s.Courts() && s.HasCategory(c) {
-			out.Courts[court] = c
-		}
-	}
+	out.Courts = nil
+	out.Rules = s.courtRules(s.schedule)
 	out.Pinned = nil
 	return out
 }
@@ -98,37 +97,17 @@ func (s State) SetScheduleFirst(c engine.Category) (Change, error) {
 	return s.scheduleChange(func(p *ScheduleSet) { p.First = c })
 }
 
-// SetCourtCategory reserves a court for a category in reserved mode; ""
-// gives the court back to the default share.
-func (s State) SetCourtCategory(court int, c engine.Category) (Change, error) {
-	if court < 1 || court > s.Courts() {
-		return Change{}, engine.NewError(engine.CodeInvalidCourt)
-	}
-	if c != "" && !s.HasCategory(c) {
-		return Change{}, engine.NewError(engine.CodeCategoryNotFound)
-	}
-	return s.scheduleChange(func(p *ScheduleSet) {
-		if c == "" {
-			delete(p.Courts, court)
-		} else {
-			p.Courts[court] = c
-		}
-	})
-}
-
 func (s State) scheduleChange(edit func(*ScheduleSet)) (Change, error) {
 	cur := s.ScheduleSettings()
 	next := cur
-	next.Courts = map[int]engine.Category{}
-	for k, v := range cur.Courts {
-		next.Courts[k] = v
-	}
+	next.Rules = maps.Clone(cur.Rules)
 	edit(&next)
-	if next.Mode == cur.Mode && next.First == cur.First && maps.Equal(next.Courts, cur.Courts) {
+	maps.DeleteFunc(next.Rules, func(_ int, rs []CourtRule) bool { return len(rs) == 0 })
+	if next.Mode == cur.Mode && next.First == cur.First && maps.EqualFunc(next.Rules, cur.Rules, slices.Equal) {
 		return Change{}, nil
 	}
-	if len(next.Courts) == 0 {
-		next.Courts = nil
+	if len(next.Rules) == 0 {
+		next.Rules = nil
 	}
 	return Change{TypeScheduleSet, next}, nil
 }

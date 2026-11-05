@@ -1,0 +1,191 @@
+@use 'mixins' as *;
+
+.court-rules {
+  @include stack(10px);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.rules-head {
+  @include row(12px);
+
+  .field-label {
+    min-width: 150px;
+  }
+
+  .fold {
+    margin-left: auto;
+  }
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.court-list {
+  @include stack(6px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.court-row {
+  @include row(6px, wrap);
+  min-height: 28px;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.court-name {
+  min-width: 90px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rule-chip {
+  @include row(6px);
+  max-width: 100%;
+  padding: 2px 4px 2px 4px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  font-size: 13px;
+  background: var(--color-surface);
+
+  &[data-kind='only'] {
+    border-color: var(--color-text);
+  }
+
+  &[data-kind='never'] {
+    border-style: dashed;
+  }
+
+  &.over {
+    opacity: 0.55;
+  }
+}
+
+.rule-kind {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+
+  [data-kind='only'] & {
+    background: var(--color-text);
+    color: #fff;
+  }
+
+  [data-kind='never'] & {
+    background: var(--color-alert-bg);
+    color: var(--color-alert);
+  }
+}
+
+.rule-scope {
+  @include ellipsis;
+  font-weight: 700;
+}
+
+.rule-over {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.clear {
+  margin-left: auto;
+}
+
+.break-remove {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-alert);
+    background: var(--color-alert-bg);
+  }
+}
+
+.rule-form {
+  @include stack(8px);
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.form-row {
+  @include row(10px, wrap);
+
+  .seg {
+    width: auto;
+  }
+}
+
+.form-label {
+  min-width: 90px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.level-label,
+.kind-label {
+  min-width: 0;
+}
+
+.kind-label {
+  margin-left: 12px;
+}
+
+.court-toggles {
+  @include row(4px, wrap);
+}
+
+.court-toggle {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: 700 13px var(--font-mono);
+  cursor: pointer;
+
+  &.active {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: #fff;
+  }
+}
+
+.stepper button {
+  width: 32px;
+  height: 32px;
+}
+
+.stepper .stepper-value {
+  min-width: 36px;
+}
+
+.target {
+  height: 32px;
+  width: auto;
+  max-width: 100%;
+}
+
+.previewing {
+  font-weight: 700;
+  color: var(--color-text);
+}

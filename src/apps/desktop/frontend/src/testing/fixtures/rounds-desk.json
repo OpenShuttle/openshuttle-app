@@ -311,7 +311,8 @@
       },
       "reason": "playing",
       "court": 1,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -372,7 +373,8 @@
       },
       "reason": "playing",
       "court": 2,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -433,7 +435,8 @@
       },
       "reason": "playing",
       "court": 3,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -494,7 +497,8 @@
       },
       "reason": "playing",
       "court": 4,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -555,7 +559,8 @@
       },
       "reason": "playing",
       "court": 1,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -616,7 +621,8 @@
       },
       "reason": "playing",
       "court": 2,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -677,7 +683,8 @@
       },
       "reason": "playing",
       "court": 3,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     },
     {
       "match": {
@@ -738,7 +745,8 @@
       },
       "reason": "playing",
       "court": 4,
-      "restingSince": null
+      "restingSince": null,
+      "offCourts": []
     }
   ],
   "complete": [],

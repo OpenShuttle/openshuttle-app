@@ -20,9 +20,26 @@ func (s *TournamentService) SetScheduleFirst(ctx context.Context, c engine.Categ
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetScheduleFirst(c) })
 }
 
-// SetCourtCategory reserves a court for a category ("" for the default share).
-func (s *TournamentService) SetCourtCategory(ctx context.Context, court int, c engine.Category) error {
-	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetCourtCategory(court, c) })
+// AddCourtRule gives courts a rule (a priority, only, never) for a scope; a
+// court's rule of the same scope is replaced.
+func (s *TournamentService) AddCourtRule(ctx context.Context, courts []int, rule tournament.CourtRule) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddCourtRule(courts, rule) })
+}
+
+// RemoveCourtRule removes a court's rule of a scope.
+func (s *TournamentService) RemoveCourtRule(ctx context.Context, court int, scope tournament.CourtScope) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveCourtRule(court, scope) })
+}
+
+// ClearCourtRules removes every rule of a court.
+func (s *TournamentService) ClearCourtRules(ctx context.Context, court int) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.ClearCourtRules(court) })
+}
+
+// PreviewCourtRule returns the schedule screen as it would be with a court
+// rule added: what the desk sees while choosing it. Nothing is saved.
+func (s *TournamentService) PreviewCourtRule(courts []int, rule tournament.CourtRule) ScheduleView {
+	return s.previewSchedule(func(st tournament.State) (tournament.Change, error) { return st.AddCourtRule(courts, rule) })
 }
 
 // ValidateSchedule fixes the order of the waiting matches from the rules

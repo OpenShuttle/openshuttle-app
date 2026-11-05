@@ -691,7 +691,8 @@
     "unrested": "Moins de {rest} min de repos",
     "callAnyway": "Lancer quand même",
     "unrestedAlert": "{n, plural, one {Terrain {courts} : le prochain match} other {Terrains {courts} : les prochains matchs}} démarreraient avant les {rest} min de repos. Lancez quand même, ou changez l'ordre dans l'échéancier.",
-    "openSchedule": "Ouvrir l'échéancier"
+    "openSchedule": "Ouvrir l'échéancier",
+    "offCourt": "Les règles du terrain {court} écartent ce match : l'y appeler reste possible."
   },
   "priority": {
     "balanced": "Équilibrée",
@@ -988,11 +989,9 @@
     "alternate": "À tour de rôle",
     "reserved": "Terrains réservés",
     "alternateHint": "Tour 1 d'une catégorie, tour 1 de l'autre, puis tour 2…",
-    "reservedHint": "Chaque catégorie garde ses terrains jusqu'à la fin ; ils passent ensuite à l'autre.",
+    "reservedHint": "Chaque catégorie garde ses terrains jusqu'à la fin, puis les laisse à l'autre. Les terrains avec une règle « uniquement » sont hors du partage.",
     "first": "Ouvre chaque tour",
-    "courts": "Terrains",
     "court": "Terrain {n}",
-    "auto": "Auto ({category})",
     "pool": "{stage} {name}",
     "round": "tour {n}",
     "unknownPlayers": "joueurs pas encore connus",
@@ -1050,7 +1049,48 @@
     "ghostChip": "Terrain {court} · {minutes} min",
     "ghost": "Match fantôme",
     "ghostLength": "{minutes} min",
-    "noGhosts": "Aucun match fantôme"
+    "noGhosts": "Aucun match fantôme",
+    "rules": {
+      "title": "Règles des terrains",
+      "summary": "{n, plural, =0 {aucune règle} one {# règle} other {# règles}}",
+      "show": "Afficher",
+      "hide": "Masquer",
+      "hint": "Les terrains que prend une catégorie, une phase, une poule ou un tour de tableau. Une règle s'arrête d'elle-même une fois ses matchs joués.",
+      "clear": "Tout retirer",
+      "remove": "Retirer la règle du terrain {court} : {scope}",
+      "over": "terminée",
+      "overHint": "Ses matchs sont joués : la règle ne s'applique plus.",
+      "wholeCategory": "toute la catégorie",
+      "stage": "{stage} · {name}",
+      "courts": "Terrains",
+      "kind": "Règle",
+      "kinds": {
+        "priority": "Prioritaire",
+        "only": "Uniquement",
+        "never": "Jamais"
+      },
+      "chip": {
+        "priority": "Priorité {level}",
+        "only": "Uniquement",
+        "never": "Jamais"
+      },
+      "kindHints": {
+        "priority": "Quand il se libère, le terrain prend un match prêt de cette cible avant l'ordre. Le niveau 1 passe en premier ; à niveau égal, l'ordre décide.",
+        "only": "Le terrain ne prend rien d'autre tant que ces matchs ne sont pas joués, quitte à rester vide en attendant.",
+        "never": "L'échéancier et les propositions ne mettent jamais ces matchs sur le terrain ; la table de marque peut quand même en appeler un."
+      },
+      "level": "Niveau",
+      "levelUp": "Plus prioritaire",
+      "levelDown": "Moins prioritaire",
+      "target": "Pour",
+      "pickTarget": "Choisir une catégorie, phase, poule ou tour…",
+      "add": "Ajouter la règle",
+      "previewing": "Aperçu : l'échéancier montre la règle avant de l'ajouter.",
+      "offRules": "{n, plural, one {# match hors des règles des terrains} other {# matchs hors des règles des terrains}}",
+      "offRulesHint": "Aucun terrain permis par les règles ne peut les prendre : ils sont planifiés quand même. Modifiez les règles des terrains.",
+      "offRuleSlot": "hors des règles des terrains",
+      "free": "{n, plural, one {Le terrain {courts} n'a pas de règle : il suit} other {Les terrains {courts} n'ont pas de règle : ils suivent}} l'ordre."
+    }
   },
   "panels": {
     "collapseMenu": "Replier le menu",
