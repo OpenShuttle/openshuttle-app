@@ -32,22 +32,11 @@
   color: var(--color-text-muted);
 }
 
-.court-picks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.court-pick {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+// A court with rules: a flag in its header, the rules as tooltip.
+.court-flag {
   font-size: 13px;
-  font-weight: 700;
-
-  select {
-    height: 32px;
-  }
+  color: var(--color-text-muted);
+  cursor: help;
 }
 
 .layout {

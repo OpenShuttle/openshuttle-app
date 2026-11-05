@@ -14,6 +14,7 @@ import { Glide } from '../shared/glide';
 import { fullNames } from '../shared/names';
 import { PanelToggle } from '../shared/panel-strip';
 import { shortRoundLabel } from '../shared/match-stage';
+import { CourtRules, scopeLabel } from './court-rules';
 import { ScheduleDrag } from './schedule-drag';
 import { PX_PER_MIN, axisHeight, axisStart, breakBands, ghostsByCourt, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
 
@@ -25,12 +26,15 @@ const EMPTY: ScheduleView = {
   courts: 0,
   minRest: 0,
   reserved: [],
+  courtRules: [],
+  scopes: [],
   slots: [],
   blocks: [],
   validatedAt: null,
   groups: [],
   end: null,
   unrested: 0,
+  offRules: 0,
   start: null,
   dayEnd: null,
   late: false,
@@ -46,7 +50,7 @@ const EMPTY: ScheduleView = {
  */
 @Component({
   selector: 'app-schedule',
-  imports: [TranslocoDirective, RouterLink, CategoryBadge, PanelToggle],
+  imports: [TranslocoDirective, RouterLink, CategoryBadge, PanelToggle, CourtRules],
   templateUrl: './schedule.html',
   styleUrl: './schedule.scss',
 })
@@ -66,7 +70,12 @@ export class Schedule {
     slotTop: (s) => this.top(s),
     slotHeight,
   });
-  protected readonly view = computed<ScheduleView>(() => this.drag.preview() ?? this.live());
+  /** The schedule with the court rule being chosen, null without one. */
+  protected readonly rulePreview = signal<ScheduleView | null>(null);
+  protected readonly view = computed<ScheduleView>(() => this.drag.preview() ?? this.rulePreview() ?? this.live());
+  /** The live schedule, for the court rules panel (it previews from there). */
+  protected readonly liveView = computed(() => this.live());
+  protected readonly hasRules = computed(() => (this.live().courtRules ?? []).some((c) => (c.rules ?? []).length > 0));
   protected readonly modes = ScheduleMode;
   protected readonly fullNames = fullNames;
   protected readonly slotHeight = slotHeight;
@@ -121,13 +130,23 @@ export class Schedule {
     this.drag.up();
   }
 
-  protected reservedFor(court: number): { category: Category; slot: number; manual: boolean } | null {
+  protected reservedFor(court: number): { category: Category; slot: number } | null {
     const r = (this.view().reserved ?? []).find((x) => x.number === court);
     if (!r) {
       return null;
     }
     const slot = (this.view().categories ?? []).find((c) => c.category === r.category)?.slot ?? 1;
-    return { category: r.category, slot, manual: r.manual };
+    return { category: r.category, slot };
+  }
+
+  /** A court's running rules, as its header's tooltip: "Priority 1 DD whole category · Never DH T · Final". */
+  protected rulesOf(court: number): string {
+    const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
+    const rules = (this.view().courtRules ?? []).find((c) => c.number === court)?.rules ?? [];
+    return rules
+      .filter((r) => r.scope.left)
+      .map((r) => `${t('schedule.rules.chip.' + r.kind, { level: r.level })} ${t('category.short.' + r.scope.category)} ${scopeLabel(t, r.scope)}`)
+      .join(' · ');
   }
 
   protected top(s: ScheduleSlotView): number {
@@ -171,7 +190,8 @@ export class Schedule {
     const sides = s.match
       ? `${fullNames(s.match.a)} (${t('schedule.left', { n: s.leftA })}) – ${fullNames(s.match.b)} (${t('schedule.left', { n: s.leftB })})`
       : t('schedule.unknownPlayers');
-    return `${this.time(s.start)} – ${this.time(s.end)} · ${this.label(s)} · ${sides}`;
+    const off = s.offRules && s.state === 'planned' ? ` · ${t('schedule.rules.offRuleSlot')}` : '';
+    return `${this.time(s.start)} – ${this.time(s.end)} · ${this.label(s)} · ${sides}${off}`;
   }
 
   // Validating fixes the order; recomputing or going back to blocks drops
@@ -245,7 +265,4 @@ export class Schedule {
     void this.tournament.setScheduleFirst(category);
   }
 
-  protected reserve(court: number, event: Event): void {
-    void this.tournament.setCourtCategory(court, (event.target as HTMLSelectElement).value as Category | '');
-  }
 }

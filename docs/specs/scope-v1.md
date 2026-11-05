@@ -173,7 +173,7 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   finished match goes to the pending scores. Rest counts from the real end of
   the match, not from score entry.
 
-**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md), [ADR 10](../adr/0010-schedule-day-and-breaks.md), [ADR 11](../adr/0011-ghost-matches.md))
+**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md), [ADR 10](../adr/0010-schedule-day-and-breaks.md), [ADR 11](../adr/0011-ghost-matches.md), [ADR 12](../adr/0012-court-rules.md))
 
 - The schedule puts every waiting match in order and forecasts courts and
   times from the estimated time on court of each win condition (2 sets of 21:
@@ -186,6 +186,17 @@ Criteria use differences, never ratios, so walkovers stay neutral.
 - **Two categories** share the courts in one of two modes: *in turn* (round 1
   of one category, round 1 of the other, then round 2…) or *reserved courts*
   (each category keeps its courts until it is over).
+- **Court rules**: each court can have rules, for a category, a phase, a
+  pool or a bracket round (the final, the third place, places 5 to 8…):
+  *priority* with a level (1 first; several targets can share a level): the
+  court takes their matches first when it frees up, before the order;
+  *only*: the court takes nothing else, even if it stays empty meanwhile
+  ("court 7 only for the brackets"); *never*: the schedule never puts these
+  matches there. A rule ends on its own once its matches are played. One
+  rule can be added to several courts at once, and the schedule previews it
+  before it is added. Rules guide the schedule and the proposals; the desk
+  can still call any match on any court (the queue warns). In *reserved
+  courts* mode, the courts without an "only" rule share the categories.
 - Before validation, the desk reorders **rounds** (pool A round 1, pool B
   round 1…, bracket rounds) in a list by drag and drop; the timeline beside
   it shows the result live. The rounds of a pool always keep their order.

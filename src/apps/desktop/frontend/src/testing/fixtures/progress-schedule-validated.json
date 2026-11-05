@@ -15,6 +15,313 @@
   "courts": 7,
   "minRest": 10,
   "reserved": [],
+  "courtRules": [
+    {
+      "number": 1,
+      "rules": []
+    },
+    {
+      "number": 2,
+      "rules": []
+    },
+    {
+      "number": 3,
+      "rules": []
+    },
+    {
+      "number": 4,
+      "rules": []
+    },
+    {
+      "number": 5,
+      "rules": []
+    },
+    {
+      "number": 6,
+      "rules": []
+    },
+    {
+      "number": 7,
+      "rules": []
+    }
+  ],
+  "scopes": [
+    {
+      "scope": {
+        "category": "MD"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "",
+      "stageKind": "",
+      "entryStage": false,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2"
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 8,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 4,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 1
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 2,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 3
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 4,
+        "from": 5
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 5
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 6,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "MD",
+        "stage": "S2",
+        "round": 2,
+        "from": 7
+      },
+      "category": "MD",
+      "slot": 1,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 4,
+      "placeTo": 8,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "",
+      "entryStage": false,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 0,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1",
+        "pool": "A"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 5,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S1",
+        "pool": "B"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "",
+      "stageKind": "pools",
+      "entryStage": true,
+      "acronym": "",
+      "color": 6,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2"
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 0,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 4,
+        "from": 1
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 4,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 2,
+        "from": 1
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 2,
+      "left": true
+    },
+    {
+      "scope": {
+        "category": "WD",
+        "stage": "S2",
+        "round": 2,
+        "from": 3
+      },
+      "category": "WD",
+      "slot": 2,
+      "stageName": "Tableau principal",
+      "stageKind": "bracket",
+      "entryStage": false,
+      "acronym": "",
+      "color": 7,
+      "placeTo": 4,
+      "left": true
+    }
+  ],
   "slots": [
     {
       "key": "MD/S1/A/1",
@@ -107,6 +414,7 @@
       "start": "2026-10-17T09:00:56Z",
       "end": "2026-10-17T09:32:03Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -205,6 +513,7 @@
       "start": "2026-10-17T09:00:57Z",
       "end": "2026-10-17T09:32:05Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -299,6 +608,7 @@
       "start": "2026-10-17T09:00:58Z",
       "end": "2026-10-17T09:32:07Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -393,6 +703,7 @@
       "start": "2026-10-17T09:00:59Z",
       "end": "2026-10-17T09:32:09Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -487,6 +798,7 @@
       "start": "2026-10-17T09:01:00Z",
       "end": "2026-10-17T09:32:11Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -585,6 +897,7 @@
       "start": "2026-10-17T09:01:01Z",
       "end": "2026-10-17T09:32:13Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -679,6 +992,7 @@
       "start": "2026-10-17T09:35:18Z",
       "end": "2026-10-17T10:06:25Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -773,6 +1087,7 @@
       "start": "2026-10-17T09:35:19Z",
       "end": "2026-10-17T10:06:27Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -871,6 +1186,7 @@
       "start": "2026-10-17T09:35:20Z",
       "end": "2026-10-17T10:06:29Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -965,6 +1281,7 @@
       "start": "2026-10-17T09:35:21Z",
       "end": "2026-10-17T10:06:31Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1059,6 +1376,7 @@
       "start": "2026-10-17T09:35:22Z",
       "end": "2026-10-17T10:06:33Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1153,6 +1471,7 @@
       "start": "2026-10-17T09:35:23Z",
       "end": "2026-10-17T10:06:35Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1236,6 +1555,7 @@
       "start": "2026-10-17T10:09:40Z",
       "end": "2026-10-17T10:18:48Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1319,6 +1639,7 @@
       "start": "2026-10-17T10:09:41Z",
       "end": "2026-10-17T10:31:41Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1402,6 +1723,7 @@
       "start": "2026-10-17T10:09:42Z",
       "end": "2026-10-17T10:31:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1485,6 +1807,7 @@
       "start": "2026-10-17T10:09:43Z",
       "end": "2026-10-17T10:31:43Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1568,6 +1891,7 @@
       "start": "2026-10-17T10:09:44Z",
       "end": "2026-10-17T10:31:44Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1651,6 +1975,7 @@
       "start": "2026-10-17T10:09:45Z",
       "end": "2026-10-17T10:31:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -1745,6 +2070,7 @@
       "start": "2026-10-17T09:01:02Z",
       "end": "2026-10-17T09:32:15Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 1,
       "leftB": 2
     },
@@ -1843,6 +2169,7 @@
       "start": "2026-10-17T09:35:24Z",
       "end": "2026-10-17T10:06:37Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 2,
       "leftB": 1
     },
@@ -1926,6 +2253,7 @@
       "start": "2026-10-17T10:09:46Z",
       "end": "2026-10-17T10:31:46Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 1,
       "leftB": 1
     },
@@ -2009,6 +2337,7 @@
       "start": "2026-10-17T10:18:53Z",
       "end": "2026-10-17T10:40:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 2,
       "leftB": 2
     },
@@ -2092,6 +2421,7 @@
       "start": "2026-10-17T10:31:41Z",
       "end": "2026-10-17T10:53:41Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2175,6 +2505,7 @@
       "start": "2026-10-17T10:31:42Z",
       "end": "2026-10-17T10:53:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2201,6 +2532,7 @@
       "start": "2026-10-17T10:31:45Z",
       "end": "2026-10-17T10:53:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2227,6 +2559,7 @@
       "start": "2026-10-17T10:31:45Z",
       "end": "2026-10-17T10:53:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2310,6 +2643,7 @@
       "start": "2026-10-17T10:40:53Z",
       "end": "2026-10-17T11:02:53Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 1,
       "leftB": 2
     },
@@ -2393,6 +2727,7 @@
       "start": "2026-10-17T10:40:53Z",
       "end": "2026-10-17T11:02:53Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 1,
       "leftB": 2
     },
@@ -2476,6 +2811,7 @@
       "start": "2026-10-17T10:53:42Z",
       "end": "2026-10-17T11:15:42Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2559,6 +2895,7 @@
       "start": "2026-10-17T10:53:42Z",
       "end": "2026-10-17T11:15:42Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2585,6 +2922,7 @@
       "start": "2026-10-17T10:53:45Z",
       "end": "2026-10-17T11:15:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2611,6 +2949,7 @@
       "start": "2026-10-17T10:53:45Z",
       "end": "2026-10-17T11:15:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2637,6 +2976,7 @@
       "start": "2026-10-17T10:53:45Z",
       "end": "2026-10-17T11:15:45Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2663,6 +3003,7 @@
       "start": "2026-10-17T11:02:53Z",
       "end": "2026-10-17T11:24:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2746,6 +3087,7 @@
       "start": "2026-10-17T11:15:42Z",
       "end": "2026-10-17T11:37:42Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2829,6 +3171,7 @@
       "start": "2026-10-17T11:15:42Z",
       "end": "2026-10-17T11:37:42Z",
       "unrested": true,
+      "offRules": false,
       "leftA": 3,
       "leftB": 3
     },
@@ -2855,6 +3198,7 @@
       "start": "2026-10-17T11:24:53Z",
       "end": "2026-10-17T11:46:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2881,6 +3225,7 @@
       "start": "2026-10-17T11:24:53Z",
       "end": "2026-10-17T11:46:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2907,6 +3252,7 @@
       "start": "2026-10-17T11:24:53Z",
       "end": "2026-10-17T11:46:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2933,6 +3279,7 @@
       "start": "2026-10-17T11:24:53Z",
       "end": "2026-10-17T11:46:53Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2959,6 +3306,7 @@
       "start": "2026-10-17T11:37:42Z",
       "end": "2026-10-17T11:59:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -2985,6 +3333,7 @@
       "start": "2026-10-17T11:37:42Z",
       "end": "2026-10-17T11:59:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -3011,6 +3360,7 @@
       "start": "2026-10-17T11:59:42Z",
       "end": "2026-10-17T12:21:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     },
@@ -3037,6 +3387,7 @@
       "start": "2026-10-17T11:59:42Z",
       "end": "2026-10-17T12:21:42Z",
       "unrested": false,
+      "offRules": false,
       "leftA": 0,
       "leftB": 0
     }
@@ -3486,6 +3837,7 @@
   ],
   "end": "2026-10-17T12:21:42Z",
   "unrested": 6,
+  "offRules": 0,
   "start": null,
   "dayEnd": null,
   "late": false,

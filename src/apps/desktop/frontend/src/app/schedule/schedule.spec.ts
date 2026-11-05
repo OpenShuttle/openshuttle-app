@@ -4,6 +4,7 @@ import { FakeBackend } from '../../testing/backend';
 import { choose, click, clickAll, drag, find, render, text, type } from '../../testing/render';
 import before from '../../testing/fixtures/before-schedule.json';
 import schedule from '../../testing/fixtures/progress-schedule.json';
+import rules from '../../testing/fixtures/progress-schedule-rules.json';
 import validated from '../../testing/fixtures/progress-schedule-validated.json';
 import tournament from '../../testing/fixtures/progress-tournament.json';
 import { Schedule } from './schedule';
@@ -132,11 +133,111 @@ describe('Schedule', () => {
     expect(go.argsOf('TournamentService.SetScheduleFirst')).toEqual([['WD']]);
   });
 
-  it('reserves a court', async () => {
-    view({ ...schedule, mode: 'reserved', reserved: [{ number: 1, category: 'MD', manual: true }] });
+  it('lists the rules of each court and flags the courts on the timeline', async () => {
+    view(rules);
     const f = await render(Schedule);
-    await choose(f, find(f, 'select') as HTMLSelectElement, 'WD');
-    expect(go.argsOf('TournamentService.SetCourtCategory')).toEqual([[1, 'WD']]);
+    expect(text(f)).toContain('Court rules');
+    expect(text(f)).toContain('4 rules');
+    const court7 = find(f, '[data-court-rules] [data-court="7"]');
+    expect(court7.textContent).toContain('Only');
+    expect(court7.textContent).toContain('B · Final');
+    expect(find(f, '[data-court="3"]').textContent).toContain('Never');
+    expect(find(f, '[data-court="3"]').textContent).toContain('whole category');
+    expect(find(f, '[data-court="1"]').textContent).toContain('Priority 1');
+    expect(f.nativeElement.querySelector('[data-court="5"]')).toBeNull();
+    expect(find(f, '[data-free]').textContent).toContain('Courts 4, 5, 6 have no rule');
+    const flags = [...f.nativeElement.querySelectorAll('.court-flag')] as HTMLElement[];
+    expect(flags.length).toBe(4);
+    expect(flags[0].getAttribute('title')).toContain('Priority 1 WD P · Pools');
+  });
+
+  it('greys a rule whose matches are played and warns of matches against the rules', async () => {
+    const over = structuredClone(rules);
+    over.courtRules[6].rules[0].scope.left = false;
+    view({ ...over, offRules: 2, slots: over.slots.map((s, i) => (i === over.slots.length - 1 ? { ...s, offRules: true } : s)) });
+    const f = await render(Schedule);
+    const chip = find(f, '[data-court="7"] .rule-chip');
+    expect(chip.classList).toContain('over');
+    expect(chip.textContent).toContain('over');
+    expect(find(f, '[data-off-rules]').textContent).toContain('2 matches against the court rules');
+    const titles = [...f.nativeElement.querySelectorAll('.slot')].map((e) => (e as HTMLElement).getAttribute('title') ?? '');
+    expect(titles.filter((t) => t.includes('against the court rules'))).toHaveLength(1);
+  });
+
+  it('previews a rule for several courts, then adds it', async () => {
+    const preview = { ...schedule, slots: schedule.slots.slice(0, 3) };
+    go.on('TournamentService.PreviewCourtRule', preview);
+    const f = await render(Schedule);
+    const toggles = [...f.nativeElement.querySelectorAll('.court-toggle')] as HTMLButtonElement[];
+    toggles[0].click();
+    toggles[1].click();
+    f.detectChanges();
+    const plus = find(f, '[data-rule-form] .stepper button:last-child') as HTMLButtonElement;
+    plus.click();
+    f.detectChanges();
+    expect(find(f, '[data-level]').textContent).toContain('2');
+    const target = find(f, '[data-rule-form] select') as HTMLSelectElement;
+    const poolA = schedule.scopes.findIndex((sc) => sc.scope.category === 'WD' && sc.scope.pool === 'A');
+    expect([...target.options].map((o) => o.textContent?.trim())).toContain('P A');
+    await choose(f, target, String(poolA));
+    expect(find(f, '[data-rule-form] .badge').textContent).toContain('WD');
+    await new Promise((r) => setTimeout(r, 10));
+    f.detectChanges();
+    const rule = { kind: 'priority', level: 2, scope: { category: 'WD', stage: 'S1', pool: 'A' } };
+    expect(go.argsOf('TournamentService.PreviewCourtRule').at(-1)).toEqual([[1, 2], rule]);
+    expect(find(f, '[data-previewing]').textContent).toContain('Preview');
+    expect(f.nativeElement.querySelectorAll('.slot').length).toBe(3);
+
+    go.on('TournamentService.AddCourtRule', null);
+    await click(f, 'Add the rule');
+    expect(go.argsOf('TournamentService.AddCourtRule')).toEqual([[[1, 2], rule]]);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-previewing]')).toBeNull();
+    expect(f.nativeElement.querySelectorAll('.slot').length).toBe(schedule.slots.length);
+  });
+
+  it('adds an only or a never rule, without a level', async () => {
+    const f = await render(Schedule);
+    expect(text(f)).toContain('Court rules');
+    (find(f, '.court-toggle') as HTMLButtonElement).click();
+    await click(f, 'Never');
+    expect(f.nativeElement.querySelector('[data-level]')).toBeNull();
+    expect(text(f)).toContain('the desk can still call one there');
+    const target = find(f, '[data-rule-form] select') as HTMLSelectElement;
+    await choose(f, target, '0');
+    await click(f, 'Cancel');
+    expect(f.nativeElement.querySelector('[data-previewing]')).toBeNull();
+    expect(f.nativeElement.querySelectorAll('.court-toggle.active')).toHaveLength(0);
+    (find(f, '.court-toggle') as HTMLButtonElement).click();
+    await click(f, 'Only');
+    await choose(f, target, '0');
+    await click(f, 'Add the rule');
+    expect(go.argsOf('TournamentService.AddCourtRule')).toEqual([[[1], { kind: 'only', level: 0, scope: { category: 'MD' } }]]);
+  });
+
+  it('removes a rule, clears a court and folds the panel', async () => {
+    view(rules);
+    const f = await render(Schedule);
+    (find(f, '[data-court="7"] .break-remove') as HTMLButtonElement).click();
+    expect(go.argsOf('TournamentService.RemoveCourtRule')).toEqual([[7, { category: 'MD', stage: 'S2', round: 2, from: 1 }]]);
+    const withTwo = { ...rules, courtRules: rules.courtRules.map((c) => (c.number === 1 ? { ...c, rules: [...c.rules, ...rules.courtRules[2].rules] } : c)) };
+    view(withTwo);
+    const g = await render(Schedule);
+    await click(g, 'Remove all');
+    expect(go.argsOf('TournamentService.ClearCourtRules')).toEqual([[1]]);
+    (find(g, '[data-court-rules] [data-fold]') as HTMLButtonElement).click();
+    g.detectChanges();
+    expect(g.nativeElement.querySelector('[data-rule-form]')).toBeNull();
+    expect(text(g)).toContain('5 rules');
+  });
+
+  it('names rules in French', async () => {
+    view(rules);
+    const f = await render(Schedule, { lang: 'fr' });
+    expect(find(f, '[data-court="7"]').textContent).toContain('Uniquement');
+    expect(find(f, '[data-court="7"]').textContent).toContain('T · Finale');
+    expect(find(f, '[data-court="1"]').textContent).toContain('Priorité 1');
+    expect(text(f)).toContain('Règles des terrains');
   });
 
   it('shows an empty schedule before the format', async () => {

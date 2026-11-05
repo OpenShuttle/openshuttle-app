@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { MatchID, PlayerID, ScheduleMode, StageKind } from '@bindings/internal/tournament';
+import { CourtRule, CourtRuleKind, MatchID, PlayerID, ScheduleMode, StageKind } from '@bindings/internal/tournament';
 
 import { FakeBackend, backendFailure } from '../../testing/backend';
 import tournament from '../../testing/fixtures/progress-tournament.json';
@@ -11,6 +11,7 @@ import { TournamentStore } from './tournament.service';
 const MD = 'MD' as Category;
 const e1 = 'e1' as EntrantID;
 const m1 = 'MD-A1' as MatchID;
+const RULE: CourtRule = { kind: CourtRuleKind.CourtNever, scope: { category: MD, stage: 'S2', round: 2, from: 1 } };
 
 describe('TournamentStore', () => {
   let go: FakeBackend;
@@ -69,7 +70,9 @@ describe('TournamentStore', () => {
     ['setMinRest', (s) => s.setMinRest(12), 'SetMinRest', [12]],
     ['setScheduleMode', (s) => s.setScheduleMode(ScheduleMode.ScheduleReserved), 'SetScheduleMode', [ScheduleMode.ScheduleReserved]],
     ['setScheduleFirst', (s) => s.setScheduleFirst(MD), 'SetScheduleFirst', [MD]],
-    ['setCourtCategory', (s) => s.setCourtCategory(2, ''), 'SetCourtCategory', [2, '']],
+    ['addCourtRule', (s) => s.addCourtRule([1, 2], RULE), 'AddCourtRule', [[1, 2], RULE]],
+    ['removeCourtRule', (s) => s.removeCourtRule(2, RULE.scope), 'RemoveCourtRule', [2, RULE.scope]],
+    ['clearCourtRules', (s) => s.clearCourtRules(3), 'ClearCourtRules', [3]],
     ['validateSchedule', (s) => s.validateSchedule(), 'ValidateSchedule', []],
     ['moveScheduledMatch', (s) => s.moveScheduledMatch(m1, ''), 'MoveScheduledMatch', [m1, '']],
     ['moveScheduledBlock', (s) => s.moveScheduledBlock('MD/S1/A/1', ''), 'MoveScheduledBlock', ['MD/S1/A/1', '']],

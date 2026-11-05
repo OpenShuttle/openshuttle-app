@@ -40,6 +40,9 @@ type ScheduleSlot struct {
 	// Unrested: no rested match fitted the rules here. The desk is warned: it
 	// calls the match anyway or changes the order.
 	Unrested bool
+	// OffRules: the court rules left no court for the match; it is placed
+	// against them.
+	OffRules bool
 }
 
 // Schedule is the forecast of the matches left: every waiting match, and
@@ -48,7 +51,8 @@ type Schedule struct {
 	Slots []ScheduleSlot
 	// End is when the last match is expected to end.
 	End time.Time
-	// Reserved is the category of each court in reserved mode.
+	// Reserved is the category of each court shared in reserved mode (the
+	// courts without an only rule).
 	Reserved map[int]engine.Category
 }
 
@@ -75,7 +79,7 @@ func (s State) forecast(start, now time.Time, ghosts bool) Schedule {
 	items := s.orderedItems()
 	in := forecast.Input{
 		Now: start, Courts: s.Courts(), Rest: time.Duration(s.MinRest()) * time.Minute,
-		Items: items, Reserved: s.reservedCourts(items),
+		Items: items, Reserved: s.reservedCourts(items), Rules: forecastRules(s.CourtRules()),
 	}
 	if ghosts {
 		in.Items = s.withGhosts(items, now)
@@ -99,7 +103,7 @@ func (s State) forecast(start, now time.Time, ghosts bool) Schedule {
 		out.Slots = append(out.Slots, ScheduleSlot{
 			Key: sl.Key, Category: sl.Category, Stage: sl.Stage, Pool: sl.Pool, Level: sl.Level,
 			RoundSize: sl.RoundSize, PlaceFrom: sl.PlaceFrom, Match: MatchID(sl.Match), Ghost: sl.Ghost, A: sl.A, B: sl.B,
-			Court: sl.Court, Start: sl.Start, End: sl.End, Unrested: sl.Unrested,
+			Court: sl.Court, Start: sl.Start, End: sl.End, Unrested: sl.Unrested, OffRules: sl.OffRules,
 		})
 	}
 	return out
@@ -287,8 +291,9 @@ func standIns(st Stage, p StagePreview, base forecast.Item) []forecast.Item {
 	return items
 }
 
-// reservedCourts gives each court its category in reserved mode
-// (forecast.ReserveCourts), from the matches left.
+// reservedCourts gives each court without an only rule its category in
+// reserved mode (forecast.ReserveCourts), from the matches left; a court
+// with only rules counts for the category of the first.
 func (s State) reservedCourts(items []forecast.Item) map[int]engine.Category {
 	settings := s.ScheduleSettings()
 	if settings.Mode != ScheduleReserved {
@@ -298,7 +303,17 @@ func (s State) reservedCourts(items []forecast.Item) map[int]engine.Category {
 	for _, it := range items {
 		left[it.Category]++
 	}
-	return forecast.ReserveCourts(s.Courts(), settings.Courts, s.Categories, left)
+	fixed := map[int]engine.Category{}
+	for court, rules := range settings.Rules {
+		if i := slices.IndexFunc(rules, func(r CourtRule) bool { return r.Kind == CourtOnly }); i >= 0 {
+			fixed[court] = rules[i].Scope.Category
+		}
+	}
+	out := forecast.ReserveCourts(s.Courts(), fixed, s.Categories, left)
+	for court := range fixed {
+		delete(out, court)
+	}
+	return out
 }
 
 // Proposals gives each free or finished court the match the schedule starts

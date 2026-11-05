@@ -1,0 +1,169 @@
+<ng-container *transloco="let t">
+  <div class="card court-rules" data-court-rules>
+    <div class="rules-head">
+      <span class="field-label">{{ t('schedule.rules.title') }}</span>
+      <span class="hint">{{ t('schedule.rules.summary', { n: count() }) }}</span>
+      <button
+        type="button"
+        class="btn btn-sm fold"
+        data-fold
+        [attr.aria-expanded]="!panels.collapsed('schedule.courtRules')"
+        (click)="panels.toggle('schedule.courtRules')"
+      >
+        {{
+          t(panels.collapsed('schedule.courtRules') ? 'schedule.rules.show' : 'schedule.rules.hide')
+        }}
+      </button>
+    </div>
+
+    @if (!panels.collapsed('schedule.courtRules')) {
+      <span class="hint">{{ t('schedule.rules.hint') }}</span>
+
+      @if (ruled().length > 0) {
+        <ul class="court-list">
+          @for (c of ruled(); track c.number) {
+            <li class="court-row" [attr.data-court]="c.number">
+              <span class="court-name">{{ t('schedule.court', { n: c.number }) }}</span>
+              @for (r of c.rules; track $index) {
+                <span
+                  class="rule-chip"
+                  [attr.data-kind]="r.kind"
+                  [class.over]="!r.scope.left"
+                  [attr.title]="r.scope.left ? null : t('schedule.rules.overHint')"
+                >
+                  <span class="rule-kind">{{ kindLabel(r) }}</span>
+                  <app-category-badge
+                    [category]="r.scope.category"
+                    [slot]="r.scope.slot"
+                    [color]="r.scope.color"
+                  />
+                  <span class="rule-scope">{{ label(r.scope) }}</span>
+                  @if (!r.scope.left) {
+                    <span class="rule-over">{{ t('schedule.rules.over') }}</span>
+                  }
+                  <button
+                    type="button"
+                    class="break-remove"
+                    [attr.aria-label]="
+                      t('schedule.rules.remove', { court: c.number, scope: label(r.scope) })
+                    "
+                    [attr.title]="
+                      t('schedule.rules.remove', { court: c.number, scope: label(r.scope) })
+                    "
+                    (click)="remove(c.number, r)"
+                  >
+                    ×
+                  </button>
+                </span>
+              }
+              @if ((c.rules ?? []).length > 1) {
+                <button type="button" class="btn btn-sm clear" (click)="clear(c.number)">
+                  {{ t('schedule.rules.clear') }}
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      }
+      @if (free().length > 0) {
+        <span class="hint" data-free>{{
+          t('schedule.rules.free', { n: free().length, courts: free().join(', ') })
+        }}</span>
+      }
+
+      <form class="rule-form" data-rule-form (submit)="$event.preventDefault(); add()">
+        <div class="form-row">
+          <span class="form-label">{{ t('schedule.rules.courts') }}</span>
+          <div class="court-toggles">
+            @for (n of courtNumbers(); track n) {
+              <button
+                type="button"
+                class="court-toggle"
+                [class.active]="courts().includes(n)"
+                [attr.aria-pressed]="courts().includes(n)"
+                (click)="toggleCourt(n)"
+              >
+                {{ n }}
+              </button>
+            }
+          </div>
+          <span class="form-label kind-label">{{ t('schedule.rules.kind') }}</span>
+          <div class="seg seg-sm">
+            @for (k of kinds; track k) {
+              <button
+                type="button"
+                class="seg-option"
+                [class.active]="kind() === k"
+                (click)="kind.set(k)"
+              >
+                {{ t('schedule.rules.kinds.' + k) }}
+              </button>
+            }
+          </div>
+          @if (kind() === 'priority') {
+            <span class="form-label level-label">{{ t('schedule.rules.level') }}</span>
+            <div class="stepper stepper-sm">
+              <button
+                type="button"
+                [disabled]="level() <= 1"
+                [attr.aria-label]="t('schedule.rules.levelUp')"
+                (click)="setLevel(level() - 1)"
+              >
+                −
+              </button>
+              <span class="stepper-value" data-level>{{ level() }}</span>
+              <button
+                type="button"
+                [disabled]="level() >= maxLevel"
+                [attr.aria-label]="t('schedule.rules.levelDown')"
+                (click)="setLevel(level() + 1)"
+              >
+                +
+              </button>
+            </div>
+          }
+        </div>
+        <span class="hint kind-hint">{{ t('schedule.rules.kindHints.' + kind()) }}</span>
+        <div class="form-row">
+          <span class="form-label">{{ t('schedule.rules.target') }}</span>
+          @if (selected(); as sc) {
+            <app-category-badge
+              [category]="sc.scope.category"
+              [slot]="sc.slot"
+              [color]="sc.color"
+            />
+          }
+          <select
+            class="input target"
+            name="scope"
+            (change)="scope.set(+$any($event.target).value)"
+          >
+            <option value="-1" [selected]="scope() < 0">
+              {{ t('schedule.rules.pickTarget') }}
+            </option>
+            @for (g of scopeGroups(); track g.category.scope.category) {
+              <optgroup [label]="t('category.name.' + g.category.scope.category)">
+                @for (o of g.options; track o.index) {
+                  <option [value]="o.index" [selected]="scope() === o.index">
+                    {{ optionLabel(o) }}
+                  </option>
+                }
+              </optgroup>
+            }
+          </select>
+          <button type="submit" class="btn btn-sm btn-primary" [disabled]="!rule()">
+            {{ t('schedule.rules.add') }}
+          </button>
+          @if (rule()) {
+            <button type="button" class="btn btn-sm" (click)="reset()">
+              {{ t('common.cancel') }}
+            </button>
+          }
+        </div>
+        @if (rule()) {
+          <span class="hint previewing" data-previewing>{{ t('schedule.rules.previewing') }}</span>
+        }
+      </form>
+    }
+  </div>
+</ng-container>

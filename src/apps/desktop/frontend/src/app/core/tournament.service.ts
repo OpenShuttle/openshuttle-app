@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { MatchID, PlayerID, PlayerInput, ScheduleMode, StageConfig, StageKind } from '@bindings/internal/tournament';
+import { CourtRule, CourtScope, MatchID, PlayerID, PlayerInput, ScheduleMode, StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -296,8 +296,16 @@ export class TournamentStore {
     return this.command(() => Backend.SetScheduleFirst(category));
   }
 
-  setCourtCategory(court: number, category: Category | ''): Promise<boolean> {
-    return this.command(() => Backend.SetCourtCategory(court, category as Category));
+  addCourtRule(courts: number[], rule: CourtRule): Promise<boolean> {
+    return this.command(() => Backend.AddCourtRule(courts, rule));
+  }
+
+  removeCourtRule(court: number, scope: CourtScope): Promise<boolean> {
+    return this.command(() => Backend.RemoveCourtRule(court, scope));
+  }
+
+  clearCourtRules(court: number): Promise<boolean> {
+    return this.command(() => Backend.ClearCourtRules(court));
   }
 
   validateSchedule(): Promise<boolean> {

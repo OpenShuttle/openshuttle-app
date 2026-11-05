@@ -228,3 +228,84 @@ func TestScheduleGhostMatches(t *testing.T) {
 		t.Errorf("history = %v", got)
 	}
 }
+
+func TestScheduleCourtRules(t *testing.T) {
+	f := newFixture(t)
+	f.svc.rng = func() *rand.Rand { return rand.New(rand.NewPCG(3, 4)) }
+	ctx := f.ctx
+	must := func(err error) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(f.svc.CreateTournamentAt(ctx, filepath.Join(f.dir, "t.openshuttle"), "Plume"))
+	must(f.svc.AddCategory(ctx, engine.MensSingles))
+	must(f.svc.SetCourts(ctx, 2))
+	for i := range 8 {
+		must(f.svc.RegisterEntrant(ctx, engine.MensSingles, []tournament.PlayerInput{{Name: fmt.Sprint("P N", i)}}))
+	}
+	for _, team := range f.svc.GetCheckInView().Teams {
+		must(f.svc.CheckInEntrant(ctx, team.EntrantID))
+	}
+	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Pools, stage.PoolSizes = 2, nil }))
+	must(f.svc.DrawEntry(ctx, engine.MensSingles))
+	must(f.svc.ConfirmDraw(ctx, engine.MensSingles))
+
+	firstOn := func(v ScheduleView, court int) ScheduleSlotView {
+		for _, s := range v.Slots {
+			if s.Court == court {
+				return s
+			}
+		}
+		return ScheduleSlotView{}
+	}
+	v := f.svc.GetScheduleView()
+	if len(v.CourtRules) != 2 || len(v.CourtRules[0].Rules) != 0 || len(v.Scopes) != 4 || firstOn(v, 1).Pool != "A" {
+		t.Fatalf("no rules = %+v, scopes %+v", v.CourtRules, v.Scopes)
+	}
+	if sc := v.Scopes[3]; sc.Scope.Pool != "B" || sc.Color == 0 || !sc.Left || !sc.EntryStage || sc.Slot != 1 {
+		t.Errorf("pool B scope = %+v", sc)
+	}
+
+	// Court 2 first for pool B: the preview shows it, nothing saved.
+	poolB := tournament.CourtRule{Kind: tournament.CourtPriority, Level: 1, Scope: tournament.CourtScope{Category: engine.MensSingles, Stage: "S1", Pool: "B"}}
+	version := f.svc.GetTournamentView().Version
+	if p := f.svc.PreviewCourtRule([]int{1}, poolB); firstOn(p, 1).Pool != "B" {
+		t.Errorf("preview = %+v", firstOn(p, 1))
+	}
+	if f.svc.GetTournamentView().Version != version || firstOn(f.svc.GetScheduleView(), 1).Pool != "A" {
+		t.Error("the preview was saved")
+	}
+	wantCode(t, f.svc.AddCourtRule(ctx, []int{3}, poolB), engine.CodeInvalidCourt)
+	must(f.svc.AddCourtRule(ctx, []int{1}, poolB))
+	v = f.svc.GetScheduleView()
+	if r := v.CourtRules[0].Rules; len(r) != 1 || r[0].Scope.Scope != poolB.Scope || r[0].Level != 1 || firstOn(v, 1).Pool != "B" {
+		t.Errorf("court 1 rules = %+v", v.CourtRules[0])
+	}
+	desk := f.svc.GetControlDeskView()
+	if p := desk.Courts[0].Proposal; p == nil || p.Pool != "B" {
+		t.Errorf("court 1 proposal = %+v", p)
+	}
+
+	// Court 2 never pool A: calling a pool A match there warns.
+	poolA := tournament.CourtScope{Category: engine.MensSingles, Stage: "S1", Pool: "A"}
+	must(f.svc.AddCourtRule(ctx, []int{2}, tournament.CourtRule{Kind: tournament.CourtNever, Scope: poolA}))
+	for _, q := range f.svc.GetControlDeskView().Queue {
+		want := []int{}
+		if q.Match.Pool == "A" {
+			want = []int{2}
+		}
+		if fmt.Sprint(q.OffCourts) != fmt.Sprint(want) {
+			t.Errorf("%s off courts = %v", q.Match.ID, q.OffCourts)
+		}
+	}
+	must(f.svc.RemoveCourtRule(ctx, 2, poolA))
+	must(f.svc.ClearCourtRules(ctx, 1))
+	if v := f.svc.GetScheduleView(); len(v.CourtRules[0].Rules)+len(v.CourtRules[1].Rules) != 0 {
+		t.Errorf("rules left = %+v", v.CourtRules)
+	}
+	if h := f.svc.GetHistoryView(); len(h.Entries) == 0 || h.Entries[0].Type != string(tournament.TypeScheduleSet) {
+		t.Errorf("history = %+v", h.Entries[:1])
+	}
+}

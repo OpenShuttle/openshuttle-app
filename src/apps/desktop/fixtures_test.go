@@ -105,6 +105,14 @@ func TestWriteFrontendFixtures(t *testing.T) {
 	write("progress-format", p.svc.GetFormatView())
 	p.must(p.svc.ValidateSchedule(ctx))
 	write("progress-schedule-validated", p.svc.GetScheduleView())
+	// Court rules: WD pools first on courts 1 and 2, court 7 only for the
+	// MD final, court 3 never WD.
+	wdc, mdc := engine.WomensDoubles, engine.MensDoubles
+	p.must(p.svc.AddCourtRule(ctx, []int{1, 2}, tournament.CourtRule{Kind: tournament.CourtPriority, Level: 1, Scope: tournament.CourtScope{Category: wdc, Stage: "S1"}}))
+	p.must(p.svc.AddCourtRule(ctx, []int{7}, tournament.CourtRule{Kind: tournament.CourtOnly, Scope: tournament.CourtScope{Category: mdc, Stage: "S2", Round: 2, From: 1}}))
+	p.must(p.svc.AddCourtRule(ctx, []int{3}, tournament.CourtRule{Kind: tournament.CourtNever, Scope: tournament.CourtScope{Category: wdc}}))
+	write("progress-schedule-rules", p.svc.GetScheduleView())
+	write("progress-desk-rules", p.svc.GetControlDeskView())
 
 	// Finished: every match played, brackets filled, full standings.
 	f := newDemo(t, "Tournoi d'été", 7)

@@ -71,6 +71,9 @@ type QueueView struct {
 	Reason       tournament.NotReady `json:"reason"`
 	Court        int                 `json:"court"`
 	RestingSince *time.Time          `json:"restingSince"`
+	// OffCourts are the courts whose rules keep the match off (never, or
+	// only for something else): calling it there is a warning.
+	OffCourts []int `json:"offCourts"`
 }
 
 // PoolRefView names a pool of a stage.
@@ -168,8 +171,14 @@ func (s *TournamentService) GetControlDeskView() ControlDeskView {
 	for _, m := range st.PendingScores() {
 		v.Pending = append(v.Pending, mv(m))
 	}
+	gate := st.CourtGate()
 	for _, q := range st.Queue(now) {
-		qv := QueueView{Match: mv(q.Match), Reason: q.Reason, Court: q.Court}
+		qv := QueueView{Match: mv(q.Match), Reason: q.Reason, Court: q.Court, OffCourts: []int{}}
+		for court := 1; court <= st.Courts(); court++ {
+			if !gate(court, q.Match) {
+				qv.OffCourts = append(qv.OffCourts, court)
+			}
+		}
 		if !q.RestingSince.IsZero() {
 			t := q.RestingSince
 			qv.RestingSince = &t

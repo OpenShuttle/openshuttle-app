@@ -41,10 +41,10 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 	}
 	for court := 1; court <= st.Courts(); court++ {
 		if c, ok := sched.Reserved[court]; ok {
-			_, manual := settings.Courts[court]
-			v.Reserved = append(v.Reserved, CourtReservation{Number: court, Category: c, Manual: manual})
+			v.Reserved = append(v.Reserved, CourtReservation{Number: court, Category: c})
 		}
 	}
+	v.CourtRules, v.Scopes = b.courtRules(settings.Rules)
 	v.Slots = b.calledSlots()
 	planned, blocks := b.plannedSlots(sched.Slots)
 	v.Slots = append(v.Slots, planned...)
@@ -52,6 +52,9 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 	for _, sl := range sched.Slots {
 		if sl.Unrested {
 			v.Unrested++
+		}
+		if sl.OffRules {
+			v.OffRules++
 		}
 	}
 	if !sched.End.IsZero() {
@@ -105,7 +108,7 @@ func (b *scheduleBuilder) slot(sl tournament.ScheduleSlot, state string) Schedul
 		Stage: sl.Stage, StageName: stage.Name, StageKind: stage.Kind,
 		EntryStage: st.Stages(sl.Category)[0].ID == sl.Stage,
 		Round:      sl.Level + 1, RoundSize: sl.RoundSize, Court: sl.Court, Start: sl.Start, End: sl.End,
-		PlaceFrom: sl.PlaceFrom, Unrested: sl.Unrested,
+		PlaceFrom: sl.PlaceFrom, Unrested: sl.Unrested, OffRules: sl.OffRules,
 	}
 	sv.Acronym, sv.Color, sv.Rounds = b.style(sl.Category, stage, sl.Pool)
 	if sl.Pool >= 0 {
@@ -305,6 +308,9 @@ type ScheduleSlotView struct {
 	Start    time.Time  `json:"start"`
 	End      time.Time  `json:"end"`
 	Unrested bool       `json:"unrested"`
+	// OffRules: the court rules left no court for the match, so it is
+	// placed against them.
+	OffRules bool `json:"offRules"`
 	// LeftA and LeftB count the matches each side has not started in the
 	// stage (a waiting match counts itself).
 	LeftA int `json:"leftA"`
@@ -360,12 +366,44 @@ type ScheduleGroupView struct {
 	Teams      []ScheduleTeamView   `json:"teams"`
 }
 
-// CourtReservation is the category a court plays in reserved mode.
+// CourtReservation is the category a court without an only rule plays in
+// reserved mode, by the default share.
 type CourtReservation struct {
 	Number   int             `json:"number"`
 	Category engine.Category `json:"category"`
-	// Manual: reserved by hand, else by the default share.
-	Manual bool `json:"manual"`
+}
+
+// CourtScopeView is what a court rule targets, with what names it: a
+// category, a stage, a pool or a bracket round.
+type CourtScopeView struct {
+	Scope tournament.CourtScope `json:"scope"`
+	CategoryRef
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
+	// Acronym is the stage's short name typed by the desk ("" for the
+	// kind's default); Color the pool's or bracket's color index (0 for a
+	// category or a pools stage).
+	Acronym string `json:"acronym"`
+	Color   int    `json:"color"`
+	// PlaceTo is, for a bracket round, the last place its part plays for.
+	PlaceTo int `json:"placeTo"`
+	// Left: the scope still has matches to play; a rule ends with it.
+	Left bool `json:"left"`
+}
+
+// CourtRuleView is a rule of a court.
+type CourtRuleView struct {
+	Kind  tournament.CourtRuleKind `json:"kind"`
+	Level int                      `json:"level"`
+	Scope CourtScopeView           `json:"scope"`
+}
+
+// CourtRulesView is a court with its rules: only rules, priorities by
+// level, never rules.
+type CourtRulesView struct {
+	Number int             `json:"number"`
+	Rules  []CourtRuleView `json:"rules"`
 }
 
 // ScheduleView is the schedule screen: the forecast of every match left.
@@ -377,6 +415,10 @@ type ScheduleView struct {
 	Courts     int                     `json:"courts"`
 	MinRest    int                     `json:"minRest"`
 	Reserved   []CourtReservation      `json:"reserved"`
+	// CourtRules lists every court with its rules (ADR 12); Scopes what a
+	// rule can target, category by category.
+	CourtRules []CourtRulesView `json:"courtRules"`
+	Scopes     []CourtScopeView `json:"scopes"`
 	// Slots is the timeline: matches played and playing, then waiting
 	// matches and stand-ins of stages not filled yet, by start time.
 	Slots []ScheduleSlotView `json:"slots"`
@@ -393,6 +435,9 @@ type ScheduleView struct {
 	// End is when the last match is expected to end; nil with nothing left.
 	End      *time.Time `json:"end"`
 	Unrested int        `json:"unrested"`
+	// OffRules counts the matches placed against the court rules: no court
+	// they allow could take them.
+	OffRules int `json:"offRules"`
 	// Start is the tournament's start when the forecast starts there (no
 	// match called yet, start still ahead); nil when it starts now.
 	Start *time.Time `json:"start"`
@@ -423,4 +468,48 @@ type BreakView struct {
 	ID   string    `json:"id"`
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
+}
+
+// courtRules builds every court's rules and what a rule can target.
+func (b *scheduleBuilder) courtRules(rules map[int][]tournament.CourtRule) ([]CourtRulesView, []CourtScopeView) {
+	left := map[tournament.CourtScope]bool{}
+	scopes := []CourtScopeView{}
+	for _, sc := range b.st.CourtScopes() {
+		left[sc] = true
+		scopes = append(scopes, b.scope(sc, true))
+	}
+	courts := []CourtRulesView{}
+	for court := 1; court <= b.st.Courts(); court++ {
+		cv := CourtRulesView{Number: court, Rules: []CourtRuleView{}}
+		for _, r := range rules[court] {
+			running, ok := left[r.Scope]
+			if !ok {
+				running = b.st.CourtScopeLeft(r.Scope)
+			}
+			cv.Rules = append(cv.Rules, CourtRuleView{Kind: r.Kind, Level: r.Level, Scope: b.scope(r.Scope, running)})
+		}
+		courts = append(courts, cv)
+	}
+	return courts, scopes
+}
+
+// scope names a court rule's scope.
+func (b *scheduleBuilder) scope(sc tournament.CourtScope, left bool) CourtScopeView {
+	v := CourtScopeView{Scope: sc, CategoryRef: CategoryRef{sc.Category, b.slotOf(sc.Category)}, Left: left}
+	if sc.Stage == "" {
+		return v
+	}
+	stage, _ := b.st.Stage(sc.Category, sc.Stage)
+	v.StageName, v.StageKind, v.Acronym = stage.Name, stage.Kind, stage.Acronym
+	v.EntryStage = b.st.Stages(sc.Category)[0].ID == sc.Stage
+	switch {
+	case sc.Pool != "":
+		v.Color = b.styles[string(sc.Category)+"/"+sc.Stage+"/"+sc.Pool].Color
+	case stage.Kind == tournament.StageBracket:
+		v.Color = tournament.GroupStyleOf(b.styles, sc.Category, sc.Stage, -1).Color
+	}
+	if sc.Round > 0 {
+		v.PlaceTo = sc.From + sc.Round - 1
+	}
+	return v
 }

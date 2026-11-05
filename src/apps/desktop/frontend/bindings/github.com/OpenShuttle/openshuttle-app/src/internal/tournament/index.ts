@@ -3,6 +3,7 @@
 
 export {
     ClubDisplay,
+    CourtRuleKind,
     CourtState,
     NotReady,
     RouteKind,
@@ -12,6 +13,8 @@ export {
 
 export type {
     Club,
+    CourtRule,
+    CourtScope,
     DaySet,
     EntrantRegistered,
     FormatPreview,
