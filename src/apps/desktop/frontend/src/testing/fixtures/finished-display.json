@@ -494,7 +494,9 @@
           "placeTo": 8,
           "roundSize": 8,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-4",
@@ -563,7 +565,9 @@
           "placeTo": 8,
           "roundSize": 8,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-5",
@@ -632,7 +636,9 @@
           "placeTo": 4,
           "roundSize": 4,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-6",
@@ -701,7 +707,9 @@
           "placeTo": 4,
           "roundSize": 4,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-9",
@@ -770,7 +778,9 @@
           "placeTo": 2,
           "roundSize": 2,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-10",
@@ -839,7 +849,9 @@
           "placeTo": 4,
           "roundSize": 2,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "MD-S2-11",
@@ -908,7 +920,9 @@
           "placeTo": 6,
           "roundSize": 2,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         }
       ]
     },
@@ -1229,7 +1243,9 @@
           "placeTo": 4,
           "roundSize": 4,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "WD-S2-2",
@@ -1302,7 +1318,9 @@
           "placeTo": 4,
           "roundSize": 4,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "WD-S2-3",
@@ -1371,7 +1389,9 @@
           "placeTo": 2,
           "roundSize": 2,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         },
         {
           "id": "WD-S2-4",
@@ -1444,7 +1464,9 @@
           "placeTo": 4,
           "roundSize": 2,
           "byeA": false,
-          "byeB": false
+          "byeB": false,
+          "walkoverA": false,
+          "walkoverB": false
         }
       ]
     }

@@ -15,6 +15,7 @@ import { Category } from '@bindings/internal/engine';
 
 import { CategoryShown } from '../core/category-shown.service';
 import { liveView } from '../core/live-view';
+import { PanelToggle } from '../shared/panel-strip';
 import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
@@ -51,7 +52,7 @@ function storedLinks(): LinkFilter {
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe],
+  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe, PanelToggle],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })
@@ -65,7 +66,7 @@ export class Phases {
   protected readonly current = computed(() => this.shown.pick(this.view().categories));
 
   protected readonly correction = signal(false);
-  private readonly panels = inject(Panels);
+  protected readonly panels = inject(Panels);
   /** The history panel, shown unless folded (remembered on this PC). */
   protected readonly showHistory = computed(() => !this.panels.collapsed('phases.history'));
 

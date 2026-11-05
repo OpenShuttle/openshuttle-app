@@ -60,7 +60,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": {
         "id": "WD-A4",
@@ -118,7 +120,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposalUnrested": false
     },
@@ -181,7 +185,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -245,7 +251,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -309,7 +317,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -373,7 +383,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -437,7 +449,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -501,7 +515,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null,
       "proposalUnrested": false
@@ -564,7 +580,9 @@
       "placeTo": 0,
       "roundSize": 0,
       "byeA": false,
-      "byeB": false
+      "byeB": false,
+      "walkoverA": false,
+      "walkoverB": false
     }
   ],
   "queue": [
@@ -625,7 +643,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -689,7 +709,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -753,7 +775,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -817,7 +841,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "playing",
       "court": 7,
@@ -881,7 +907,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "playing",
       "court": 7,
@@ -945,7 +973,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -1009,7 +1039,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -1073,7 +1105,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,
@@ -1137,7 +1171,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "reason": "",
       "court": 0,

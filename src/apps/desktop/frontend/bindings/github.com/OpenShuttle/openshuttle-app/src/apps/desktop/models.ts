@@ -555,6 +555,12 @@ export interface MatchView {
     "roundSize": number;
     "byeA": boolean;
     "byeB": boolean;
+
+    /**
+     * WalkoverA and WalkoverB tell which side forfeited (both can have).
+     */
+    "walkoverA": boolean;
+    "walkoverB": boolean;
 }
 
 /**

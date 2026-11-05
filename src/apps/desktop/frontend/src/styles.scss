@@ -152,6 +152,11 @@ button {
     background: var(--color-bg);
   }
 
+  &:focus-visible {
+    outline: 3px solid var(--color-link);
+    outline-offset: 2px;
+  }
+
   &:disabled {
     cursor: default;
     opacity: 0.5;

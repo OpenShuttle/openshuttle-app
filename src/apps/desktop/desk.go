@@ -51,6 +51,9 @@ type MatchView struct {
 	RoundSize int  `json:"roundSize"`
 	ByeA      bool `json:"byeA"`
 	ByeB      bool `json:"byeB"`
+	// WalkoverA and WalkoverB tell which side forfeited (both can have).
+	WalkoverA bool `json:"walkoverA"`
+	WalkoverB bool `json:"walkoverB"`
 }
 
 // CourtView is a court card: its match and the next match proposed.
@@ -248,6 +251,7 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 			A: side(m.A), B: side(m.B), Court: m.Court, Score: m.Score,
 			Walkover: st.Walkover(m), Win: st.WinCondition(m),
 		}
+		v.WalkoverA, v.WalkoverB = st.WalkoverSides(m)
 		stage, _ := st.Stage(m.Category, m.Stage)
 		v.Stage, v.StageName, v.StageKind = m.Stage, stage.Name, stage.Kind
 		v.EntryStage = st.Stages(m.Category)[0].ID == m.Stage

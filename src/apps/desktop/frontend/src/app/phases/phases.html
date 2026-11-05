@@ -98,165 +98,182 @@
               </div>
             }
 
-            @if (tree(); as tr) {
-              <div class="tree-nav">
-                <button
-                  type="button"
-                  class="btn btn-sm"
-                  [attr.aria-label]="t('phases.tree.previous')"
-                  [disabled]="activeCol() <= 0"
-                  (click)="goColumn(tr, activeCol() - 1)"
-                >
-                  ‹
-                </button>
-                @for (col of tr.columns; track col.col) {
+            <div class="bracket-row">
+              <div class="tree-col">
+              @if (tree(); as tr) {
+                <div class="tree-nav">
                   <button
                     type="button"
                     class="btn btn-sm"
-                    [class.btn-primary]="activeCol() === col.col"
-                    (click)="goColumn(tr, col.col)"
+                    [attr.aria-label]="t('phases.tree.previous')"
+                    [disabled]="activeCol() <= 0"
+                    (click)="goColumn(tr, activeCol() - 1)"
                   >
-                    {{ t('phases.tree.round', { n: col.col + 1, size: col.size }) }}
+                    ‹
                   </button>
-                }
-                <button
-                  type="button"
-                  class="btn btn-sm"
-                  [attr.aria-label]="t('phases.tree.next')"
-                  [disabled]="activeCol() >= tr.columns.length - 1"
-                  (click)="goColumn(tr, activeCol() + 1)"
-                >
-                  ›
-                </button>
-                @if (tr.blocks.length > 1) {
-                  <span class="tree-nav-sep"></span>
-                  <span class="field-label">{{ t('phases.tree.blocks') }}</span>
-                  @for (blk of tr.blocks; track blk.from) {
-                    <button type="button" class="btn btn-sm" (click)="goBlock(blk)">
-                      {{ t('round.places', { from: blk.from, to: blk.to }) }}
+                  @for (col of tr.columns; track col.col) {
+                    <button
+                      type="button"
+                      class="btn btn-sm"
+                      [class.btn-primary]="activeCol() === col.col"
+                      (click)="goColumn(tr, col.col)"
+                    >
+                      {{ t('phases.tree.round', { n: col.col + 1, size: col.size }) }}
                     </button>
                   }
-                }
-                <span class="tree-legend">
-                  <span class="seg seg-sm" role="group" [attr.aria-label]="t('phases.tree.links')">
-                    @for (o of linkOptions; track o) {
-                      <button type="button" class="seg-option" [class.active]="links() === o" (click)="setLinks(o)">{{ t('phases.tree.links_' + o) }}</button>
-                    }
-                  </span>
-                  <span class="legend-win">{{ t('phases.tree.winner') }}</span>
-                  <span class="legend-lose">{{ t('phases.tree.loser') }}</span>
-                </span>
-              </div>
-              @let g = geometry();
-              <div class="tree-scroll" #scroller (scroll)="onScroll()">
-                <div
-                  class="tree"
-                  [style.width.px]="treeWidth(tr)"
-                  [style.height.px]="treeHeight(tr)"
-                  [style.--card-h.px]="g.cardH"
-                  [style.--card-w.px]="g.cardW"
-                >
-                  <svg
-                    class="tree-links"
-                    [attr.width]="treeWidth(tr)"
-                    [attr.height]="treeHeight(tr)"
-                    aria-hidden="true"
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [attr.aria-label]="t('phases.tree.next')"
+                    [disabled]="activeCol() >= tr.columns.length - 1"
+                    (click)="goColumn(tr, activeCol() + 1)"
                   >
-                    @for (l of tr.links; track l.from + l.to) {
-                      @if (showsLink(links(), l.kind)) {
-                      <path
-                        [attr.d]="path(tr, l)"
-                        [class]="'link link-' + l.kind"
-                        [class.done]="decided(tr, l.from)"
-                      />
-                      }
-                    }
-                  </svg>
-                  @if (tr.titled) {
-                    @for (n of tr.nodes; track n.col + '-' + n.from) {
-                      <span class="field-label tree-block-title" [style.left.px]="left(n.col)" [style.top.px]="top(tr, n.row) - g.title">
-                        {{ t('round.places', { from: n.from, to: n.to }) }}
-                      </span>
+                    ›
+                  </button>
+                  @if (tr.blocks.length > 1) {
+                    <span class="tree-nav-sep"></span>
+                    <span class="field-label">{{ t('phases.tree.blocks') }}</span>
+                    @for (blk of tr.blocks; track blk.from) {
+                      <button type="button" class="btn btn-sm" (click)="goBlock(blk)">
+                        {{ t('round.places', { from: blk.from, to: blk.to }) }}
+                      </button>
                     }
                   }
-                  @for (tm of tr.matches; track tm.match.id) {
-                    @let m = tm.match;
-                    <div
-                      class="bmatch"
-                      [class.bye]="m.byeA || m.byeB"
-                      [attr.data-match]="m.id"
-                      [style.left.px]="left(tm.col)"
-                      [style.top.px]="top(tr, tm.row)"
-                    >
-                      <div class="bmatch-head">
-                        @let sr = shortRound(m);
-                        <span [attr.title]="m.id">{{ t(sr.key, sr.params) }}</span>
-                        <span class="bmatch-result">
-                          @if (m.walkover) {
-                            <span class="pill pill-alert">WO</span>
-                          } @else if (m.score) {
-                            {{ scoreText(m) }}
-                          } @else if (m.court && !m.endedAt) {
-                            <span class="pill pill-playing">{{
-                              t('desk.courtN', { n: m.court })
-                            }}</span>
-                          } @else if (m.endedAt) {
-                            <span class="pill pill-finished">{{ t('phases.scorePending') }}</span>
-                          }
-                        </span>
-                      </div>
-                      @let a = sideLabel(m.a, m.byeA);
-                      <div
-                        class="bside"
-                        [class.won]="winner(m) === 'a'"
-                        [class.lost]="winner(m) === 'b'"
-                      >
-                        @if (b.origins?.[m.a.entrant]; as o) {
-                          <span class="origin">{{ o }}</span>
-                        }
-                        {{ a.key ? t(a.key) : (m.a | withBib) }}
-                      </div>
-                      @let bb = sideLabel(m.b, m.byeB);
-                      <div
-                        class="bside"
-                        [class.won]="winner(m) === 'b'"
-                        [class.lost]="winner(m) === 'a'"
-                      >
-                        @if (b.origins?.[m.b.entrant]; as o) {
-                          <span class="origin">{{ o }}</span>
-                        }
-                        {{ bb.key ? t(bb.key) : (m.b | withBib) }}
-                      </div>
-                      @if (correction() && m.a.entrant && m.b.entrant && !m.walkover) {
-                        <div class="bmatch-actions">
-                          <button type="button" class="btn btn-xs" (click)="scoring.set(m)">
-                            {{ t(m.score ? 'phases.editScore' : 'desk.enterScore') }}
-                          </button>
-                          @if (m.score) {
-                            <button
-                              type="button"
-                              class="btn btn-xs btn-danger"
-                              (click)="tournament.clearScore(m.id)"
-                            >
-                              {{ t('phases.clearScore') }}
-                            </button>
-                          }
-                        </div>
+                  <span class="tree-legend">
+                    <span class="seg seg-sm" role="group" [attr.aria-label]="t('phases.tree.links')">
+                      @for (o of linkOptions; track o) {
+                        <button type="button" class="seg-option" [class.active]="links() === o" (click)="setLinks(o)">{{ t('phases.tree.links_' + o) }}</button>
                       }
-                    </div>
-                  }
+                    </span>
+                    <span class="legend-win">{{ t('phases.tree.winner') }}</span>
+                    <span class="legend-lose">{{ t('phases.tree.loser') }}</span>
+                  </span>
                 </div>
-              </div>
-            }
+                @let g = geometry();
+                <div class="tree-scroll" #scroller (scroll)="onScroll()">
+                  <div
+                    class="tree"
+                    [style.width.px]="treeWidth(tr)"
+                    [style.height.px]="treeHeight(tr)"
+                    [style.--card-h.px]="g.cardH"
+                    [style.--card-w.px]="g.cardW"
+                  >
+                    <svg
+                      class="tree-links"
+                      [attr.width]="treeWidth(tr)"
+                      [attr.height]="treeHeight(tr)"
+                      aria-hidden="true"
+                    >
+                      @for (l of tr.links; track l.from + l.to) {
+                        @if (showsLink(links(), l.kind)) {
+                        <path
+                          [attr.d]="path(tr, l)"
+                          [class]="'link link-' + l.kind"
+                          [class.done]="decided(tr, l.from)"
+                        />
+                        }
+                      }
+                    </svg>
+                    @if (tr.titled) {
+                      @for (n of tr.nodes; track n.col + '-' + n.from) {
+                        <span class="field-label tree-block-title" [style.left.px]="left(n.col)" [style.top.px]="top(tr, n.row) - g.title">
+                          {{ t('round.places', { from: n.from, to: n.to }) }}
+                        </span>
+                      }
+                    }
+                    @for (tm of tr.matches; track tm.match.id) {
+                      @let m = tm.match;
+                      <div
+                        class="bmatch"
+                        [class.bye]="m.byeA || m.byeB"
+                        [attr.data-match]="m.id"
+                        [style.left.px]="left(tm.col)"
+                        [style.top.px]="top(tr, tm.row)"
+                      >
+                        <div class="bmatch-head">
+                          @let sr = shortRound(m);
+                          <span [attr.title]="m.id">{{ t(sr.key, sr.params) }}</span>
+                          <span class="bmatch-result">
+                            @if (m.walkover) {
+                              <span class="pill pill-alert">WO</span>
+                            } @else if (m.score) {
+                              {{ scoreText(m) }}
+                            } @else if (m.court && !m.endedAt) {
+                              <span class="pill pill-playing">{{
+                                t('desk.courtN', { n: m.court })
+                              }}</span>
+                            } @else if (m.endedAt) {
+                              <span class="pill pill-finished">{{ t('phases.scorePending') }}</span>
+                            }
+                          </span>
+                        </div>
+                        @let a = sideLabel(m.a, m.byeA);
+                        <div
+                          class="bside"
+                          [class.won]="winner(m) === 'a'"
+                          [class.lost]="winner(m) === 'b'"
+                        >
+                          @if (b.origins?.[m.a.entrant]; as o) {
+                            <span class="origin">{{ o }}</span>
+                          }
+                          {{ a.key ? t(a.key) : (m.a | withBib) }}
+                        @if (m.walkoverA) {
+                          <span class="pill pill-alert bside-wo">WO</span>
+                        }
+                        </div>
+                        @let bb = sideLabel(m.b, m.byeB);
+                        <div
+                          class="bside"
+                          [class.won]="winner(m) === 'b'"
+                          [class.lost]="winner(m) === 'a'"
+                        >
+                          @if (b.origins?.[m.b.entrant]; as o) {
+                            <span class="origin">{{ o }}</span>
+                          }
+                          {{ bb.key ? t(bb.key) : (m.b | withBib) }}
+                        @if (m.walkoverB) {
+                          <span class="pill pill-alert bside-wo">WO</span>
+                        }
+                        </div>
+                        @if (correction() && m.a.entrant && m.b.entrant && !m.walkover) {
+                          <div class="bmatch-actions">
+                            <button type="button" class="btn btn-xs" (click)="scoring.set(m)">
+                              {{ t(m.score ? 'phases.editScore' : 'desk.enterScore') }}
+                            </button>
+                            @if (m.score) {
+                              <button
+                                type="button"
+                                class="btn btn-xs btn-danger"
+                                (click)="tournament.clearScore(m.id)"
+                              >
+                                {{ t('phases.clearScore') }}
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
 
-            @if ((b.places ?? []).length > 0) {
-              <div class="card places">
-                <span class="field-label">{{ t('phases.places') }}</span>
-                @for (p of b.places; track p.entrant.entrant) {
-                  <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>{{ short(p.entrant) }}</div>
-                }
               </div>
-            }
+              @if ((b.places ?? []).length > 0) {
+                @if (panels.collapsed('phases.places')) {
+                  <app-panel-toggle key="phases.places" [title]="t('phases.places')" />
+                } @else {
+                  <aside class="card places">
+                    <span class="panel-head">
+                      <span class="field-label">{{ t('phases.places') }}</span>
+                      <app-panel-toggle key="phases.places" [title]="t('phases.places')" />
+                    </span>
+                    @for (p of b.places; track p.entrant.entrant) {
+                      <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>{{ short(p.entrant) }}</div>
+                    }
+                  </aside>
+                }
+              }
+            </div>
           }
         }
       }

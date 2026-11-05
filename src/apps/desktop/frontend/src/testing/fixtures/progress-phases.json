@@ -224,7 +224,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-A2",
@@ -297,7 +299,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-A3",
@@ -366,7 +370,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-A4",
@@ -435,7 +441,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-A5",
@@ -493,7 +501,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-A6",
@@ -551,7 +561,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 }
               ]
             },
@@ -738,7 +750,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-B2",
@@ -807,7 +821,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-B3",
@@ -880,7 +896,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-B4",
@@ -949,7 +967,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-B5",
@@ -1007,7 +1027,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-B6",
@@ -1065,7 +1087,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 }
               ]
             },
@@ -1252,7 +1276,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-C2",
@@ -1325,7 +1351,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-C3",
@@ -1394,7 +1422,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-C4",
@@ -1463,7 +1493,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-C5",
@@ -1521,7 +1553,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "MD-C6",
@@ -1579,7 +1613,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 }
               ]
             }
@@ -1839,7 +1875,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-A2",
@@ -1912,7 +1950,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-A3",
@@ -1970,7 +2010,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-A4",
@@ -2028,7 +2070,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-A5",
@@ -2086,7 +2130,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-A6",
@@ -2144,7 +2190,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 }
               ]
             },
@@ -2320,7 +2368,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-B2",
@@ -2378,7 +2428,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-B3",
@@ -2436,7 +2488,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-B4",
@@ -2494,7 +2548,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-B5",
@@ -2552,7 +2608,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 },
                 {
                   "id": "WD-B6",
@@ -2610,7 +2668,9 @@
                   "placeTo": 0,
                   "roundSize": 0,
                   "byeA": false,
-                  "byeB": false
+                  "byeB": false,
+                  "walkoverA": false,
+                  "walkoverB": false
                 }
               ]
             }

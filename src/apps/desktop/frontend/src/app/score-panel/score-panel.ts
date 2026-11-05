@@ -60,6 +60,11 @@ export class ScorePanel {
     const w = this.match().win;
     return w.kind === WinConditionKind.WinByTime ? 1 : 2 * (w.setsToWin ?? 1) - 1;
   });
+  /** Most points a side can hold in a set: the cap, else 99 (timed and uncapped sets). */
+  protected readonly maxPoints = computed(() => {
+    const w = this.match().win;
+    return w.kind !== WinConditionKind.WinByTime && (w.cap ?? 0) > 0 ? (w.cap ?? 99) : 99;
+  });
   /** points[side][set], as typed. */
   protected readonly points = signal<string[][]>([[], []]);
   protected readonly goldenPoint = signal(false);
@@ -114,6 +119,21 @@ export class ScorePanel {
   protected unplayed(set: number): boolean {
     const n = this.decidedAfter();
     return n > 0 && set >= n;
+  }
+
+  /** Refuses a character that is not a digit, or that would push the points past the max. */
+  protected guard(event: InputEvent): void {
+    if (event.inputType.startsWith('delete') || event.isComposing) {
+      return;
+    }
+    const input = event.target as HTMLInputElement;
+    const data = event.data ?? event.dataTransfer?.getData('text') ?? '';
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+    const next = input.value.slice(0, start) + data + input.value.slice(end);
+    if (!/^\d*$/.test(next) || (next !== '' && Number(next) > this.maxPoints())) {
+      event.preventDefault();
+    }
   }
 
   protected set(side: number, set: number, event: Event): void {

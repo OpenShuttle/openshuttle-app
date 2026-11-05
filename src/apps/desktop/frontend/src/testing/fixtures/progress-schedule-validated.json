@@ -373,7 +373,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T09:00:56Z",
@@ -473,7 +475,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T09:00:57Z",
@@ -569,7 +573,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 3,
       "start": "2026-10-17T09:00:58Z",
@@ -665,7 +671,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 4,
       "start": "2026-10-17T09:00:59Z",
@@ -761,7 +769,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 5,
       "start": "2026-10-17T09:01:00Z",
@@ -861,7 +871,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 6,
       "start": "2026-10-17T09:01:01Z",
@@ -957,7 +969,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T09:35:18Z",
@@ -1053,7 +1067,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T09:35:19Z",
@@ -1153,7 +1169,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 3,
       "start": "2026-10-17T09:35:20Z",
@@ -1249,7 +1267,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 4,
       "start": "2026-10-17T09:35:21Z",
@@ -1345,7 +1365,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 5,
       "start": "2026-10-17T09:35:22Z",
@@ -1441,7 +1463,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 6,
       "start": "2026-10-17T09:35:23Z",
@@ -1526,7 +1550,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T10:09:40Z",
@@ -1611,7 +1637,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T10:09:41Z",
@@ -1696,7 +1724,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 3,
       "start": "2026-10-17T10:09:42Z",
@@ -1781,7 +1811,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 4,
       "start": "2026-10-17T10:09:43Z",
@@ -1866,7 +1898,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 5,
       "start": "2026-10-17T10:09:44Z",
@@ -1951,7 +1985,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 6,
       "start": "2026-10-17T10:09:45Z",
@@ -2047,7 +2083,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 7,
       "start": "2026-10-17T09:01:02Z",
@@ -2147,7 +2185,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 7,
       "start": "2026-10-17T09:35:24Z",
@@ -2232,7 +2272,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 7,
       "start": "2026-10-17T10:09:46Z",
@@ -2317,7 +2359,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T10:18:53Z",
@@ -2402,7 +2446,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T10:31:41Z",
@@ -2487,7 +2533,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 3,
       "start": "2026-10-17T10:31:42Z",
@@ -2628,7 +2676,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T10:40:53Z",
@@ -2713,7 +2763,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 6,
       "start": "2026-10-17T10:40:53Z",
@@ -2798,7 +2850,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T10:53:42Z",
@@ -2883,7 +2937,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 3,
       "start": "2026-10-17T10:53:42Z",
@@ -3052,7 +3108,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 1,
       "start": "2026-10-17T11:15:42Z",
@@ -3137,7 +3195,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "court": 2,
       "start": "2026-10-17T11:15:42Z",

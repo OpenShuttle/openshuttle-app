@@ -117,6 +117,15 @@ func (s State) withdrawnFrom(id engine.EntrantID, m Match) bool {
 	return id != "" && s.withdrawnBy(id, m.Category, s.stageIndex(m.Category, m.Stage))
 }
 
+// WalkoverSides reports which sides of a match forfeited (in this stage or an
+// earlier one), for a playable match.
+func (s State) WalkoverSides(m Match) (a, b bool) {
+	if !s.Playable(m) {
+		return false, false
+	}
+	return s.withdrawnFrom(m.A, m), s.withdrawnFrom(m.B, m)
+}
+
 // Walkover reports whether a match is a walkover: one side forfeited in this
 // stage or an earlier one.
 func (s State) Walkover(m Match) bool {

@@ -61,7 +61,9 @@
       "placeTo": 0,
       "roundSize": 0,
       "byeA": false,
-      "byeB": false
+      "byeB": false,
+      "walkoverA": false,
+      "walkoverB": false
     },
     {
       "id": "XD-A2",
@@ -117,7 +119,9 @@
       "placeTo": 0,
       "roundSize": 0,
       "byeA": false,
-      "byeB": false
+      "byeB": false,
+      "walkoverA": false,
+      "walkoverB": false
     },
     {
       "id": "XD-B1",
@@ -173,7 +177,9 @@
       "placeTo": 0,
       "roundSize": 0,
       "byeA": false,
-      "byeB": false
+      "byeB": false,
+      "walkoverA": false,
+      "walkoverB": false
     },
     {
       "id": "XD-B2",
@@ -229,7 +235,9 @@
       "placeTo": 0,
       "roundSize": 0,
       "byeA": false,
-      "byeB": false
+      "byeB": false,
+      "walkoverA": false,
+      "walkoverB": false
     }
   ],
   "courts": [
@@ -290,7 +298,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null
     },
@@ -351,7 +361,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null
     },
@@ -412,7 +424,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null
     },
@@ -473,7 +487,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       "proposal": null
     }
@@ -538,7 +554,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       {
         "id": "XD-A2",
@@ -594,7 +612,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       {
         "id": "XD-B1",
@@ -650,7 +670,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       },
       {
         "id": "XD-B2",
@@ -706,7 +728,9 @@
         "placeTo": 0,
         "roundSize": 0,
         "byeA": false,
-        "byeB": false
+        "byeB": false,
+        "walkoverA": false,
+        "walkoverB": false
       }
     ]
   },
