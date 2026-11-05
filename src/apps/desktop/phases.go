@@ -66,9 +66,11 @@ type StagePhase struct {
 	Pools []PoolPhase `json:"pools"`
 	// Bracket stages: first-round slots (byes have an empty entrant), rounds
 	// and the places known so far.
-	Slots  []SideView  `json:"slots"`
-	Rounds []RoundView `json:"rounds"`
-	Places []PlaceView `json:"places"`
+	Slots []SideView `json:"slots"`
+	// Origins maps an entrant to the pool and rank it comes from ("A1").
+	Origins map[engine.EntrantID]string `json:"origins"`
+	Rounds  []RoundView                 `json:"rounds"`
+	Places  []PlaceView                 `json:"places"`
 }
 
 // PhaseCategory is one category of the phases screen.
@@ -140,7 +142,7 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 	sp := StagePhase{
 		StageConfig: stage.StageConfig, Phase: st.Phase(c, stage.ID), Entry: entry,
 		Confirmed: stage.Confirmed, Started: st.StageStarted(c, stage.ID), Complete: st.StageComplete(c, stage.ID),
-		Pools: []PoolPhase{}, Slots: []SideView{}, Rounds: []RoundView{}, Places: []PlaceView{},
+		Pools: []PoolPhase{}, Slots: []SideView{}, Origins: map[engine.EntrantID]string{}, Rounds: []RoundView{}, Places: []PlaceView{},
 	}
 	if sp.Routing == nil {
 		sp.Routing = []tournament.RouteRule{}
@@ -178,6 +180,9 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 			sp.Pools = append(sp.Pools, pool)
 		}
 		return sp
+	}
+	if !entry {
+		sp.Origins = st.Origins(c, stage.ID)
 	}
 	for _, id := range stage.Slots() {
 		if id == "" {

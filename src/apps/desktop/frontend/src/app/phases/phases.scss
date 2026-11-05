@@ -379,3 +379,14 @@
   padding: 0 8px;
   font-size: 12px;
 }
+
+// Pool and rank an entrant of a bracket comes from ("A1").
+.origin {
+  flex: none;
+  margin-right: 8px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font: 700 11px var(--font-mono);
+}

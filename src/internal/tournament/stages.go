@@ -3,6 +3,7 @@ package tournament
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -173,6 +174,20 @@ func (s State) Routed(c engine.Category, id string) []engine.BracketEntrant {
 				played, last := s.playedBefore(c, target, e.ID)
 				out = append(out, engine.BracketEntrant{ID: e.ID, Rank: e.Rank, Pool: si*MaxPools + s.groupOf(src, e.ID), Played: played, LastEnd: last})
 			}
+		}
+	}
+	return out
+}
+
+// Origins labels the entrants routed to a stage with the pool and rank they
+// come from ("A1", "B2"), for brackets fed by pools. Entrants coming from a
+// stage that is not made of pools, or whose rank is not decided, have none.
+func (s State) Origins(c engine.Category, id string) map[engine.EntrantID]string {
+	out := map[engine.EntrantID]string{}
+	for _, e := range s.Routed(c, id) {
+		src := s.formats[c][e.Pool/MaxPools]
+		if src.Kind == StagePools && e.Rank > 0 {
+			out[e.ID] = engine.PoolName(e.Pool%MaxPools) + strconv.Itoa(e.Rank)
 		}
 	}
 	return out

@@ -26,6 +26,7 @@ describe('Phases', () => {
     expect(text(f)).toContain('Pool A');
     await click(f, 'Tableau principal');
     expect(text(f)).toContain('Final');
+    expect(f.nativeElement.querySelector('.bside .origin')?.textContent).toMatch(/^[A-Z]\d$/);
   });
 
   it('shows the history and undoes the latest action', async () => {

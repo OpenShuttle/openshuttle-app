@@ -1655,6 +1655,7 @@
             }
           ],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         },
@@ -1785,6 +1786,14 @@
               "withdrawn": false
             }
           ],
+          "origins": {
+            "e13": "A1",
+            "e14": "A2",
+            "e15": "B2",
+            "e4": "C2",
+            "e7": "C1",
+            "e8": "B1"
+          },
           "rounds": [
             {
               "from": 1,
@@ -3809,6 +3818,7 @@
             }
           ],
           "slots": [],
+          "origins": {},
           "rounds": [],
           "places": []
         },
@@ -3893,6 +3903,12 @@
               "withdrawn": false
             }
           ],
+          "origins": {
+            "e17": "B2",
+            "e18": "A1",
+            "e21": "A2",
+            "e22": "B1"
+          },
           "rounds": [
             {
               "from": 1,

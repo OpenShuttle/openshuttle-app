@@ -1271,6 +1271,11 @@ export interface StagePhase {
      * and the places known so far.
      */
     "slots": SideView[] | null;
+
+    /**
+     * Origins maps an entrant to the pool and rank it comes from ("A1").
+     */
+    "origins": { [_ in engine$0.EntrantID]?: string } | null;
     "rounds": RoundView[] | null;
     "places": PlaceView[] | null;
 }
