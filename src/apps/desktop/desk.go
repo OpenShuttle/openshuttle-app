@@ -273,8 +273,10 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 	}
 }
 
-// matchLabel is "#3 Léa Zola / Tom Ecuyer – #7 …" for history entries.
-func matchLabel(st tournament.State, id tournament.MatchID) (a, b string) {
+// matchLabel names the two sides of a match for history entries: "Léa Zola
+// / Tom Ecuyer", with the bib first ("#3 Léa Zola / Tom Ecuyer") when bibs
+// are shown.
+func matchLabel(st tournament.State, id tournament.MatchID, bibs bool) (a, b string) {
 	m, ok := st.Match(id)
 	if !ok {
 		return string(id), ""
@@ -286,12 +288,22 @@ func matchLabel(st tournament.State, id tournament.MatchID) (a, b string) {
 			names[i] = p.Name
 		}
 		prefix := ""
-		if e.Bib > 0 {
+		if bibs && e.Bib > 0 {
 			prefix = "#" + itoa(e.Bib) + " "
 		}
 		return prefix + strings.Join(names, " / ")
 	}
 	return label(m.A), label(m.B)
+}
+
+// matchTeams is a match as "Léa Zola / Tom Ecuyer – Ana Roy / Eva Sol",
+// never its code.
+func matchTeams(st tournament.State, id tournament.MatchID, bibs bool) string {
+	a, b := matchLabel(st, id, bibs)
+	if b == "" {
+		return a
+	}
+	return a + " – " + b
 }
 
 // scoreLabel is "21-10 21-12".

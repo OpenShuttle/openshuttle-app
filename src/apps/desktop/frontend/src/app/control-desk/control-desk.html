@@ -114,7 +114,7 @@
                 </header>
                 @if (c.proposal; as p) {
                   <div class="court-body">
-                    <span class="kicker">{{ t('desk.proposed', { id: p.id }) }}</span>
+                    <span class="kicker">{{ t('desk.proposed') }}</span>
                     @if (c.proposalUnrested) {
                       <span class="rest-warn">{{ t('desk.unrested', { rest: view().minRest }) }}</span>
                     }

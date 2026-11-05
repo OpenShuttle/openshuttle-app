@@ -79,7 +79,8 @@
 
 .team {
   display: grid;
-  grid-template-columns: 170px 44px 56px minmax(0, 1fr);
+  // The bib column is there only when bibs are shown (Settings).
+  grid-template-columns: 170px 44px minmax(0, 1fr);
   gap: 14px;
   align-items: center;
   padding: 8px 16px;
@@ -97,6 +98,10 @@
   app-category-badge {
     justify-self: start;
   }
+}
+
+:host-context(.show-bibs) .team {
+  grid-template-columns: 170px 44px 56px minmax(0, 1fr);
 }
 
 .team-btn {

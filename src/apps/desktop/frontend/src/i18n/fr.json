@@ -633,7 +633,7 @@
     "endedAt": "Terminé à {time}",
     "scorePendingClick": "Score en attente · cliquer pour saisir",
     "nextProposed": "Suivant proposé · {id}",
-    "proposed": "Proposé · {id}",
+    "proposed": "Proposé",
     "startNext": "Lancer le suivant",
     "call": "Appeler",
     "noMatchReady": "Les participants restants jouent ou se reposent.",

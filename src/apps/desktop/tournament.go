@@ -59,6 +59,8 @@ type TournamentService struct {
 	// clubs is the club list and display setting of app.db (clubbook.go),
 	// read on first use and on each change.
 	clubs atomic.Pointer[tournament.ClubBook]
+	// bibs is the showBibs setting of app.db, for the history (clubbook.go).
+	bibs atomic.Pointer[bool]
 
 	mu          sync.Mutex
 	file        *store.TournamentFile

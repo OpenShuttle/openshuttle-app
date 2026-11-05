@@ -61,7 +61,7 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		tournament.TypeEntryDrawn, tournament.TypeDrawConfirmed, tournament.TypeDrawReopened:
 		v.Params["category"] = string(p.Category)
 	case tournament.TypeMatchCalled, tournament.TypeMatchEnded, tournament.TypeScoreRecorded, tournament.TypeScoreCleared:
-		v.Params["a"], v.Params["b"] = matchLabel(s.state, p.Match)
+		v.Params["a"], v.Params["b"] = matchLabel(s.state, p.Match, s.showBibs())
 		if m, ok := s.state.Match(p.Match); ok {
 			v.Params["court"] = itoa(m.Court)
 		}
@@ -77,7 +77,8 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		v.Params["category"] = string(p.Category)
 		v.Params["stage"] = s.stageNameAt(p.Category, p.Stage, e.Seq)
 	case tournament.TypeMatchesSwapped:
-		v.Params["first"], v.Params["second"] = string(p.A), string(p.B)
+		v.Params["first"] = matchTeams(s.state, p.A, s.showBibs())
+		v.Params["second"] = matchTeams(s.state, p.B, s.showBibs())
 	case tournament.TypeLotsDrawn:
 		v.Params["category"] = string(p.Category)
 		v.Params["pool"] = engine.PoolName(p.Pool)
