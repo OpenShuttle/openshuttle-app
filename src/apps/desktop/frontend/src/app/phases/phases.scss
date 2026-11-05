@@ -390,3 +390,19 @@
   color: var(--color-text-muted);
   font: 700 11px var(--font-mono);
 }
+
+.sub-bracket {
+  @include stack(10px);
+
+  & + & {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.sub-bracket-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}

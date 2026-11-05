@@ -20,9 +20,16 @@ import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
-import { roundLabel } from '../shared/match-stage';
+import { roundLabel, shortRoundLabel } from '../shared/match-stage';
 import { fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
+
+/** A sub-bracket of the phases screen: the places it plays for and its rounds. */
+interface BracketSection {
+  start: number;
+  end: number;
+  rounds: RoundView[];
+}
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
@@ -47,11 +54,12 @@ export class Phases {
     this.panels.toggle('phases.history');
   }
   private readonly transloco = inject(TranslocoService);
-  /** Stage shown; the first one by default. */
+  /** Stage chosen by the desk; empty until then. */
   private readonly stageKey = signal('');
+  /** Stage shown: the chosen one, else the first not over (the one holding the next match), else the last. */
   protected readonly stage = computed(() => {
     const stages = this.current()?.stages ?? [];
-    return stages.find((s) => s.id === this.stageKey()) ?? stages[0] ?? null;
+    return stages.find((s) => s.id === this.stageKey()) ?? stages.find((s) => !s.complete) ?? stages[stages.length - 1] ?? null;
   });
   protected readonly scoring = signal<MatchView | null>(null);
   /** First match picked for a swap. */
@@ -90,6 +98,30 @@ export class Phases {
 
   protected round(r: RoundView): { key: string; params: Record<string, number> } {
     return roundLabel({ placeFrom: r.from, placeTo: r.to, roundSize: r.size });
+  }
+
+  protected shortRound(m: MatchView): { key: string; params: Record<string, number> } {
+    return shortRoundLabel(m);
+  }
+
+  /**
+   * A bracket cut into sub-brackets, one under the other: the main draw (with
+   * the third place match), then each part playing for lower places (5–8…).
+   * A part is rooted at a round of 4 or more starting after place 1; the
+   * rounds starting at or after its root, up to the next root, belong to it.
+   */
+  protected sections(b: StagePhase): BracketSection[] {
+    const rounds = b.rounds ?? [];
+    const roots = [...new Set(rounds.filter((r) => r.size >= 4 && r.from > 1).map((r) => r.from))].sort((x, y) => x - y);
+    const out = new Map<number, BracketSection>();
+    for (const r of rounds) {
+      const start = roots.filter((s) => s <= r.from).pop() ?? 1;
+      const sec = out.get(start) ?? { start, end: start, rounds: [] };
+      sec.end = Math.max(sec.end, r.to);
+      sec.rounds.push(r);
+      out.set(start, sec);
+    }
+    return [...out.values()].sort((x, y) => x.start - y.start);
   }
 
   protected status(s: StagePhase): string {

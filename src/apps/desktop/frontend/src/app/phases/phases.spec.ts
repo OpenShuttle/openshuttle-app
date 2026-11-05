@@ -23,6 +23,10 @@ describe('Phases', () => {
 
   it('shows the pool standings, then the bracket', async () => {
     const f = await render(Phases);
+    // Every stage is over: the last one opens.
+    expect(text(f)).toContain('Final');
+    (f.nativeElement.querySelector('.stages .seg-option') as HTMLElement).click();
+    f.detectChanges();
     expect(text(f)).toContain('Pool A');
     await click(f, 'Tableau principal');
     expect(text(f)).toContain('Final');
