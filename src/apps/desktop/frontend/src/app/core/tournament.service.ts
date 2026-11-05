@@ -279,6 +279,15 @@ export class TournamentStore {
     return this.command(() => Backend.RemoveBreak(id));
   }
 
+  /** Leaves a court empty for some minutes after a match ("": as soon as it is free). */
+  addGhostMatch(court: number, minutes: number, after: string): Promise<boolean> {
+    return this.command(() => Backend.AddGhostMatch(court, minutes, after as MatchID));
+  }
+
+  removeGhostMatch(id: string): Promise<boolean> {
+    return this.command(() => Backend.RemoveGhostMatch(id));
+  }
+
   setScheduleMode(mode: ScheduleMode): Promise<boolean> {
     return this.command(() => Backend.SetScheduleMode(mode));
   }

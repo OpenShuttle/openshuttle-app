@@ -428,6 +428,19 @@ export interface FormatView {
 }
 
 /**
+ * GhostMatchView is a court left empty for a while, after a match (nil: as
+ * soon as the court is free), at its forecast times (nil when not placed).
+ */
+export interface GhostMatchView {
+    "id": string;
+    "court": number;
+    "minutes": number;
+    "after": MatchView | null;
+    "start": string | null;
+    "end": string | null;
+}
+
+/**
  * HistoryEntry is a line of the history panel.
  */
 export interface HistoryEntry {
@@ -1018,6 +1031,12 @@ export interface ScheduleView {
      * Breaks are the pauses of every court, earliest first.
      */
     "breaks": BreakView[] | null;
+
+    /**
+     * Ghosts are the ghost matches still ahead: courts left empty in their
+     * turn, in the order they were added.
+     */
+    "ghosts": GhostMatchView[] | null;
 }
 
 /**

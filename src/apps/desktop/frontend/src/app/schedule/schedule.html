@@ -84,7 +84,7 @@
       </div>
     }
 
-    @if ((view().slots ?? []).length > 0 || (view().breaks ?? []).length > 0) {
+    @if ((view().slots ?? []).length > 0 || (view().breaks ?? []).length > 0 || (view().ghosts ?? []).length > 0) {
       <div class="card setup breaks" data-breaks>
         <div class="setup-row">
           <span class="field-label">{{ t('schedule.breaks') }}</span>
@@ -116,6 +116,61 @@
             <button type="submit" class="btn btn-sm" [disabled]="!breakFrom() || !breakTo()">{{ t('schedule.addBreak') }}</button>
           </form>
           <span class="hint">{{ t('schedule.breaksHint') }}</span>
+        </div>
+        <div class="setup-row" data-ghosts>
+          <span class="field-label">{{ t('schedule.ghosts') }}</span>
+          @for (g of view().ghosts; track g.id) {
+            <span class="break-chip ghost-chip" [attr.title]="ghostTitle(g)">
+              {{ t('schedule.ghostChip', { court: g.court, minutes: g.minutes }) }}
+              @if (g.start) {
+                · {{ time(g.start) }}
+              }
+              <button
+                type="button"
+                class="break-remove"
+                [attr.aria-label]="t('schedule.removeGhost', { court: g.court })"
+                [attr.title]="t('schedule.removeGhost', { court: g.court })"
+                (click)="removeGhost(g.id)"
+              >
+                ×
+              </button>
+            </span>
+          } @empty {
+            <span class="hint">{{ t('schedule.noGhosts') }}</span>
+          }
+          <form class="break-form" (submit)="$event.preventDefault(); addGhost()">
+            <label>
+              <span>{{ t('schedule.ghostCourt') }}</span>
+              <select class="input" name="court" [value]="ghostCourt()" (change)="setGhostCourt($any($event.target).value)">
+                @for (n of courts(); track n) {
+                  <option [value]="n" [selected]="n === ghostCourt()">{{ n }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>{{ t('schedule.ghostMinutes') }}</span>
+              <input
+                class="input minutes"
+                type="number"
+                name="minutes"
+                min="1"
+                max="600"
+                [value]="ghostMinutes()"
+                (input)="ghostMinutes.set(+$any($event.target).value)"
+              />
+            </label>
+            <label>
+              <span>{{ t('schedule.ghostAfter') }}</span>
+              <select class="input" name="after" (change)="ghostAfter.set($any($event.target).value)">
+                <option value="" [selected]="ghostAfter() === ''">{{ t('schedule.ghostAfterNone') }}</option>
+                @for (s of ghostAnchors(); track s.match!.id) {
+                  <option [value]="s.match!.id" [selected]="ghostAfter() === s.match!.id">{{ anchorLabel(s) }}</option>
+                }
+              </select>
+            </label>
+            <button type="submit" class="btn btn-sm" [disabled]="!(ghostMinutes() > 0) || courts().length === 0">{{ t('schedule.addGhost') }}</button>
+          </form>
+          <span class="hint">{{ t('schedule.ghostsHint') }}</span>
         </div>
       </div>
     }
@@ -218,6 +273,23 @@
                     @if (n === 1) {
                       <span class="break-label">{{ t('schedule.break', { from: time(b.from), to: time(b.to) }) }}</span>
                     }
+                  </span>
+                }
+                @for (g of ghostsByCourt().get(n) ?? []; track g.ghost.id) {
+                  <span class="ghost-slot" [attr.data-ghost]="g.ghost.id" [style.top.px]="g.top" [style.height.px]="g.height" [attr.title]="ghostTitle(g.ghost)">
+                    <span class="ghost-text">
+                      <span class="ghost-label">{{ t('schedule.ghost') }}</span>
+                      <span class="ghost-length">{{ t('schedule.ghostLength', { minutes: g.ghost.minutes }) }}</span>
+                    </span>
+                    <button
+                      type="button"
+                      class="break-remove"
+                      [attr.aria-label]="t('schedule.removeGhost', { court: g.ghost.court })"
+                      (pointerdown)="$event.stopPropagation()"
+                      (click)="removeGhost(g.ghost.id)"
+                    >
+                      ×
+                    </button>
                   </span>
                 }
                 @if (!view().start) {

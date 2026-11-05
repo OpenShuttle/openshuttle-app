@@ -124,7 +124,9 @@
     "EntrantSplit": "Pair split: {name} leaves {names}",
     "TournamentDaySet": "Date and hours changed",
     "BreakAdded": "Break added: {from}–{to}",
-    "BreakRemoved": "Break removed: {from}–{to}"
+    "BreakRemoved": "Break removed: {from}–{to}",
+    "GhostMatchAdded": "Ghost match added: court {court}, {minutes} min",
+    "GhostMatchRemoved": "Ghost match removed: court {court}, {minutes} min"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -167,7 +169,12 @@
     "ScheduleBlocksSet": "reordering of the schedule blocks",
     "EntrantsPaired": "pairing of {names}",
     "PartnerAdded": "partner for {names}",
-    "EntrantSplit": "split of {names}"
+    "EntrantSplit": "split of {names}",
+    "TournamentDaySet": "date and hours",
+    "BreakAdded": "break {from}–{to}",
+    "BreakRemoved": "break removal {from}–{to}",
+    "GhostMatchAdded": "ghost match on court {court}",
+    "GhostMatchRemoved": "ghost match removal on court {court}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -1030,7 +1037,20 @@
     "addBreak": "Add a break",
     "removeBreak": "Remove the break {from}–{to}",
     "break": "Break {from}–{to}",
-    "noBreaks": "No break"
+    "noBreaks": "No break",
+    "ghosts": "Ghost matches",
+    "ghostsHint": "A court left empty for a while, in its turn: the schedule plans around it, the control desk ignores it.",
+    "ghostCourt": "Court",
+    "ghostMinutes": "Minutes",
+    "ghostAfter": "after",
+    "ghostAfterNone": "as soon as the court is free",
+    "ghostAfterMatch": "after {match}",
+    "addGhost": "Add a ghost match",
+    "removeGhost": "Remove the ghost match of court {court}",
+    "ghostChip": "Court {court} · {minutes} min",
+    "ghost": "Ghost match",
+    "ghostLength": "{minutes} min",
+    "noGhosts": "No ghost match"
   },
   "panels": {
     "collapseMenu": "Fold the menu",

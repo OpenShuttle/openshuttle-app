@@ -44,6 +44,14 @@ type Item struct {
 	// NotBefore is the earliest start: the real end of the stages feeding
 	// the item's stage plus its pause, when they are over already.
 	NotBefore time.Time
+	// Ghost is the ID of a ghost match: Court stays empty for Minutes, nobody
+	// plays. It is "" for a real match.
+	Ghost string
+	// Court is the only court that may take the item (0: any).
+	Court int
+	// AfterMatch is a match the item waits for: it starts once that match,
+	// still to place, has ended.
+	AfterMatch string
 }
 
 // OnCourt is a match being played, until its (estimated) end.
@@ -97,7 +105,7 @@ type Slot struct {
 // Result is the forecast: every placed match by start time, then court.
 type Result struct {
 	Slots []Slot
-	// End is when the last match is expected to end.
+	// End is when the last match is expected to end (ghost matches left out).
 	End time.Time
 }
 
@@ -107,6 +115,8 @@ type Result struct {
 // reserved court, an item of the court's category. Rest is never waited for: an item whose players have not
 // had their minimum rest is placed anyway and flagged Unrested. A court
 // never starts a match that would run into a break: it waits for its end.
+// A ghost match keeps its court empty in its turn, after the match it
+// follows; it does not count in End.
 func Run(in Input) Result {
 	sim := newSim(in)
 	var out Result
@@ -135,7 +145,9 @@ func Run(in Input) Result {
 		}
 		out.Slots = append(out.Slots, sim.place(pick, c, t))
 		pending--
-		out.End = later(out.End, out.Slots[len(out.Slots)-1].End)
+		if pick.Ghost == "" {
+			out.End = later(out.End, out.Slots[len(out.Slots)-1].End)
+		}
 	}
 	slices.SortStableFunc(out.Slots, func(a, b Slot) int {
 		if r := a.Start.Compare(b.Start); r != 0 {
@@ -159,6 +171,10 @@ type sim struct {
 	// left counts the items not placed yet per category, stage and bracket
 	// round, to know when they are over.
 	left map[string]int
+	// queued lists the matches among the items; ended gives the end of the
+	// ones placed.
+	queued map[string]bool
+	ended  map[string]time.Time
 }
 
 func newSim(in Input) *sim {
@@ -167,6 +183,7 @@ func newSim(in Input) *sim {
 		freeAt:    make([]time.Time, in.Courts+1),
 		busyUntil: map[engine.EntrantID]time.Time{}, lastEnd: map[engine.EntrantID]time.Time{},
 		stageEnd: map[string]time.Time{}, levelEnd: map[string]time.Time{}, left: map[string]int{},
+		queued: map[string]bool{}, ended: map[string]time.Time{},
 	}
 	for i := range s.freeAt {
 		s.freeAt[i] = in.Now
@@ -189,6 +206,12 @@ func newSim(in Input) *sim {
 		}
 	}
 	for _, it := range in.Items {
+		if it.Ghost != "" {
+			continue
+		}
+		if it.Match != "" {
+			s.queued[it.Match] = true
+		}
 		s.left[string(it.Category)]++
 		s.left[stageKey(it.Category, it.Stage)]++
 		if it.Pool < 0 {
@@ -219,7 +242,7 @@ func (s *sim) pick(c int, t time.Time) (*Item, time.Time) {
 	next := time.Time{}
 	for i := range s.items {
 		it := &s.items[i]
-		if s.done[i] || !s.allowed(c, it.Category) {
+		if s.done[i] || (it.Court != 0 && it.Court != c) || (it.Ghost == "" && !s.allowed(c, it.Category)) {
 			continue
 		}
 		at, known := s.ready(it)
@@ -281,6 +304,13 @@ func (s *sim) ready(it *Item) (time.Time, bool) {
 		at = at.Add(it.Pause)
 	}
 	at = later(at, it.NotBefore)
+	if a := it.AfterMatch; a != "" && s.queued[a] {
+		end, placed := s.ended[a]
+		if !placed {
+			return at, false
+		}
+		at = later(at, end)
+	}
 	if it.Pool < 0 {
 		sk := stageKey(it.Category, it.Stage)
 		for l := 0; l < it.Level; l++ {
@@ -329,6 +359,12 @@ func (s *sim) place(it *Item, c int, t time.Time) Slot {
 	end := t.Add(time.Duration(it.Minutes) * time.Minute)
 	slot := Slot{Item: *it, Court: c, Start: t, End: end, Unrested: !s.rested(it.A, t) || !s.rested(it.B, t)}
 	s.freeAt[c] = end
+	if it.Ghost != "" {
+		return slot
+	}
+	if it.Match != "" {
+		s.ended[it.Match] = end
+	}
 	for _, id := range []engine.EntrantID{it.A, it.B} {
 		if id != "" {
 			s.busyUntil[id], s.lastEnd[id] = end, end

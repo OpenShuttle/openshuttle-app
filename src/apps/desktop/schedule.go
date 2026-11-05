@@ -67,6 +67,18 @@ func (s *TournamentService) RemoveBreak(ctx context.Context, id string) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveBreak(id) })
 }
 
+// AddGhostMatch leaves a court empty for some minutes in its turn, after a
+// match ("": as soon as the court is free). Only the schedule screen's
+// forecast counts it.
+func (s *TournamentService) AddGhostMatch(ctx context.Context, court, minutes int, after tournament.MatchID) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.AddGhostMatch(court, minutes, after) })
+}
+
+// RemoveGhostMatch removes a ghost match.
+func (s *TournamentService) RemoveGhostMatch(ctx context.Context, id string) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.RemoveGhostMatch(id) })
+}
+
 // GetScheduleView returns the schedule screen.
 func (s *TournamentService) GetScheduleView() ScheduleView {
 	s.mu.Lock()

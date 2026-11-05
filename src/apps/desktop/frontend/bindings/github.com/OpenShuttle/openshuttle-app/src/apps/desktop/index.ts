@@ -44,6 +44,7 @@ export type {
     FormatPreset,
     FormatPreviewView,
     FormatView,
+    GhostMatchView,
     HistoryEntry,
     HistoryView,
     ImportFile,

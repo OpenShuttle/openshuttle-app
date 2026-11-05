@@ -1042,5 +1042,6 @@
   "start": null,
   "dayEnd": null,
   "late": false,
-  "breaks": []
+  "breaks": [],
+  "ghosts": []
 }
