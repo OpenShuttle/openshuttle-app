@@ -619,3 +619,25 @@ func TestRuleValidation(t *testing.T) {
 		t.Error("empty format accepted")
 	}
 }
+
+// Pools of 4, 3 and 3, top two in a bracket of 8: the winner of the pool of
+// four played the most matches and gets a bye.
+func TestBracketByeToTheMostPlayed(t *testing.T) {
+	g := newGame(t, engine.MensSingles)
+	g.confirmedPools(engine.MensSingles, 3, 10)
+	top := g.addStage(engine.MensSingles, StageBracket, "Top", false)
+	g.route(engine.MensSingles, "S1", top, top)
+	g.finishPools(engine.MensSingles)
+	g.fill(engine.MensSingles, top)
+	st, _ := g.state().Stage(engine.MensSingles, top)
+	slots := st.Slots()
+	d, _ := g.state().Draw(engine.MensSingles)
+	if len(d.Pools[0]) != 4 {
+		t.Fatalf("pools = %v", d.Pools)
+	}
+	ranks := g.state().PoolStandings(engine.MensSingles, "S1", 0).Rows
+	i := slices.Index(slots, ranks[0].Entrant)
+	if i < 0 || slots[i^1] != "" {
+		t.Errorf("the winner of the pool of four should get a bye: %v", slots)
+	}
+}

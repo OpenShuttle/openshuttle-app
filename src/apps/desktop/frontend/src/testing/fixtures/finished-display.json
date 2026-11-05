@@ -434,17 +434,17 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e4",
-            "bib": 9,
+            "entrant": "e14",
+            "bib": 15,
             "names": [
-              "Lucas Perrin",
-              "Hugo Mathieu"
+              "Victor Lambert",
+              "Kevin André"
             ],
             "clubs": [
-              "Volant des Monts"
+              "Plumes du Lac"
             ],
             "clubNames": [
-              "Volant des Monts"
+              "Plumes du Lac"
             ],
             "withdrawn": false
           },
@@ -503,32 +503,32 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e8",
-            "bib": 16,
+            "entrant": "e13",
+            "bib": 20,
             "names": [
-              "Victor Moreau",
-              "Kevin Henry"
+              "Nathan Morin",
+              "Simon Laurent"
             ],
             "clubs": [
-              "Volant des Monts"
+              "BC Rive Droite"
             ],
             "clubNames": [
-              "Volant des Monts"
+              "BC Rive Droite"
             ],
             "withdrawn": false
           },
           "b": {
-            "entrant": "e14",
-            "bib": 15,
+            "entrant": "e4",
+            "bib": 9,
             "names": [
-              "Victor Lambert",
-              "Kevin André"
+              "Lucas Perrin",
+              "Hugo Mathieu"
             ],
             "clubs": [
-              "Plumes du Lac"
+              "Volant des Monts"
             ],
             "clubNames": [
-              "Plumes du Lac"
+              "Volant des Monts"
             ],
             "withdrawn": false
           },
@@ -572,17 +572,17 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e13",
-            "bib": 20,
+            "entrant": "e7",
+            "bib": 19,
             "names": [
-              "Nathan Morin",
-              "Simon Laurent"
+              "Nathan Brun",
+              "Simon Fournier"
             ],
             "clubs": [
-              "BC Rive Droite"
+              "AS Belvédère"
             ],
             "clubNames": [
-              "BC Rive Droite"
+              "AS Belvédère"
             ],
             "withdrawn": false
           },
@@ -641,21 +641,6 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e7",
-            "bib": 19,
-            "names": [
-              "Nathan Brun",
-              "Simon Fournier"
-            ],
-            "clubs": [
-              "AS Belvédère"
-            ],
-            "clubNames": [
-              "AS Belvédère"
-            ],
-            "withdrawn": false
-          },
-          "b": {
             "entrant": "e8",
             "bib": 16,
             "names": [
@@ -667,6 +652,21 @@
             ],
             "clubNames": [
               "Volant des Monts"
+            ],
+            "withdrawn": false
+          },
+          "b": {
+            "entrant": "e13",
+            "bib": 20,
+            "names": [
+              "Nathan Morin",
+              "Simon Laurent"
+            ],
+            "clubs": [
+              "BC Rive Droite"
+            ],
+            "clubNames": [
+              "BC Rive Droite"
             ],
             "withdrawn": false
           },
@@ -725,17 +725,17 @@
             "withdrawn": false
           },
           "b": {
-            "entrant": "e7",
-            "bib": 19,
+            "entrant": "e8",
+            "bib": 16,
             "names": [
-              "Nathan Brun",
-              "Simon Fournier"
+              "Victor Moreau",
+              "Kevin Henry"
             ],
             "clubs": [
-              "AS Belvédère"
+              "Volant des Monts"
             ],
             "clubNames": [
-              "AS Belvédère"
+              "Volant des Monts"
             ],
             "withdrawn": false
           },
@@ -779,6 +779,21 @@
           "pool": "",
           "round": 0,
           "a": {
+            "entrant": "e7",
+            "bib": 19,
+            "names": [
+              "Nathan Brun",
+              "Simon Fournier"
+            ],
+            "clubs": [
+              "AS Belvédère"
+            ],
+            "clubNames": [
+              "AS Belvédère"
+            ],
+            "withdrawn": false
+          },
+          "b": {
             "entrant": "e13",
             "bib": 20,
             "names": [
@@ -790,21 +805,6 @@
             ],
             "clubNames": [
               "BC Rive Droite"
-            ],
-            "withdrawn": false
-          },
-          "b": {
-            "entrant": "e8",
-            "bib": 16,
-            "names": [
-              "Victor Moreau",
-              "Kevin Henry"
-            ],
-            "clubs": [
-              "Volant des Monts"
-            ],
-            "clubNames": [
-              "Volant des Monts"
             ],
             "withdrawn": false
           },
@@ -848,21 +848,6 @@
           "pool": "",
           "round": 0,
           "a": {
-            "entrant": "e4",
-            "bib": 9,
-            "names": [
-              "Lucas Perrin",
-              "Hugo Mathieu"
-            ],
-            "clubs": [
-              "Volant des Monts"
-            ],
-            "clubNames": [
-              "Volant des Monts"
-            ],
-            "withdrawn": false
-          },
-          "b": {
             "entrant": "e14",
             "bib": 15,
             "names": [
@@ -874,6 +859,21 @@
             ],
             "clubNames": [
               "Plumes du Lac"
+            ],
+            "withdrawn": false
+          },
+          "b": {
+            "entrant": "e4",
+            "bib": 9,
+            "names": [
+              "Lucas Perrin",
+              "Hugo Mathieu"
+            ],
+            "clubs": [
+              "Volant des Monts"
+            ],
+            "clubNames": [
+              "Volant des Monts"
             ],
             "withdrawn": false
           },
