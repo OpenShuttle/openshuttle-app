@@ -1,4 +1,4 @@
-import { ScheduleSlotView, ScheduleView } from '@bindings/apps/desktop';
+import { GhostMatchView, ScheduleSlotView, ScheduleView } from '@bindings/apps/desktop';
 
 /** Pixels per minute on the time axis. */
 export const PX_PER_MIN = 2.4;
@@ -33,6 +33,20 @@ export function breakBands(v: ScheduleView, start: number, height: number): { id
     .filter((b) => b.height > 0);
 }
 
+/** The ghost matches placed by the forecast, per court, in pixels. */
+export function ghostsByCourt(v: ScheduleView, start: number): Map<number, { ghost: GhostMatchView; top: number; height: number }[]> {
+  const out = new Map<number, { ghost: GhostMatchView; top: number; height: number }[]>();
+  for (const ghost of v.ghosts ?? []) {
+    if (!ghost.start || !ghost.end) {
+      continue;
+    }
+    const top = minutesFrom(start, ghost.start) * PX_PER_MIN;
+    const height = Math.max(18, minutesFrom(start, ghost.end) * PX_PER_MIN - top) - 3;
+    out.set(ghost.court, [...(out.get(ghost.court) ?? []), { ghost, top, height }]);
+  }
+  return out;
+}
+
 /** Minutes from the start of the axis. */
 export function minutesFrom(start: number, value: string | Date): number {
   return (new Date(value).getTime() - start) / 60_000;
@@ -48,9 +62,9 @@ export function slotHeight(s: ScheduleSlotView): number {
   return Math.max(18, (new Date(s.end).getTime() - new Date(s.start).getTime()) / 60_000) * PX_PER_MIN - 3;
 }
 
-/** The axis height: down to the last end (or the end of a break starting before it), at least 200 px. */
+/** The axis height: down to the last end of a match or ghost match (or the end of a break starting before it), at least 200 px. */
 export function axisHeight(v: ScheduleView, start: number): number {
-  const ends = (v.slots ?? []).map((s) => minutesFrom(start, s.end));
+  const ends = [...(v.slots ?? []).map((s) => s.end), ...(v.ghosts ?? []).flatMap((g) => (g.end ? [g.end] : []))].map((e) => minutesFrom(start, e));
   const last = Math.max(0, ...ends);
   const breaks = (v.breaks ?? []).filter((b) => minutesFrom(start, b.from) < last).map((b) => minutesFrom(start, b.to));
   return Math.max(200, Math.max(last, ...breaks) * PX_PER_MIN + 40);

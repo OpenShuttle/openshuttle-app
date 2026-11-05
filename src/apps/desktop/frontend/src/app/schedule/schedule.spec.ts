@@ -61,6 +61,41 @@ describe('Schedule', () => {
     expect(go.argsOf('TournamentService.RemoveBreak')).toEqual([['k9']]);
   });
 
+  it('adds a ghost match after a match of its court, draws it and removes it', async () => {
+    const anchor = schedule.slots.find((s) => s.state === 'planned' && s.match && s.court === 2)!;
+    const elsewhere = schedule.slots.find((s) => s.state === 'planned' && s.match && s.court === 1)!;
+    const at = (min: number) => new Date(Date.parse(anchor.end) + min * 60_000).toISOString();
+    view({ ...schedule, ghosts: [{ id: 'g9', court: 2, minutes: 20, after: anchor.match, start: at(0), end: at(20) }] });
+    const f = await render(Schedule);
+    const ghost = find(f, '[data-lane="2"] [data-ghost="g9"]');
+    expect(ghost.textContent).toContain('Ghost match');
+    expect(ghost.textContent).toContain('20 min');
+    expect(ghost.getAttribute('title')).toContain(`after ${anchor.match!.id}`);
+    expect(find(f, '[data-ghosts]').textContent).toContain('Court 2 · 20 min');
+
+    const [court, after] = [...f.nativeElement.querySelectorAll('[data-ghosts] select')] as HTMLSelectElement[];
+    await choose(f, court, '2');
+    const options = [...after.options].map((o) => o.value);
+    expect(options[0]).toBe('');
+    expect(options).toContain(anchor.match!.id);
+    expect(options).not.toContain(elsewhere.match!.id);
+    await choose(f, after, anchor.match!.id);
+    await type(f, find(f, '[data-ghosts] input') as HTMLInputElement, '30');
+    await click(f, 'Add a ghost match');
+    expect(go.argsOf('TournamentService.AddGhostMatch')).toEqual([[2, 30, anchor.match!.id]]);
+
+    (find(f, '[data-ghosts] .break-remove') as HTMLButtonElement).click();
+    (ghost.querySelector('button') as HTMLButtonElement).click();
+    expect(go.argsOf('TournamentService.RemoveGhostMatch')).toEqual([['g9'], ['g9']]);
+  });
+
+  it('adds a ghost match emptying a court as soon as it is free', async () => {
+    const f = await render(Schedule);
+    expect(find(f, '[data-ghosts]').textContent).toContain('No ghost match');
+    await click(f, 'Add a ghost match');
+    expect(go.argsOf('TournamentService.AddGhostMatch')).toEqual([[1, 20, '']]);
+  });
+
   it('folds the order of rounds', async () => {
     const f = await render(Schedule);
     (find(f, '.blocks .fold') as HTMLButtonElement).click();

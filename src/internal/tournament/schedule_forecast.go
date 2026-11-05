@@ -28,8 +28,11 @@ type ScheduleSlot struct {
 	// PlaceFrom is, in a bracket, the first place its part of the bracket
 	// plays for: 1 for the main draw, 5 for places 5 to 8 (0 in pools).
 	PlaceFrom int
-	// Match is "" in a stage not filled yet: who plays is not known.
+	// Match is "" in a stage not filled yet: who plays is not known, and in
+	// a ghost match.
 	Match MatchID
+	// Ghost is the ID of a ghost match: its court stays empty, nobody plays.
+	Ghost string
 	A, B  engine.EntrantID
 	Court int
 	Start time.Time
@@ -54,17 +57,28 @@ type Schedule struct {
 // past or matches started (ForecastStart): courts take the matches in
 // schedule order (ScheduleOrder), then the stand-ins of stages not filled
 // yet, as they free up, around the breaks. A match on court running late
-// ends any minute, never "already".
+// ends any minute, never "already". Ghost matches are left out: this is the
+// control desk's schedule.
 func (s State) Schedule(now time.Time) Schedule {
-	return s.forecast(s.ForecastStart(now), now)
+	return s.forecast(s.ForecastStart(now), now, false)
 }
 
-// forecast runs the forecast with courts free from start.
-func (s State) forecast(start, now time.Time) Schedule {
+// ScheduleWithGhosts is the Schedule screen's forecast: Schedule with the
+// ghost matches keeping their courts empty in their turn.
+func (s State) ScheduleWithGhosts(now time.Time) Schedule {
+	return s.forecast(s.ForecastStart(now), now, true)
+}
+
+// forecast runs the forecast with courts free from start, with the ghost
+// matches or not.
+func (s State) forecast(start, now time.Time, ghosts bool) Schedule {
 	items := s.orderedItems()
 	in := forecast.Input{
 		Now: start, Courts: s.Courts(), Rest: time.Duration(s.MinRest()) * time.Minute,
 		Items: items, Reserved: s.reservedCourts(items),
+	}
+	if ghosts {
+		in.Items = s.withGhosts(items, now)
 	}
 	for _, b := range s.BreakTimes(now) {
 		in.Breaks = append(in.Breaks, forecast.Break{From: b.From, To: b.To})
@@ -72,12 +86,8 @@ func (s State) forecast(start, now time.Time) Schedule {
 	for _, m := range s.matches {
 		switch {
 		case s.Playing(m):
-			end := m.CalledAt.Add(time.Duration(s.WinCondition(m).EstimatedMinutes()) * time.Minute)
-			if !end.After(now) {
-				end = now.Add(time.Minute)
-			}
 			in.OnCourt = append(in.OnCourt, forecast.OnCourt{
-				Court: m.Court, Category: m.Category, Stage: m.Stage, Level: s.bracketLevel(m), A: m.A, B: m.B, End: end,
+				Court: m.Court, Category: m.Category, Stage: m.Stage, Level: s.bracketLevel(m), A: m.A, B: m.B, End: s.estimatedEnd(m, now),
 			})
 		case m.Ended():
 			in.Played = append(in.Played, forecast.Played{A: m.A, B: m.B, End: m.EndedAt})
@@ -88,7 +98,7 @@ func (s State) forecast(start, now time.Time) Schedule {
 	for _, sl := range res.Slots {
 		out.Slots = append(out.Slots, ScheduleSlot{
 			Key: sl.Key, Category: sl.Category, Stage: sl.Stage, Pool: sl.Pool, Level: sl.Level,
-			RoundSize: sl.RoundSize, PlaceFrom: sl.PlaceFrom, Match: MatchID(sl.Match), A: sl.A, B: sl.B,
+			RoundSize: sl.RoundSize, PlaceFrom: sl.PlaceFrom, Match: MatchID(sl.Match), Ghost: sl.Ghost, A: sl.A, B: sl.B,
 			Court: sl.Court, Start: sl.Start, End: sl.End, Unrested: sl.Unrested,
 		})
 	}
@@ -301,7 +311,7 @@ func (s State) Proposals(now time.Time) map[int]ScheduleSlot {
 	for _, c := range s.CourtStates() {
 		playing[c.Number] = c.State == CourtPlaying
 	}
-	for _, slot := range s.forecast(now, now).Slots {
+	for _, slot := range s.forecast(now, now, false).Slots {
 		if !slot.Start.Equal(now) || playing[slot.Court] || slot.Match == "" {
 			continue
 		}

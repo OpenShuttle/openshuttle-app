@@ -124,7 +124,9 @@
     "EntrantSplit": "Paire séparée : {name} quitte {names}",
     "TournamentDaySet": "Date et horaires modifiés",
     "BreakAdded": "Pause ajoutée : {from}–{to}",
-    "BreakRemoved": "Pause supprimée : {from}–{to}"
+    "BreakRemoved": "Pause supprimée : {from}–{to}",
+    "GhostMatchAdded": "Match fantôme ajouté : terrain {court}, {minutes} min",
+    "GhostMatchRemoved": "Match fantôme supprimé : terrain {court}, {minutes} min"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -167,7 +169,12 @@
     "ScheduleBlocksSet": "réordonnancement des blocs de l'échéancier",
     "EntrantsPaired": "formation de la paire {names}",
     "PartnerAdded": "partenaire de {names}",
-    "EntrantSplit": "séparation de {names}"
+    "EntrantSplit": "séparation de {names}",
+    "TournamentDaySet": "date et horaires",
+    "BreakAdded": "pause {from}–{to}",
+    "BreakRemoved": "suppression de la pause {from}–{to}",
+    "GhostMatchAdded": "match fantôme sur le terrain {court}",
+    "GhostMatchRemoved": "suppression du match fantôme du terrain {court}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -1030,7 +1037,20 @@
     "addBreak": "Ajouter une pause",
     "removeBreak": "Supprimer la pause {from}–{to}",
     "break": "Pause {from}–{to}",
-    "noBreaks": "Aucune pause"
+    "noBreaks": "Aucune pause",
+    "ghosts": "Matchs fantômes",
+    "ghostsHint": "Un terrain laissé vide un moment, à son tour : l'échéancier en tient compte, la table de marque l'ignore.",
+    "ghostCourt": "Terrain",
+    "ghostMinutes": "Minutes",
+    "ghostAfter": "après",
+    "ghostAfterNone": "dès que le terrain est libre",
+    "ghostAfterMatch": "après {match}",
+    "addGhost": "Ajouter un match fantôme",
+    "removeGhost": "Supprimer le match fantôme du terrain {court}",
+    "ghostChip": "Terrain {court} · {minutes} min",
+    "ghost": "Match fantôme",
+    "ghostLength": "{minutes} min",
+    "noGhosts": "Aucun match fantôme"
   },
   "panels": {
     "collapseMenu": "Replier le menu",

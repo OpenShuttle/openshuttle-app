@@ -38,6 +38,15 @@ export function AddCategory(c: engine$0.Category): $CancellablePromise<void> {
 }
 
 /**
+ * AddGhostMatch leaves a court empty for some minutes in its turn, after a
+ * match ("": as soon as the court is free). Only the schedule screen's
+ * forecast counts it.
+ */
+export function AddGhostMatch(court: number, minutes: number, after: tournament$0.MatchID): $CancellablePromise<void> {
+    return $Call.ByID(2862259777, court, minutes, after);
+}
+
+/**
  * AddPartner adds a partner, not registered before, to a player waiting
  * for one.
  */
@@ -436,6 +445,13 @@ export function RemoveCategory(c: engine$0.Category): $CancellablePromise<void> 
  */
 export function RemoveEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
     return $Call.ByID(120374032, id);
+}
+
+/**
+ * RemoveGhostMatch removes a ghost match.
+ */
+export function RemoveGhostMatch(id: string): $CancellablePromise<void> {
+    return $Call.ByID(3512603730, id);
 }
 
 /**

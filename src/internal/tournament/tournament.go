@@ -96,6 +96,8 @@ type State struct {
 	// every court (lunch…).
 	day    DaySet
 	breaks []Break
+	// ghosts are the courts left empty in their turn (ghost matches).
+	ghosts []GhostMatch
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -188,6 +190,10 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p BreakAdded) { s.applyBreakAdded(p, e.Seq) })
 	case TypeBreakRemoved:
 		return decodeInto(e, s.applyBreakRemoved)
+	case TypeGhostMatchAdded:
+		return decodeInto(e, func(p GhostMatchAdded) { s.applyGhostMatchAdded(p, e.Seq, e.At) })
+	case TypeGhostMatchRemoved:
+		return decodeInto(e, s.applyGhostMatchRemoved)
 	case TypeMinRestSet:
 		return decodeInto(e, func(p MinRestSet) { s.minRest = &p.Minutes })
 	case TypeCourtPrioritySet:

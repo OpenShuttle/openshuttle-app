@@ -173,7 +173,7 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   finished match goes to the pending scores. Rest counts from the real end of
   the match, not from score entry.
 
-**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md), [ADR 10](../adr/0010-schedule-day-and-breaks.md))
+**Schedule** ([ADR 6](../adr/0006-schedule.md), [ADR 7](../adr/0007-validated-schedule-order.md), [ADR 8](../adr/0008-schedule-round-blocks.md), [ADR 10](../adr/0010-schedule-day-and-breaks.md), [ADR 11](../adr/0011-ghost-matches.md))
 
 - The schedule puts every waiting match in order and forecasts courts and
   times from the estimated time on court of each win condition (2 sets of 21:
@@ -205,6 +205,12 @@ Criteria use differences, never ratios, so walkovers stay neutral.
   court stops, no match is planned across a break, the next ones start at
   its end. Matches are not proposed during a break (the desk can still call
   one).
+- **Ghost matches**: on the schedule, the desk can leave one court empty for
+  some minutes, after a chosen match of that court or as soon as it is free.
+  It comes in its turn and slides with the forecast, drawn as a dashed block
+  in the court's column; it can be removed and undone. It is only for the
+  schedule's forecast: the control desk ignores it (queue, proposals). It is
+  over once the desk calls a match on that court after it was due.
 - **Pause before a phase**: each phase after the first can have a pause
   (in the format, by quarter hours, "1 h" in one click; 0 by default), for
   example one hour between the pools and the bracket. The phase starts no

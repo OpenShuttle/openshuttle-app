@@ -49,6 +49,7 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		End      string                 `json:"end"`
 		From     string                 `json:"from"`
 		To       string                 `json:"to"`
+		After    tournament.MatchID     `json:"after"`
 	}
 	if e.Type != events.TypeUndone && e.Decode(&p) != nil {
 		return v
@@ -99,6 +100,19 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 				var added tournament.BreakAdded
 				if s.log[seq-1].Decode(&added) == nil {
 					v.Params["from"], v.Params["to"] = added.From, added.To
+				}
+			}
+		}
+	case tournament.TypeGhostMatchAdded:
+		v.Params["court"], v.Params["minutes"], v.Params["after"] = itoa(p.Court), itoa(p.Minutes), string(p.After)
+	case tournament.TypeGhostMatchRemoved:
+		// The ghost's ID is the seq of the event that added it: "g12".
+		var r tournament.GhostMatchRemoved
+		if e.Decode(&r) == nil {
+			if seq, err := strconv.Atoi(strings.TrimPrefix(r.ID, "g")); err == nil && seq >= 1 && seq <= len(s.log) {
+				var added tournament.GhostMatchAdded
+				if s.log[seq-1].Decode(&added) == nil {
+					v.Params["court"], v.Params["minutes"], v.Params["after"] = itoa(added.Court), itoa(added.Minutes), string(added.After)
 				}
 			}
 		}

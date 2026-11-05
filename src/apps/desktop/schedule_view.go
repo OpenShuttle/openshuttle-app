@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
@@ -11,7 +12,7 @@ import (
 // scheduleView builds the schedule screen of a state at a time.
 func (s *TournamentService) scheduleView(st tournament.State, now time.Time) ScheduleView {
 	settings := st.ScheduleSettings()
-	sched := st.Schedule(now)
+	sched := st.ScheduleWithGhosts(now)
 	b := scheduleBuilder{
 		st: st, now: now, mv: s.matchViewer(st), refs: categoryRefs(st), left: map[string]map[engine.EntrantID]int{},
 		styles: st.GroupStyles(),
@@ -19,7 +20,7 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 	v := ScheduleView{
 		Now: now, Mode: settings.Mode, First: settings.First, Categories: b.refs, Courts: st.Courts(),
 		MinRest: st.MinRest(), Reserved: []CourtReservation{}, Slots: []ScheduleSlotView{},
-		Blocks: []ScheduleBlockView{}, Groups: b.groups(), Breaks: []BreakView{},
+		Blocks: []ScheduleBlockView{}, Groups: b.groups(), Breaks: []BreakView{}, Ghosts: b.ghosts(sched.Slots),
 	}
 	for _, br := range st.BreakTimes(now) {
 		v.Breaks = append(v.Breaks, BreakView{ID: br.ID, From: br.From, To: br.To})
@@ -156,6 +157,9 @@ func (b *scheduleBuilder) plannedSlots(slots []tournament.ScheduleSlot) ([]Sched
 	var out []ScheduleSlotView
 	byKey := map[string]*ScheduleBlockView{}
 	for _, sl := range slots {
+		if sl.Ghost != "" {
+			continue
+		}
 		sv := b.slot(sl, SlotPlanned)
 		out = append(out, sv)
 		bv := byKey[sl.Key]
@@ -184,6 +188,24 @@ func (b *scheduleBuilder) plannedSlots(slots []tournament.ScheduleSlot) ([]Sched
 		}
 	}
 	return out, blocks
+}
+
+// ghosts are the ghost matches still ahead, at their forecast times.
+func (b *scheduleBuilder) ghosts(slots []tournament.ScheduleSlot) []GhostMatchView {
+	out := []GhostMatchView{}
+	for _, g := range b.st.GhostMatches() {
+		gv := GhostMatchView{ID: g.ID, Court: g.Court, Minutes: g.Minutes}
+		if m, ok := b.st.Match(g.After); ok && g.After != "" {
+			view := b.mv(m)
+			gv.After = &view
+		}
+		if i := slices.IndexFunc(slots, func(sl tournament.ScheduleSlot) bool { return sl.Ghost == g.ID }); i >= 0 {
+			start, end := slots[i].Start, slots[i].End
+			gv.Start, gv.End = &start, &end
+		}
+		out = append(out, gv)
+	}
+	return out
 }
 
 // groups lists the teams with matches left, pool by pool (a bracket as one
@@ -380,6 +402,20 @@ type ScheduleView struct {
 	Late   bool       `json:"late"`
 	// Breaks are the pauses of every court, earliest first.
 	Breaks []BreakView `json:"breaks"`
+	// Ghosts are the ghost matches still ahead: courts left empty in their
+	// turn, in the order they were added.
+	Ghosts []GhostMatchView `json:"ghosts"`
+}
+
+// GhostMatchView is a court left empty for a while, after a match (nil: as
+// soon as the court is free), at its forecast times (nil when not placed).
+type GhostMatchView struct {
+	ID      string     `json:"id"`
+	Court   int        `json:"court"`
+	Minutes int        `json:"minutes"`
+	After   *MatchView `json:"after"`
+	Start   *time.Time `json:"start"`
+	End     *time.Time `json:"end"`
 }
 
 // BreakView is a pause of every court on the tournament's day.
