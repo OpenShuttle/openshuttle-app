@@ -85,7 +85,7 @@ type State struct {
 	// this PC (not in the file): set by WithClubs, never projected.
 	clubs  ClubBook
 	rounds []Round
-	// schedule is the schedule setup (mode, reserved courts); scheduleOrder
+	// schedule is the schedule setup (first category, court rules); scheduleOrder
 	// the validated order of the waiting matches, since scheduleFrozenAt.
 	schedule         ScheduleSet
 	scheduleOrder    []MatchID
@@ -96,8 +96,6 @@ type State struct {
 	// every court (lunch…).
 	day    DaySet
 	breaks []Break
-	// ghosts are the courts left empty in their turn (ghost matches).
-	ghosts []GhostMatch
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -190,10 +188,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, func(p BreakAdded) { s.applyBreakAdded(p, e.Seq) })
 	case TypeBreakRemoved:
 		return decodeInto(e, s.applyBreakRemoved)
-	case TypeGhostMatchAdded:
-		return decodeInto(e, func(p GhostMatchAdded) { s.applyGhostMatchAdded(p, e.Seq, e.At) })
-	case TypeGhostMatchRemoved:
-		return decodeInto(e, s.applyGhostMatchRemoved)
+	case TypeGhostMatchAdded, TypeGhostMatchRemoved:
+		return nil // ghost matches are gone: court rules replaced them
 	case TypeMinRestSet:
 		return decodeInto(e, func(p MinRestSet) { s.minRest = &p.Minutes })
 	case TypeCourtPrioritySet:

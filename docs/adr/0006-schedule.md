@@ -1,6 +1,6 @@
 # 6. A schedule drives the desk
 
-- Status: accepted
+- Status: accepted, amended by ADR 13 (the reserved mode is gone: court rules steer the courts)
 - Date: 2026-10-19
 
 ## Context

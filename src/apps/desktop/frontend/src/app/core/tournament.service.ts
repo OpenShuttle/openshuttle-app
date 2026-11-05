@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { RecentTournament, TournamentService as Backend, TournamentView } from '@bindings/apps/desktop';
 import { Category, EntrantID, Score } from '@bindings/internal/engine';
-import { CourtRule, CourtScope, MatchID, PlayerID, PlayerInput, ScheduleMode, StageConfig, StageKind } from '@bindings/internal/tournament';
+import { CourtRule, CourtScope, MatchID, PlayerID, PlayerInput, StageConfig, StageKind } from '@bindings/internal/tournament';
 
 import { BackendError, backendError } from './backend-error';
 
@@ -279,25 +279,12 @@ export class TournamentStore {
     return this.command(() => Backend.RemoveBreak(id));
   }
 
-  /** Leaves a court empty for some minutes after a match ("": as soon as it is free). */
-  addGhostMatch(court: number, minutes: number, after: string): Promise<boolean> {
-    return this.command(() => Backend.AddGhostMatch(court, minutes, after as MatchID));
-  }
-
-  removeGhostMatch(id: string): Promise<boolean> {
-    return this.command(() => Backend.RemoveGhostMatch(id));
-  }
-
-  setScheduleMode(mode: ScheduleMode): Promise<boolean> {
-    return this.command(() => Backend.SetScheduleMode(mode));
-  }
-
   setScheduleFirst(category: Category): Promise<boolean> {
     return this.command(() => Backend.SetScheduleFirst(category));
   }
 
-  addCourtRule(courts: number[], rule: CourtRule): Promise<boolean> {
-    return this.command(() => Backend.AddCourtRule(courts, rule));
+  addCourtRules(courts: number[], rules: CourtRule[]): Promise<boolean> {
+    return this.command(() => Backend.AddCourtRules(courts, rules));
   }
 
   removeCourtRule(court: number, scope: CourtScope): Promise<boolean> {

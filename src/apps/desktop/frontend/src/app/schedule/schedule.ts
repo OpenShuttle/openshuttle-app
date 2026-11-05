@@ -1,9 +1,8 @@
 import { Component, ElementRef, HostListener, afterEveryRender, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { GhostMatchView, ScheduleBlockView, ScheduleGroupView, ScheduleHighlightView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
+import { ScheduleBlockView, ScheduleGroupView, ScheduleHighlightView, ScheduleSlotView, ScheduleView, TournamentService } from '@bindings/apps/desktop';
 import { Category } from '@bindings/internal/engine';
-import { ScheduleMode } from '@bindings/internal/tournament';
 
 import { LanguageService } from '../core/language.service';
 import { Panels } from '../core/panels.service';
@@ -16,16 +15,14 @@ import { PanelToggle } from '../shared/panel-strip';
 import { shortRoundLabel } from '../shared/match-stage';
 import { CourtRules, scopeLabel } from './court-rules';
 import { ScheduleDrag } from './schedule-drag';
-import { PX_PER_MIN, axisHeight, axisStart, breakBands, ghostsByCourt, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
+import { PX_PER_MIN, axisHeight, axisStart, breakBands, halfHours, minutesFrom, slotHeight, slotTop, slotsByCourt } from './schedule-timeline';
 
 const EMPTY: ScheduleView = {
   now: '',
-  mode: ScheduleMode.ScheduleAlternate,
   first: '' as Category,
   categories: [],
   courts: 0,
   minRest: 0,
-  reserved: [],
   courtRules: [],
   scopes: [],
   slots: [],
@@ -40,7 +37,6 @@ const EMPTY: ScheduleView = {
   dayEnd: null,
   late: false,
   breaks: [],
-  ghosts: [],
 };
 
 /**
@@ -77,7 +73,6 @@ export class Schedule {
   /** The live schedule, for the court rules panel (it previews from there). */
   protected readonly liveView = computed(() => this.live());
   protected readonly hasRules = computed(() => (this.live().courtRules ?? []).some((c) => (c.rules ?? []).length > 0));
-  protected readonly modes = ScheduleMode;
   protected readonly fullNames = fullNames;
   protected readonly slotHeight = slotHeight;
 
@@ -99,21 +94,9 @@ export class Schedule {
   /** The breaks on the time axis. */
   protected readonly breakBands = computed(() => breakBands(this.view(), this.start(), this.height()));
 
-  /** The ghost matches on the time axis, per court. */
-  protected readonly ghostsByCourt = computed(() => ghostsByCourt(this.view(), this.start()));
-
   /** The break being typed: from and to ("12:00"). */
   protected readonly breakFrom = signal('');
   protected readonly breakTo = signal('');
-
-  /** The ghost match being typed: its court, minutes and the match it follows ("": none). */
-  protected readonly ghostCourt = signal(1);
-  protected readonly ghostMinutes = signal(20);
-  protected readonly ghostAfter = signal('');
-  /** The matches the ghost may follow: those still ahead on its court, by time. */
-  protected readonly ghostAnchors = computed(() =>
-    (this.view().slots ?? []).filter((s) => s.match && s.state !== 'played' && s.court === this.ghostCourt()),
-  );
 
   /**
    * The pools and brackets the desk highlights (keys of view.highlights).
@@ -174,15 +157,6 @@ export class Schedule {
       return null;
     }
     return lit.has(group) ? 'lit' : 'dimmed';
-  }
-
-  protected reservedFor(court: number): { category: Category; slot: number } | null {
-    const r = (this.view().reserved ?? []).find((x) => x.number === court);
-    if (!r) {
-      return null;
-    }
-    const slot = (this.view().categories ?? []).find((c) => c.category === r.category)?.slot ?? 1;
-    return { category: r.category, slot };
   }
 
   /** A court's running rules, as its header's tooltip: "Priority 1 DD whole category · Never DH T · Final". */
@@ -273,38 +247,6 @@ export class Schedule {
 
   protected removeBreak(id: string): void {
     void this.tournament.removeBreak(id);
-  }
-
-  protected setGhostCourt(value: string): void {
-    this.ghostCourt.set(Number(value));
-    this.ghostAfter.set('');
-  }
-
-  protected async addGhost(): Promise<void> {
-    if (await this.tournament.addGhostMatch(this.ghostCourt(), this.ghostMinutes(), this.ghostAfter())) {
-      this.ghostAfter.set('');
-    }
-  }
-
-  protected removeGhost(id: string): void {
-    void this.tournament.removeGhostMatch(id);
-  }
-
-  /** A match a ghost may follow: "10:30 · P A · 1/3 · #3 · #7". */
-  protected anchorLabel(s: ScheduleSlotView): string {
-    return `${this.time(s.start)} · ${this.label(s)} · ${this.bibs(s)}`;
-  }
-
-  /** What a ghost match follows: "after MD-A3", or as soon as its court is free. */
-  protected ghostTitle(g: GhostMatchView): string {
-    const t = (key: string, params?: Record<string, unknown>) => this.transloco.translate(key, params);
-    const when = g.after ? t('schedule.ghostAfterMatch', { match: g.after.id }) : t('schedule.ghostAfterNone');
-    const times = g.start && g.end ? `${this.time(g.start)} – ${this.time(g.end)} · ` : '';
-    return `${times}${t('schedule.ghostChip', { court: g.court, minutes: g.minutes })} · ${when}`;
-  }
-
-  protected setMode(mode: ScheduleMode): void {
-    void this.tournament.setScheduleMode(mode);
   }
 
   protected setFirst(category: Category): void {

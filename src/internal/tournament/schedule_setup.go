@@ -35,27 +35,22 @@ type ScheduleOrderSet struct {
 	Order []MatchID `json:"order"`
 }
 
-// ScheduleMode is how two categories share the courts.
-type ScheduleMode string
-
-const (
-	// ScheduleAlternate plays the categories in turn: round 1 of the first
-	// category, round 1 of the other, round 2 of the first…
-	ScheduleAlternate ScheduleMode = "alternate"
-	// ScheduleReserved gives each category its own courts until it is over.
-	ScheduleReserved ScheduleMode = "reserved"
-)
+// legacyReserved is the mode of older files that gave each category its
+// own courts ("reserved"): court rules replaced it, the courts reserved by
+// hand read as only rules.
+const legacyReserved = "reserved"
 
 // ScheduleSet is the payload of TypeScheduleSet: the whole schedule setup.
 type ScheduleSet struct {
-	Mode ScheduleMode `json:"mode"`
-	// First opens every round in alternate mode ("" the first category).
+	// Mode was "alternate" or "reserved" in older files; the categories now
+	// always alternate, and court rules steer the courts.
+	Mode string `json:"mode,omitempty"`
+	// First opens every round ("" the first category).
 	First engine.Category `json:"first,omitempty"`
 	// Courts reserved courts for a category in reserved mode in files
 	// written before court rules: each reads as an only rule (courtRules).
 	Courts map[int]engine.Category `json:"courts,omitempty"`
-	// Rules are each court's rules (ADR 12): priorities, only, never. In
-	// reserved mode, the courts without an only rule share the categories.
+	// Rules are each court's rules (ADR 12): priorities, only, never.
 	Rules map[int][]CourtRule `json:"rules,omitempty"`
 	// Pinned held blocks moved up by hand in files written before the
 	// schedule could be validated; it is ignored.
@@ -65,9 +60,7 @@ type ScheduleSet struct {
 // ScheduleSettings returns the schedule setup, defaults filled in.
 func (s State) ScheduleSettings() ScheduleSet {
 	out := s.schedule
-	if out.Mode == "" {
-		out.Mode = ScheduleAlternate
-	}
+	out.Mode = ""
 	if !s.HasCategory(out.First) {
 		out.First = ""
 		// The court priority of older files picks the category first.
@@ -81,15 +74,7 @@ func (s State) ScheduleSettings() ScheduleSet {
 	return out
 }
 
-// SetScheduleMode chooses how two categories share the courts.
-func (s State) SetScheduleMode(mode ScheduleMode) (Change, error) {
-	if mode != ScheduleAlternate && mode != ScheduleReserved {
-		return Change{}, engine.NewError(engine.CodeInvalidSetting)
-	}
-	return s.scheduleChange(func(p *ScheduleSet) { p.Mode = mode })
-}
-
-// SetScheduleFirst chooses the category opening each round in alternate mode.
+// SetScheduleFirst chooses the category opening each round.
 func (s State) SetScheduleFirst(c engine.Category) (Change, error) {
 	if !s.HasCategory(c) {
 		return Change{}, engine.NewError(engine.CodeCategoryNotFound)
@@ -103,7 +88,7 @@ func (s State) scheduleChange(edit func(*ScheduleSet)) (Change, error) {
 	next.Rules = maps.Clone(cur.Rules)
 	edit(&next)
 	maps.DeleteFunc(next.Rules, func(_ int, rs []CourtRule) bool { return len(rs) == 0 })
-	if next.Mode == cur.Mode && next.First == cur.First && maps.EqualFunc(next.Rules, cur.Rules, slices.Equal) {
+	if next.First == cur.First && maps.EqualFunc(next.Rules, cur.Rules, slices.Equal) {
 		return Change{}, nil
 	}
 	if len(next.Rules) == 0 {
@@ -128,7 +113,7 @@ func (s *State) applyScheduleBlocksSet(p ScheduleBlocksSet) {
 	s.scheduleBlocks = slices.Clone(p.Order)
 }
 
-// categoryOrder ranks the categories for alternate mode: the first one set,
+// categoryOrder ranks the categories in each round: the first one set,
 // then the others in tournament order.
 func (s State) categoryOrder(settings ScheduleSet) map[engine.Category]int {
 	out := map[engine.Category]int{}

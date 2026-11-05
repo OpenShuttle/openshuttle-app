@@ -1,6 +1,5 @@
 {
   "now": "2026-10-17T10:18:51Z",
-  "mode": "alternate",
   "first": "MD",
   "categories": [
     {
@@ -14,7 +13,6 @@
   ],
   "courts": 7,
   "minRest": 10,
-  "reserved": [],
   "courtRules": [
     {
       "number": 1,
@@ -3986,6 +3984,5 @@
   "start": null,
   "dayEnd": null,
   "late": false,
-  "breaks": [],
-  "ghosts": []
+  "breaks": []
 }

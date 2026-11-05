@@ -1,6 +1,6 @@
 # 11. Ghost matches keep a court empty in its turn
 
-- Status: accepted, amends ADR 10
+- Status: superseded by ADR 13 (court rules replaced ghost matches), amended ADR 10
 - Date: 2026-11-05
 
 ## Context

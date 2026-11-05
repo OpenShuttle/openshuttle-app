@@ -5,9 +5,9 @@ import (
 	"math/rand/v2"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
@@ -91,7 +91,6 @@ func TestScheduleView(t *testing.T) {
 	if v = f.svc.GetScheduleView(); v.ValidatedAt != nil {
 		t.Error("still validated")
 	}
-	wantCode(t, f.svc.SetScheduleMode(ctx, "golf"), engine.CodeInvalidSetting)
 }
 
 func TestScheduleDayBreaksAndStyles(t *testing.T) {
@@ -176,7 +175,7 @@ func TestScheduleDayBreaksAndStyles(t *testing.T) {
 	}
 }
 
-func TestScheduleGhostMatches(t *testing.T) {
+func TestScheduleOlderGhostMatches(t *testing.T) {
 	f := newFixture(t)
 	f.svc.rng = func() *rand.Rand { return rand.New(rand.NewPCG(3, 4)) }
 	ctx := f.ctx
@@ -211,37 +210,28 @@ func TestScheduleGhostMatches(t *testing.T) {
 		}
 		return out
 	}
-	desk := deskOf()
+	desk, sched := deskOf(), f.svc.GetScheduleView().Slots
 
-	first := f.svc.GetScheduleView().Slots[0]
-	wantCode(t, f.svc.AddGhostMatch(ctx, 3, 20, ""), engine.CodeInvalidCourt)
-	must(f.svc.AddGhostMatch(ctx, first.Court, 20, first.Match.ID))
-	v := f.svc.GetScheduleView()
-	if len(v.Ghosts) != 1 {
-		t.Fatalf("ghosts = %+v", v.Ghosts)
+	// Files with ghost matches (gone: court rules replaced them) still open,
+	// list them in the history, and plan as if there were none.
+	first := sched[0]
+	old := func(typ events.Type, data any) {
+		t.Helper()
+		must(f.svc.execute(ctx, func(tournament.State) (tournament.Change, error) {
+			return tournament.Change{Type: typ, Data: data}, nil
+		}))
 	}
-	g := v.Ghosts[0]
-	if g.Court != first.Court || g.Minutes != 20 || g.After == nil || g.After.ID != first.Match.ID ||
-		g.Start == nil || g.Start.Sub(first.End).Abs() > time.Minute || g.End.Sub(*g.Start) != 20*time.Minute {
-		t.Errorf("ghost = %+v", g)
-	}
-	for _, sl := range v.Slots {
-		if sl.Match == nil || sl.Court != g.Court || !sl.Start.Before(*g.End) || !sl.End.After(*g.Start) {
-			continue
+	old(tournament.TypeGhostMatchAdded, tournament.GhostMatchAdded{Court: first.Court, Minutes: 20, After: first.Match.ID})
+	old(tournament.TypeGhostMatchRemoved, tournament.GhostMatchRemoved{ID: "g999"})
+	slots := func(v ScheduleView) string {
+		out := ""
+		for _, sl := range v.Slots {
+			out += fmt.Sprint(sl.Match.ID, "@", sl.Court, " ")
 		}
-		t.Errorf("slot %s overlaps the ghost", sl.Match.ID)
+		return out
 	}
-	// The control desk does not see them, even one emptying a court now.
-	must(f.svc.AddGhostMatch(ctx, 2, 30, ""))
-	if v := f.svc.GetScheduleView(); len(v.Ghosts) != 2 || v.Ghosts[1].After != nil || v.Slots[1].Court != 2 || v.Slots[1].Start.Before(*v.Ghosts[1].End) {
-		t.Errorf("ghost emptying court 2 now = %+v, slots %+v", v.Ghosts, v.Slots[:2])
-	}
-	if d := deskOf(); d != desk || desk == "" {
-		t.Errorf("the desk shows %q with the ghost, %q without", d, desk)
-	}
-	must(f.svc.RemoveGhostMatch(ctx, g.ID))
-	if v := f.svc.GetScheduleView(); len(v.Ghosts) != 1 {
-		t.Errorf("ghosts after removal = %+v", v.Ghosts)
+	if d, v := deskOf(), f.svc.GetScheduleView(); d != desk || desk == "" || slots(v) != slots(ScheduleView{Slots: sched}) {
+		t.Errorf("with a ghost: desk %q (%q without), slots %q", d, desk, slots(v))
 	}
 	var got []map[string]string
 	for _, a := range f.svc.GetHistoryView().Entries {
@@ -249,7 +239,7 @@ func TestScheduleGhostMatches(t *testing.T) {
 			got = append(got, a.Params)
 		}
 	}
-	if len(got) != 3 || got[0]["court"] != fmt.Sprint(g.Court) || got[0]["minutes"] != "20" || got[0]["after"] != string(first.Match.ID) {
+	if len(got) != 2 || got[1]["court"] != fmt.Sprint(first.Court) || got[1]["minutes"] != "20" || got[1]["after"] != string(first.Match.ID) {
 		t.Errorf("history = %v", got)
 	}
 }
@@ -296,14 +286,14 @@ func TestScheduleCourtRules(t *testing.T) {
 	// Court 2 first for pool B: the preview shows it, nothing saved.
 	poolB := tournament.CourtRule{Kind: tournament.CourtPriority, Level: 1, Scope: tournament.CourtScope{Category: engine.MensSingles, Stage: "S1", Pool: "B"}}
 	version := f.svc.GetTournamentView().Version
-	if p := f.svc.PreviewCourtRule([]int{1}, poolB); firstOn(p, 1).Pool != "B" {
+	if p := f.svc.PreviewCourtRules([]int{1}, []tournament.CourtRule{poolB}); firstOn(p, 1).Pool != "B" {
 		t.Errorf("preview = %+v", firstOn(p, 1))
 	}
 	if f.svc.GetTournamentView().Version != version || firstOn(f.svc.GetScheduleView(), 1).Pool != "A" {
 		t.Error("the preview was saved")
 	}
-	wantCode(t, f.svc.AddCourtRule(ctx, []int{3}, poolB), engine.CodeInvalidCourt)
-	must(f.svc.AddCourtRule(ctx, []int{1}, poolB))
+	wantCode(t, f.svc.AddCourtRules(ctx, []int{3}, []tournament.CourtRule{poolB}), engine.CodeInvalidCourt)
+	must(f.svc.AddCourtRules(ctx, []int{1}, []tournament.CourtRule{poolB}))
 	v = f.svc.GetScheduleView()
 	if r := v.CourtRules[0].Rules; len(r) != 1 || r[0].Scope.Scope != poolB.Scope || r[0].Level != 1 || firstOn(v, 1).Pool != "B" {
 		t.Errorf("court 1 rules = %+v", v.CourtRules[0])
@@ -315,7 +305,7 @@ func TestScheduleCourtRules(t *testing.T) {
 
 	// Court 2 never pool A: calling a pool A match there warns.
 	poolA := tournament.CourtScope{Category: engine.MensSingles, Stage: "S1", Pool: "A"}
-	must(f.svc.AddCourtRule(ctx, []int{2}, tournament.CourtRule{Kind: tournament.CourtNever, Scope: poolA}))
+	must(f.svc.AddCourtRules(ctx, []int{2}, []tournament.CourtRule{{Kind: tournament.CourtNever, Scope: poolA}}))
 	for _, q := range f.svc.GetControlDeskView().Queue {
 		want := []int{}
 		if q.Match.Pool == "A" {

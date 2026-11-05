@@ -145,15 +145,6 @@ export interface ControlDeskView {
 }
 
 /**
- * CourtReservation is the category a court without an only rule plays in
- * reserved mode, by the default share.
- */
-export interface CourtReservation {
-    "number": number;
-    "category": engine$0.Category;
-}
-
-/**
  * CourtRuleView is a rule of a court.
  */
 export interface CourtRuleView {
@@ -470,19 +461,6 @@ export interface FormatPreviewView {
  */
 export interface FormatView {
     "categories": FormatCategory[] | null;
-}
-
-/**
- * GhostMatchView is a court left empty for a while, after a match (nil: as
- * soon as the court is free), at its forecast times (nil when not placed).
- */
-export interface GhostMatchView {
-    "id": string;
-    "court": number;
-    "minutes": number;
-    "after": MatchView | null;
-    "start": string | null;
-    "end": string | null;
 }
 
 /**
@@ -1070,12 +1048,10 @@ export interface ScheduleTeamView {
  */
 export interface ScheduleView {
     "now": string;
-    "mode": tournament$0.ScheduleMode;
     "first": engine$0.Category;
     "categories": CategoryRef[] | null;
     "courts": number;
     "minRest": number;
-    "reserved": CourtReservation[] | null;
 
     /**
      * CourtRules lists every court with its rules (ADR 12); Scopes what a
@@ -1145,12 +1121,6 @@ export interface ScheduleView {
      * Breaks are the pauses of every court, earliest first.
      */
     "breaks": BreakView[] | null;
-
-    /**
-     * Ghosts are the ghost matches still ahead: courts left empty in their
-     * turn, in the order they were added.
-     */
-    "ghosts": GhostMatchView[] | null;
 }
 
 /**

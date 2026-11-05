@@ -29,7 +29,7 @@ type placed struct {
 func summary(r Result) map[string]placed {
 	out := map[string]placed{}
 	for _, s := range r.Slots {
-		out[s.Match+s.Ghost] = placed{s.Court, int(s.Start.Sub(t0).Minutes()), s.Unrested}
+		out[s.Match] = placed{s.Court, int(s.Start.Sub(t0).Minutes()), s.Unrested}
 	}
 	return out
 }
@@ -112,15 +112,6 @@ func TestRun(t *testing.T) {
 			end:  110,
 		},
 		{
-			name: "reserved courts until the category is over",
-			in: Input{Courts: 2, Reserved: map[int]engine.Category{1: md, 2: wd}, Items: []Item{
-				match("m1", "a", "b"), match("m2", "c", "d"),
-				{Key: "WD/S1/A/1", Category: wd, Stage: "S1", Match: "w1", A: "e", B: "f", Minutes: 20},
-			}},
-			want: map[string]placed{"m1": {1, 0, false}, "w1": {2, 0, false}, "m2": {1, 20, false}},
-			end:  40,
-		},
-		{
 			name: "stages waiting on each other are never placed",
 			in: Input{Courts: 1, Items: []Item{
 				match("m1", "a", "b"),
@@ -146,52 +137,6 @@ func TestRun(t *testing.T) {
 			end:  75,
 		},
 		{
-			name: "a ghost match keeps its court empty after the match it follows",
-			// m1 on court 1 (0-20), then the ghost holds court 1 until 50:
-			// m3 and m4 go to court 2.
-			in: Input{Courts: 2, Items: []Item{
-				match("m1", "a", "b"), {Ghost: "g1", Court: 1, Minutes: 30, AfterMatch: "m1"},
-				match("m2", "c", "d"), match("m3", "e", "f"), match("m4", "g", "h"),
-			}},
-			want: map[string]placed{"m1": {1, 0, false}, "m2": {2, 0, false}, "g1": {1, 20, false}, "m3": {2, 20, false}, "m4": {2, 40, false}},
-			end:  60,
-		},
-		{
-			name: "a ghost match waits for the match it follows, even on another court",
-			// m1 runs on court 1 (0-20); the ghost of court 2 waits for its end.
-			in: Input{Courts: 2, Items: []Item{
-				match("m1", "a", "b"), {Ghost: "g1", Court: 2, Minutes: 10, AfterMatch: "m1"}, match("m2", "a", "c"),
-			}},
-			want: map[string]placed{"m1": {1, 0, false}, "g1": {2, 20, false}, "m2": {1, 20, false}},
-			end:  40,
-		},
-		{
-			name: "a ghost match first in the order empties its court now; no court takes it but its own",
-			in: Input{Courts: 2, Items: []Item{
-				{Ghost: "g1", Court: 2, Minutes: 15}, match("m1", "a", "b"), match("m2", "c", "d"),
-			}},
-			want: map[string]placed{"g1": {2, 0, false}, "m1": {1, 0, false}, "m2": {2, 15, false}},
-			end:  35,
-		},
-		{
-			name: "a ghost match not before a time, ignoring reserved courts; a trailing one leaves the end",
-			in: Input{Courts: 1, Reserved: map[int]engine.Category{1: wd}, Items: []Item{
-				{Ghost: "g1", Court: 1, Minutes: 10, NotBefore: at(5)},
-				{Key: "WD/S1/A/1", Category: wd, Stage: "S1", Match: "w1", A: "e", B: "f", Minutes: 20},
-				{Ghost: "g2", Court: 1, Minutes: 30, AfterMatch: "w1"},
-			}},
-			want: map[string]placed{"w1": {1, 0, false}, "g1": {1, 20, false}, "g2": {1, 30, false}},
-			end:  20,
-		},
-		{
-			name: "a ghost match after a match not in the items follows nothing",
-			in: Input{Courts: 1, Items: []Item{
-				match("m1", "a", "b"), {Ghost: "g1", Court: 1, Minutes: 10, AfterMatch: "gone"},
-			}},
-			want: map[string]placed{"m1": {1, 0, false}, "g1": {1, 20, false}},
-			end:  20,
-		},
-		{
 			name: "no courts",
 			in:   Input{Courts: 0, Items: []Item{match("m1", "a", "b")}},
 			want: map[string]placed{},
@@ -206,34 +151,6 @@ func TestRun(t *testing.T) {
 			}
 			if tt.end > 0 && !r.End.Equal(at(tt.end)) {
 				t.Errorf("end = %v, want %v", r.End, at(tt.end))
-			}
-		})
-	}
-}
-
-func TestReserveCourts(t *testing.T) {
-	tests := []struct {
-		name       string
-		courts     int
-		manual     map[int]engine.Category
-		categories []engine.Category
-		left       map[engine.Category]int
-		want       map[int]engine.Category
-	}{
-		{"one category: no reservation", 4, nil, []engine.Category{md}, map[engine.Category]int{md: 10}, map[int]engine.Category{}},
-		{"shared by the matches left", 4, nil, []engine.Category{md, wd}, map[engine.Category]int{md: 30, wd: 10},
-			map[int]engine.Category{1: md, 2: md, 3: md, 4: wd}},
-		{"at least one court each", 4, nil, []engine.Category{md, wd}, map[engine.Category]int{md: 1, wd: 99},
-			map[int]engine.Category{1: md, 2: wd, 3: wd, 4: wd}},
-		{"courts reserved by hand count", 4, map[int]engine.Category{4: md}, []engine.Category{md, wd}, map[engine.Category]int{md: 10, wd: 10},
-			map[int]engine.Category{1: md, 2: wd, 3: wd, 4: md}},
-		{"nothing left: only the manual ones", 3, map[int]engine.Category{2: wd}, []engine.Category{md, wd}, map[engine.Category]int{},
-			map[int]engine.Category{2: wd}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ReserveCourts(tt.courts, tt.manual, tt.categories, tt.left); !maps.Equal(got, tt.want) {
-				t.Errorf("courts = %v, want %v", got, tt.want)
 			}
 		})
 	}
