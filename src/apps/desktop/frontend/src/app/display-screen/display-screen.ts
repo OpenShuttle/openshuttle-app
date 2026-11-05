@@ -12,11 +12,12 @@ import { AppSettings } from '../core/settings.service';
 import { LanguageService } from '../core/language.service';
 import { fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
+import { WithBibPipe } from '../shared/with-bib';
 
 /** Display screen: second window on the hall monitor. Read-only, read from 10 m. */
 @Component({
   selector: 'app-display-screen',
-  imports: [TranslocoDirective, NgTemplateOutlet, MatchStage],
+  imports: [TranslocoDirective, NgTemplateOutlet, MatchStage, WithBibPipe],
   templateUrl: './display-screen.html',
   styleUrl: './display-screen.scss',
 })

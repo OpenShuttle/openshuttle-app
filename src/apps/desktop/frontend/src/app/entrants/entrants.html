@@ -153,7 +153,7 @@
                       <span class="pill pill-free">{{ t('checkIn.present') }}</span>
                     }
                   } @else if (e.complete) {
-                    <span class="pill pill-free">{{ t('entrants.present', { bib: e.bib }) }}</span>
+                    <span class="pill pill-free">{{ t(showBibs() ? 'entrants.present' : 'checkIn.present', { bib: e.bib }) }}</span>
                   } @else if (present(e) > 0) {
                     <span class="pill pill-finished">{{ t('entrants.partly', { n: present(e), total: (e.players ?? []).length }) }}</span>
                   } @else {

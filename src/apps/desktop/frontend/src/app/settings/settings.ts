@@ -45,6 +45,10 @@ export class SettingsPage {
     void this.settings.run(() => SettingsService.SetCheckUpdates(on));
   }
 
+  protected setShowBibs(on: boolean): void {
+    void this.settings.run(() => SettingsService.SetShowBibs(on));
+  }
+
   protected download(): void {
     void openDownload(this.language.active);
   }

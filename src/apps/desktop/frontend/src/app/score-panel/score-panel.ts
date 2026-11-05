@@ -6,6 +6,7 @@ import { EntrantID, Score, WinConditionKind } from '@bindings/internal/engine';
 import { TournamentStore } from '../core/tournament.service';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
+import { AppSettings } from '../core/settings.service';
 import { clubs, fullNames } from '../shared/names';
 
 /** Builds the score from the typed points, ignoring sets left empty. */
@@ -49,6 +50,7 @@ export class ScorePanel {
   readonly closed = output<void>();
 
   private readonly tournament = inject(TournamentStore);
+  private readonly settings = inject(AppSettings);
   private readonly fields = viewChildren<ElementRef<HTMLInputElement>>('point');
   private readonly saveButton = viewChild<ElementRef<HTMLButtonElement>>('saveButton');
   private decideSeq = 0;
@@ -141,6 +143,11 @@ export class ScorePanel {
     if (await this.tournament.withdrawEntrant(entrant)) {
       this.closed.emit();
     }
+  }
+
+  /** Who a forfeit button names: the bib when bibs are shown, else the players. */
+  protected who(side: SideView): string {
+    return this.settings.showBibs() ? `#${side.bib}` : fullNames(side);
   }
 
   protected names(side: SideView): string {

@@ -1179,6 +1179,12 @@ export interface Settings {
      * one request to the GitHub releases list, nothing downloaded.
      */
     "checkUpdates": boolean;
+
+    /**
+     * ShowBibs shows the bib numbers on the screens (off by default): bibs
+     * are always assigned and stored, this only hides them.
+     */
+    "showBibs": boolean;
 }
 
 /**

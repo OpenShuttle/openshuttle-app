@@ -39,6 +39,16 @@
           }
         </div>
       </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.showBibs') }}</span>
+          <span class="hint">{{ t('settingsPage.showBibsHint') }}</span>
+        </div>
+        <div class="seg">
+          <button type="button" class="seg-option" [class.active]="s.showBibs" (click)="setShowBibs(true)">{{ t('settingsPage.yes') }}</button>
+          <button type="button" class="seg-option" [class.active]="!s.showBibs" (click)="setShowBibs(false)">{{ t('settingsPage.no') }}</button>
+        </div>
+      </div>
     </section>
 
     <section class="card">

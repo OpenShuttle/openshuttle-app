@@ -26,6 +26,7 @@ const (
 	settingTournamentsDir  = "tournamentsDir"
 	settingClubDisplay     = "clubDisplay"
 	settingCheckUpdates    = "checkUpdates"
+	settingShowBibs        = "showBibs"
 
 	// EventSettingsChanged is emitted after a setting changes, so every
 	// window applies it. Its payload is the full Settings.
@@ -70,6 +71,9 @@ type Settings struct {
 	// CheckUpdates looks for a newer release at startup (on by default):
 	// one request to the GitHub releases list, nothing downloaded.
 	CheckUpdates bool `json:"checkUpdates"`
+	// ShowBibs shows the bib numbers on the screens (off by default): bibs
+	// are always assigned and stored, this only hides them.
+	ShowBibs bool `json:"showBibs"`
 }
 
 // SettingsService reads and writes the app settings.
@@ -146,6 +150,11 @@ func (s *SettingsService) SetClubDisplay(ctx context.Context, display tournament
 // SetCheckUpdates turns the startup check for a newer release on or off.
 func (s *SettingsService) SetCheckUpdates(ctx context.Context, on bool) error {
 	return s.set(ctx, settingCheckUpdates, strconv.FormatBool(on))
+}
+
+// SetShowBibs shows or hides the bib numbers on every screen.
+func (s *SettingsService) SetShowBibs(ctx context.Context, on bool) error {
+	return s.set(ctx, settingShowBibs, strconv.FormatBool(on))
 }
 
 // PresetKind names a list of presets.
@@ -225,7 +234,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		settingLanguage, settingOperator, settingMonitor, settingRotationSeconds,
 		settingDefaultCourts, settingDefaultMinRest, settingTournamentsDir,
 		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk, settingClubDisplay,
-		settingCheckUpdates,
+		settingCheckUpdates, settingShowBibs,
 	} {
 		v, _, err := db.Setting(ctx, key)
 		if err != nil {
@@ -249,6 +258,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		TournamentsDir:  raw[settingTournamentsDir],
 		ClubDisplay:     clubDisplay(raw[settingClubDisplay]),
 		CheckUpdates:    raw[settingCheckUpdates] != "false",
+		ShowBibs:        raw[settingShowBibs] == "true",
 	}
 	presets, err := readPresets(ctx, db)
 	if err != nil {

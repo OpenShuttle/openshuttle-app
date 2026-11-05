@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import { Events } from '@wailsio/runtime';
 import { Settings, SettingsService } from '@bindings/apps/desktop';
 
@@ -9,6 +9,8 @@ import { BackendError, backendError } from './backend-error';
 export class AppSettings {
   readonly value = signal<Settings | null>(null);
   readonly error = signal<BackendError | null>(null);
+  /** Bib numbers are shown on the screens only when Settings say so. */
+  readonly showBibs = computed(() => this.value()?.showBibs ?? false);
 
   constructor() {
     Events.On('settings.changed', (event) => this.value.set(event.data));

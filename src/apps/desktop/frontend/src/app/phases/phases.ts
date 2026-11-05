@@ -22,6 +22,7 @@ import { ScorePanel } from '../score-panel/score-panel';
 import { shortRoundLabel } from '../shared/match-stage';
 import { fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
+import { WithBibPipe } from '../shared/with-bib';
 import {
   BracketTree,
   TreeBlock,
@@ -33,10 +34,11 @@ import {
   treeGeometry,
 } from './bracket-tree';
 
+
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel],
+  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })

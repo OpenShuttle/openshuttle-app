@@ -90,7 +90,7 @@
                     <button type="button" class="slot" [class.picked]="swappingSlot() === b.id + ':' + i" (click)="swapSlot(c, b, i)">
                       <span class="slot-n">{{ i + 1 }}</span>
                       @if (b.origins?.[sl.entrant]; as o) {<span class="origin">{{ o }}</span>}
-                      {{ sl.entrant ? '#' + sl.bib + ' ' + short(sl) : t('phases.bye') }}
+                      {{ sl.entrant ? (sl | withBib) : t('phases.bye') }}
                     </button>
                   }
                 </div>
@@ -316,8 +316,7 @@
                 <div class="matches">
                   @for (m of pool.matches; track m.id) {
                     <div class="mrow" [class.picked]="swapping()?.id === m.id">
-                      <span class="mid">{{ m.id }}</span>
-                      <span class="vs">#{{ m.a.bib }} – #{{ m.b.bib }}</span>
+                      <span class="vs">{{ m.a | withBib }} – {{ m.b | withBib }}</span>
                       <span class="result">
                         @if (m.walkover) {
                           <span class="pill pill-alert">WO</span>
