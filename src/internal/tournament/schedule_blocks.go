@@ -79,8 +79,8 @@ func (s State) categoryWaves() map[engine.Category][][]blocks.Block {
 // stageWaves cuts the waiting matches of a filled stage into waves: in
 // pools, wave k holds the k-th round left of every pool, the pools with the
 // most matches first (pool order on a tie); in a bracket, wave k is round k,
-// each part of the draw (the main draw, places 5 to 8…) a block, the main
-// draw first.
+// each part of the draw (the main draw, places 5 to 8…) a block, the
+// lowest stakes first: the final comes last.
 func (s State) stageWaves(c engine.Category, st Stage) [][]blocks.Block {
 	waiting := func(m Match) bool {
 		return m.Category == c && m.Stage == st.ID && !m.ByeA && !m.ByeB && !m.Called() && !s.Decided(m)
@@ -103,7 +103,7 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]blocks.Block {
 			}
 			waves[l][i].Matches = append(waves[l][i].Matches, string(m.ID))
 		}
-		blocks.SortByPlace(waves)
+		blocks.SortByStakes(waves)
 		return slices.DeleteFunc(waves, func(w []blocks.Block) bool { return len(w) == 0 })
 	}
 	total := map[int]int{}
@@ -157,10 +157,10 @@ func (s State) stageWaves(c engine.Category, st Stage) [][]blocks.Block {
 
 // standInWaves cuts the stand-ins of each stage not filled yet into waves,
 // by "<cat>/<stage>": wave k holds round k of every pool, or bracket round
-// k (the main draw first). Blocks hold no matches.
+// k (the lowest stakes first). Blocks hold no matches.
 func (s State) standInWaves() map[string][][]blocks.Block {
 	out := map[string][][]blocks.Block{}
-	seen := map[string]bool{}
+	seen, bracket := map[string]bool{}, map[string]bool{}
 	for _, it := range s.scheduleItems() {
 		if it.Match != "" || seen[it.Key] {
 			continue
@@ -171,14 +171,19 @@ func (s State) standInWaves() map[string][][]blocks.Block {
 			out[k] = append(out[k], nil)
 		}
 		b := blocks.Block{Key: it.Key, Group: it.Key, Series: k, Round: it.Level, Place: it.PlaceFrom}
+		bracket[k] = it.Pool < 0
 		if it.Pool >= 0 {
 			b.Group = blocks.PoolGroup(it.Category, it.Stage, it.Pool)
 			b.Series, b.Place = b.Group, it.Pool
 		}
 		out[k][it.Level] = append(out[k][it.Level], b)
 	}
-	for _, waves := range out {
-		blocks.SortByPlace(waves)
+	for k, waves := range out {
+		if bracket[k] {
+			blocks.SortByStakes(waves)
+		} else {
+			blocks.SortByPlace(waves)
+		}
 	}
 	return out
 }

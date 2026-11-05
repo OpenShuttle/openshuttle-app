@@ -12,11 +12,11 @@
           "rank": 1,
           "tied": false,
           "entrant": {
-            "entrant": "e8",
-            "bib": 16,
+            "entrant": "e4",
+            "bib": 9,
             "names": [
-              "Victor Moreau",
-              "Kevin Henry"
+              "Lucas Perrin",
+              "Hugo Mathieu"
             ],
             "clubs": [
               "Volant des Monts"
@@ -36,11 +36,11 @@
           "rank": 2,
           "tied": false,
           "entrant": {
-            "entrant": "e4",
-            "bib": 9,
+            "entrant": "e8",
+            "bib": 16,
             "names": [
-              "Lucas Perrin",
-              "Hugo Mathieu"
+              "Victor Moreau",
+              "Kevin Henry"
             ],
             "clubs": [
               "Volant des Monts"
@@ -108,17 +108,17 @@
           "rank": 5,
           "tied": false,
           "entrant": {
-            "entrant": "e15",
-            "bib": 7,
+            "entrant": "e14",
+            "bib": 15,
             "names": [
-              "Mathis Dumont",
-              "Félix Blanc"
+              "Victor Lambert",
+              "Kevin André"
             ],
             "clubs": [
-              "AS Belvédère"
+              "Plumes du Lac"
             ],
             "clubNames": [
-              "AS Belvédère"
+              "Plumes du Lac"
             ],
             "withdrawn": false
           },
@@ -132,17 +132,17 @@
           "rank": 6,
           "tied": false,
           "entrant": {
-            "entrant": "e14",
-            "bib": 15,
+            "entrant": "e15",
+            "bib": 7,
             "names": [
-              "Victor Lambert",
-              "Kevin André"
+              "Mathis Dumont",
+              "Félix Blanc"
             ],
             "clubs": [
-              "Plumes du Lac"
+              "AS Belvédère"
             ],
             "clubNames": [
-              "Plumes du Lac"
+              "AS Belvédère"
             ],
             "withdrawn": false
           },

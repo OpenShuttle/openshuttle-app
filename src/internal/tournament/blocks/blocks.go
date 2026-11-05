@@ -58,11 +58,20 @@ func IsRound(key string) bool {
 	return strings.Count(key, "/") == 3
 }
 
-// SortByPlace orders the blocks of each wave by place: pool order, or the
-// main draw before the places below.
+// SortByPlace orders the blocks of each wave by place: the pools in their
+// order (A, B, C…).
 func SortByPlace(waves [][]Block) {
 	for _, w := range waves {
 		slices.SortStableFunc(w, func(a, b Block) int { return a.Place - b.Place })
+	}
+}
+
+// SortByStakes orders the parts of a bracket in each wave from the lowest
+// stakes to the highest: the match for 9th place before the one for 5th,
+// the third place before the final, which closes its round.
+func SortByStakes(waves [][]Block) {
+	for _, w := range waves {
+		slices.SortStableFunc(w, func(a, b Block) int { return b.Place - a.Place })
 	}
 }
 
