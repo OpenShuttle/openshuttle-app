@@ -169,6 +169,33 @@
         <a class="btn btn-sm" routerLink="../format">{{ t('nav.format') }}</a>
       </div>
     } @else {
+      @if (highlightGroups().length > 0) {
+        <div class="card setup highlights" data-highlights [class.some-on]="lit().size > 0">
+          <div class="setup-row">
+            <span class="field-label" [attr.title]="t('schedule.highlightHint')">{{ t('schedule.highlight') }}</span>
+            @for (c of highlightGroups(); track c.category) {
+              <span class="highlight-category">
+                @for (h of c.items; track h.key) {
+                  <button
+                    type="button"
+                    class="highlight-toggle"
+                    [class.on]="lit().has(h.key)"
+                    [attr.aria-pressed]="lit().has(h.key)"
+                    [attr.data-highlight]="h.key"
+                    [attr.title]="stageName(h)"
+                    (click)="toggleHighlight(h.key)"
+                  >
+                    <app-category-badge [category]="h.category" [slot]="h.slot" [color]="h.color"> · {{ label(h) }}</app-category-badge>
+                  </button>
+                }
+              </span>
+            }
+            <button type="button" class="btn btn-sm" data-highlight-clear [disabled]="lit().size === 0" (click)="clearHighlights()">
+              {{ t('schedule.highlightClear') }}
+            </button>
+          </div>
+        </div>
+      }
       <!-- Both lines share one cell: switching to the drop info never moves the timeline. -->
       <div class="move-hint">
         <p class="hint" [class.hidden]="drag.info()">{{ t(view().validatedAt ? 'schedule.validatedHint' : 'schedule.autoHint') }}</p>
@@ -208,6 +235,8 @@
                   [attr.data-block-index]="i"
                   [class.carried]="drag.dragging()?.key === b.key"
                   [class.pending]="b.pending"
+                  [class.lit]="lights(b.group) === 'lit'"
+                  [class.dimmed]="lights(b.group) === 'dimmed'"
                   [style.border-left-color]="'var(--color-category-' + b.slot + ')'"
                   (pointerdown)="drag.blockDown($event, b)"
                 >
@@ -298,6 +327,8 @@
                     [class.unrested]="(s.unrested || s.offRules) && s.state === 'planned'"
                     [class.unknown]="!s.match"
                     [class.carried]="drag.carried(s)"
+                    [class.lit]="lights(s.group) === 'lit'"
+                    [class.dimmed]="lights(s.group) === 'dimmed'"
                     [style.top.px]="top(s)"
                     [style.height.px]="slotHeight(s)"
                     [style.border-left-color]="'var(--color-category-' + s.slot + ')'"

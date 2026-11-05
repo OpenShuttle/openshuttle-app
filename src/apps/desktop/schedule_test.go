@@ -132,6 +132,31 @@ func TestScheduleDayBreaksAndStyles(t *testing.T) {
 	if colors["A"] != 1 || colors["B"] != 2 {
 		t.Errorf("colors = %v", colors)
 	}
+	// Every pool and bracket can be highlighted; slots and blocks name theirs.
+	var keys []string
+	groups := map[string]int{}
+	for _, h := range v.Highlights {
+		keys = append(keys, h.Key)
+		groups[h.Key] = h.Color
+	}
+	if len(keys) < 2 || keys[0] != "MS/S1/A" || keys[1] != "MS/S1/B" || v.Highlights[0].Pool != "A" || !v.Highlights[0].EntryStage {
+		t.Errorf("highlights = %+v", v.Highlights)
+	}
+	for _, h := range v.Highlights[2:] {
+		if h.Pool != "" || h.StageKind != tournament.StageBracket || h.Key != "MS/"+h.Stage {
+			t.Errorf("bracket highlight = %+v", h)
+		}
+	}
+	for _, sl := range v.Slots {
+		if c, ok := groups[sl.Group]; !ok || c != sl.Color {
+			t.Errorf("slot %s: group %q", sl.Key, sl.Group)
+		}
+	}
+	for _, b := range v.Blocks {
+		if _, ok := groups[b.Group]; !ok {
+			t.Errorf("block %s: group %q", b.Key, b.Group)
+		}
+	}
 	must(f.editEntry(engine.MensSingles, func(stage *tournament.StageConfig) { stage.Acronym = "Q" }))
 	if s := f.svc.GetScheduleView().Slots[0]; s.Acronym != "Q" || s.Color == 0 || s.Rounds != 3 {
 		t.Errorf("slot = %+v", s)

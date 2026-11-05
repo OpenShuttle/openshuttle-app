@@ -7,6 +7,7 @@ import (
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament/blocks"
 )
 
 // scheduleView builds the schedule screen of a state at a time.
@@ -20,7 +21,7 @@ func (s *TournamentService) scheduleView(st tournament.State, now time.Time) Sch
 	v := ScheduleView{
 		Now: now, Mode: settings.Mode, First: settings.First, Categories: b.refs, Courts: st.Courts(),
 		MinRest: st.MinRest(), Reserved: []CourtReservation{}, Slots: []ScheduleSlotView{},
-		Blocks: []ScheduleBlockView{}, Groups: b.groups(), Breaks: []BreakView{}, Ghosts: b.ghosts(sched.Slots),
+		Blocks: []ScheduleBlockView{}, Groups: b.groups(), Highlights: b.highlights(), Breaks: []BreakView{}, Ghosts: b.ghosts(sched.Slots),
 	}
 	for _, br := range st.BreakTimes(now) {
 		v.Breaks = append(v.Breaks, BreakView{ID: br.ID, From: br.From, To: br.To})
@@ -111,6 +112,7 @@ func (b *scheduleBuilder) slot(sl tournament.ScheduleSlot, state string) Schedul
 		PlaceFrom: sl.PlaceFrom, Unrested: sl.Unrested, OffRules: sl.OffRules,
 	}
 	sv.Acronym, sv.Color, sv.Rounds = b.style(sl.Category, stage, sl.Pool)
+	sv.Group = groupKey(sl.Category, sl.Stage, sl.Pool)
 	if sl.Pool >= 0 {
 		sv.Pool = engine.PoolName(sl.Pool)
 	} else if sl.PlaceFrom > 0 {
@@ -169,7 +171,7 @@ func (b *scheduleBuilder) plannedSlots(slots []tournament.ScheduleSlot) ([]Sched
 		if bv == nil {
 			bv = &ScheduleBlockView{
 				Key: sv.Key, CategoryRef: sv.CategoryRef, Stage: sv.Stage, StageName: sv.StageName, StageKind: sv.StageKind,
-				Acronym: sv.Acronym, Color: sv.Color, Rounds: sv.Rounds,
+				Acronym: sv.Acronym, Color: sv.Color, Rounds: sv.Rounds, Group: sv.Group,
 				EntryStage: sv.EntryStage, Pool: sv.Pool, Round: sv.Round, RoundSize: sv.RoundSize, PlaceFrom: sv.PlaceFrom,
 				PlaceTo: sv.PlaceTo, Pending: sl.Match == "", Start: sl.Start, End: sl.End,
 			}
@@ -256,6 +258,46 @@ func (b *scheduleBuilder) groups() []ScheduleGroupView {
 	return out
 }
 
+// groupKey is the key of a pool ("MD/S1/A") or of a bracket stage ("MD/S2"),
+// as in State.GroupStyles.
+func groupKey(c engine.Category, stage string, pool int) string {
+	if pool >= 0 {
+		return blocks.PoolGroup(c, stage, pool)
+	}
+	return string(c) + "/" + stage
+}
+
+// highlights lists every pool and bracket stage of the tournament, in
+// category, stage and pool order: the ones the desk can highlight. Stages
+// not filled yet bring the pools their preview plans.
+func (b *scheduleBuilder) highlights() []ScheduleHighlightView {
+	out := []ScheduleHighlightView{}
+	for _, ref := range b.refs {
+		for i, stage := range b.st.Stages(ref.Category) {
+			hv := ScheduleHighlightView{
+				CategoryRef: ref, Stage: stage.ID, StageName: stage.Name, StageKind: stage.Kind,
+				EntryStage: i == 0, Acronym: stage.Acronym,
+			}
+			if stage.Kind != tournament.StagePools {
+				hv.Key = groupKey(ref.Category, stage.ID, -1)
+				hv.Color = b.styles[hv.Key].Color
+				out = append(out, hv)
+				continue
+			}
+			for pool := 0; ; pool++ {
+				key := groupKey(ref.Category, stage.ID, pool)
+				gs, ok := b.styles[key]
+				if !ok {
+					break
+				}
+				hv.Key, hv.Pool, hv.Color = key, engine.PoolName(pool), gs.Color
+				out = append(out, hv)
+			}
+		}
+	}
+	return out
+}
+
 func later(a, b time.Time) time.Time {
 	if b.After(a) {
 		return b
@@ -292,6 +334,9 @@ type ScheduleSlotView struct {
 	Color   int    `json:"color"`
 	// Pool is "A", "B"… in a pools stage, "" in a bracket.
 	Pool string `json:"pool"`
+	// Group is the key of its pool or bracket stage, as in
+	// ScheduleView.Highlights.
+	Group string `json:"group"`
 	// Round is the round of the pool or of the bracket, from 1. Rounds is how
 	// many rounds the pool plays (0 in a bracket). RoundSize is, in a
 	// bracket, how many entrants the round starts with (8: quarter-finals).
@@ -329,9 +374,11 @@ type ScheduleBlockView struct {
 	Acronym    string               `json:"acronym"`
 	Color      int                  `json:"color"`
 	Pool       string               `json:"pool"`
-	Round      int                  `json:"round"`
-	Rounds     int                  `json:"rounds"`
-	RoundSize  int                  `json:"roundSize"`
+	// Group is the key of its pool or bracket stage.
+	Group     string `json:"group"`
+	Round     int    `json:"round"`
+	Rounds    int    `json:"rounds"`
+	RoundSize int    `json:"roundSize"`
 	// PlaceFrom..PlaceTo are, in a bracket, the places its part plays for.
 	PlaceFrom int `json:"placeFrom"`
 	PlaceTo   int `json:"placeTo"`
@@ -364,6 +411,23 @@ type ScheduleGroupView struct {
 	Color      int                  `json:"color"`
 	Pool       string               `json:"pool"`
 	Teams      []ScheduleTeamView   `json:"teams"`
+}
+
+// ScheduleHighlightView is a pool or a bracket stage the desk can highlight
+// on the schedule: its matches and blocks carry its key as Group.
+type ScheduleHighlightView struct {
+	Key string `json:"key"`
+	CategoryRef
+	Stage      string               `json:"stage"`
+	StageName  string               `json:"stageName"`
+	StageKind  tournament.StageKind `json:"stageKind"`
+	EntryStage bool                 `json:"entryStage"`
+	// Acronym is the stage's short name ("" for the kind's default); Color
+	// the pool's or bracket's color index.
+	Acronym string `json:"acronym"`
+	Color   int    `json:"color"`
+	// Pool is "A", "B"… in a pools stage, "" for a bracket.
+	Pool string `json:"pool"`
 }
 
 // CourtReservation is the category a court without an only rule plays in
@@ -432,6 +496,10 @@ type ScheduleView struct {
 	// Groups lists the pools and brackets still playing, with the matches
 	// each team has left.
 	Groups []ScheduleGroupView `json:"groups"`
+	// Highlights lists every pool and bracket stage, stand-ins of stages
+	// not filled yet included: the desk highlights their matches on the
+	// timeline and their blocks (nothing is stored).
+	Highlights []ScheduleHighlightView `json:"highlights"`
 	// End is when the last match is expected to end; nil with nothing left.
 	End      *time.Time `json:"end"`
 	Unrested int        `json:"unrested"`

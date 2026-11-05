@@ -547,3 +547,53 @@
   font-weight: 800;
   white-space: nowrap;
 }
+
+// Highlighting: toggles of pools and brackets; their matches and blocks
+// stand out, the others fade (a view convenience, nothing stored).
+.highlights .setup-row {
+  gap: 8px 12px;
+}
+
+.highlight-category {
+  @include row(4px, true);
+}
+
+.highlight-toggle {
+  display: inline-flex;
+  padding: 1px;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  background: none;
+  cursor: pointer;
+
+  &.on {
+    border-color: var(--color-text);
+  }
+
+  // Once one is on, the others fade like their matches.
+  .some-on &:not(.on) {
+    opacity: 0.45;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.slot.lit,
+.block-row.lit {
+  box-shadow: 0 0 0 2px var(--color-text);
+}
+
+.slot.lit {
+  z-index: 1;
+}
+
+.slot.dimmed:not(.carried),
+.block-row.dimmed:not(.carried) {
+  opacity: 0.25;
+}
+
+.slot.played.dimmed:not(.carried) {
+  opacity: 0.15;
+}

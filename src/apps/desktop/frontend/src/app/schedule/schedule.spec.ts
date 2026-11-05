@@ -248,6 +248,70 @@ describe('Schedule', () => {
     await clickAll(await render(Schedule));
   });
 
+  it('highlights the pools and brackets toggled on, dimming the others', async () => {
+    const f = await render(Schedule);
+    const toggle = (key: string) => find(f, `[data-highlight="${key}"]`);
+    const el = f.nativeElement as HTMLElement;
+    const count = (sel: string) => el.querySelectorAll(sel).length;
+    const of = (key: string) => ({
+      slots: schedule.slots.filter((s) => s.group === key).length,
+      blocks: schedule.blocks.filter((b) => b.group === key).length,
+    });
+    // One toggle per pool and bracket, colored like their matches.
+    expect(count('[data-highlight]')).toBe(schedule.highlights.length);
+    expect(toggle('MD/S1/B').textContent).toContain('MD · P B');
+    expect(toggle('MD/S2').textContent).toContain('MD · B');
+    expect(toggle('MD/S2').querySelector('.badge')!.getAttribute('style')).toContain('--color-group-4');
+    expect(count('.slot.dimmed, .slot.lit, .block-row.dimmed, .block-row.lit')).toBe(0);
+    expect((find(f, '[data-highlight-clear]') as HTMLButtonElement).disabled).toBe(true);
+
+    // One on: its matches and blocks stand out, the others fade.
+    toggle('MD/S1/B').click();
+    await f.whenStable();
+    f.detectChanges();
+    const b = of('MD/S1/B');
+    expect(toggle('MD/S1/B').getAttribute('aria-pressed')).toBe('true');
+    expect(count('.slot.lit')).toBe(b.slots);
+    expect(count('.slot.dimmed')).toBe(schedule.slots.length - b.slots);
+    expect(count('.block-row.lit')).toBe(b.blocks);
+    expect(count('.block-row.dimmed')).toBe(schedule.blocks.length - b.blocks);
+
+    // Several on at once.
+    toggle('WD/S2').click();
+    f.detectChanges();
+    const w = of('WD/S2');
+    expect(count('.slot.lit')).toBe(b.slots + w.slots);
+    expect(count('.block-row.lit')).toBe(b.blocks + w.blocks);
+
+    // Off again, then clear all.
+    toggle('MD/S1/B').click();
+    f.detectChanges();
+    expect(toggle('MD/S1/B').getAttribute('aria-pressed')).toBe('false');
+    expect(count('.slot.lit')).toBe(w.slots);
+    await click(f, 'Clear all');
+    expect(count('.slot.dimmed, .slot.lit, .block-row.dimmed, .block-row.lit')).toBe(0);
+    expect(go.called('TournamentService.MoveScheduledBlock')).toBe(false);
+  });
+
+  it('forgets a highlighted pool gone from the tournament', async () => {
+    const f = await render(Schedule);
+    find(f, '[data-highlight="MD/S1/C"]').click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelectorAll('.slot.dimmed').length).toBeGreaterThan(0);
+    view({ ...schedule, highlights: schedule.highlights.filter((h) => h.key !== 'MD/S1/C') });
+    go.emit('tournament.updated', 2);
+    await new Promise((r) => setTimeout(r, 10));
+    f.detectChanges();
+    expect(f.nativeElement.querySelectorAll('.slot.dimmed').length).toBe(0);
+  });
+
+  it('names the highlight toggles in French', async () => {
+    const f = await render(Schedule, { lang: 'fr' });
+    expect(find(f, '[data-highlights]').textContent).toContain('Mettre en évidence');
+    expect(find(f, '[data-highlight="MD/S1/A"]').textContent).toContain('DH · P A');
+    expect(find(f, '[data-highlight="MD/S2"]').textContent).toContain('DH · T');
+  });
+
   it('runs every button', async () => {
     await clickAll(await render(Schedule));
   });
