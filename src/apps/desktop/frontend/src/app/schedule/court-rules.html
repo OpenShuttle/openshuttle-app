@@ -125,7 +125,7 @@
         </div>
         <span class="hint kind-hint">{{ t('schedule.rules.kindHints.' + kind()) }}</span>
         <div class="form-row">
-          <span class="form-label">{{ t('schedule.rules.target') }}</span>
+          <label class="form-label" for="court-rule-target">{{ t('schedule.rules.target') }}</label>
           @if (selected(); as sc) {
             <app-category-badge
               [category]="sc.scope.category"
@@ -134,6 +134,7 @@
             />
           }
           <select
+            id="court-rule-target"
             class="input target"
             name="scope"
             (change)="scope.set(+$any($event.target).value)"

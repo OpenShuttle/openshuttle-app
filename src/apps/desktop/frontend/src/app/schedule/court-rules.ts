@@ -140,9 +140,10 @@ export class CourtRules {
     effect(() => {
       const rule = this.rule();
       const courts = this.courts();
-      this.view().now;
+      // Reading the view's time refetches the preview after each update.
+      const live = this.view().now !== '';
       const seq = ++this.previewSeq;
-      if (!rule) {
+      if (!rule || !live) {
         untracked(() => this.preview.emit(null));
         return;
       }
