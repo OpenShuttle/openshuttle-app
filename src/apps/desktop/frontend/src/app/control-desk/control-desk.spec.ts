@@ -34,9 +34,9 @@ describe('ControlDesk', () => {
     expect(styles).toContainEqual(expect.stringContaining(`--color-group-${desk.queue[0].match.color}`));
   });
 
-  it('calls the proposed match on a finished court', async () => {
+  it('calls the proposed match on a court whose match ended', async () => {
     const f = await render(ControlDesk);
-    await click(f, 'Start next');
+    await click(f, 'Call');
     expect(go.argsOf('TournamentService.CallMatch')).toEqual([[desk.courts[0].proposal!.id, 1]]);
   });
 
