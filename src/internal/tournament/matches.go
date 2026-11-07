@@ -42,6 +42,9 @@ type Match struct {
 	// entered first. Rest counts from it.
 	EndedAt time.Time
 	Score   *engine.Score
+	// scoreSeq is the seq of the event that entered the score: orders the
+	// latest results.
+	scoreSeq uint64
 }
 
 // Called reports whether the match has been called on a court.
@@ -273,10 +276,11 @@ func (s *State) applyMatchEnded(p MatchEnded, at time.Time) {
 	}
 }
 
-func (s *State) applyScoreRecorded(p ScoreRecorded, at time.Time) {
+func (s *State) applyScoreRecorded(p ScoreRecorded, at time.Time, seq uint64) {
 	if i := s.matchIndex(p.Match); i >= 0 {
 		score := p.Score
 		s.matches[i].Score = &score
+		s.matches[i].scoreSeq = seq
 		if s.matches[i].EndedAt.IsZero() {
 			s.matches[i].EndedAt = at
 		}

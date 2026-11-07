@@ -98,6 +98,9 @@ type State struct {
 	// every court (lunch…).
 	day    DaySet
 	breaks []Break
+	// hiddenOnDisplay holds the stages hidden on the display screen
+	// ("<category>/<stage>").
+	hiddenOnDisplay map[string]bool
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time
@@ -201,7 +204,7 @@ func (s *State) apply(e events.Event) error {
 	case TypeMatchEnded:
 		return decodeInto(e, func(p MatchEnded) { s.applyMatchEnded(p, e.At) })
 	case TypeScoreRecorded:
-		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At) })
+		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At, e.Seq) })
 	case TypeEntrantWithdrawn:
 		return decodeInto(e, func(p EntrantWithdrawn) { s.applyEntrantWithdrawn(p, e.At) })
 	case TypeScoreCleared:
@@ -218,6 +221,8 @@ func (s *State) apply(e events.Event) error {
 		return decodeInto(e, s.applySlotsSwapped)
 	case TypeRoundStarted:
 		return decodeInto(e, func(p RoundStarted) { s.applyRoundStarted(p, e.At, e.Seq) })
+	case TypeStageDisplaySet:
+		return decodeInto(e, s.applyStageDisplaySet)
 	case TypeRoundEnded:
 		return decodeInto(e, func(p RoundEnded) { s.applyRoundEnded(p, e.At) })
 	}

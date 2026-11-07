@@ -211,55 +211,102 @@ export interface CourtView {
 }
 
 /**
- * DisplayBoard is one standings view of the display screen rotation: a pool
- * ranking, or the matches of a bracket.
+ * DisplayStage is a stage on the display screen: its pools, or its bracket.
  */
-export interface DisplayBoard {
+export interface DisplayStage {
     "category": engine$0.Category;
     "slot": number;
-    "stage": string;
-    "stageName": string;
-    "stageKind": tournament$0.StageKind;
-    "entryStage": boolean;
+    "id": string;
 
     /**
-     * pool boards
+     * Name is typed by the desk; empty shows the kind's label.
      */
-    "pool": string;
-    "standings": StandingView[] | null;
-    "matches": MatchView[] | null;
+    "name": string;
+
+    /**
+     * Acronym is the short name the schedule shows ("P", "T", "C"), typed by
+     * the desk; empty shows the kind's default (older files have none).
+     */
+    "acronym"?: string;
+    "kind": tournament$0.StageKind;
+    "win": engine$0.WinCondition;
+    "poolSizes"?: number[] | null;
+    "tiebreaks"?: engine$0.Tiebreak[] | null;
+    "crossPool"?: engine$0.CrossPool;
+
+    /**
+     * Bracket stages: every place is played (losers play for the lower
+     * places). Otherwise entrants losing in the same round are tied.
+     */
+    "fullPlacement"?: boolean;
+
+    /**
+     * Routing sends entrants to later stages; the others keep their final
+     * rank here.
+     */
+    "routing"?: tournament$0.RouteRule[] | null;
+
+    /**
+     * Pause is how long the stage waits, in minutes, after the last match of
+     * the stages feeding it (0 for the entry stage; older files have none).
+     */
+    "pause"?: number;
+    "phase": number;
+    "entry": boolean;
+
+    /**
+     * Confirmed: the stage has matches. Started: a match was called or scored.
+     */
+    "confirmed": boolean;
+    "started": boolean;
+    "complete": boolean;
+
+    /**
+     * Routed is the number of entrants routed here so far (later stages).
+     */
+    "routed": number;
+
+    /**
+     * CanFill is set for a later stage whose feeding stages are over.
+     */
+    "canFill": boolean;
+
+    /**
+     * Displayed: the display screen may show the stage (the desk hides it).
+     */
+    "displayed": boolean;
+
+    /**
+     * Pools stages.
+     */
+    "pools": PoolPhase[] | null;
+
+    /**
+     * Bracket stages: first-round slots (byes have an empty entrant), rounds
+     * and the places known so far.
+     */
+    "slots": SideView[] | null;
+
+    /**
+     * Origins maps an entrant to the pool and rank it comes from ("A1").
+     */
+    "origins": { [_ in engine$0.EntrantID]?: string } | null;
+
+    /**
+     * OriginColors maps the same entrants to their pool's color index.
+     */
+    "originColors": { [_ in engine$0.EntrantID]?: number } | null;
+    "rounds": RoundView[] | null;
+    "places": PlaceView[] | null;
 }
 
 /**
- * DisplayCourt is a court on the display screen.
- */
-export interface DisplayCourt {
-    "number": number;
-    "state": tournament$0.CourtState;
-
-    /**
-     * nil when free
-     */
-    "match": MatchView | null;
-
-    /**
-     * Proposal is the match coming next on a free or finished court.
-     */
-    "proposal": MatchView | null;
-}
-
-/**
- * DisplayView is the display screen: latest calls in big, then every court.
+ * DisplayView is the display screen: the stages being played, shown in
+ * turn, and the latest results.
  */
 export interface DisplayView {
     "name": string;
     "categories": CategoryRef[] | null;
-
-    /**
-     * Calls are the latest calls, newest first: the first one in big.
-     */
-    "calls": MatchView[] | null;
-    "courts": DisplayCourt[] | null;
 
     /**
      * Round is the timed round in progress, for the shared countdown.
@@ -267,9 +314,16 @@ export interface DisplayView {
     "round": TimedRoundView | null;
 
     /**
-     * Boards are the standings and brackets the screen rotates through.
+     * Stages are the stages the screen rotates through: the ones being
+     * played, among those the desk shows (else the next ones, else the last
+     * ones over).
      */
-    "boards": DisplayBoard[] | null;
+    "stages": DisplayStage[] | null;
+
+    /**
+     * Results are the latest scores entered, newest first.
+     */
+    "results": MatchView[] | null;
 }
 
 /**
@@ -510,6 +564,18 @@ export interface LaunchResult {
 }
 
 /**
+ * MatchSource names the bracket match a side comes from, as its winner or
+ * its loser: "winner of QF A".
+ */
+export interface MatchSource {
+    "loser": boolean;
+    "placeFrom": number;
+    "placeTo": number;
+    "roundSize": number;
+    "letter": string;
+}
+
+/**
  * MatchView is a match as every desk screen shows it.
  */
 export interface MatchView {
@@ -561,6 +627,16 @@ export interface MatchView {
      */
     "walkoverA": boolean;
     "walkoverB": boolean;
+
+    /**
+     * Bracket matches: Letter names the match within its round of its part
+     * of the bracket ("QF A"), empty when it plays alone there; FromA and
+     * FromB the matches whose winner or loser takes each side, nil in the
+     * first round.
+     */
+    "letter": string;
+    "fromA": MatchSource | null;
+    "fromB": MatchSource | null;
 }
 
 /**
@@ -1150,8 +1226,8 @@ export interface Settings {
     "monitor": string;
 
     /**
-     * RotationSeconds is how long the display screen shows each standings
-     * view before the next one.
+     * RotationSeconds is how long the display screen shows each stage
+     * before the next one, at least (a long stage scrolls slowly to its end).
      */
     "rotationSeconds": number;
 
@@ -1272,6 +1348,11 @@ export interface StagePhase {
      * CanFill is set for a later stage whose feeding stages are over.
      */
     "canFill": boolean;
+
+    /**
+     * Displayed: the display screen may show the stage (the desk hides it).
+     */
+    "displayed": boolean;
 
     /**
      * Pools stages.

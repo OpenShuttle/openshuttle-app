@@ -167,9 +167,30 @@
   min-width: 0;
 }
 
-.who-names {
+.who-text,
+.place-who {
+  @include stack(1px);
+  min-width: 0;
+}
+
+.who-names,
+.place-names {
   font-weight: 600;
   @include ellipsis;
+}
+
+.club {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  @include ellipsis;
+}
+
+.display-toggle {
+  @include row(6px);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .forfeit {
@@ -372,41 +393,8 @@
   }
 }
 
-.bmatch-head {
-  @include row(8px);
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: var(--color-bg);
-  font-size: 12px;
-  font-weight: 700;
-  color: #33363d;
-}
 
-.bside {
-  flex: 1;
-  padding: 7px 10px;
-  border-top: 1px solid #ecedf0;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 
-  &.won {
-    font-weight: 800;
-  }
-
-  &.lost {
-    color: var(--color-text-muted);
-  }
-}
-
-.bside-wo {
-  margin-left: auto;
-}
 
 .bmatch-actions {
   display: flex;

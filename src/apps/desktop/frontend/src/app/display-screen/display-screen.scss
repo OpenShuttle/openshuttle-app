@@ -13,8 +13,8 @@
   height: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  padding: 2vw 2.4vw;
-  gap: 1.6vw;
+  padding: 1.6vw 2vw;
+  gap: 1.2vw;
 }
 
 .top {
@@ -37,264 +37,91 @@
 }
 
 .clock {
-  font: 700 3.4vw/1 var(--font-mono);
+  font: 700 3vw/1 var(--font-mono);
 }
 
-.waiting {
-  @include row;
-  justify-content: center;
-  font-size: 2.4vw;
+// Timed round in progress: the shared countdown.
+.round {
+  @include row(1vw);
+  padding: 0.5vw 1.2vw;
+  border: 0.25vw solid var(--color-playing);
+  border-radius: 0.8vw;
+
+  &.elapsed {
+    border-color: var(--color-finished);
+
+    .round-clock {
+      color: var(--color-finished);
+    }
+  }
+}
+
+.round-label {
+  background: var(--color-brand);
+  color: var(--color-display-bg);
+  font-size: 1.2vw;
+  font-weight: 800;
+  padding: 0.2vw 0.8vw;
+  border-radius: 0.4vw;
+  text-transform: uppercase;
+}
+
+.round-text {
+  font-size: 1.2vw;
+  font-weight: 700;
   color: var(--color-display-muted);
+}
+
+.round-clock {
+  font: 700 3vw/1 var(--font-mono);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 1.8vw;
-  min-height: 0;
-
-  &.timed {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  }
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 26vw);
   gap: 1.4vw;
   min-height: 0;
 }
 
 .panel {
   background: var(--color-display-surface);
-  border-radius: 1.2vw;
-}
-
-.tag {
-  background: var(--color-brand);
-  color: var(--color-display-bg);
-  font-size: 1.4vw;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  padding: 0.3vw 1vw;
-  border-radius: 0.4vw;
-  text-transform: uppercase;
-}
-
-// Latest call, in big.
-.call {
-  flex: 1;
-  min-height: 0;
-  border: 0.3vw solid var(--color-brand);
-  padding: 1.8vw 2vw;
-  display: flex;
-  flex-direction: column;
-  gap: 1vw;
-}
-
-.call-head {
-  @include row(1vw);
-}
-
-.call-cat {
-  color: #fff;
-  font-size: 1.8vw;
-  font-weight: 800;
-  padding: 0.2vw 0.9vw;
-  border-radius: 0.4vw;
-  letter-spacing: 0.06em;
-}
-
-.call-meta {
-  font-size: 1.3vw;
-  color: var(--color-display-muted);
-}
-
-.call-body {
-  @include row(2.4vw);
-  flex: 1;
+  border-radius: 1vw;
   min-height: 0;
 }
 
-.call-court {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.cat {
   flex: none;
-  color: var(--color-brand);
-}
-
-.call-court-label {
+  color: #fff;
   font-size: 1.6vw;
   font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  padding: 0.2vw 0.8vw;
+  border-radius: 0.4vw;
+  letter-spacing: 0.06em;
+
+  &.cat-sm {
+    font-size: 0.95vw;
+    padding: 0.1vw 0.5vw;
+  }
 }
 
-.call-court-n {
-  font: 700 15vw/0.9 var(--font-mono);
-}
-
-.call-sides {
-  @include stack(1.2vw);
-}
-
-.call-side {
-  @include row(1vw);
-  font-size: 2.6vw;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.call-bib {
-  font: 700 2.4vw var(--font-mono);
-  background: #fff;
-  color: var(--color-display-bg);
-  border-radius: 0.5vw;
-  min-width: 4vw;
-  text-align: center;
-  padding: 0.2vw 0.6vw;
-  flex: none;
-}
-
-.versus {
-  font-size: 1.4vw;
-  color: var(--color-display-muted);
-  padding-left: 5vw;
-}
-
-.previous {
+// The stage shown, in turn.
+.stage {
   display: flex;
   flex-direction: column;
-  gap: 0.6vw;
-}
-
-.previous-title {
-  font-size: 1.2vw;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-display-muted);
-}
-
-.previous-row {
-  @include row(1.4vw);
-  background: var(--color-display-surface);
-  border-radius: 0.8vw;
-  padding: 0.8vw 1.2vw;
-}
-
-.previous-court {
-  font: 700 2.6vw/1 var(--font-mono);
-  color: var(--color-brand);
-  width: 3.4vw;
-  text-align: center;
-}
-
-.previous-text {
-  flex: 1;
-  min-width: 0;
-  font-size: 1.45vw;
-  font-weight: 700;
-  @include ellipsis;
-}
-
-.previous-time {
-  font: 500 1.3vw var(--font-mono);
-  color: var(--color-display-muted);
-}
-
-// Court tiles.
-.tiles {
-  display: grid;
-  // minmax(0, …): long names are cut in their tile, never push the column out.
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 1.2vw 1.4vw;
   gap: 0.8vw;
 }
 
-.tile {
-  border-radius: 0.8vw;
-  padding: 0.8vw 1vw;
-  display: flex;
-  gap: 1vw;
-  align-items: center;
+.stage-head {
+  @include row(1vw);
+}
+
+.stage-title {
+  flex: 1;
   min-width: 0;
-  min-height: 6.4vw;
-
-  &.playing {
-    background: #16306b;
-    --label: #afc8f7;
-  }
-
-  &.finished {
-    background: #4a3206;
-    --label: #ffd38a;
-  }
-
-  &.free {
-    background: #0f3a25;
-    --label: #9fe0bc;
-  }
-}
-
-.tile-n {
-  font: 700 3.6vw/1 var(--font-mono);
-  width: 3.6vw;
-  text-align: center;
-  flex: none;
-}
-
-.tile-text {
-  @include stack(0.25vw);
-  flex: 1;
-}
-
-.tile-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.6vw;
-}
-
-.tile-label {
-  @include ellipsis;
-  font-size: 1.05vw;
+  font-size: 2vw;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--label);
-}
-
-.tile-time {
-  flex: none;
-  font: 700 1.3vw var(--font-mono);
-}
-
-.tile-line {
-  font-size: 1.1vw;
-  font-weight: 600;
   @include ellipsis;
-}
-
-// Rotating standings.
-.board {
-  flex: 1;
-  min-height: 0;
-  border-radius: 1vw;
-  padding: 1.2vw 1.4vw;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5vw;
-  overflow: hidden;
-}
-
-.board-head {
-  @include row;
-  justify-content: space-between;
-}
-
-.board-title {
-  font-size: 1.9vw;
-  font-weight: 800;
 }
 
 .dots {
@@ -313,157 +140,293 @@
   }
 }
 
-.board-row {
-  display: grid;
-  grid-template-columns: 3vw minmax(0, 1fr) 3.4vw 5vw;
-  gap: 0.8vw;
-  align-items: center;
-  border-top: 1px solid #262b36;
-  padding-top: 0.5vw;
-  font-size: 1.45vw;
-
-  &.match-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
+.progress {
+  height: 0.25vw;
+  border-radius: 0.2vw;
+  background: #232835;
+  overflow: hidden;
 }
 
-.board-labels {
-  border-top: none;
-  font-size: 1vw;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--color-brand);
+}
+
+// Scrolled by the component, slowly, when taller than the screen.
+.stage-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.waiting {
+  flex: 1;
+  @include row;
+  justify-content: center;
+  font-size: 2.2vw;
   color: var(--color-display-muted);
 }
 
-.b-rank {
-  font: 700 1.8vw var(--font-mono);
+// Pools: every pool of the stage.
+.pools {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(30vw, 340px), 1fr));
+  gap: 1vw;
+}
+
+.pool {
+  @include stack(0.4vw);
+  padding: 0.9vw 1.1vw;
+  border: 1px solid var(--color-display-border);
+  border-radius: 0.8vw;
+}
+
+.pool-head {
+  @include row(1vw);
+  justify-content: space-between;
+}
+
+.pool-name {
+  font-size: 1.6vw;
+  font-weight: 800;
+}
+
+.pool-played {
+  font: 600 1vw var(--font-mono);
+  color: var(--color-display-muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2.4vw minmax(0, 1fr) 2.6vw 3.8vw;
+  gap: 0.8vw;
+  align-items: center;
+  border-top: 1px solid #262b36;
+  padding-top: 0.4vw;
+  font-size: 1.3vw;
+
+  &.labels {
+    border-top: none;
+    font-size: 0.85vw;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-display-muted);
+  }
+
+  &.withdrawn .names {
+    text-decoration: line-through;
+    color: var(--color-display-muted);
+  }
+}
+
+.rank {
+  font: 700 1.6vw var(--font-mono);
   color: var(--color-brand);
 }
 
-.b-name {
+.who {
+  @include stack(0.1vw);
+  min-width: 0;
+}
+
+.names {
   font-weight: 700;
   @include ellipsis;
 }
 
-.b-num {
+.club {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--color-display-muted);
+  @include ellipsis;
+}
+
+.num {
   font-family: var(--font-mono);
+  text-align: right;
 
   &.strong {
     font-weight: 700;
   }
 }
 
-// Timed rounds: every court of the round, and the shared countdown.
-.round-panel {
-  padding: 1.3vw 1.8vw;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5vw;
-  min-height: 0;
-  border: 0.3vw solid var(--color-playing);
+.live {
+  @include row(0.8vw);
+  margin-top: 0.2vw;
+  padding: 0.3vw 0.6vw;
+  border-radius: 0.4vw;
+  background: #16306b;
+  font-size: 1vw;
+}
 
-  &.elapsed {
-    border-color: var(--color-finished);
+.live-court {
+  flex: none;
+  font-weight: 800;
+  color: #afc8f7;
+}
+
+.live-text {
+  min-width: 0;
+  font-weight: 600;
+  @include ellipsis;
+}
+
+// Bracket: the tree of the Stages screen, zoomed to the width of the screen.
+.tree-frame {
+  position: relative;
+}
+
+.tree {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.tree-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.link {
+  fill: none;
+  stroke-width: 2;
+  opacity: 0.4;
+
+  &.done {
+    opacity: 1;
   }
 }
 
-.panel-tag {
-  @include row(1vw);
-  padding-bottom: 0.3vw;
+.link-win {
+  stroke: #4cc38a;
 }
 
-.panel-title {
-  font-size: 1.8vw;
-  font-weight: 800;
+.link-lose {
+  stroke: #e0675e;
+  stroke-dasharray: 5 4;
 }
 
-.round-row {
-  @include row(1.6vw);
-  border-top: 1px solid #262b36;
-  padding-top: 0.5vw;
-  flex: 1;
-  min-height: 0;
-}
-
-.round-court {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 6vw;
-  flex: none;
-  color: var(--color-brand);
-}
-
-.court-label {
-  font-size: 0.85vw;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.court-n {
-  font: 700 4.2vw/0.95 var(--font-mono);
-}
-
-.round-sides {
-  @include stack(0.3vw);
-  flex: 1;
-}
-
-.round-side {
-  font-size: 1.75vw;
-  font-weight: 800;
+.block-title {
+  position: absolute;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--color-display-muted);
+}
 
-  .bib {
-    font: 700 1.5vw var(--font-mono);
-    background: #fff;
-    color: var(--color-display-bg);
-    border-radius: 0.4vw;
-    padding: 0 0.5vw;
-    margin-right: 0.7vw;
-    height: auto;
+.bmatch {
+  position: absolute;
+  width: var(--card-w);
+  height: var(--card-h);
+  background: #fff;
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  &.bye {
+    opacity: 0.5;
+  }
+
+  &.live {
+    outline: 3px solid var(--color-playing);
   }
 }
 
-.round-pool {
-  font-size: 1.2vw;
-  color: var(--color-display-muted);
-  flex: none;
-}
-
-.countdown {
-  padding: 1.4vw 1.8vw;
+// Latest results.
+.results {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.4vw;
+  padding: 1.2vw 1.2vw;
+  gap: 0.8vw;
 }
 
-.countdown-label {
-  font-size: 1.4vw;
+.results-title {
+  margin: 0;
+  font-size: 1.1vw;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-display-muted);
 }
 
-.countdown-value {
-  font: 700 8.5vw/1 var(--font-mono);
-  color: #fff;
+.results-list {
+  @include stack(0.7vw);
+  min-height: 0;
+  overflow: hidden;
+}
 
-  &.over {
-    color: var(--color-finished);
+.results-empty {
+  margin: 0;
+  font-size: 1.1vw;
+  color: var(--color-display-muted);
+}
+
+.result {
+  @include stack(0.3vw);
+  padding: 0.6vw 0.8vw;
+  border: 1px solid var(--color-display-border);
+  border-radius: 0.6vw;
+}
+
+.result-head {
+  @include row(0.6vw);
+  font-size: 0.9vw;
+  color: var(--color-display-muted);
+}
+
+.result-stage {
+  flex: 1;
+  min-width: 0;
+  @include ellipsis;
+}
+
+.result-time {
+  flex: none;
+  font-family: var(--font-mono);
+}
+
+.result-side {
+  @include row(0.6vw);
+  font-size: 1.1vw;
+
+  &.lost {
+    color: var(--color-display-muted);
+
+    .names {
+      font-weight: 600;
+    }
   }
 }
 
-.countdown-sub {
-  font-size: 1.3vw;
-  color: var(--color-display-muted);
-  text-align: center;
+.result-icon {
+  flex: none;
+  width: 1.2vw;
+  display: inline-flex;
+  font-size: 1.1vw;
+}
+
+.result-side .who {
+  flex: 1;
+}
+
+.sets {
+  @include row(0.5vw);
+  flex: none;
+  font: 700 1.2vw var(--font-mono);
+}
+
+.set {
+  min-width: 1.8vw;
+  text-align: right;
+}
+
+.wo {
+  color: #e0675e;
 }
 
 // Full-screen toggle: hidden from the hall, it shows while the mouse moves.

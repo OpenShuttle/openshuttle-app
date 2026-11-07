@@ -40,6 +40,7 @@
           "complete": false,
           "routed": 0,
           "canFill": false,
+          "displayed": true,
           "pools": [
             {
               "index": 0,
@@ -226,7 +227,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-A2",
@@ -301,7 +305,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-A3",
@@ -372,7 +379,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-A4",
@@ -443,7 +453,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-A5",
@@ -503,7 +516,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-A6",
@@ -563,7 +579,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 }
               ]
             },
@@ -752,7 +771,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-B2",
@@ -823,7 +845,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-B3",
@@ -898,7 +923,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-B4",
@@ -969,7 +997,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-B5",
@@ -1029,7 +1060,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-B6",
@@ -1089,7 +1123,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 }
               ]
             },
@@ -1278,7 +1315,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-C2",
@@ -1353,7 +1393,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-C3",
@@ -1424,7 +1467,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-C4",
@@ -1495,7 +1541,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-C5",
@@ -1555,7 +1604,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "MD-C6",
@@ -1615,7 +1667,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 }
               ]
             }
@@ -1644,6 +1699,7 @@
           "complete": false,
           "routed": 6,
           "canFill": false,
+          "displayed": true,
           "pools": [],
           "slots": [],
           "origins": {},
@@ -1693,6 +1749,7 @@
           "complete": false,
           "routed": 0,
           "canFill": false,
+          "displayed": true,
           "pools": [
             {
               "index": 0,
@@ -1879,7 +1936,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-A2",
@@ -1954,7 +2014,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-A3",
@@ -2014,7 +2077,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-A4",
@@ -2074,7 +2140,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-A5",
@@ -2134,7 +2203,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-A6",
@@ -2194,7 +2266,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 }
               ]
             },
@@ -2372,7 +2447,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-B2",
@@ -2432,7 +2510,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-B3",
@@ -2492,7 +2573,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-B4",
@@ -2552,7 +2636,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-B5",
@@ -2612,7 +2699,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 },
                 {
                   "id": "WD-B6",
@@ -2672,7 +2762,10 @@
                   "byeA": false,
                   "byeB": false,
                   "walkoverA": false,
-                  "walkoverB": false
+                  "walkoverB": false,
+                  "letter": "",
+                  "fromA": null,
+                  "fromB": null
                 }
               ]
             }
@@ -2701,6 +2794,7 @@
           "complete": false,
           "routed": 4,
           "canFill": false,
+          "displayed": true,
           "pools": [],
           "slots": [],
           "origins": {},

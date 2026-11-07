@@ -51,7 +51,7 @@ func TestRoundsView(t *testing.T) {
 	if r == nil || r.Number != 1 || len(r.Matches) != 2 || !r.EndsAt.Equal(r.StartedAt.Add(10*time.Minute)) {
 		t.Fatalf("current = %+v", r)
 	}
-	if d := f.svc.GetDisplayView(); d.Round == nil || d.Round.Number != 1 || len(d.Calls) != 2 {
+	if d := f.svc.GetDisplayView(); d.Round == nil || d.Round.Number != 1 || len(d.Stages) != 1 {
 		t.Errorf("display = %+v", d)
 	}
 	if a := f.svc.GetTournamentView().LastAction; a.Type != "RoundStarted" || a.Params["count"] != "2" {

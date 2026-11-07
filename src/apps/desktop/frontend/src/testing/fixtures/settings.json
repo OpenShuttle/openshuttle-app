@@ -2,7 +2,7 @@
   "language": "",
   "operator": "",
   "monitor": "",
-  "rotationSeconds": 8,
+  "rotationSeconds": 30,
   "defaultCourts": 4,
   "defaultMinRest": 10,
   "defaultFormat": "b-pools",

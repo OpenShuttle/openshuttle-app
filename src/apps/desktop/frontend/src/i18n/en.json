@@ -126,7 +126,8 @@
     "BreakAdded": "Break added: {from}–{to}",
     "BreakRemoved": "Break removed: {from}–{to}",
     "GhostMatchAdded": "Ghost match added: court {court}, {minutes} min",
-    "GhostMatchRemoved": "Ghost match removed: court {court}, {minutes} min"
+    "GhostMatchRemoved": "Ghost match removed: court {court}, {minutes} min",
+    "StageDisplaySet": "{shown, select, true {Shown} other {Hidden}} on the display screen: {category} {stage}"
   },
   "historyShort": {
     "TournamentCreated": "tournament creation",
@@ -174,7 +175,8 @@
     "BreakAdded": "break {from}–{to}",
     "BreakRemoved": "break removal {from}–{to}",
     "GhostMatchAdded": "ghost match on court {court}",
-    "GhostMatchRemoved": "ghost match removal on court {court}"
+    "GhostMatchRemoved": "ghost match removal on court {court}",
+    "StageDisplaySet": "display of {category} {stage}"
   },
   "errors": {
     "INTERNAL": "Something went wrong. The action was not saved.",
@@ -268,28 +270,15 @@
     "monitor": "Monitor",
     "monitorAuto": "Automatic",
     "monitorLabel": "{name} ({width} × {height})",
-    "waiting": "Waiting for the first match call",
-    "standings": "standings",
+    "waiting": "No stage to show yet",
     "round": "Round {n}",
-    "roundPlaying": "{n, plural, one {# match} other {# matches}} on court",
     "endsIn": "Ends in",
-    "roundSub": "All courts finish together.",
-    "waitWhistle": "Waiting for the whistle.",
-    "call": "Call",
-    "calledAt": "called at {time}",
-    "previous": "Previous calls",
-    "tile": {
-      "playing": "Playing",
-      "finished": "Match over",
-      "free": "Free"
-    },
-    "minutes": "{n} min",
-    "soon": "Next: {names}",
-    "against": "against {names}",
     "rank": "Rank",
     "points": "Points",
     "openTitle": "Open the display screen",
-    "closeTitle": "Close the display screen"
+    "closeTitle": "Close the display screen",
+    "results": "Latest results",
+    "noResults": "No results yet"
   },
   "settings": {
     "language": "Language"
@@ -692,7 +681,9 @@
     "callAnyway": "Call anyway",
     "unrestedAlert": "{n, plural, one {Court {courts}: the next match} other {Courts {courts}: the next matches}} would start before the {rest} min of rest. Call anyway, or change the order in the schedule.",
     "openSchedule": "Open the schedule",
-    "offCourt": "Court rules keep this match off court {court}: calling it there is allowed."
+    "offCourt": "Court rules keep this match off court {court}: calling it there is allowed.",
+    "search": "Search a player, a club…",
+    "noMatchFound": "No match found."
   },
   "priority": {
     "balanced": "Balanced",
@@ -758,7 +749,9 @@
     "playedOf": "{n} / {total} played",
     "rankShort": "Rk",
     "pointsShort": "Pts",
-    "onCourt": "Court {n} · playing"
+    "onCourt": "Court {n} · playing",
+    "displayed": "Display screen",
+    "displayedHint": "Show this stage on the display screen while it is played"
   },
   "round": {
     "final": "Final",
@@ -830,8 +823,8 @@
     "lead": "Saved on this PC, for every tournament.",
     "languageHint": "Labels follow the glossary, in English and French.",
     "displayScreen": "Display screen",
-    "rotation": "Rotation between pools and brackets",
-    "rotationHint": "How long each standings view stays on screen.",
+    "rotation": "Time per stage on the display screen",
+    "rotationHint": "Stages being played take turns; a long one scrolls slowly to its end first.",
     "seconds": "{n} s",
     "operator": "Operator name",
     "operatorHint": "Shown in the history, with every action.",
@@ -1109,5 +1102,11 @@
     "fullscreen": "Full screen",
     "exitFullscreen": "Exit full screen",
     "guide": "Guide: a tournament in 10 steps (opens the website)"
+  },
+  "bracket": {
+    "winnerOf": "Winner {match}",
+    "loserOf": "Loser {match}",
+    "won": "Won",
+    "lost": "Lost"
   }
 }

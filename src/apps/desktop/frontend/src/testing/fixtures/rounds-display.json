@@ -6,494 +6,6 @@
       "slot": 1
     }
   ],
-  "calls": [
-    {
-      "id": "XD-A1",
-      "category": "XD",
-      "slot": 1,
-      "pool": "A",
-      "round": 1,
-      "a": {
-        "entrant": "e4",
-        "bib": 5,
-        "names": [
-          "Paul Masson",
-          "Jules Gauthier"
-        ],
-        "clubs": [
-          "BC Rive Droite"
-        ],
-        "clubNames": [
-          "BC Rive Droite"
-        ],
-        "withdrawn": false
-      },
-      "b": {
-        "entrant": "e5",
-        "bib": 7,
-        "names": [
-          "Louis Lopez",
-          "Théo Simon"
-        ],
-        "clubs": [
-          "Plumes du Lac"
-        ],
-        "clubNames": [
-          "Plumes du Lac"
-        ],
-        "withdrawn": false
-      },
-      "court": 1,
-      "calledAt": "2026-10-17T09:00:24Z",
-      "endedAt": null,
-      "score": null,
-      "walkover": false,
-      "win": {
-        "kind": "timed",
-        "minutes": 10
-      },
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "color": 1,
-      "placeFrom": 0,
-      "placeTo": 0,
-      "roundSize": 0,
-      "byeA": false,
-      "byeB": false,
-      "walkoverA": false,
-      "walkoverB": false
-    },
-    {
-      "id": "XD-A2",
-      "category": "XD",
-      "slot": 1,
-      "pool": "A",
-      "round": 1,
-      "a": {
-        "entrant": "e7",
-        "bib": 6,
-        "names": [
-          "Victor Moreau",
-          "Kevin Henry"
-        ],
-        "clubs": [
-          "Volant des Monts"
-        ],
-        "clubNames": [
-          "Volant des Monts"
-        ],
-        "withdrawn": false
-      },
-      "b": {
-        "entrant": "e6",
-        "bib": 8,
-        "names": [
-          "Nathan Brun",
-          "Simon Fournier"
-        ],
-        "clubs": [
-          "AS Belvédère"
-        ],
-        "clubNames": [
-          "AS Belvédère"
-        ],
-        "withdrawn": false
-      },
-      "court": 2,
-      "calledAt": "2026-10-17T09:00:24Z",
-      "endedAt": null,
-      "score": null,
-      "walkover": false,
-      "win": {
-        "kind": "timed",
-        "minutes": 10
-      },
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "color": 1,
-      "placeFrom": 0,
-      "placeTo": 0,
-      "roundSize": 0,
-      "byeA": false,
-      "byeB": false,
-      "walkoverA": false,
-      "walkoverB": false
-    },
-    {
-      "id": "XD-B1",
-      "category": "XD",
-      "slot": 1,
-      "pool": "B",
-      "round": 1,
-      "a": {
-        "entrant": "e9",
-        "bib": 3,
-        "names": [
-          "Lucas Lopez",
-          "Hugo Simon"
-        ],
-        "clubs": [
-          "Plumes du Lac"
-        ],
-        "clubNames": [
-          "Plumes du Lac"
-        ],
-        "withdrawn": false
-      },
-      "b": {
-        "entrant": "e10",
-        "bib": 4,
-        "names": [
-          "Paul Brun",
-          "Jules Fournier"
-        ],
-        "clubs": [
-          "AS Belvédère"
-        ],
-        "clubNames": [
-          "AS Belvédère"
-        ],
-        "withdrawn": false
-      },
-      "court": 3,
-      "calledAt": "2026-10-17T09:00:24Z",
-      "endedAt": null,
-      "score": null,
-      "walkover": false,
-      "win": {
-        "kind": "timed",
-        "minutes": 10
-      },
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "color": 2,
-      "placeFrom": 0,
-      "placeTo": 0,
-      "roundSize": 0,
-      "byeA": false,
-      "byeB": false,
-      "walkoverA": false,
-      "walkoverB": false
-    },
-    {
-      "id": "XD-B2",
-      "category": "XD",
-      "slot": 1,
-      "pool": "B",
-      "round": 1,
-      "a": {
-        "entrant": "e8",
-        "bib": 1,
-        "names": [
-          "Mathis Morin",
-          "Félix Laurent"
-        ],
-        "clubs": [
-          "BC Rive Droite"
-        ],
-        "clubNames": [
-          "BC Rive Droite"
-        ],
-        "withdrawn": false
-      },
-      "b": {
-        "entrant": "e3",
-        "bib": 2,
-        "names": [
-          "Lucas Perrin",
-          "Hugo Mathieu"
-        ],
-        "clubs": [
-          "Volant des Monts"
-        ],
-        "clubNames": [
-          "Volant des Monts"
-        ],
-        "withdrawn": false
-      },
-      "court": 4,
-      "calledAt": "2026-10-17T09:00:24Z",
-      "endedAt": null,
-      "score": null,
-      "walkover": false,
-      "win": {
-        "kind": "timed",
-        "minutes": 10
-      },
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "color": 2,
-      "placeFrom": 0,
-      "placeTo": 0,
-      "roundSize": 0,
-      "byeA": false,
-      "byeB": false,
-      "walkoverA": false,
-      "walkoverB": false
-    }
-  ],
-  "courts": [
-    {
-      "number": 1,
-      "state": "playing",
-      "match": {
-        "id": "XD-A1",
-        "category": "XD",
-        "slot": 1,
-        "pool": "A",
-        "round": 1,
-        "a": {
-          "entrant": "e4",
-          "bib": 5,
-          "names": [
-            "Paul Masson",
-            "Jules Gauthier"
-          ],
-          "clubs": [
-            "BC Rive Droite"
-          ],
-          "clubNames": [
-            "BC Rive Droite"
-          ],
-          "withdrawn": false
-        },
-        "b": {
-          "entrant": "e5",
-          "bib": 7,
-          "names": [
-            "Louis Lopez",
-            "Théo Simon"
-          ],
-          "clubs": [
-            "Plumes du Lac"
-          ],
-          "clubNames": [
-            "Plumes du Lac"
-          ],
-          "withdrawn": false
-        },
-        "court": 1,
-        "calledAt": "2026-10-17T09:00:24Z",
-        "endedAt": null,
-        "score": null,
-        "walkover": false,
-        "win": {
-          "kind": "timed",
-          "minutes": 10
-        },
-        "stage": "S1",
-        "stageName": "",
-        "stageKind": "pools",
-        "entryStage": true,
-        "color": 1,
-        "placeFrom": 0,
-        "placeTo": 0,
-        "roundSize": 0,
-        "byeA": false,
-        "byeB": false,
-        "walkoverA": false,
-        "walkoverB": false
-      },
-      "proposal": null
-    },
-    {
-      "number": 2,
-      "state": "playing",
-      "match": {
-        "id": "XD-A2",
-        "category": "XD",
-        "slot": 1,
-        "pool": "A",
-        "round": 1,
-        "a": {
-          "entrant": "e7",
-          "bib": 6,
-          "names": [
-            "Victor Moreau",
-            "Kevin Henry"
-          ],
-          "clubs": [
-            "Volant des Monts"
-          ],
-          "clubNames": [
-            "Volant des Monts"
-          ],
-          "withdrawn": false
-        },
-        "b": {
-          "entrant": "e6",
-          "bib": 8,
-          "names": [
-            "Nathan Brun",
-            "Simon Fournier"
-          ],
-          "clubs": [
-            "AS Belvédère"
-          ],
-          "clubNames": [
-            "AS Belvédère"
-          ],
-          "withdrawn": false
-        },
-        "court": 2,
-        "calledAt": "2026-10-17T09:00:24Z",
-        "endedAt": null,
-        "score": null,
-        "walkover": false,
-        "win": {
-          "kind": "timed",
-          "minutes": 10
-        },
-        "stage": "S1",
-        "stageName": "",
-        "stageKind": "pools",
-        "entryStage": true,
-        "color": 1,
-        "placeFrom": 0,
-        "placeTo": 0,
-        "roundSize": 0,
-        "byeA": false,
-        "byeB": false,
-        "walkoverA": false,
-        "walkoverB": false
-      },
-      "proposal": null
-    },
-    {
-      "number": 3,
-      "state": "playing",
-      "match": {
-        "id": "XD-B1",
-        "category": "XD",
-        "slot": 1,
-        "pool": "B",
-        "round": 1,
-        "a": {
-          "entrant": "e9",
-          "bib": 3,
-          "names": [
-            "Lucas Lopez",
-            "Hugo Simon"
-          ],
-          "clubs": [
-            "Plumes du Lac"
-          ],
-          "clubNames": [
-            "Plumes du Lac"
-          ],
-          "withdrawn": false
-        },
-        "b": {
-          "entrant": "e10",
-          "bib": 4,
-          "names": [
-            "Paul Brun",
-            "Jules Fournier"
-          ],
-          "clubs": [
-            "AS Belvédère"
-          ],
-          "clubNames": [
-            "AS Belvédère"
-          ],
-          "withdrawn": false
-        },
-        "court": 3,
-        "calledAt": "2026-10-17T09:00:24Z",
-        "endedAt": null,
-        "score": null,
-        "walkover": false,
-        "win": {
-          "kind": "timed",
-          "minutes": 10
-        },
-        "stage": "S1",
-        "stageName": "",
-        "stageKind": "pools",
-        "entryStage": true,
-        "color": 2,
-        "placeFrom": 0,
-        "placeTo": 0,
-        "roundSize": 0,
-        "byeA": false,
-        "byeB": false,
-        "walkoverA": false,
-        "walkoverB": false
-      },
-      "proposal": null
-    },
-    {
-      "number": 4,
-      "state": "playing",
-      "match": {
-        "id": "XD-B2",
-        "category": "XD",
-        "slot": 1,
-        "pool": "B",
-        "round": 1,
-        "a": {
-          "entrant": "e8",
-          "bib": 1,
-          "names": [
-            "Mathis Morin",
-            "Félix Laurent"
-          ],
-          "clubs": [
-            "BC Rive Droite"
-          ],
-          "clubNames": [
-            "BC Rive Droite"
-          ],
-          "withdrawn": false
-        },
-        "b": {
-          "entrant": "e3",
-          "bib": 2,
-          "names": [
-            "Lucas Perrin",
-            "Hugo Mathieu"
-          ],
-          "clubs": [
-            "Volant des Monts"
-          ],
-          "clubNames": [
-            "Volant des Monts"
-          ],
-          "withdrawn": false
-        },
-        "court": 4,
-        "calledAt": "2026-10-17T09:00:24Z",
-        "endedAt": null,
-        "score": null,
-        "walkover": false,
-        "win": {
-          "kind": "timed",
-          "minutes": 10
-        },
-        "stage": "S1",
-        "stageName": "",
-        "stageKind": "pools",
-        "entryStage": true,
-        "color": 2,
-        "placeFrom": 0,
-        "placeTo": 0,
-        "roundSize": 0,
-        "byeA": false,
-        "byeB": false,
-        "walkoverA": false,
-        "walkoverB": false
-      },
-      "proposal": null
-    }
-  ],
   "round": {
     "number": 1,
     "minutes": 10,
@@ -556,7 +68,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       {
         "id": "XD-A2",
@@ -614,7 +129,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       {
         "id": "XD-B1",
@@ -672,7 +190,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       {
         "id": "XD-B2",
@@ -730,250 +251,1016 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       }
     ]
   },
-  "boards": [
+  "stages": [
     {
       "category": "XD",
       "slot": 1,
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "pool": "A",
-      "standings": [
+      "id": "S1",
+      "name": "",
+      "kind": "pools",
+      "win": {
+        "kind": "timed",
+        "minutes": 10
+      },
+      "tiebreaks": [
+        "wins",
+        "headToHead",
+        "setDifference",
+        "pointDifference",
+        "draw"
+      ],
+      "crossPool": "sameMatches",
+      "phase": 1,
+      "entry": true,
+      "confirmed": true,
+      "started": true,
+      "complete": false,
+      "routed": 0,
+      "canFill": false,
+      "displayed": true,
+      "pools": [
         {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e4",
-            "bib": 5,
-            "names": [
-              "Paul Masson",
-              "Jules Gauthier"
-            ],
-            "clubs": [
-              "BC Rive Droite"
-            ],
-            "clubNames": [
-              "BC Rive Droite"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
+          "index": 0,
+          "name": "A",
+          "complete": false,
+          "drawNeeded": false,
+          "standings": [
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e4",
+                "bib": 5,
+                "names": [
+                  "Paul Masson",
+                  "Jules Gauthier"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e7",
+                "bib": 6,
+                "names": [
+                  "Victor Moreau",
+                  "Kevin Henry"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e6",
+                "bib": 8,
+                "names": [
+                  "Nathan Brun",
+                  "Simon Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e5",
+                "bib": 7,
+                "names": [
+                  "Louis Lopez",
+                  "Théo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            }
+          ],
+          "matches": [
+            {
+              "id": "XD-A1",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 1,
+              "a": {
+                "entrant": "e4",
+                "bib": 5,
+                "names": [
+                  "Paul Masson",
+                  "Jules Gauthier"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e5",
+                "bib": 7,
+                "names": [
+                  "Louis Lopez",
+                  "Théo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "court": 1,
+              "calledAt": "2026-10-17T09:00:24Z",
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-A2",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 1,
+              "a": {
+                "entrant": "e7",
+                "bib": 6,
+                "names": [
+                  "Victor Moreau",
+                  "Kevin Henry"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e6",
+                "bib": 8,
+                "names": [
+                  "Nathan Brun",
+                  "Simon Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "court": 2,
+              "calledAt": "2026-10-17T09:00:24Z",
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-A3",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 2,
+              "a": {
+                "entrant": "e4",
+                "bib": 5,
+                "names": [
+                  "Paul Masson",
+                  "Jules Gauthier"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e6",
+                "bib": 8,
+                "names": [
+                  "Nathan Brun",
+                  "Simon Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-A4",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 2,
+              "a": {
+                "entrant": "e7",
+                "bib": 6,
+                "names": [
+                  "Victor Moreau",
+                  "Kevin Henry"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e5",
+                "bib": 7,
+                "names": [
+                  "Louis Lopez",
+                  "Théo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-A5",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 3,
+              "a": {
+                "entrant": "e4",
+                "bib": 5,
+                "names": [
+                  "Paul Masson",
+                  "Jules Gauthier"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e7",
+                "bib": 6,
+                "names": [
+                  "Victor Moreau",
+                  "Kevin Henry"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-A6",
+              "category": "XD",
+              "slot": 1,
+              "pool": "A",
+              "round": 3,
+              "a": {
+                "entrant": "e6",
+                "bib": 8,
+                "names": [
+                  "Nathan Brun",
+                  "Simon Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e5",
+                "bib": 7,
+                "names": [
+                  "Louis Lopez",
+                  "Théo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 1,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            }
+          ]
         },
         {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e7",
-            "bib": 6,
-            "names": [
-              "Victor Moreau",
-              "Kevin Henry"
-            ],
-            "clubs": [
-              "Volant des Monts"
-            ],
-            "clubNames": [
-              "Volant des Monts"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        },
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e6",
-            "bib": 8,
-            "names": [
-              "Nathan Brun",
-              "Simon Fournier"
-            ],
-            "clubs": [
-              "AS Belvédère"
-            ],
-            "clubNames": [
-              "AS Belvédère"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        },
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e5",
-            "bib": 7,
-            "names": [
-              "Louis Lopez",
-              "Théo Simon"
-            ],
-            "clubs": [
-              "Plumes du Lac"
-            ],
-            "clubNames": [
-              "Plumes du Lac"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
+          "index": 1,
+          "name": "B",
+          "complete": false,
+          "drawNeeded": false,
+          "standings": [
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e9",
+                "bib": 3,
+                "names": [
+                  "Lucas Lopez",
+                  "Hugo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e8",
+                "bib": 1,
+                "names": [
+                  "Mathis Morin",
+                  "Félix Laurent"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e3",
+                "bib": 2,
+                "names": [
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            },
+            {
+              "rank": 1,
+              "entrant": {
+                "entrant": "e10",
+                "bib": 4,
+                "names": [
+                  "Paul Brun",
+                  "Jules Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "played": 0,
+              "wins": 0,
+              "losses": 0,
+              "setsWon": 0,
+              "setsLost": 0,
+              "pointsWon": 0,
+              "pointsLost": 0,
+              "withdrawn": false,
+              "drawNeeded": false
+            }
+          ],
+          "matches": [
+            {
+              "id": "XD-B1",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 1,
+              "a": {
+                "entrant": "e9",
+                "bib": 3,
+                "names": [
+                  "Lucas Lopez",
+                  "Hugo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e10",
+                "bib": 4,
+                "names": [
+                  "Paul Brun",
+                  "Jules Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "court": 3,
+              "calledAt": "2026-10-17T09:00:24Z",
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-B2",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 1,
+              "a": {
+                "entrant": "e8",
+                "bib": 1,
+                "names": [
+                  "Mathis Morin",
+                  "Félix Laurent"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e3",
+                "bib": 2,
+                "names": [
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "court": 4,
+              "calledAt": "2026-10-17T09:00:24Z",
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-B3",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 2,
+              "a": {
+                "entrant": "e9",
+                "bib": 3,
+                "names": [
+                  "Lucas Lopez",
+                  "Hugo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e3",
+                "bib": 2,
+                "names": [
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-B4",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 2,
+              "a": {
+                "entrant": "e8",
+                "bib": 1,
+                "names": [
+                  "Mathis Morin",
+                  "Félix Laurent"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e10",
+                "bib": 4,
+                "names": [
+                  "Paul Brun",
+                  "Jules Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-B5",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 3,
+              "a": {
+                "entrant": "e9",
+                "bib": 3,
+                "names": [
+                  "Lucas Lopez",
+                  "Hugo Simon"
+                ],
+                "clubs": [
+                  "Plumes du Lac"
+                ],
+                "clubNames": [
+                  "Plumes du Lac"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e8",
+                "bib": 1,
+                "names": [
+                  "Mathis Morin",
+                  "Félix Laurent"
+                ],
+                "clubs": [
+                  "BC Rive Droite"
+                ],
+                "clubNames": [
+                  "BC Rive Droite"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            },
+            {
+              "id": "XD-B6",
+              "category": "XD",
+              "slot": 1,
+              "pool": "B",
+              "round": 3,
+              "a": {
+                "entrant": "e3",
+                "bib": 2,
+                "names": [
+                  "Lucas Perrin",
+                  "Hugo Mathieu"
+                ],
+                "clubs": [
+                  "Volant des Monts"
+                ],
+                "clubNames": [
+                  "Volant des Monts"
+                ],
+                "withdrawn": false
+              },
+              "b": {
+                "entrant": "e10",
+                "bib": 4,
+                "names": [
+                  "Paul Brun",
+                  "Jules Fournier"
+                ],
+                "clubs": [
+                  "AS Belvédère"
+                ],
+                "clubNames": [
+                  "AS Belvédère"
+                ],
+                "withdrawn": false
+              },
+              "court": 0,
+              "calledAt": null,
+              "endedAt": null,
+              "score": null,
+              "walkover": false,
+              "win": {
+                "kind": "timed",
+                "minutes": 10
+              },
+              "stage": "S1",
+              "stageName": "",
+              "stageKind": "pools",
+              "entryStage": true,
+              "color": 2,
+              "placeFrom": 0,
+              "placeTo": 0,
+              "roundSize": 0,
+              "byeA": false,
+              "byeB": false,
+              "walkoverA": false,
+              "walkoverB": false,
+              "letter": "",
+              "fromA": null,
+              "fromB": null
+            }
+          ]
         }
       ],
-      "matches": []
-    },
-    {
-      "category": "XD",
-      "slot": 1,
-      "stage": "S1",
-      "stageName": "",
-      "stageKind": "pools",
-      "entryStage": true,
-      "pool": "B",
-      "standings": [
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e9",
-            "bib": 3,
-            "names": [
-              "Lucas Lopez",
-              "Hugo Simon"
-            ],
-            "clubs": [
-              "Plumes du Lac"
-            ],
-            "clubNames": [
-              "Plumes du Lac"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        },
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e8",
-            "bib": 1,
-            "names": [
-              "Mathis Morin",
-              "Félix Laurent"
-            ],
-            "clubs": [
-              "BC Rive Droite"
-            ],
-            "clubNames": [
-              "BC Rive Droite"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        },
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e3",
-            "bib": 2,
-            "names": [
-              "Lucas Perrin",
-              "Hugo Mathieu"
-            ],
-            "clubs": [
-              "Volant des Monts"
-            ],
-            "clubNames": [
-              "Volant des Monts"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        },
-        {
-          "rank": 1,
-          "entrant": {
-            "entrant": "e10",
-            "bib": 4,
-            "names": [
-              "Paul Brun",
-              "Jules Fournier"
-            ],
-            "clubs": [
-              "AS Belvédère"
-            ],
-            "clubNames": [
-              "AS Belvédère"
-            ],
-            "withdrawn": false
-          },
-          "played": 0,
-          "wins": 0,
-          "losses": 0,
-          "setsWon": 0,
-          "setsLost": 0,
-          "pointsWon": 0,
-          "pointsLost": 0,
-          "withdrawn": false,
-          "drawNeeded": false
-        }
-      ],
-      "matches": []
+      "slots": [],
+      "origins": {},
+      "originColors": {},
+      "rounds": [],
+      "places": []
     }
-  ]
+  ],
+  "results": []
 }

@@ -62,6 +62,8 @@ type StagePhase struct {
 	Routed int `json:"routed"`
 	// CanFill is set for a later stage whose feeding stages are over.
 	CanFill bool `json:"canFill"`
+	// Displayed: the display screen may show the stage (the desk hides it).
+	Displayed bool `json:"displayed"`
 	// Pools stages.
 	Pools []PoolPhase `json:"pools"`
 	// Bracket stages: first-round slots (byes have an empty entrant), rounds
@@ -115,6 +117,11 @@ func (s *TournamentService) SwapMatches(ctx context.Context, a, b tournament.Mat
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SwapMatches(a, b) })
 }
 
+// SetStageDisplay shows or hides a stage on the display screen.
+func (s *TournamentService) SetStageDisplay(ctx context.Context, c engine.Category, stage string, shown bool) error {
+	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.SetStageDisplay(c, stage, shown) })
+}
+
 // DrawLots breaks the remaining ties of a complete pool by lot.
 func (s *TournamentService) DrawLots(ctx context.Context, c engine.Category, stage string, pool int) error {
 	return s.execute(ctx, func(st tournament.State) (tournament.Change, error) { return st.DrawLots(c, stage, pool, s.rng()) })
@@ -144,7 +151,8 @@ func (s *TournamentService) stagePhase(st tournament.State, c engine.Category, s
 	sp := StagePhase{
 		StageConfig: stage.StageConfig, Phase: st.Phase(c, stage.ID), Entry: entry,
 		Confirmed: stage.Confirmed, Started: st.StageStarted(c, stage.ID), Complete: st.StageComplete(c, stage.ID),
-		Pools: []PoolPhase{}, Slots: []SideView{}, Origins: map[engine.EntrantID]string{}, OriginColors: map[engine.EntrantID]int{}, Rounds: []RoundView{}, Places: []PlaceView{},
+		Displayed: st.ShownOnDisplay(c, stage.ID),
+		Pools:     []PoolPhase{}, Slots: []SideView{}, Origins: map[engine.EntrantID]string{}, OriginColors: map[engine.EntrantID]int{}, Rounds: []RoundView{}, Places: []PlaceView{},
 	}
 	if sp.Routing == nil {
 		sp.Routing = []tournament.RouteRule{}

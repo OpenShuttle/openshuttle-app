@@ -165,7 +165,7 @@ export interface TreeGeometry {
 }
 
 export function treeGeometry(correction: boolean, titled = false): TreeGeometry {
-  return { cardW: 250, cardH: correction ? 152 : 110, colGap: 64, rowGap: 18, head: titled ? 58 : 34, title: 22 };
+  return { cardW: 250, cardH: correction ? 166 : 124, colGap: 64, rowGap: 18, head: titled ? 58 : 34, title: 22 };
 }
 
 export function cardLeft(g: TreeGeometry, col: number): number {

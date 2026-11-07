@@ -167,8 +167,14 @@
                   {{ t('category.short.' + m.category) }} · <app-match-stage [match]="m" /> ·
                   {{ t('desk.endedMinutesAgo', { time: time(m.endedAt), minutes: minutesSince(m.endedAt) }) }}
                 </span>
-                <span class="pending-side">{{ m.a | withBib }}</span>
-                <span class="pending-side">{{ m.b | withBib }}</span>
+                @for (sd of [m.a, m.b]; track $index) {
+                  <span class="pending-side">
+                    {{ sd | withBib }}
+                    @if (clubs(sd); as cl) {
+                      <span class="pending-club">· {{ cl }}</span>
+                    }
+                  </span>
+                }
               </span>
               <span class="pending-cta">{{ t('desk.enter') }}</span>
             </button>
@@ -181,8 +187,8 @@
           <h2>{{ t('desk.nextMatches') }}</h2>
           <span class="aside-count muted">{{ t('desk.inQueue', { n: queue().length }) }}</span>
         </div>
-        @if ((view().categories ?? []).length > 1) {
-          <div class="queue-filter">
+        <div class="queue-filter">
+          @if ((view().categories ?? []).length > 1) {
             <div class="seg seg-sm">
               <button type="button" class="seg-option" [class.active]="queueFilter() === 'all'" (click)="setQueueFilter('all')">
                 {{ t('desk.all') }}
@@ -193,8 +199,16 @@
                 </button>
               }
             </div>
-          </div>
-        }
+          }
+          <input
+            type="search"
+            class="input queue-search"
+            [value]="search()"
+            [placeholder]="t('desk.search')"
+            [attr.aria-label]="t('desk.search')"
+            (input)="setSearch($event)"
+          />
+        </div>
         @for (q of queue().slice(0, 30); track q.match.id) {
           <div class="queue-item">
             <div class="queue-top">
@@ -218,8 +232,15 @@
                 </button>
               }
             </div>
-            <span class="queue-side"><span class="bib bib-sm">{{ q.match.a.bib }}</span><span class="queue-names">{{ short(q.match.a) }}</span></span>
-            <span class="queue-side"><span class="bib bib-sm">{{ q.match.b.bib }}</span><span class="queue-names">{{ short(q.match.b) }}</span></span>
+            @for (sd of [q.match.a, q.match.b]; track $index) {
+              <span class="queue-side">
+                <span class="bib bib-sm">{{ sd.bib }}</span>
+                <span class="queue-names">{{ short(sd) }}</span>
+                @if (clubs(sd); as cl) {
+                  <span class="queue-club">{{ cl }}</span>
+                }
+              </span>
+            }
             @if (q.reason !== 'playing' && !view().rounds.active) {
               @if (launching() === q.match.id) {
                 <div class="launch">
@@ -253,7 +274,7 @@
             }
           </div>
         } @empty {
-          <p class="aside-empty">{{ t('desk.queueEmpty') }}</p>
+          <p class="aside-empty">{{ t(search() ? 'desk.noMatchFound' : 'desk.queueEmpty') }}</p>
         }
       </div>
 

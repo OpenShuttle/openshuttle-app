@@ -73,6 +73,13 @@ func (s *TournamentService) describe(e events.Event) *ActionView {
 		}
 	case tournament.TypeEntrantWithdrawn, tournament.TypeEntrantReinstated:
 		v.Params["names"] = s.entrantNamesAt(p.Entrant, e.Seq)
+	case tournament.TypeStageDisplaySet:
+		var d tournament.StageDisplaySet
+		if e.Decode(&d) == nil {
+			v.Params["category"] = string(d.Category)
+			v.Params["stage"] = s.stageNameAt(d.Category, d.Stage, e.Seq)
+			v.Params["shown"] = strconv.FormatBool(!d.Hidden)
+		}
 	case tournament.TypeStageFilled, tournament.TypeSlotsSwapped:
 		v.Params["category"] = string(p.Category)
 		v.Params["stage"] = s.stageNameAt(p.Category, p.Stage, e.Seq)

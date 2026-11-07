@@ -142,7 +142,7 @@ func wantCode(t *testing.T, err error, code engine.Code) {
 func TestSettings(t *testing.T) {
 	f := newBareFixture(t)
 	s, err := f.settings.GetSettings(f.ctx)
-	if err != nil || s.Language != "" || s.RotationSeconds != 8 || s.DefaultCourts != 4 ||
+	if err != nil || s.Language != "" || s.RotationSeconds != 30 || s.DefaultCourts != 4 ||
 		s.DefaultMinRest != 10 || s.TournamentsDir == "" ||
 		s.DefaultFormat != "b-pools" || s.DefaultWin != "b-sets-2x15" || s.DefaultTiebreaks != "b-standard" {
 		t.Fatalf("default settings = %+v, %v", s, err)
@@ -163,7 +163,7 @@ func TestSettings(t *testing.T) {
 	}
 	must(f.settings.SetOperator(f.ctx, "  Julie   M. "))
 	must(f.settings.SetMonitor(f.ctx, "HDMI-1"))
-	must(f.settings.SetRotationSeconds(f.ctx, 12))
+	must(f.settings.SetRotationSeconds(f.ctx, 45))
 	must(f.settings.SetDefaultCourts(f.ctx, 6))
 	must(f.settings.SetDefaultMinRest(f.ctx, 0))
 	must(f.settings.SetDefaultPreset(f.ctx, PresetKindFormat, "b-pools-main"))
@@ -176,7 +176,7 @@ func TestSettings(t *testing.T) {
 	}
 	must(f.settings.SetShowBibs(f.ctx, true))
 	wantCode(t, f.settings.SetClubDisplay(f.ctx, "logo"), engine.CodeInvalidSetting)
-	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 3), engine.CodeInvalidSetting)
+	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 9), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultMinRest(f.ctx, 61), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultPreset(f.ctx, "golf", "b-pools"), engine.CodeInvalidSetting)
@@ -191,7 +191,7 @@ func TestSettings(t *testing.T) {
 		t.Fatalf("folder = %q, %v", dir, err)
 	}
 	s, _ = f.settings.GetSettings(f.ctx)
-	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 12,
+	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 45,
 		DefaultCourts: 6, DefaultMinRest: 0, TournamentsDir: f.dir,
 		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first",
 		ClubDisplay: tournament.ClubDisplayAcronym, CheckUpdates: false, ShowBibs: true}

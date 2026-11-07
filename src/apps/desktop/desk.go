@@ -54,6 +54,23 @@ type MatchView struct {
 	// WalkoverA and WalkoverB tell which side forfeited (both can have).
 	WalkoverA bool `json:"walkoverA"`
 	WalkoverB bool `json:"walkoverB"`
+	// Bracket matches: Letter names the match within its round of its part
+	// of the bracket ("QF A"), empty when it plays alone there; FromA and
+	// FromB the matches whose winner or loser takes each side, nil in the
+	// first round.
+	Letter string       `json:"letter"`
+	FromA  *MatchSource `json:"fromA"`
+	FromB  *MatchSource `json:"fromB"`
+}
+
+// MatchSource names the bracket match a side comes from, as its winner or
+// its loser: "winner of QF A".
+type MatchSource struct {
+	Loser     bool   `json:"loser"`
+	PlaceFrom int    `json:"placeFrom"`
+	PlaceTo   int    `json:"placeTo"`
+	RoundSize int    `json:"roundSize"`
+	Letter    string `json:"letter"`
 }
 
 // CourtView is a court card: its match and the next match proposed.
@@ -244,6 +261,14 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 	}
 	side := sideViewer(st)
 	styles := st.GroupStyles()
+	names := st.BracketNames()
+	source := func(src *tournament.MatchSource) *MatchSource {
+		if src == nil {
+			return nil
+		}
+		m := src.Match
+		return &MatchSource{Loser: src.Loser, PlaceFrom: m.Start, PlaceTo: m.Start + m.Size - 1, RoundSize: m.Size, Letter: names.Letter(m.ID)}
+	}
 	return func(m tournament.Match) MatchView {
 		v := MatchView{
 			ID: m.ID, CategoryRef: CategoryRef{m.Category, slots[m.Category]},
@@ -260,6 +285,9 @@ func (s *TournamentService) matchViewer(st tournament.State) func(tournament.Mat
 			v.Pool, v.Round = "", 0
 			v.PlaceFrom, v.PlaceTo, v.RoundSize = m.Start, m.Start+m.Size-1, m.Size
 			v.ByeA, v.ByeB = m.ByeA, m.ByeB
+			v.Letter = names.Letter(m.ID)
+			a, b := names.Sources(m)
+			v.FromA, v.FromB = source(a), source(b)
 		}
 		if m.Called() {
 			t := m.CalledAt

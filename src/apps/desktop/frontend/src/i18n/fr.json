@@ -126,7 +126,8 @@
     "BreakAdded": "Pause ajoutée : {from}–{to}",
     "BreakRemoved": "Pause supprimée : {from}–{to}",
     "GhostMatchAdded": "Match fantôme ajouté : terrain {court}, {minutes} min",
-    "GhostMatchRemoved": "Match fantôme supprimé : terrain {court}, {minutes} min"
+    "GhostMatchRemoved": "Match fantôme supprimé : terrain {court}, {minutes} min",
+    "StageDisplaySet": "{shown, select, true {Affichée} other {Masquée}} sur l'écran d'appel : {category} {stage}"
   },
   "historyShort": {
     "TournamentCreated": "création du tournoi",
@@ -174,7 +175,8 @@
     "BreakAdded": "pause {from}–{to}",
     "BreakRemoved": "suppression de la pause {from}–{to}",
     "GhostMatchAdded": "match fantôme sur le terrain {court}",
-    "GhostMatchRemoved": "suppression du match fantôme du terrain {court}"
+    "GhostMatchRemoved": "suppression du match fantôme du terrain {court}",
+    "StageDisplaySet": "affichage de {category} {stage}"
   },
   "errors": {
     "INTERNAL": "Une erreur est survenue. L'action n'a pas été enregistrée.",
@@ -268,28 +270,15 @@
     "monitor": "Moniteur",
     "monitorAuto": "Automatique",
     "monitorLabel": "{name} ({width} × {height})",
-    "waiting": "En attente du premier appel",
-    "standings": "classement",
+    "waiting": "Aucune phase à afficher pour l'instant",
     "round": "Rotation {n}",
-    "roundPlaying": "{n, plural, one {# match} other {# matchs}} en jeu",
     "endsIn": "Fin dans",
-    "roundSub": "Tous les terrains finissent ensemble.",
-    "waitWhistle": "En attente du coup de sifflet.",
-    "call": "Appel",
-    "calledAt": "appelé à {time}",
-    "previous": "Appels précédents",
-    "tile": {
-      "playing": "En cours",
-      "finished": "Fin du match",
-      "free": "Libre"
-    },
-    "minutes": "{n} min",
-    "soon": "Bientôt : {names}",
-    "against": "contre {names}",
     "rank": "Rang",
     "points": "Points",
     "openTitle": "Ouvrir l'écran d'appel",
-    "closeTitle": "Fermer l'écran d'appel"
+    "closeTitle": "Fermer l'écran d'appel",
+    "results": "Derniers résultats",
+    "noResults": "Aucun résultat pour l'instant"
   },
   "settings": {
     "language": "Langue"
@@ -493,7 +482,7 @@
     "phaseKind": "Phase {n} · {kind}",
     "phaseKindStarted": "Phase {n} · {kind} · lancée",
     "stageStartedHint": "Des matchs de cette phase ont commencé : son type, sa taille, sa condition de victoire et ses départages sont figés. Son nom, son routage et la durée estimée peuvent encore changer.",
-    "stageFilledHint": "Cette phase est remplie, mais aucun match n’a commencé. Changer son type, sa taille ou les rangs qui l’alimentent la vide : remplissez-la à nouveau depuis Phases.",
+    "stageFilledHint": "Cette phase est remplie, mais aucun match n'a commencé. Changer son type, sa taille ou les rangs qui l'alimentent la vide : remplissez-la à nouveau depuis Phases.",
     "phaseShort": "Phase {n}",
     "colPlaces": "Places",
     "kind": "Type",
@@ -692,7 +681,9 @@
     "callAnyway": "Lancer quand même",
     "unrestedAlert": "{n, plural, one {Terrain {courts} : le prochain match} other {Terrains {courts} : les prochains matchs}} démarreraient avant les {rest} min de repos. Lancez quand même, ou changez l'ordre dans l'échéancier.",
     "openSchedule": "Ouvrir l'échéancier",
-    "offCourt": "Les règles du terrain {court} écartent ce match : l'y appeler reste possible."
+    "offCourt": "Les règles du terrain {court} écartent ce match : l'y appeler reste possible.",
+    "search": "Rechercher un joueur, un club…",
+    "noMatchFound": "Aucun match ne correspond."
   },
   "priority": {
     "balanced": "Équilibrée",
@@ -758,7 +749,9 @@
     "playedOf": "{n} / {total} joués",
     "rankShort": "Rg",
     "pointsShort": "Pts",
-    "onCourt": "Terrain {n} · en jeu"
+    "onCourt": "Terrain {n} · en jeu",
+    "displayed": "Écran d'appel",
+    "displayedHint": "Afficher cette phase sur l'écran d'appel pendant qu'elle se joue"
   },
   "round": {
     "final": "Finale",
@@ -830,8 +823,8 @@
     "lead": "Enregistrés sur ce PC, pour tous les tournois.",
     "languageHint": "Les libellés suivent le glossaire, en français et en anglais.",
     "displayScreen": "Écran d'appel",
-    "rotation": "Rotation entre poules et tableaux",
-    "rotationHint": "Durée d'affichage de chaque classement.",
+    "rotation": "Durée par phase sur l'écran d'appel",
+    "rotationHint": "Les phases en cours s'affichent tour à tour ; une phase longue défile d'abord lentement jusqu'en bas.",
     "seconds": "{n} s",
     "operator": "Nom de l'opérateur",
     "operatorHint": "Affiché dans l'historique, à chaque action.",
@@ -1109,5 +1102,11 @@
     "fullscreen": "Plein écran",
     "exitFullscreen": "Quitter le plein écran",
     "guide": "Guide : un tournoi en 10 étapes (ouvre le site)"
+  },
+  "bracket": {
+    "winnerOf": "Vainqueur {match}",
+    "loserOf": "Perdant {match}",
+    "won": "Gagné",
+    "lost": "Perdu"
   }
 }
