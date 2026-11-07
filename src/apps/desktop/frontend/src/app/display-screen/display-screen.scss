@@ -11,7 +11,7 @@
 
 .screen {
   height: 100%;
-  padding: 1.2vw 1.4vw;
+  padding: 0.5vw;
 }
 
 .clock {
@@ -58,8 +58,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 22vw);
-  gap: 1.2vw;
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
   min-height: 0;
 }
@@ -89,8 +88,8 @@
 .stage {
   display: flex;
   flex-direction: column;
-  padding: 1vw 1.2vw;
-  gap: 0.6vw;
+  padding: 0.6vw 0.8vw;
+  gap: 0.4vw;
 }
 
 .stage-head {
@@ -136,6 +135,7 @@
 
 // Scrolled by the component, slowly, when taller than the screen.
 .stage-body {
+  position: relative; // the pool cards' offsets, for the page breaks
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -153,12 +153,12 @@
 .pools {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(22vw, 300px), 1fr));
-  gap: 0.8vw;
+  gap: 0.5vw;
 }
 
 .pool {
   @include stack(0.4vw);
-  padding: 0.7vw 0.9vw;
+  padding: 0.5vw 0.7vw;
   border: 1px solid var(--color-display-border);
   border-radius: 0.8vw;
 }
@@ -180,7 +180,8 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1.6vw minmax(0, 1fr) 1.8vw 2.6vw;
+  // Rank, team, played, wins, set and point differences.
+  grid-template-columns: 1.6vw minmax(0, 1fr) 1.4vw 1.4vw 2vw 2.6vw;
   gap: 0.6vw;
   align-items: center;
   border-top: 1px solid #262b36;
@@ -257,6 +258,7 @@
 // Bracket: the tree of the Stages screen, zoomed to the width of the screen.
 .tree-frame {
   position: relative;
+  margin: 0 auto;
 }
 
 .tree {
@@ -275,10 +277,10 @@
 .link {
   fill: none;
   stroke-width: 2;
-  opacity: 0.4;
 
+  // Read from afar: never dimmed, a played link only a little thicker.
   &.done {
-    opacity: 1;
+    stroke-width: 2.5;
   }
 }
 
@@ -309,96 +311,10 @@
   border-radius: var(--radius-md);
   overflow: hidden;
 
-  &.bye {
-    opacity: 0.5;
-  }
-
-  &.live {
+  // On court now (not `.live`: the pools' "Court N" rows use that name).
+  &.on-court {
     outline: 3px solid var(--color-playing);
   }
-}
-
-// Latest results.
-.results {
-  display: flex;
-  flex-direction: column;
-  padding: 1vw;
-  gap: 0.6vw;
-}
-
-.results-head {
-  @include row(0.6vw);
-  justify-content: space-between;
-}
-
-.results-title {
-  margin: 0;
-  font-size: 0.8vw;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-display-muted);
-}
-
-.results-list {
-  @include stack(0.5vw);
-  min-height: 0;
-  overflow: hidden;
-}
-
-.results-empty {
-  margin: 0;
-  font-size: 0.85vw;
-  color: var(--color-display-muted);
-}
-
-.result {
-  @include stack(0.25vw);
-  padding: 0.45vw 0.6vw;
-  border: 1px solid var(--color-display-border);
-  border-radius: 0.5vw;
-}
-
-.result-head {
-  @include row(0.5vw);
-  font-size: 0.7vw;
-  color: var(--color-display-muted);
-}
-
-.result-stage {
-  flex: 1;
-  min-width: 0;
-  @include ellipsis;
-}
-
-.result-side {
-  @include row(0.5vw);
-  font-size: 0.85vw;
-
-  .names {
-    flex: 1;
-  }
-
-  &.lost {
-    color: var(--color-display-muted);
-
-    .names {
-      font-weight: 600;
-    }
-  }
-}
-
-.result-icon {
-  flex: none;
-  width: 0.9vw;
-  display: inline-flex;
-  font-size: 0.85vw;
-}
-
-.wo {
-  flex: none;
-  font: 700 0.75vw var(--font-mono);
-  color: #e0675e;
 }
 
 // Full-screen toggle: hidden from the hall, it shows while the mouse moves.

@@ -22,6 +22,13 @@
           <div class="stage-head">
             <span class="cat" [style.background]="'var(--color-category-' + s.slot + ')'">{{ t('category.short.' + s.category) }}</span>
             <span class="stage-title">{{ stageName(s) }}</span>
+            @if (view().round; as r) {
+              <span class="round" [class.elapsed]="left() <= 0">
+                <span class="round-label">{{ t('displayScreen.round', { n: r.number }) }}</span>
+                <span class="round-text">{{ t(left() > 0 ? 'displayScreen.endsIn' : 'rounds.elapsed') }}</span>
+                <span class="round-clock">{{ countdown() }}</span>
+              </span>
+            }
             @if (stages().length > 1) {
               <span class="dots">
                 @for (x of stages(); track x.category + x.id; let i = $index) {
@@ -29,13 +36,17 @@
                 }
               </span>
             }
+            <span class="clock">{{ time(now()) }}</span>
           </div>
-          <div class="progress"><span class="progress-bar" [style.width.%]="progress() * 100"></span></div>
+          @if (stages().length > 1) {
+            <div class="progress"><span class="progress-bar" [style.width.%]="progress() * 100"></span></div>
+          }
           <div class="stage-body" #body>
+            <div class="stage-content">
             @if (s.kind === 'pools') {
               <div class="pools">
                 @for (pool of s.pools; track pool.index) {
-                  <div class="pool">
+                  <div class="pool page-block">
                     <div class="pool-head">
                       <span class="pool-name">{{ t('desk.pool', { pool: pool.name }) }}</span>
                       <span class="pool-played">{{ t('phases.playedOf', { n: played(pool), total: (pool.matches ?? []).length }) }}</span>
@@ -43,8 +54,10 @@
                     <div class="row labels">
                       <span>{{ t('displayScreen.rank') }}</span>
                       <span>{{ t('phases.entrant') }}</span>
-                      <span>{{ t('phases.wins') }}</span>
-                      <span>{{ t('displayScreen.points') }}</span>
+                      <span class="num" [attr.title]="t('phases.playedLong')">{{ t('phases.played') }}</span>
+                      <span class="num" [attr.title]="t('phases.winsLong')">{{ t('phases.wins') }}</span>
+                      <span class="num">{{ t('phases.sets') }}</span>
+                      <span class="num">{{ t('displayScreen.points') }}</span>
                     </div>
                     @for (r of pool.standings; track r.entrant.entrant) {
                       <div class="row" [class.withdrawn]="r.withdrawn">
@@ -55,7 +68,9 @@
                             <span class="club">{{ c }}</span>
                           }
                         </span>
+                        <span class="num">{{ r.played }}</span>
                         <span class="num strong">{{ r.wins }}</span>
+                        <span class="num">{{ diff(r.setsWon, r.setsLost) }}</span>
                         <span class="num">{{ diff(r.pointsWon, r.pointsLost) }}</span>
                       </div>
                     }
@@ -68,8 +83,9 @@
                   </div>
                 }
               </div>
-            } @else if (tree(); as tr) {
-              @let g = geometry();
+            } @else {
+              @if (tree(); as tr) {
+              @let g = geometry(tr);
               <div class="tree-frame" [style.width.px]="treeWidth(tr) * scale()" [style.height.px]="treeHeight(tr) * scale()">
                 <div
                   class="tree"
@@ -80,13 +96,13 @@
                   [style.--card-w.px]="g.cardW"
                 >
                   <svg class="tree-links" [attr.width]="treeWidth(tr)" [attr.height]="treeHeight(tr)" aria-hidden="true">
-                    @for (l of tr.links; track l.from + l.to) {
-                      <path [attr.d]="path(tr, l)" [class]="'link link-' + l.kind" [class.done]="decided(tr, l.from)" />
+                    @for (r of routes(); track r.link.from + r.link.to) {
+                      <path [attr.d]="r.d" [class]="'link link-' + r.link.kind" [class.done]="decided(tr, r.link.from)" />
                     }
                   </svg>
                   @if (tr.titled) {
                     @for (n of tr.nodes; track n.col + '-' + n.from) {
-                      <span class="block-title" [style.left.px]="cardLeft(n.col)" [style.top.px]="cardTop(n.row) - g.title">
+                      <span class="block-title" [style.left.px]="cardLeft(tr, n.col)" [style.top.px]="cardTop(tr, n.row) - g.title">
                         {{ t('round.places', { from: n.from, to: n.to }) }}
                       </span>
                     }
@@ -94,63 +110,24 @@
                   @for (tm of tr.matches; track tm.match.id) {
                     <div
                       class="bmatch"
-                      [class.bye]="tm.match.byeA || tm.match.byeB"
-                      [class.live]="tm.match.court && !tm.match.endedAt"
-                      [style.left.px]="cardLeft(tm.col)"
-                      [style.top.px]="cardTop(tm.row)"
+                      [class.on-court]="tm.match.court && !tm.match.endedAt"
+                      [style.left.px]="cardLeft(tr, tm.col)"
+                      [style.top.px]="cardTop(tr, tm.row)"
                     >
-                      <app-bracket-match [match]="tm.match" [origins]="s.origins" [originColors]="s.originColors" />
+                      <app-bracket-match [match]="tm.match" [origins]="s.origins" [originColors]="s.originColors" [size]="(s.slots ?? []).length" [hall]="true" />
                     </div>
                   }
                 </div>
               </div>
+              }
             }
+            </div>
           </div>
         } @else {
           <div class="waiting">{{ t('displayScreen.waiting') }}</div>
         }
       </section>
 
-      <aside class="panel results">
-        <div class="results-head">
-          <h2 class="results-title">{{ t('displayScreen.results') }}</h2>
-          <span class="clock">{{ time(now()) }}</span>
-        </div>
-        @if (view().round; as r) {
-          <div class="round" [class.elapsed]="left() <= 0">
-            <span class="round-label">{{ t('displayScreen.round', { n: r.number }) }}</span>
-            <span class="round-text">{{ t(left() > 0 ? 'displayScreen.endsIn' : 'rounds.elapsed') }}</span>
-            <span class="round-clock">{{ countdown() }}</span>
-          </div>
-        }
-        <div class="results-list">
-          @for (m of view().results; track m.id) {
-            @let w = winner(m);
-            <div class="result">
-              <div class="result-head">
-                <span class="cat cat-sm" [style.background]="'var(--color-category-' + m.slot + ')'">{{ t('category.short.' + m.category) }}</span>
-                <span class="result-stage"><app-match-stage [match]="m" /></span>
-              </div>
-              @for (side of sideKeys; track side) {
-                @let sv = side === 'a' ? m.a : m.b;
-                <div class="result-side" [class.won]="w === side" [class.lost]="w && w !== side">
-                  <span class="result-icon">
-                    @if (w) {
-                      <app-result-icon [won]="w === side" />
-                    }
-                  </span>
-                  <span class="names">{{ sv | withBib }}</span>
-                  @if (side === 'a' ? m.walkoverA : m.walkoverB) {
-                    <span class="wo">WO</span>
-                  }
-                </div>
-              }
-            </div>
-          } @empty {
-            <p class="results-empty">{{ t('displayScreen.noResults') }}</p>
-          }
-        </div>
-      </aside>
     </main>
   </div>
 </ng-container>

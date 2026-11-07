@@ -5,8 +5,7 @@ import (
 	"github.com/OpenShuttle/openshuttle-app/src/internal/tournament"
 )
 
-// DisplayView is the display screen: the stages being played, shown in
-// turn, and the latest results.
+// DisplayView is the display screen: the stages shown on it, in turn.
 type DisplayView struct {
 	Name       string        `json:"name"`
 	Categories []CategoryRef `json:"categories"`
@@ -16,8 +15,6 @@ type DisplayView struct {
 	// played, among those the desk shows (else the next ones, else the last
 	// ones over).
 	Stages []DisplayStage `json:"stages"`
-	// Results are the latest scores entered, newest first.
-	Results []MatchView `json:"results"`
 }
 
 // DisplayStage is a stage on the display screen: its pools, or its bracket.
@@ -26,16 +23,12 @@ type DisplayStage struct {
 	StagePhase
 }
 
-// displayResults is how many latest results the display screen lists.
-const displayResults = 12
-
 // GetDisplayView returns the display screen.
 func (s *TournamentService) GetDisplayView() DisplayView {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	st := s.state
-	mv := s.matchViewer(st)
-	v := DisplayView{Name: st.Name, Categories: categoryRefs(st), Stages: []DisplayStage{}, Results: []MatchView{}}
+	v := DisplayView{Name: st.Name, Categories: categoryRefs(st), Stages: []DisplayStage{}}
 	v.Round = s.roundsView(st).Current
 	slots := map[engine.Category]CategoryRef{}
 	for _, ref := range v.Categories {
@@ -51,9 +44,6 @@ func (s *TournamentService) GetDisplayView() DisplayView {
 				v.Stages = append(v.Stages, DisplayStage{slots[ref.Category], s.stagePhase(st, ref.Category, stage, i == 0)})
 			}
 		}
-	}
-	for _, m := range st.LatestScores(displayResults) {
-		v.Results = append(v.Results, mv(m))
 	}
 	return v
 }

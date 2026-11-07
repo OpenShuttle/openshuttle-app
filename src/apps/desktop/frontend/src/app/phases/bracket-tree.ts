@@ -14,6 +14,8 @@ export interface TreeLink {
   from: string;
   to: string;
   kind: 'win' | 'lose';
+  /** The side of `to` it feeds: match i of a round feeds side a when i is even. */
+  side: 'a' | 'b';
 }
 
 /** A column of the drawing: the entrants a round of the tree starts with. */
@@ -82,10 +84,10 @@ export function bracketTree(source: RoundView[]): BracketTree {
     r.matches.forEach((m, i) => {
       const to = Math.floor(i / 2);
       if (win?.matches[to]) {
-        links.push({ from: m.id, to: win.matches[to].id, kind: 'win' });
+        links.push({ from: m.id, to: win.matches[to].id, kind: 'win', side: i % 2 === 0 ? 'a' : 'b' });
       }
       if (lose?.matches[to]) {
-        links.push({ from: m.id, to: lose.matches[to].id, kind: 'lose' });
+        links.push({ from: m.id, to: lose.matches[to].id, kind: 'lose', side: i % 2 === 0 ? 'a' : 'b' });
       }
     });
   }
@@ -105,7 +107,11 @@ export function bracketTree(source: RoundView[]): BracketTree {
       r.matches.forEach((m, i) => rowOf.set(m.id, centre - (r.matches.length - 1) / 2 + i));
       return centre;
     };
-    rounds.filter((r) => r.size === sizes[0]).forEach(place);
+    // Roots: the parts fed by no other part shown (the whole bracket, or the
+    // places left once the main draw is drawn apart).
+    rounds
+      .filter((r) => !byNode.has(`${r.from}/${r.size * 2}`) && !byNode.has(`${r.from - r.size}/${r.size * 2}`))
+      .forEach(place);
     const top = Math.min(...rowOf.values());
     rowOf.forEach((row, id) => rowOf.set(id, row - top));
   }
@@ -162,10 +168,28 @@ export interface TreeGeometry {
   head: number;
   /** Height of a block's title, above its first card. */
   title: number;
+  /** Height of a card's head (its name and result), and of its correction buttons below the sides. */
+  headH: number;
+  actionsH: number;
 }
 
-export function treeGeometry(correction: boolean, titled = false): TreeGeometry {
-  return { cardW: 250, cardH: correction ? 166 : 124, colGap: 64, rowGap: 18, head: titled ? 58 : 34, title: 22 };
+/** Height of a card's head and of its correction buttons, as `bracket-match.ts` and `phases.scss` set them. */
+export const CARD_HEAD = 27;
+export const CARD_ACTIONS = 39;
+
+export function treeGeometry(correction: boolean, titled = false, compact = false, cardW = 250): TreeGeometry {
+  // Compact: cards without clubs (display screen), a single line per side.
+  const cardH = compact ? 88 : correction ? 166 : 124;
+  return {
+    cardW,
+    cardH,
+    colGap: compact ? 48 : 64,
+    rowGap: compact ? 12 : 18,
+    head: titled ? 58 : compact ? 8 : 34,
+    title: 22,
+    headH: CARD_HEAD,
+    actionsH: correction ? CARD_ACTIONS : 0,
+  };
 }
 
 export function cardLeft(g: TreeGeometry, col: number): number {
@@ -176,32 +200,119 @@ export function cardTop(g: TreeGeometry, row: number): number {
   return g.head + row * (g.cardH + g.rowGap);
 }
 
-/** Which links of the drawing are shown. */
-export type LinkFilter = 'all' | 'win' | 'lose' | 'none';
-
-export function showsLink(filter: LinkFilter, kind: TreeLink['kind']): boolean {
-  return filter === 'all' || filter === kind;
-}
-
-/**
- * SVG path of a link: out of the right middle of a card, a vertical run with
- * rounded corners, into the left middle of the next. Winner and loser runs
- * keep to either side of the middle so they never share a line.
- */
-export function linkPath(g: TreeGeometry, kind: TreeLink['kind'], from: TreeMatch, to: TreeMatch): string {
-  const x1 = cardLeft(g, from.col) + g.cardW;
-  const y1 = cardTop(g, from.row) + g.cardH / 2;
-  const x2 = cardLeft(g, to.col);
-  const y2 = cardTop(g, to.row) + g.cardH / 2;
+/** A square run from (x1, y1) to (x2, y2), going vertical at xv, corners rounded. */
+function run(x1: number, y1: number, x2: number, y2: number, xv: number): string {
   const dy = y2 - y1;
   if (Math.abs(dy) < 1) {
     return `M${x1} ${y1} H${x2}`;
   }
-  const xv = (x1 + x2) / 2 + (kind === 'win' ? -RUN_OFFSET : RUN_OFFSET);
-  const r = Math.min(CORNER, Math.abs(dy) / 2);
+  const dx = Math.sign(x2 - x1) || 1;
+  const r = Math.min(CORNER, Math.abs(dy) / 2, Math.abs(xv - x1), Math.abs(x2 - xv));
   const s = Math.sign(dy);
-  return `M${x1} ${y1} H${xv - r} Q${xv} ${y1} ${xv} ${y1 + s * r} V${y2 - s * r} Q${xv} ${y2} ${xv + r} ${y2} H${x2}`;
+  return `M${x1} ${y1} H${xv - dx * r} Q${xv} ${y1} ${xv} ${y1 + s * r} V${y2 - s * r} Q${xv} ${y2} ${xv + dx * r} ${y2} H${x2}`;
 }
 
-const RUN_OFFSET = 7;
 const CORNER = 10;
+
+/** A link of the drawing with its SVG path. */
+export interface LinkRoute {
+  link: TreeLink;
+  d: string;
+}
+
+/** Side of a match that won it: a bye loses at once, then forfeits, then sets. */
+function winnerSide(m: MatchView): 'a' | 'b' | '' {
+  if (m.byeA !== m.byeB) {
+    return m.byeA ? 'b' : 'a';
+  }
+  if (m.walkoverA !== m.walkoverB) {
+    return m.walkoverA ? 'b' : 'a';
+  }
+  let a = 0;
+  let b = 0;
+  for (const set of m.score?.sets ?? []) {
+    if (set.a > set.b) a++;
+    else if (set.b > set.a) b++;
+  }
+  return a > b ? 'a' : b > a ? 'b' : '';
+}
+
+/**
+ * Routes the links of a drawing. A link leaves its match between the two
+ * teams while it has no result, then from the team it carries (the winner
+ * for a winner's link, the loser for a loser's), and enters the next match at
+ * the team it feeds. Links crossing the same gap between two columns go
+ * vertical on separate lanes whenever their vertical runs would overlap.
+ * The right half of a folded bracket runs right to left. With `winnerFirst`
+ * (the display screen), a decided match shows its winner on top.
+ */
+export function routeLinks(g: TreeGeometry, t: BracketTree, links: TreeLink[], winnerFirst = false): LinkRoute[] {
+  const at = new Map(t.matches.map((m) => [m.match.id, m]));
+  const sideH = (g.cardH - g.headH - g.actionsH) / 2;
+  // The row a side is drawn on: the winner moves on top with winnerFirst.
+  const shown = (m: TreeMatch, side: 'a' | 'b' | '') =>
+    winnerFirst && side && winnerSide(m.match) === 'b' ? (side === 'a' ? 'b' : 'a') : side;
+  const sideY = (m: TreeMatch, side: 'a' | 'b' | '') => {
+    const row = shown(m, side);
+    return cardTop(g, m.row) + g.headH + (row === 'a' ? sideH / 2 : row === 'b' ? sideH * 1.5 : sideH);
+  };
+  const ends = links.flatMap((link) => {
+    const from = at.get(link.from);
+    const to = at.get(link.to);
+    if (!from || !to || from.col === to.col) {
+      return [];
+    }
+    const won = winnerSide(from.match);
+    const carried = !won ? '' : link.kind === 'win' ? won : won === 'a' ? 'b' : 'a';
+    const right = from.col < to.col;
+    return [
+      {
+        link,
+        gap: Math.min(from.col, to.col),
+        x1: right ? cardLeft(g, from.col) + g.cardW : cardLeft(g, from.col),
+        y1: sideY(from, carried),
+        x2: right ? cardLeft(g, to.col) : cardLeft(g, to.col) + g.cardW,
+        y2: sideY(to, link.side),
+      },
+    ];
+  });
+  // Lanes per gap, counted from the side the links leave (the outside of
+  // the drawing): the lower a link leaves, the further out it runs. A run
+  // takes the outermost lane free over its whole height.
+  const lane = new Map<(typeof ends)[number], number>();
+  const lanes = new Map<number, number>();
+  const byGap = new Map<number, typeof ends>();
+  for (const e of ends) {
+    byGap.set(e.gap, [...(byGap.get(e.gap) ?? []), e]);
+  }
+  for (const [gap, list] of byGap) {
+    const taken: [number, number][][] = [];
+    for (const e of [...list].sort((a, b) => b.y1 - a.y1)) {
+      if (Math.abs(e.y2 - e.y1) < 1) {
+        continue;
+      }
+      const top = Math.min(e.y1, e.y2);
+      const bottom = Math.max(e.y1, e.y2);
+      const free = (runs: [number, number][]) =>
+        runs.every(([t, b]) => b + LANE_CLEARANCE < top || bottom + LANE_CLEARANCE < t);
+      let i = taken.findIndex(free);
+      if (i < 0) {
+        i = taken.length;
+        taken.push([]);
+      }
+      taken[i].push([top, bottom]);
+      lane.set(e, i);
+    }
+    lanes.set(gap, taken.length);
+  }
+  return ends.map((e) => {
+    const n = lanes.get(e.gap) ?? 1;
+    const step = (g.colGap * ((lane.get(e) ?? 0) + 1)) / (n + 1);
+    // Lane 0 next to the card the link leaves.
+    const xv = e.x1 < e.x2 ? e.x1 + step : e.x1 - step;
+    return { link: e.link, d: run(e.x1, e.y1, e.x2, e.y2, xv) };
+  });
+}
+
+/** Vertical room between two runs sharing a lane. */
+const LANE_CLEARANCE = 6;

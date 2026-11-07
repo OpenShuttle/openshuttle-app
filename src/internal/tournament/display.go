@@ -1,9 +1,6 @@
 package tournament
 
 import (
-	"cmp"
-	"slices"
-
 	"github.com/OpenShuttle/openshuttle-app/src/internal/engine"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/events"
 )
@@ -74,17 +71,4 @@ func (s State) DisplayStages() []StageRef {
 		return playing
 	}
 	return over
-}
-
-// LatestScores returns the matches whose score was entered last, newest
-// first, at most n.
-func (s State) LatestScores(n int) []Match {
-	var scored []Match
-	for _, m := range s.matches {
-		if m.Score != nil && m.scoreSeq > 0 {
-			scored = append(scored, m)
-		}
-	}
-	slices.SortFunc(scored, func(a, b Match) int { return cmp.Compare(b.scoreSeq, a.scoreSeq) })
-	return scored[:min(n, len(scored))]
 }

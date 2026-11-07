@@ -301,8 +301,7 @@ export interface DisplayStage {
 }
 
 /**
- * DisplayView is the display screen: the stages being played, shown in
- * turn, and the latest results.
+ * DisplayView is the display screen: the stages shown on it, in turn.
  */
 export interface DisplayView {
     "name": string;
@@ -319,11 +318,6 @@ export interface DisplayView {
      * ones over).
      */
     "stages": DisplayStage[] | null;
-
-    /**
-     * Results are the latest scores entered, newest first.
-     */
-    "results": MatchView[] | null;
 }
 
 /**

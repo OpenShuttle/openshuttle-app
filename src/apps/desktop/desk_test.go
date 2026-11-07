@@ -66,7 +66,7 @@ func TestControlDesk(t *testing.T) {
 	must(f.settings.SetShowBibs(ctx, false))
 	d := f.svc.GetDisplayView()
 	if len(d.Stages) != 1 || d.Stages[0].ID != "S1" || d.Stages[0].Slot != 1 || len(d.Stages[0].Pools) != 1 ||
-		len(d.Stages[0].Pools[0].Standings) != 4 || len(d.Results) != 0 || d.Name == "" {
+		len(d.Stages[0].Pools[0].Standings) != 4 || d.Name == "" {
 		t.Errorf("display = %+v", d)
 	}
 	// A stage the desk hides leaves the display screen.
@@ -98,9 +98,6 @@ func TestControlDesk(t *testing.T) {
 
 	wantCode(t, f.svc.RecordScore(ctx, "MS-A1", engine.Score{Sets: []engine.SetScore{{A: 21, B: 20}, {A: 3, B: 21}}}), engine.CodeInvalidSetScore)
 	must(f.svc.RecordScore(ctx, "MS-A1", engine.Score{Sets: []engine.SetScore{{A: 21, B: 10}, {A: 19, B: 21}, {A: 30, B: 29}}}))
-	if d := f.svc.GetDisplayView(); len(d.Results) != 1 || d.Results[0].ID != "MS-A1" {
-		t.Errorf("results = %+v", d.Results)
-	}
 	if a := f.svc.GetTournamentView().LastAction; a.Params["score"] != "21-10 19-21 30-29" {
 		t.Errorf("score action = %+v", a)
 	}

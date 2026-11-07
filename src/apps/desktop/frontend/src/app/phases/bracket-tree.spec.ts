@@ -1,6 +1,8 @@
 import { MatchView, RoundView } from '@bindings/apps/desktop';
 
-import { LinkFilter, bracketTree, cardLeft, cardTop, linkPath, showsLink, treeGeometry } from './bracket-tree';
+import { MatchView as Match } from '@bindings/apps/desktop';
+
+import { bracketTree, cardLeft, cardTop, routeLinks, treeGeometry } from './bracket-tree';
 
 /** Rounds of a bracket of `size`, as Go lists them: parents before children. */
 function rounds(size: number, full: boolean): RoundView[] {
@@ -66,14 +68,54 @@ describe('bracketTree', () => {
     expect(t.rows).toBe(0);
   });
 
-  it('links the middle of two cards', () => {
+  it('links the middle of a match without result to the team it feeds', () => {
     const g = treeGeometry(false);
-    const t = bracketTree(rounds(4, true));
-    const [a, b] = [t.matches[0], t.matches[2]];
-    expect(linkPath(g, 'win', a, b)).toContain(
-      `M${cardLeft(g, 0) + g.cardW} ${cardTop(g, a.row) + g.cardH / 2}`,
-    );
+    const t = bracketTree(rounds(4, false));
+    const [semi1, semi2, final] = t.matches;
+    const routes = routeLinks(g, t, t.links);
+    const sideH = (g.cardH - g.headH) / 2;
+    const one = routes.find((r) => r.link.from === semi1.match.id)!;
+    const two = routes.find((r) => r.link.from === semi2.match.id)!;
+    expect(one.d).toMatch(new RegExp(`^M${cardLeft(g, 0) + g.cardW} ${cardTop(g, semi1.row) + g.headH + sideH} `));
+    // The first semi feeds the final's top team, the second its bottom one.
+    expect(one.d).toMatch(new RegExp(` H${cardLeft(g, 1)}$`));
+    expect(one.d).toContain(`${cardTop(g, final.row) + g.headH + sideH / 2} H`);
+    expect(two.d).toContain(`${cardTop(g, final.row) + g.headH + sideH * 1.5} H`);
     expect(treeGeometry(true).cardH).toBeGreaterThan(g.cardH);
+  });
+
+  it('links a decided match from the team it carries', () => {
+    const g = treeGeometry(false);
+    const r = rounds(4, true);
+    const semi = { ...r[0].matches![0]!, score: { sets: [{ a: 10, b: 21 }] } } as unknown as Match;
+    r[0].matches![0] = semi;
+    const t = bracketTree(r);
+    const sideH = (g.cardH - g.headH) / 2;
+    const top = cardTop(g, t.matches.find((m) => m.match.id === semi.id)!.row) + g.headH;
+    const from = (kind: string) => routeLinks(g, t, t.links).find((x) => x.link.from === semi.id && x.link.kind === kind)!.d;
+    // B won: the winner's link leaves from B, the loser's from A.
+    expect(from('win')).toMatch(new RegExp(`^M[\\d.]+ ${top + sideH * 1.5} `));
+    expect(from('lose')).toMatch(new RegExp(`^M[\\d.]+ ${top + sideH / 2} `));
+  });
+
+  it('runs a link further out the lower it leaves', () => {
+    const g = treeGeometry(false);
+    const t = bracketTree(rounds(8, false));
+    const firstRound = t.links.filter((l) => t.matches.find((m) => m.match.id === l.from)!.col === 0);
+    const routes = routeLinks(g, t, firstRound);
+    const start = (d: string) => Number(/^M[\d.]+ ([\d.]+)/.exec(d)![1]);
+    const vertical = (d: string) => Number(/Q([\d.]+) /.exec(d)?.[1]);
+    // Quarters 1 and 2 meet in semi 1: the lower one runs nearer its card (further left).
+    const [q1, q2] = [routes[0], routes[1]].sort((a, b) => start(a.d) - start(b.d));
+    expect(vertical(q2.d)).toBeLessThanOrEqual(vertical(q1.d));
+  });
+
+  it('runs links crossing the same gap on separate lanes', () => {
+    const g = treeGeometry(false);
+    const t = bracketTree(rounds(8, true));
+    const vertical = (d: string) => Number(/Q([\d.]+) /.exec(d)?.[1]);
+    const lanes = new Set(routeLinks(g, t, t.links.filter((l) => t.matches.find((m) => m.match.id === l.from)!.col === 0)).map((r) => vertical(r.d)));
+    expect(lanes.size).toBeGreaterThan(1);
   });
 
   it('lays blocks out as a tree of their own, centred on the two they feed', () => {
@@ -105,20 +147,10 @@ describe('bracketTree', () => {
     expect(t.titled).toBe(false);
       });
 
-  it('draws links with square runs and picks the ones shown', () => {
+  it('draws links with square runs', () => {
     const g = treeGeometry(false);
     const t = bracketTree(rounds(4, true));
-    const [a, b] = [t.matches[0], t.matches[2]];
-    const win = linkPath(g, 'win', a, b);
-    const lose = linkPath(g, 'lose', a, b);
-    expect(win).toMatch(/^M[\d.]+ [\d.]+ H[\d.]+ Q.* V.* Q.* H[\d.]+$/);
-    expect(win).not.toBe(lose);
-    expect(linkPath(g, 'win', a, { ...a, col: 1 })).toMatch(/ H[\d.]+$/);
-    expect(['all', 'win', 'lose', 'none'].map((f) => [showsLink(f as LinkFilter, 'win'), showsLink(f as LinkFilter, 'lose')])).toEqual([
-      [true, true],
-      [true, false],
-      [false, true],
-      [false, false],
-    ]);
+    const routes = routeLinks(g, t, t.links);
+    expect(routes.every((r) => /^M[\d.]+ [\d.]+ H[\d.]+( Q.* V.* Q.*)? H[\d.]+$/.test(r.d) || /^M[\d.]+ [\d.]+ H[\d.]+$/.test(r.d))).toBe(true);
   });
 });

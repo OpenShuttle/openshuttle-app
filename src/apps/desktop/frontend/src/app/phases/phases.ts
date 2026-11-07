@@ -19,34 +19,21 @@ import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
+import { AppSettings } from '../core/settings.service';
 import { BracketMatch } from '../shared/bracket-match';
+import { cardWidth } from '../shared/card-width';
 import { clubs, fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
 import { WithBibPipe } from '../shared/with-bib';
 import {
   BracketTree,
-  TreeBlock,
-  TreeLink,
-  bracketTree,
   cardLeft,
   cardTop,
-  LinkFilter,
-  linkPath,
-  showsLink,
+  routeLinks,
   treeGeometry,
 } from './bracket-tree';
+import { BracketPart, foldBracket } from './split-bracket';
 
-
-const LINKS_KEY = 'phases.links';
-
-function storedLinks(): LinkFilter {
-  try {
-    const v = localStorage.getItem(LINKS_KEY);
-    return v === 'win' || v === 'lose' || v === 'none' ? v : 'all';
-  } catch {
-    return 'all';
-  }
-}
 
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
@@ -126,35 +113,29 @@ export class Phases {
     this.swappingSlot.set(null);
   }
 
-  /** The bracket shown, laid out as a tree (none for pools or a bracket not drawn). */
-  protected readonly tree = computed(() => {
+  /**
+   * The bracket shown, folded in two around its final, the places packed
+   * under the main draw; none for pools or a bracket not drawn.
+   */
+  protected readonly folded = computed(() => {
     const s = this.stage();
-    return s?.kind === 'bracket' && s.confirmed ? bracketTree(s.rounds ?? []) : null;
+    return s?.kind === 'bracket' && s.confirmed ? foldBracket(s.rounds ?? []) : null;
   });
-  /** Links shown on the drawing, remembered on this PC. */
-  protected readonly links = signal<LinkFilter>(storedLinks());
-  protected readonly linkOptions: LinkFilter[] = ['all', 'win', 'lose', 'none'];
-  protected readonly showsLink = showsLink;
-
-  protected setLinks(filter: LinkFilter): void {
-    this.links.set(filter);
-    try {
-      localStorage.setItem(LINKS_KEY, filter);
-    } catch {
-      // Not remembered: a convenience only.
-    }
-  }
-
-  protected readonly geometry = computed(() => treeGeometry(this.correction(), this.tree()?.titled));
+  private readonly settings = inject(AppSettings);
+  /** Cards as wide as their longest line needs. */
+  protected readonly geometry = computed(() => {
+    const matches = this.folded()?.tree.matches.map((m) => m.match) ?? [];
+    const size = (this.stage()?.slots ?? []).length;
+    const width = cardWidth(this.transloco, matches, { bibs: this.settings.showBibs(), clubs: true, scores: true, origins: true, size });
+    return treeGeometry(this.correction(), false, false, width);
+  });
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
-  /** Column at the left of the drawing, for the previous and next buttons. */
-  protected readonly activeCol = signal(0);
 
   protected left(col: number): number {
     return cardLeft(this.geometry(), col);
   }
 
-  protected top(t: BracketTree, row: number): number {
+  protected top(row: number): number {
     return cardTop(this.geometry(), row);
   }
 
@@ -168,11 +149,11 @@ export class Phases {
     return cardTop(g, t.rows - 1) + g.cardH + g.rowGap;
   }
 
-  protected path(t: BracketTree, l: TreeLink): string {
-    const from = t.matches.find((m) => m.match.id === l.from);
-    const to = t.matches.find((m) => m.match.id === l.to);
-    return from && to ? linkPath(this.geometry(), l.kind, from, to) : '';
-  }
+  /** Every link, routed: from and to the teams' rows, on separate lanes. */
+  protected readonly routes = computed(() => {
+    const fb = this.folded();
+    return fb ? routeLinks(this.geometry(), fb.tree, fb.tree.links) : [];
+  });
 
   /** A link whose source match is decided: the one its entrants really took. */
   protected decided(t: BracketTree, from: string): boolean {
@@ -180,29 +161,10 @@ export class Phases {
     return !!m && (!!m.score || m.walkover);
   }
 
-  protected onScroll(): void {
-    const el = this.scroller()?.nativeElement;
-    if (el) {
-      const g = this.geometry();
-      this.activeCol.set(Math.round(el.scrollLeft / (g.cardW + g.colGap)));
-    }
-  }
-
-  /** Brings a column of the drawing to the left of the view. */
-  protected goColumn(t: BracketTree, col: number): void {
-    const c = t.columns[Math.max(0, Math.min(col, t.columns.length - 1))];
-    this.activeCol.set(t.columns.indexOf(c));
-    this.reveal(c.first, 'nearest');
-  }
-
-  /** Brings a part of the bracket (places 5–8…) to the middle of the view. */
-  protected goBlock(b: TreeBlock): void {
-    this.reveal(b.first, 'center');
-  }
-
-  private reveal(match: string, block: ScrollLogicalPosition): void {
-    const card = this.scroller()?.nativeElement.querySelector(`[data-match="${match}"]`);
-    card?.scrollIntoView?.({ behavior: 'smooth', block, inline: 'start' });
+  /** Brings a part of the bracket (places 5–8…) to the top of the view. */
+  protected goPart(p: BracketPart): void {
+    const card = this.scroller()?.nativeElement.querySelector(`[data-match="${p.first}"]`);
+    card?.scrollIntoView?.({ behavior: 'smooth', block: 'center', inline: 'nearest' });
   }
 
   protected status(s: StagePhase): string {

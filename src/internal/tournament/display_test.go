@@ -137,14 +137,6 @@ func TestStageDisplay(t *testing.T) {
 	g.undo()
 
 	g.finishPools(engine.MensSingles)
-	scored := g.state().LatestScores(2)
-	if len(scored) != 2 {
-		t.Fatalf("latest = %v", scored)
-	}
-	all := g.state().LatestScores(100)
-	if len(all) != 12 || all[0].ID != scored[0].ID || all[0].scoreSeq < all[1].scoreSeq {
-		t.Errorf("latest scores not newest first: %v", ids(all))
-	}
 	// Pools over, bracket filled but not started: the pools stay on screen.
 	g.fill(engine.MensSingles, main)
 	if got := refs(); !slices.Equal(got, []string{"S1"}) {
@@ -154,9 +146,5 @@ func TestStageDisplay(t *testing.T) {
 	g.do(func(s State) (Change, error) { return s.SetStageDisplay(engine.MensSingles, main, true) })
 	if got := refs(); !slices.Equal(got, []string{main}) {
 		t.Errorf("stages = %v", got)
-	}
-	g.do(func(s State) (Change, error) { return s.ClearScore(all[0].ID) })
-	if g.state().LatestScores(1)[0].ID == all[0].ID {
-		t.Error("a cleared score stays among the latest")
 	}
 }

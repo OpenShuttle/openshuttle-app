@@ -7,20 +7,19 @@ import { Window } from '@wailsio/runtime';
 import { liveView } from '../core/live-view';
 import { AppSettings } from '../core/settings.service';
 import { LanguageService } from '../core/language.service';
-import { BracketTree, TreeLink, bracketTree, cardLeft, cardTop, linkPath, treeGeometry } from '../phases/bracket-tree';
+import { BracketTree, TreeGeometry, cardLeft, cardTop, routeLinks, treeGeometry } from '../phases/bracket-tree';
 import { BracketMatch } from '../shared/bracket-match';
-import { matchWinner } from '../shared/bracket-labels';
+import { cardWidth } from '../shared/card-width';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
-import { MatchStage } from '../shared/match-stage';
 import { clubs } from '../shared/names';
-import { ResultIcon } from '../shared/result-icon';
 import { stageLabel } from '../shared/stage-label';
 import { WithBibPipe } from '../shared/with-bib';
+import { foldBracket } from '../phases/split-bracket';
 
-/** Scrolling speed of a stage taller than the screen, in px per second. */
-const SCROLL_SPEED = 40;
-/** Pause at the top and at the bottom of a stage before scrolling or moving on, in ms. */
-const HOLD = 4000;
+/** How long each screenful of a stage taller than the screen stays, at least, in ms. */
+const PAGE_TIME = 10_000;
+/** Share of the screen a page moves by when no pool card gives a better break. */
+const PAGE_STEP = 0.9;
 /** Largest zoom of a small bracket. */
 const MAX_SCALE = 1.2;
 
@@ -30,13 +29,12 @@ function stageKey(s: DisplayStage): string {
 
 /**
  * Display screen: second window on the hall monitor, read from 10 m. The
- * stages being played take turns (the desk picks which ones on the Stages
- * screen): every pool, or the bracket, scrolling slowly when taller than the
- * screen; the latest results and the time stay on the right.
+ * stages the desk shows (Stages screen) take turns: every pool, or the
+ * bracket; a stage taller than the screen goes page by page.
  */
 @Component({
   selector: 'app-display-screen',
-  imports: [TranslocoDirective, MatchStage, WithBibPipe, BracketMatch, ResultIcon],
+  imports: [TranslocoDirective, WithBibPipe, BracketMatch],
   templateUrl: './display-screen.html',
   styleUrl: './display-screen.scss',
 })
@@ -46,7 +44,6 @@ export class DisplayScreen {
     categories: [],
     round: null,
     stages: [],
-    results: [],
   });
 
   private readonly settings = inject(AppSettings);
@@ -68,11 +65,11 @@ export class DisplayScreen {
   /** Share of the stage's time already spent, for the progress bar. */
   protected readonly progress = signal(0);
 
+  /** The bracket shown, folded in two, the places packed under the main draw. */
   protected readonly tree = computed(() => {
     const s = this.stage();
-    return s?.kind === 'bracket' ? bracketTree(s.rounds ?? []) : null;
+    return s?.kind === 'bracket' ? foldBracket(s.rounds ?? []).tree : null;
   });
-  protected readonly geometry = computed(() => treeGeometry(false, this.tree()?.titled));
   /** Zoom of the bracket so that it fills the width of the screen. */
   protected readonly scale = signal(1);
 
@@ -106,8 +103,8 @@ export class DisplayScreen {
 
   /**
    * Moves the rotation on: a stage stays its rotation time, or longer when
-   * it needs to scroll to its end (a pause at the top, a slow scroll, a pause
-   * at the bottom), then the next stage comes; a single stage starts over.
+   * it is taller than the screen and goes page by page (each page for
+   * PAGE_TIME at least), then the next stage comes; a single stage starts over.
    */
   private tick(now: number): void {
     const stages = this.stages();
@@ -116,28 +113,37 @@ export class DisplayScreen {
     }
     const el = this.body()?.nativeElement;
     const tree = this.tree();
-    if (el && tree && el.clientWidth > 0) {
+    if (el && tree && tree.matches.length > 0 && el.clientWidth > 0) {
       this.scale.set(Math.min(MAX_SCALE, el.clientWidth / this.treeWidth(tree)));
     }
-    const overflow = el ? Math.max(0, el.scrollHeight - el.clientHeight) : 0;
-    const scrolling = overflow > 0 ? HOLD * 2 + (overflow / SCROLL_SPEED) * 1000 : 0;
-    const duration = Math.max((this.settings.value()?.rotationSeconds ?? 30) * 1000, scrolling);
+    const pages = el ? pageOffsets(el) : [0];
+    const duration = Math.max((this.settings.value()?.rotationSeconds ?? 30) * 1000, pages.length * PAGE_TIME);
     const elapsed = now - this.shownAt;
     if (elapsed >= duration) {
       const next = stages[(this.stageIndex() + 1) % stages.length];
       this.current.set(stageKey(next));
       this.shownAt = now;
       this.progress.set(0);
+      this.page = 0;
       if (el) {
         el.scrollTop = 0;
       }
       return;
     }
     this.progress.set(elapsed / duration);
-    if (el) {
-      el.scrollTop = Math.min(overflow, Math.max(0, ((elapsed - HOLD) / 1000) * SCROLL_SPEED));
+    const page = Math.min(pages.length - 1, Math.floor((elapsed / duration) * pages.length));
+    if (el && page !== this.page) {
+      this.page = page;
+      if (el.scrollTo) {
+        el.scrollTo({ top: pages[page], behavior: 'smooth' });
+      } else {
+        el.scrollTop = pages[page];
+      }
     }
   }
+
+  /** Page of the stage shown now. */
+  private page = 0;
 
   /** The hall never sees the button: it appears when someone moves the mouse here. */
   @HostListener('document:mousemove')
@@ -157,7 +163,6 @@ export class DisplayScreen {
   }
 
   protected readonly clubs = clubs;
-  protected readonly sideKeys: ('a' | 'b')[] = ['a', 'b'];
 
   protected time(value: string | number | null | undefined): string {
     return this.language.time(value);
@@ -177,37 +182,74 @@ export class DisplayScreen {
     return (pool.matches ?? []).filter((m) => m.court && !m.endedAt);
   }
 
-  protected winner(m: MatchView): 'a' | 'b' | '' {
-    return matchWinner(m);
+  /** Cards as wide as their longest line needs. */
+  private readonly cardW = computed(() =>
+    cardWidth(this.transloco, this.tree()?.matches.map((m) => m.match) ?? [], {
+      bibs: this.settings.showBibs(),
+      clubs: false,
+      scores: false,
+      origins: true,
+      size: (this.stage()?.slots ?? []).length,
+    }),
+  );
+
+  protected geometry(t: BracketTree): TreeGeometry {
+    return treeGeometry(false, t.titled, true, this.cardW());
   }
 
-  protected cardLeft(col: number): number {
-    return cardLeft(this.geometry(), col);
+  protected cardLeft(t: BracketTree, col: number): number {
+    return cardLeft(this.geometry(t), col);
   }
 
-  protected cardTop(row: number): number {
-    return cardTop(this.geometry(), row);
+  protected cardTop(t: BracketTree, row: number): number {
+    return cardTop(this.geometry(t), row);
   }
 
   protected treeWidth(t: BracketTree): number {
-    const g = treeGeometry(false, t.titled);
+    const g = this.geometry(t);
     return cardLeft(g, t.columns.length - 1) + g.cardW;
   }
 
   protected treeHeight(t: BracketTree): number {
-    const g = treeGeometry(false, t.titled);
+    const g = this.geometry(t);
     return cardTop(g, t.rows - 1) + g.cardH + g.rowGap;
   }
 
-  protected path(t: BracketTree, l: TreeLink): string {
-    const from = t.matches.find((m) => m.match.id === l.from);
-    const to = t.matches.find((m) => m.match.id === l.to);
-    return from && to ? linkPath(this.geometry(), l.kind, from, to) : '';
-  }
+  /** Every link, routed: from and to the teams' rows, on separate lanes. */
+  protected readonly routes = computed(() => {
+    const tree = this.tree();
+    return tree ? routeLinks(this.geometry(tree), tree, tree.links, true) : [];
+  });
 
   /** A link whose source match is decided: the one its entrants really took. */
   protected decided(t: BracketTree, from: string): boolean {
     const m = t.matches.find((x) => x.match.id === from)?.match;
     return !!m && (!!m.score || m.walkover);
   }
+}
+
+/**
+ * Where each page of a scrolling stage starts: a page ends before the first
+ * pool card or bracket part it would cut, else after PAGE_STEP of the screen; the last page
+ * ends with the stage.
+ */
+export function pageOffsets(el: HTMLElement): number[] {
+  const height = el.clientHeight;
+  const overflow = el.scrollHeight - height;
+  if (height <= 0 || overflow <= 0) {
+    return [0];
+  }
+  const cards = [...el.querySelectorAll<HTMLElement>('.page-block')].map((c) => ({ top: c.offsetTop, bottom: c.offsetTop + c.offsetHeight }));
+  const offsets = [0];
+  let start = 0;
+  while (start < overflow && offsets.length < 50) {
+    const cut = cards.find((c) => c.top > start && c.bottom > start + height);
+    const next = Math.min(overflow, cut ? cut.top : start + height * PAGE_STEP);
+    if (next <= start) {
+      break;
+    }
+    offsets.push(next);
+    start = next;
+  }
+  return offsets;
 }

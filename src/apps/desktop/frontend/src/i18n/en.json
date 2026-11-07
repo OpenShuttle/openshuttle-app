@@ -276,9 +276,7 @@
     "rank": "Rank",
     "points": "Points",
     "openTitle": "Open the display screen",
-    "closeTitle": "Close the display screen",
-    "results": "Latest results",
-    "noResults": "No results yet"
+    "closeTitle": "Close the display screen"
   },
   "settings": {
     "language": "Language"
@@ -727,17 +725,9 @@
     "redrawBracket": "Fill again",
     "waitPools": "Available once every pool is complete and ties are broken.",
     "tree": {
-      "round": "Round {n} · {size}",
-      "previous": "Previous round",
-      "next": "Next round",
       "blocks": "Jump to",
       "winner": "Winner",
-      "loser": "Loser",
-      "links": "Links",
-      "links_all": "All",
-      "links_win": "Winners",
-      "links_lose": "Losers",
-      "links_none": "None"
+      "loser": "Loser"
     },
     "firstRoundSlots": "First round",
     "slotsHint": "Click two slots to swap them.",
@@ -1109,7 +1099,8 @@
     "winnerOf": "Winner {match}",
     "loserOf": "Loser {match}",
     "won": "Won",
-    "lost": "Lost"
+    "lost": "Lost",
+    "place": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}"
   },
   "snapshot": {
     "updatedAt": "State on {date} at {time}",

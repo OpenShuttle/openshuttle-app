@@ -104,57 +104,24 @@
 
             <div class="bracket-row">
               <div class="tree-col">
-              @if (tree(); as tr) {
+              @if (folded(); as fb) {
                 <div class="tree-nav">
-                  <button
-                    type="button"
-                    class="btn btn-sm"
-                    [attr.aria-label]="t('phases.tree.previous')"
-                    [disabled]="activeCol() <= 0"
-                    (click)="goColumn(tr, activeCol() - 1)"
-                  >
-                    ‹
-                  </button>
-                  @for (col of tr.columns; track col.col) {
-                    <button
-                      type="button"
-                      class="btn btn-sm"
-                      [class.btn-primary]="activeCol() === col.col"
-                      (click)="goColumn(tr, col.col)"
-                    >
-                      {{ t('phases.tree.round', { n: col.col + 1, size: col.size }) }}
-                    </button>
-                  }
-                  <button
-                    type="button"
-                    class="btn btn-sm"
-                    [attr.aria-label]="t('phases.tree.next')"
-                    [disabled]="activeCol() >= tr.columns.length - 1"
-                    (click)="goColumn(tr, activeCol() + 1)"
-                  >
-                    ›
-                  </button>
-                  @if (tr.blocks.length > 1) {
-                    <span class="tree-nav-sep"></span>
+                  @if (fb.parts.length > 1) {
                     <span class="field-label">{{ t('phases.tree.blocks') }}</span>
-                    @for (blk of tr.blocks; track blk.from) {
-                      <button type="button" class="btn btn-sm" (click)="goBlock(blk)">
-                        {{ t('round.places', { from: blk.from, to: blk.to }) }}
+                    @for (p of fb.parts; track p.from) {
+                      <button type="button" class="btn btn-sm" (click)="goPart(p)">
+                        {{ t('round.places', { from: p.from, to: p.to }) }}
                       </button>
                     }
                   }
                   <span class="tree-legend">
-                    <span class="seg seg-sm" role="group" [attr.aria-label]="t('phases.tree.links')">
-                      @for (o of linkOptions; track o) {
-                        <button type="button" class="seg-option" [class.active]="links() === o" (click)="setLinks(o)">{{ t('phases.tree.links_' + o) }}</button>
-                      }
-                    </span>
                     <span class="legend-win">{{ t('phases.tree.winner') }}</span>
                     <span class="legend-lose">{{ t('phases.tree.loser') }}</span>
                   </span>
                 </div>
                 @let g = geometry();
-                <div class="tree-scroll" #scroller (scroll)="onScroll()">
+                <div class="tree-scroll" #scroller>
+                  @let tr = fb.tree;
                   <div
                     class="tree"
                     [style.width.px]="treeWidth(tr)"
@@ -168,33 +135,19 @@
                       [attr.height]="treeHeight(tr)"
                       aria-hidden="true"
                     >
-                      @for (l of tr.links; track l.from + l.to) {
-                        @if (showsLink(links(), l.kind)) {
-                        <path
-                          [attr.d]="path(tr, l)"
-                          [class]="'link link-' + l.kind"
-                          [class.done]="decided(tr, l.from)"
-                        />
-                        }
+                      @for (r of routes(); track r.link.from + r.link.to) {
+                        <path [attr.d]="r.d" [class]="'link link-' + r.link.kind" [class.done]="decided(tr, r.link.from)" />
                       }
                     </svg>
-                    @if (tr.titled) {
-                      @for (n of tr.nodes; track n.col + '-' + n.from) {
-                        <span class="field-label tree-block-title" [style.left.px]="left(n.col)" [style.top.px]="top(tr, n.row) - g.title">
-                          {{ t('round.places', { from: n.from, to: n.to }) }}
-                        </span>
-                      }
-                    }
                     @for (tm of tr.matches; track tm.match.id) {
                       @let m = tm.match;
                       <div
                         class="bmatch"
-                        [class.bye]="m.byeA || m.byeB"
                         [attr.data-match]="m.id"
                         [style.left.px]="left(tm.col)"
-                        [style.top.px]="top(tr, tm.row)"
+                        [style.top.px]="top(tm.row)"
                       >
-                        <app-bracket-match [match]="m" [origins]="b.origins" [originColors]="b.originColors">
+                        <app-bracket-match [match]="m" [origins]="b.origins" [originColors]="b.originColors" [size]="(b.slots ?? []).length">
                         @if (correction() && m.a.entrant && m.b.entrant && !m.walkover) {
                           <div class="bmatch-actions">
                             <button type="button" class="btn btn-xs" (click)="scoring.set(m)">

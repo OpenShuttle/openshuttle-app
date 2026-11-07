@@ -108,7 +108,6 @@ func (s State) DrawLots(c engine.Category, stage string, pool int, rng *rand.Ran
 func (s *State) applyScoreCleared(p ScoreCleared) {
 	if i := s.matchIndex(p.Match); i >= 0 {
 		s.matches[i].Score = nil
-		s.matches[i].scoreSeq = 0
 		if !s.matches[i].Called() {
 			// Scored without being played on a court: back to the queue.
 			s.matches[i].EndedAt = s.matches[i].CalledAt

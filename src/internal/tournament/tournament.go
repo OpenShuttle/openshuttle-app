@@ -204,7 +204,7 @@ func (s *State) apply(e events.Event) error {
 	case TypeMatchEnded:
 		return decodeInto(e, func(p MatchEnded) { s.applyMatchEnded(p, e.At) })
 	case TypeScoreRecorded:
-		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At, e.Seq) })
+		return decodeInto(e, func(p ScoreRecorded) { s.applyScoreRecorded(p, e.At) })
 	case TypeEntrantWithdrawn:
 		return decodeInto(e, func(p EntrantWithdrawn) { s.applyEntrantWithdrawn(p, e.At) })
 	case TypeScoreCleared:

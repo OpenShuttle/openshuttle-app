@@ -17,15 +17,20 @@ interface Side {
   walkover: boolean;
   /** 'won', 'lost' or '' while the match is not decided. */
   result: string;
+  /** Final place the side takes in a match for a place (hall mode), else 0. */
+  place: number;
 }
 
 /**
  * A bracket match card: its name ("1/4 A"), its state, and each side with
- * its clubs, the pool it comes from, and a trophy or a cross once decided.
- * A side not known yet reads "Winner QF A". Actions are projected below.
+ * its clubs, the pool it comes from (first round only, `size`), and a trophy or a
+ * cross once decided. A side not known yet reads "Winner QF A". Actions are
+ * projected below. In hall mode (display screen): no clubs, scores nor forfeits, the
+ * winner on top, and the place won in a match for a place ("1st", "3rd").
  */
 @Component({
   selector: 'app-bracket-match',
+  host: { '[class.compact]': 'hall()' },
   imports: [TranslocoDirective, ResultIcon, WithBibPipe],
   template: `<ng-container *transloco="let t">
     @let m = match();
@@ -35,7 +40,9 @@ interface Side {
         @if (m.walkover) {
           <!-- the WO sits on the side that forfeited -->
         } @else if (m.score) {
-          {{ score() }}
+          @if (!hall()) {
+            {{ score() }}
+          }
         } @else if (m.court && !m.endedAt) {
           <span class="pill pill-playing">{{ t('desk.courtN', { n: m.court }) }}</span>
         } @else if (m.endedAt) {
@@ -58,13 +65,16 @@ interface Side {
         } @else {
           <span class="who">
             <span class="names">{{ s.side | withBib }}</span>
-            @if (clubs(s.side); as c) {
+            @if (!hall() && clubs(s.side); as c) {
               <span class="club">{{ c }}</span>
             }
           </span>
         }
-        @if (s.walkover) {
+        @if (s.walkover && !hall()) {
           <span class="pill pill-alert wo">WO</span>
+        }
+        @if (s.place) {
+          <span class="place">{{ t('bracket.place', { n: s.place }) }}</span>
         }
         @if (s.result) {
           <app-result-icon class="icon" [won]="s.result === 'won'" />
@@ -82,10 +92,19 @@ interface Side {
       height: 100%;
     }
 
+    :host(.compact) .side {
+      min-height: 0;
+      padding: 3px 10px;
+    }
+
+    // A fixed height: the bracket's links aim at the teams' rows (CARD_HEAD).
     .head {
       @include row(8px);
+      flex: none;
+      box-sizing: border-box;
+      height: 27px;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 0 10px;
       background: var(--color-bg);
       font-size: 12px;
       font-weight: 700;
@@ -142,6 +161,11 @@ interface Side {
       font-size: 16px;
     }
 
+    .place {
+      flex: none;
+      font: 800 12px var(--font-mono);
+    }
+
     // Pool and rank an entrant of a bracket comes from ("A1").
     .origin {
       flex: none;
@@ -161,6 +185,10 @@ export class BracketMatch {
   readonly match = input.required<MatchView>();
   /** Pool and rank each entrant comes from ("A1"), and its pool's color. */
   readonly origins = input<Partial<Record<EntrantID, string>> | null | undefined>({});
+  /** Entrants of the bracket (its first round's size): the pool and rank show in that round only. */
+  readonly size = input(0);
+  /** Hall mode, for the display screen: no clubs, scores nor forfeits, the winner on top, places won. */
+  readonly hall = input(false);
   readonly originColors = input<Partial<Record<EntrantID, number>> | null | undefined>({});
 
   private readonly t = inject(TranslocoService);
@@ -182,15 +210,22 @@ export class BracketMatch {
       } else if (!s.entrant) {
         label = from ? sourceLabel(this.t, from) : this.t.translate('phases.tbd');
       }
+      const result = winner && s.entrant ? (winner === key ? 'won' : 'lost') : '';
+      // The pool and rank only in the first round, byes included.
+      const entering = !!s.entrant && m.placeFrom === 1 && m.roundSize === this.size();
       return {
         side: s,
         label,
-        origin: (s.entrant && this.origins()?.[s.entrant]) || '',
-        color: (s.entrant && this.originColors()?.[s.entrant]) || 0,
+        origin: (entering && this.origins()?.[s.entrant]) || '',
+        color: (entering && this.originColors()?.[s.entrant]) || 0,
         walkover,
-        result: winner && s.entrant ? (winner === key ? 'won' : 'lost') : '',
+        result,
+        place: this.hall() && m.roundSize === 2 && result ? m.placeFrom + (result === 'won' ? 0 : 1) : 0,
       };
     };
-    return [side(m.a, m.byeA, m.fromA, m.walkoverA, 'a'), side(m.b, m.byeB, m.fromB, m.walkoverB, 'b')];
+    const sides = [side(m.a, m.byeA, m.fromA, m.walkoverA, 'a'), side(m.b, m.byeB, m.fromB, m.walkoverB, 'b')];
+    // The team going on on top: the winner, or the side facing a bye (no trophy then).
+    const first = winner || (m.byeA !== m.byeB ? (m.byeA ? 'b' : 'a') : '');
+    return this.hall() && first === 'b' ? sides.reverse() : sides;
   });
 }

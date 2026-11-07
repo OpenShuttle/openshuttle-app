@@ -276,9 +276,7 @@
     "rank": "Rang",
     "points": "Points",
     "openTitle": "Ouvrir l'écran d'appel",
-    "closeTitle": "Fermer l'écran d'appel",
-    "results": "Derniers résultats",
-    "noResults": "Aucun résultat pour l'instant"
+    "closeTitle": "Fermer l'écran d'appel"
   },
   "settings": {
     "language": "Langue"
@@ -727,17 +725,9 @@
     "redrawBracket": "Remplir à nouveau",
     "waitPools": "Disponible quand toutes les poules sont terminées et les égalités tranchées.",
     "tree": {
-      "round": "Tour {n} · {size}",
-      "previous": "Tour précédent",
-      "next": "Tour suivant",
       "blocks": "Aller à",
       "winner": "Vainqueur",
-      "loser": "Perdant",
-      "links": "Liens",
-      "links_all": "Tous",
-      "links_win": "Vainqueurs",
-      "links_lose": "Perdants",
-      "links_none": "Aucun"
+      "loser": "Perdant"
     },
     "firstRoundSlots": "Premier tour",
     "slotsHint": "Cliquez deux places pour les inverser.",
@@ -1109,7 +1099,8 @@
     "winnerOf": "Vainqueur {match}",
     "loserOf": "Perdant {match}",
     "won": "Gagné",
-    "lost": "Perdu"
+    "lost": "Perdu",
+    "place": "{n, select, 1 {1er} other {{n}e}}"
   },
   "snapshot": {
     "updatedAt": "État au {date} à {time}",

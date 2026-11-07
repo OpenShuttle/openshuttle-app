@@ -303,13 +303,6 @@
   @include row(6px, true);
 }
 
-.tree-nav-sep {
-  width: 1px;
-  height: 20px;
-  margin: 0 6px;
-  background: var(--color-border-strong);
-}
-
 .tree-legend {
   @include row(14px);
   margin-left: auto;
@@ -370,13 +363,6 @@
   stroke-dasharray: 5 4;
 }
 
-.tree-block-title {
-  position: absolute;
-  white-space: nowrap;
-  color: var(--color-text);
-  line-height: 18px;
-}
-
 .bmatch {
   position: absolute;
   display: flex;
@@ -387,19 +373,17 @@
   border: 1px solid #d6d9de;
   border-radius: var(--radius-md);
   overflow: hidden;
-
-  &.bye {
-    opacity: 0.6;
-  }
 }
 
-
-
-
+// A fixed height: the bracket's links aim at the teams' rows (CARD_ACTIONS).
 .bmatch-actions {
   display: flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  height: 39px;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 0 10px;
   border-top: 1px solid #ecedf0;
 }
 
