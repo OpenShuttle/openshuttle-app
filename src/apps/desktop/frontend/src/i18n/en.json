@@ -1110,5 +1110,15 @@
     "loserOf": "Loser {match}",
     "won": "Won",
     "lost": "Lost"
+  },
+  "snapshot": {
+    "updatedAt": "State on {date} at {time}",
+    "note": "Written by OpenShuttle after each action, to go on by hand if the app or the computer fails. The tournament file ({file}) stays the reference: open it again in OpenShuttle to go on.",
+    "courts": "Courts",
+    "notDrawn": "The draw is not confirmed yet.",
+    "notFilled": "Not filled yet.",
+    "left": "{n, plural, =0 {Matches left} one {# match left, in the schedule order} other {# matches left, in the schedule order}}",
+    "estimated": "Expected",
+    "match": "Match"
   }
 }
