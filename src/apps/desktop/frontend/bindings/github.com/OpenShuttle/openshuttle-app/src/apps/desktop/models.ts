@@ -1267,6 +1267,12 @@ export interface Settings {
      * are always assigned and stored, this only hides them.
      */
     "showBibs": boolean;
+
+    /**
+     * KeepAwake keeps the computer from sleeping and the screen from turning
+     * off or locking while the app runs (on by default).
+     */
+    "keepAwake": boolean;
 }
 
 /**

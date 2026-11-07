@@ -828,6 +828,8 @@
     "seconds": "{n} s",
     "operator": "Nom de l'opérateur",
     "operatorHint": "Affiché dans l'historique, à chaque action.",
+    "keepAwake": "Garder l'ordinateur éveillé",
+    "keepAwakeHint": "Tant qu'OpenShuttle est ouvert, l'ordinateur ne se met pas en veille et l'écran ne s'éteint ni ne se verrouille.",
     "defaults": "Valeurs par défaut des nouveaux tournois",
     "files": "Fichiers",
     "folder": "Dossier des tournois",

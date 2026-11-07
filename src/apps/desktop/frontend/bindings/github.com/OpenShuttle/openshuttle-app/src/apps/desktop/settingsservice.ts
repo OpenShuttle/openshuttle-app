@@ -70,6 +70,14 @@ export function SetDefaultPreset(kind: $models.PresetKind, id: string): $Cancell
 }
 
 /**
+ * SetKeepAwake keeps the computer awake while the app runs, or lets the
+ * system's own settings apply.
+ */
+export function SetKeepAwake(on: boolean): $CancellablePromise<void> {
+    return $Call.ByID(740404972, on);
+}
+
+/**
  * SetLanguage sets the UI language ("en" or "fr").
  */
 export function SetLanguage(lang: string): $CancellablePromise<void> {

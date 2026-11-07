@@ -11,5 +11,6 @@
   "tournamentsDir": "/home/julie/Documents/OpenShuttle",
   "clubDisplay": "name",
   "checkUpdates": true,
-  "showBibs": false
+  "showBibs": false,
+  "keepAwake": true
 }

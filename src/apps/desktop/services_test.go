@@ -175,6 +175,10 @@ func TestSettings(t *testing.T) {
 		t.Error("bibs are hidden by default")
 	}
 	must(f.settings.SetShowBibs(f.ctx, true))
+	if s, _ := f.settings.GetSettings(f.ctx); !s.KeepAwake {
+		t.Error("the computer is kept awake by default")
+	}
+	must(f.settings.SetKeepAwake(f.ctx, false))
 	wantCode(t, f.settings.SetClubDisplay(f.ctx, "logo"), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetRotationSeconds(f.ctx, 9), engine.CodeInvalidSetting)
 	wantCode(t, f.settings.SetDefaultCourts(f.ctx, 0), engine.CodeInvalidSetting)
@@ -194,7 +198,7 @@ func TestSettings(t *testing.T) {
 	want := Settings{Language: "fr", Operator: "Julie M.", Monitor: "HDMI-1", RotationSeconds: 45,
 		DefaultCourts: 6, DefaultMinRest: 0, TournamentsDir: f.dir,
 		DefaultFormat: "b-pools-main", DefaultWin: "b-timed-10", DefaultTiebreaks: "b-differences-first",
-		ClubDisplay: tournament.ClubDisplayAcronym, CheckUpdates: false, ShowBibs: true}
+		ClubDisplay: tournament.ClubDisplayAcronym, CheckUpdates: false, ShowBibs: true, KeepAwake: false}
 	if s != want {
 		t.Errorf("settings = %+v, want %+v", s, want)
 	}

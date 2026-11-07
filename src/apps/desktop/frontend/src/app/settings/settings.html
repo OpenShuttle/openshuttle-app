@@ -95,6 +95,16 @@
           (keydown.enter)="setOperator($event)"
         />
       </div>
+      <div class="row">
+        <div class="label">
+          <span class="name">{{ t('settingsPage.keepAwake') }}</span>
+          <span class="hint">{{ t('settingsPage.keepAwakeHint') }}</span>
+        </div>
+        <div class="seg">
+          <button type="button" class="seg-option" [class.active]="s.keepAwake" (click)="setKeepAwake(true)">{{ t('settingsPage.yes') }}</button>
+          <button type="button" class="seg-option" [class.active]="!s.keepAwake" (click)="setKeepAwake(false)">{{ t('settingsPage.no') }}</button>
+        </div>
+      </div>
     </section>
 
     <section class="card">
