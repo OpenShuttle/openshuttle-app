@@ -751,7 +751,7 @@
     "pointsShort": "Pts",
     "onCourt": "Terrain {n} · en jeu",
     "displayed": "Écran d'appel",
-    "displayedHint": "Afficher cette phase sur l'écran d'appel pendant qu'elle se joue"
+    "displayedHint": "Afficher cette phase sur l'écran d'appel. Se coche toute seule au lancement de son premier match."
   },
   "round": {
     "final": "Finale",

@@ -751,7 +751,7 @@
     "pointsShort": "Pts",
     "onCourt": "Court {n} · playing",
     "displayed": "Display screen",
-    "displayedHint": "Show this stage on the display screen while it is played"
+    "displayedHint": "Show this stage on the display screen. Ticked by itself once its first match starts."
   },
   "round": {
     "final": "Final",

@@ -16,25 +16,6 @@
     <span>{{ t(fullscreen() ? 'window.exitFullscreen' : 'window.fullscreen') }}</span>
   </button>
   <div class="screen">
-    <header class="top">
-      <span class="title-block">
-        <span class="title">{{ view().name || t('app.name') }}</span>
-        <span class="sub">
-          @for (c of view().categories; track c.category; let last = $last) {
-            {{ t('category.name.' + c.category) }}{{ last ? '' : ' + ' }}
-          }
-        </span>
-      </span>
-      @if (view().round; as r) {
-        <span class="round" [class.elapsed]="left() <= 0">
-          <span class="round-label">{{ t('displayScreen.round', { n: r.number }) }}</span>
-          <span class="round-text">{{ t(left() > 0 ? 'displayScreen.endsIn' : 'rounds.elapsed') }}</span>
-          <span class="round-clock">{{ countdown() }}</span>
-        </span>
-      }
-      <span class="clock">{{ time(now()) }}</span>
-    </header>
-
     <main class="grid">
       <section class="panel stage">
         @if (stage(); as s) {
@@ -131,7 +112,17 @@
       </section>
 
       <aside class="panel results">
-        <h2 class="results-title">{{ t('displayScreen.results') }}</h2>
+        <div class="results-head">
+          <h2 class="results-title">{{ t('displayScreen.results') }}</h2>
+          <span class="clock">{{ time(now()) }}</span>
+        </div>
+        @if (view().round; as r) {
+          <div class="round" [class.elapsed]="left() <= 0">
+            <span class="round-label">{{ t('displayScreen.round', { n: r.number }) }}</span>
+            <span class="round-text">{{ t(left() > 0 ? 'displayScreen.endsIn' : 'rounds.elapsed') }}</span>
+            <span class="round-clock">{{ countdown() }}</span>
+          </div>
+        }
         <div class="results-list">
           @for (m of view().results; track m.id) {
             @let w = winner(m);
@@ -139,7 +130,6 @@
               <div class="result-head">
                 <span class="cat cat-sm" [style.background]="'var(--color-category-' + m.slot + ')'">{{ t('category.short.' + m.category) }}</span>
                 <span class="result-stage"><app-match-stage [match]="m" /></span>
-                <span class="result-time">{{ time(m.endedAt) }}</span>
               </div>
               @for (side of sideKeys; track side) {
                 @let sv = side === 'a' ? m.a : m.b;
@@ -149,20 +139,10 @@
                       <app-result-icon [won]="w === side" />
                     }
                   </span>
-                  <span class="who">
-                    <span class="names">{{ sv | withBib }}</span>
-                    @if (clubs(sv); as c) {
-                      <span class="club">{{ c }}</span>
-                    }
-                  </span>
-                  <span class="sets">
-                    @if (side === 'a' ? m.walkoverA : m.walkoverB) {
-                      <span class="wo">WO</span>
-                    }
-                    @for (p of points(m, side); track $index) {
-                      <span class="set">{{ p }}</span>
-                    }
-                  </span>
+                  <span class="names">{{ sv | withBib }}</span>
+                  @if (side === 'a' ? m.walkoverA : m.walkoverB) {
+                    <span class="wo">WO</span>
+                  }
                 </div>
               }
             </div>
