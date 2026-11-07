@@ -1110,5 +1110,15 @@
     "loserOf": "Perdant {match}",
     "won": "Gagné",
     "lost": "Perdu"
+  },
+  "snapshot": {
+    "updatedAt": "État au {date} à {time}",
+    "note": "Écrit par OpenShuttle après chaque action, pour continuer à la main si l'appli ou l'ordinateur tombe en panne. Le fichier du tournoi ({file}) reste la référence : rouvrez-le dans OpenShuttle pour reprendre.",
+    "courts": "Terrains",
+    "notDrawn": "Le tirage n'est pas encore confirmé.",
+    "notFilled": "Pas encore rempli.",
+    "left": "{n, plural, =0 {Matchs restants} one {# match restant, dans l'ordre de l'échéancier} other {# matchs restants, dans l'ordre de l'échéancier}}",
+    "estimated": "Prévu",
+    "match": "Match"
   }
 }

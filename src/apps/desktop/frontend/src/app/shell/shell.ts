@@ -13,6 +13,7 @@ import { TournamentStore } from '../core/tournament.service';
 import { ActionView } from '@bindings/apps/desktop';
 import { ActionLabels } from '../core/action-label';
 import { Clock } from '../core/clock';
+import { SnapshotWriter } from '../snapshot/snapshot-writer';
 
 /**
  * Main window: the top bar, then the home screens (recent tournaments,
@@ -76,6 +77,9 @@ export class Shell implements OnInit {
     // window or later (macOS hands it to the running app).
     const off = Events.On('tournament.launched', () => void this.takeLaunch());
     inject(DestroyRef).onDestroy(off);
+
+    // The readable state beside the tournament file, after each action.
+    inject(SnapshotWriter).start(inject(DestroyRef));
 
     // Closing the tournament leaves its screens.
     effect(() => {

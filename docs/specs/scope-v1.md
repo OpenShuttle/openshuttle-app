@@ -308,6 +308,12 @@ A tournament goes through six steps.
   shows on the home screen. When the file is already open in a window, that
   window comes to the front and no new one starts. On macOS, the running app
   receives the file and opens it in place of the current one.
+- **Readable state beside the file**: after each action, the app writes
+  `<name>.html` next to the tournament file, in the UI language: courts,
+  pending scores, every stage (pool standings and matches, bracket rounds and
+  places) and the matches left in the schedule order. It opens in any
+  browser, without OpenShuttle, so the desk can go on by hand if the app or
+  the computer fails. The tournament file stays the reference.
 - **Inside a tournament**, a side navigation following the steps in two
   groups: Preparation (Info, Entrants, Format) then On the day (Check-in,
   Draw, Schedule, Control desk, Stages, Results). The current step stands out,

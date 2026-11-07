@@ -70,6 +70,7 @@ src/apps/web/            v2 mobile-first Angular website, empty for now
 - A tournament file is self-contained: entrants are copied from the registry at creation.
 - Every file stores its schema version and is migrated on open.
 - WAL mode and `synchronous=FULL` always: a committed action survives a power cut. Automatic periodic backup copy (`VACUUM INTO`, named `<name>.backup-YYYYMMDD-HHMMSS.openshuttle`, rotated).
+- **Readable state** (`snapshot/`, `snapshot.go`): after each action (`tournament.updated`, settled for 1 s), the main window builds one self-contained HTML page from the views (courts, pending scores, every stage, matches left in schedule order; translated, bibs as the setting says) and Go writes it beside the file as `<name>.html` (`store.WriteSnapshot`: temporary file then rename; `WriteSnapshot(version, html)` skips an outdated version). For going on by hand if the app or the PC fails; a failure is only logged. Deleting the file from the trash removes it too.
 - Files are recognized by their SQLite `application_id` (`OSHT` tournament, `OSAP` app.db), versioned by `user_version`. Migrations are append-only lists in `internal/store`.
 - Undo appends an `ActionUndone` event targeting an earlier seq; undoing an undo restores its target. `events.Active` gives the events in effect. Nothing is deleted from the log.
 - Open SQLite with a plain path, never a `file:` URI (Windows paths, `#` and `%` in names).

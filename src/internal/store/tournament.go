@@ -209,7 +209,7 @@ func (f *TournamentFile) Version(ctx context.Context) (uint64, error) {
 }
 
 // RemoveTournament deletes a tournament file with its -wal, -shm and lock
-// files. A file open somewhere, in this instance of the app or another one,
+// files and its readable state (SnapshotPath). A file open somewhere, in this instance of the app or another one,
 // is kept (FILE_IN_USE). A file already gone is not an error.
 func RemoveTournament(path string) error {
 	exists, err := fileExists(path)
@@ -222,7 +222,7 @@ func RemoveTournament(path string) error {
 				return err
 			}
 		}
-		return nil
+		return removeSnapshot(path)
 	}
 	lock, err := lockTournament(path)
 	if err != nil {
@@ -234,5 +234,5 @@ func RemoveTournament(path string) error {
 			return err
 		}
 	}
-	return nil
+	return removeSnapshot(path)
 }

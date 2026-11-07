@@ -645,3 +645,15 @@ export function ValidateSchedule(): $CancellablePromise<void> {
 export function WithdrawEntrant(id: engine$0.EntrantID): $CancellablePromise<void> {
     return $Call.ByID(3772126482, id);
 }
+
+/**
+ * WriteSnapshot writes the readable state of the open tournament beside its
+ * file ("Tournament.html"): pools, brackets, courts and matches left, for
+ * the desk to go on by hand if the app or the computer fails. The frontend
+ * builds it after each action (it holds the translations); version is the
+ * tournament version it was built from, and an outdated one is skipped. A
+ * failure is logged: the tournament file stays the reference.
+ */
+export function WriteSnapshot(version: number, html: string): $CancellablePromise<void> {
+    return $Call.ByID(86486081, version, html);
+}
