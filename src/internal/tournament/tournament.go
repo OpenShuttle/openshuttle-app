@@ -98,9 +98,9 @@ type State struct {
 	// every court (lunch…).
 	day    DaySet
 	breaks []Break
-	// hiddenOnDisplay holds the stages hidden on the display screen
-	// ("<category>/<stage>").
-	hiddenOnDisplay map[string]bool
+	// displayed holds the stages the desk shows (true) or hides on the
+	// display screen ("<category>/<stage>"); the others show once started.
+	displayed map[string]bool
 	// lastAt is the time of the latest event in effect: "now" for orders
 	// that need one without a clock.
 	lastAt time.Time

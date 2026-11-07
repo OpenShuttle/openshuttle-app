@@ -30,6 +30,13 @@ describe('DisplayScreen', () => {
     expect(text(f)).toContain(row.clubs[0]);
     expect(text(f)).toContain('Latest results');
     expect(f.nativeElement.querySelectorAll('.result').length).toBe(display.results.length);
+    // Neither the tournament's name nor the scores, clubs and times of the results.
+    expect(text(f)).not.toContain(display.name);
+    const result = (f.nativeElement.querySelector('.result') as HTMLElement).textContent ?? '';
+    const r = display.results[0];
+    expect(result).toContain(r.a.names[0]);
+    expect(result).not.toContain(r.a.clubs[0]);
+    expect(f.nativeElement.querySelector('.results-head .clock')).not.toBeNull();
     // A decided result shows a trophy and a cross.
     expect(f.nativeElement.querySelector('.result app-result-icon .won')).not.toBeNull();
     expect(f.nativeElement.querySelector('.result app-result-icon .lost')).not.toBeNull();
@@ -51,7 +58,7 @@ describe('DisplayScreen', () => {
   });
 
   it('draws a bracket with its matches named', async () => {
-    view(finished);
+    view({ ...finished, stages: finished.stages.filter((s) => s.kind === 'bracket') });
     const f = await render(DisplayScreen);
     expect(f.nativeElement.querySelectorAll('.bmatch').length).toBeGreaterThan(0);
     expect(text(f)).toContain('Final');

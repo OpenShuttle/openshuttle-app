@@ -11,41 +11,20 @@
 
 .screen {
   height: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  padding: 1.6vw 2vw;
-  gap: 1.2vw;
-}
-
-.top {
-  @include row(2vw);
-}
-
-.title-block {
-  @include stack(0.3vw);
-  margin-right: auto;
-}
-
-.title {
-  font-size: 2vw;
-  font-weight: 800;
-}
-
-.sub {
-  font-size: 1.2vw;
-  color: var(--color-display-muted);
+  padding: 1.2vw 1.4vw;
 }
 
 .clock {
-  font: 700 3vw/1 var(--font-mono);
+  font: 600 0.95vw/1 var(--font-mono);
+  color: var(--color-display-muted);
 }
 
 // Timed round in progress: the shared countdown.
 .round {
-  @include row(1vw);
-  padding: 0.5vw 1.2vw;
-  border: 0.25vw solid var(--color-playing);
-  border-radius: 0.8vw;
+  @include row(0.6vw);
+  padding: 0.4vw 0.7vw;
+  border: 0.15vw solid var(--color-playing);
+  border-radius: 0.5vw;
 
   &.elapsed {
     border-color: var(--color-finished);
@@ -59,27 +38,29 @@
 .round-label {
   background: var(--color-brand);
   color: var(--color-display-bg);
-  font-size: 1.2vw;
+  font-size: 0.75vw;
   font-weight: 800;
-  padding: 0.2vw 0.8vw;
-  border-radius: 0.4vw;
+  padding: 0.1vw 0.5vw;
+  border-radius: 0.3vw;
   text-transform: uppercase;
 }
 
 .round-text {
-  font-size: 1.2vw;
+  flex: 1;
+  font-size: 0.8vw;
   font-weight: 700;
   color: var(--color-display-muted);
 }
 
 .round-clock {
-  font: 700 3vw/1 var(--font-mono);
+  font: 700 1.6vw/1 var(--font-mono);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 26vw);
-  gap: 1.4vw;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22vw);
+  gap: 1.2vw;
+  height: 100%;
   min-height: 0;
 }
 
@@ -92,15 +73,15 @@
 .cat {
   flex: none;
   color: #fff;
-  font-size: 1.6vw;
+  font-size: 1.05vw;
   font-weight: 800;
-  padding: 0.2vw 0.8vw;
+  padding: 0.15vw 0.6vw;
   border-radius: 0.4vw;
   letter-spacing: 0.06em;
 
   &.cat-sm {
-    font-size: 0.95vw;
-    padding: 0.1vw 0.5vw;
+    font-size: 0.7vw;
+    padding: 0.05vw 0.4vw;
   }
 }
 
@@ -108,8 +89,8 @@
 .stage {
   display: flex;
   flex-direction: column;
-  padding: 1.2vw 1.4vw;
-  gap: 0.8vw;
+  padding: 1vw 1.2vw;
+  gap: 0.6vw;
 }
 
 .stage-head {
@@ -119,7 +100,7 @@
 .stage-title {
   flex: 1;
   min-width: 0;
-  font-size: 2vw;
+  font-size: 1.35vw;
   font-weight: 800;
   @include ellipsis;
 }
@@ -130,8 +111,8 @@
 }
 
 .dot {
-  width: 0.8vw;
-  height: 0.8vw;
+  width: 0.6vw;
+  height: 0.6vw;
   border-radius: 50%;
   background: var(--color-display-border);
 
@@ -164,20 +145,20 @@
   flex: 1;
   @include row;
   justify-content: center;
-  font-size: 2.2vw;
+  font-size: 1.4vw;
   color: var(--color-display-muted);
 }
 
 // Pools: every pool of the stage.
 .pools {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(max(30vw, 340px), 1fr));
-  gap: 1vw;
+  grid-template-columns: repeat(auto-fill, minmax(max(22vw, 300px), 1fr));
+  gap: 0.8vw;
 }
 
 .pool {
   @include stack(0.4vw);
-  padding: 0.9vw 1.1vw;
+  padding: 0.7vw 0.9vw;
   border: 1px solid var(--color-display-border);
   border-radius: 0.8vw;
 }
@@ -188,27 +169,27 @@
 }
 
 .pool-name {
-  font-size: 1.6vw;
+  font-size: 1.1vw;
   font-weight: 800;
 }
 
 .pool-played {
-  font: 600 1vw var(--font-mono);
+  font: 600 0.75vw var(--font-mono);
   color: var(--color-display-muted);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 2.4vw minmax(0, 1fr) 2.6vw 3.8vw;
-  gap: 0.8vw;
+  grid-template-columns: 1.6vw minmax(0, 1fr) 1.8vw 2.6vw;
+  gap: 0.6vw;
   align-items: center;
   border-top: 1px solid #262b36;
-  padding-top: 0.4vw;
-  font-size: 1.3vw;
+  padding-top: 0.3vw;
+  font-size: 0.9vw;
 
   &.labels {
     border-top: none;
-    font-size: 0.85vw;
+    font-size: 0.6vw;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -222,7 +203,7 @@
 }
 
 .rank {
-  font: 700 1.6vw var(--font-mono);
+  font: 700 1.05vw var(--font-mono);
   color: var(--color-brand);
 }
 
@@ -255,10 +236,10 @@
 .live {
   @include row(0.8vw);
   margin-top: 0.2vw;
-  padding: 0.3vw 0.6vw;
-  border-radius: 0.4vw;
+  padding: 0.25vw 0.5vw;
+  border-radius: 0.3vw;
   background: #16306b;
-  font-size: 1vw;
+  font-size: 0.75vw;
 }
 
 .live-court {
@@ -341,13 +322,18 @@
 .results {
   display: flex;
   flex-direction: column;
-  padding: 1.2vw 1.2vw;
-  gap: 0.8vw;
+  padding: 1vw;
+  gap: 0.6vw;
+}
+
+.results-head {
+  @include row(0.6vw);
+  justify-content: space-between;
 }
 
 .results-title {
   margin: 0;
-  font-size: 1.1vw;
+  font-size: 0.8vw;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -355,27 +341,27 @@
 }
 
 .results-list {
-  @include stack(0.7vw);
+  @include stack(0.5vw);
   min-height: 0;
   overflow: hidden;
 }
 
 .results-empty {
   margin: 0;
-  font-size: 1.1vw;
+  font-size: 0.85vw;
   color: var(--color-display-muted);
 }
 
 .result {
-  @include stack(0.3vw);
-  padding: 0.6vw 0.8vw;
+  @include stack(0.25vw);
+  padding: 0.45vw 0.6vw;
   border: 1px solid var(--color-display-border);
-  border-radius: 0.6vw;
+  border-radius: 0.5vw;
 }
 
 .result-head {
-  @include row(0.6vw);
-  font-size: 0.9vw;
+  @include row(0.5vw);
+  font-size: 0.7vw;
   color: var(--color-display-muted);
 }
 
@@ -385,14 +371,13 @@
   @include ellipsis;
 }
 
-.result-time {
-  flex: none;
-  font-family: var(--font-mono);
-}
-
 .result-side {
-  @include row(0.6vw);
-  font-size: 1.1vw;
+  @include row(0.5vw);
+  font-size: 0.85vw;
+
+  .names {
+    flex: 1;
+  }
 
   &.lost {
     color: var(--color-display-muted);
@@ -405,27 +390,14 @@
 
 .result-icon {
   flex: none;
-  width: 1.2vw;
+  width: 0.9vw;
   display: inline-flex;
-  font-size: 1.1vw;
-}
-
-.result-side .who {
-  flex: 1;
-}
-
-.sets {
-  @include row(0.5vw);
-  flex: none;
-  font: 700 1.2vw var(--font-mono);
-}
-
-.set {
-  min-width: 1.8vw;
-  text-align: right;
+  font-size: 0.85vw;
 }
 
 .wo {
+  flex: none;
+  font: 700 0.75vw var(--font-mono);
   color: #e0675e;
 }
 

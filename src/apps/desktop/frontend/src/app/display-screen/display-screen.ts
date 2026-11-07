@@ -22,7 +22,7 @@ const SCROLL_SPEED = 40;
 /** Pause at the top and at the bottom of a stage before scrolling or moving on, in ms. */
 const HOLD = 4000;
 /** Largest zoom of a small bracket. */
-const MAX_SCALE = 1.6;
+const MAX_SCALE = 1.2;
 
 function stageKey(s: DisplayStage): string {
   return `${s.category}/${s.id}`;
@@ -32,7 +32,7 @@ function stageKey(s: DisplayStage): string {
  * Display screen: second window on the hall monitor, read from 10 m. The
  * stages being played take turns (the desk picks which ones on the Stages
  * screen): every pool, or the bracket, scrolling slowly when taller than the
- * screen; the latest results stay on the right.
+ * screen; the latest results and the time stay on the right.
  */
 @Component({
   selector: 'app-display-screen',
@@ -179,10 +179,6 @@ export class DisplayScreen {
 
   protected winner(m: MatchView): 'a' | 'b' | '' {
     return matchWinner(m);
-  }
-
-  protected points(m: MatchView, side: 'a' | 'b'): number[] {
-    return (m.score?.sets ?? []).map((s) => s[side]);
   }
 
   protected cardLeft(col: number): number {

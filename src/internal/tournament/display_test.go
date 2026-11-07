@@ -110,16 +110,29 @@ func TestStageDisplay(t *testing.T) {
 		}
 		return out
 	}
-	// Drawn, not started: about to start.
+	// Drawn, not started: not shown until the desk says so.
+	if got := refs(); len(got) != 0 || g.state().ShownOnDisplay(engine.MensSingles, "S1") {
+		t.Errorf("stages = %v", got)
+	}
+	if ch, err := g.state().SetStageDisplay(engine.MensSingles, "S1", false); err != nil || ch.Type != "" {
+		t.Errorf("hiding a hidden stage = %+v, %v", ch, err)
+	}
+	g.do(func(s State) (Change, error) { return s.SetStageDisplay(engine.MensSingles, "S1", true) })
 	if got := refs(); !slices.Equal(got, []string{"S1"}) {
 		t.Errorf("stages = %v", got)
 	}
-	g.do(func(s State) (Change, error) { return s.SetStageDisplay(engine.MensSingles, "S1", false) })
-	if got := refs(); len(got) != 0 || g.state().ShownOnDisplay(engine.MensSingles, "S1") {
-		t.Errorf("hidden stage shown: %v", got)
+	g.undo()
+
+	// The first match called shows the stage.
+	first := g.state().Matches()[0]
+	g.do(func(s State) (Change, error) { return s.CallMatch(first.ID, 1) })
+	if got := refs(); !slices.Equal(got, []string{"S1"}) {
+		t.Errorf("stages = %v", got)
 	}
-	if ch, err := g.state().SetStageDisplay(engine.MensSingles, "S1", false); err != nil || ch.Type != "" {
-		t.Errorf("hiding twice = %+v, %v", ch, err)
+	// The desk hides it anyway.
+	g.do(func(s State) (Change, error) { return s.SetStageDisplay(engine.MensSingles, "S1", false) })
+	if got := refs(); len(got) != 0 {
+		t.Errorf("hidden stage shown: %v", got)
 	}
 	g.undo()
 
@@ -132,8 +145,13 @@ func TestStageDisplay(t *testing.T) {
 	if len(all) != 12 || all[0].ID != scored[0].ID || all[0].scoreSeq < all[1].scoreSeq {
 		t.Errorf("latest scores not newest first: %v", ids(all))
 	}
-	// Pools over, bracket filled: the bracket is next, then playing.
+	// Pools over, bracket filled but not started: the pools stay on screen.
 	g.fill(engine.MensSingles, main)
+	if got := refs(); !slices.Equal(got, []string{"S1"}) {
+		t.Errorf("stages = %v", got)
+	}
+	// Shown by hand, the bracket takes the screen.
+	g.do(func(s State) (Change, error) { return s.SetStageDisplay(engine.MensSingles, main, true) })
 	if got := refs(); !slices.Equal(got, []string{main}) {
 		t.Errorf("stages = %v", got)
 	}
