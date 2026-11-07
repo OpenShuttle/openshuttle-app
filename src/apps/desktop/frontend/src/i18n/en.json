@@ -828,6 +828,8 @@
     "seconds": "{n} s",
     "operator": "Operator name",
     "operatorHint": "Shown in the history, with every action.",
+    "keepAwake": "Keep the computer awake",
+    "keepAwakeHint": "While OpenShuttle is open, the computer does not go to sleep and the screen neither turns off nor locks.",
     "defaults": "Defaults for new tournaments",
     "files": "Files",
     "folder": "Tournaments folder",

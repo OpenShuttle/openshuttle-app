@@ -15,6 +15,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 
 	"github.com/OpenShuttle/openshuttle-app/src/internal/instances"
+	"github.com/OpenShuttle/openshuttle-app/src/internal/keepawake"
 	"github.com/OpenShuttle/openshuttle-app/src/internal/store"
 )
 
@@ -64,6 +65,12 @@ func main() {
 	tournaments := NewTournamentService(appDB, emit, time.Now, filepath.Join(dataDir, "backups"), nativeDialogs{})
 	// The open tournament follows the club list and the club display setting.
 	emitClubs := tournaments.followClubs(emit)
+	// The computer stays awake while the app runs, as the setting says.
+	awake := &keepAwake{start: keepawake.Start}
+	if settings, err := loadSettings(context.Background(), appDB); err == nil {
+		awake.apply(settings.KeepAwake)
+	}
+	defer awake.apply(false)
 	// Another instance asking for the file open here brings the main window
 	// to the front, once the app runs.
 	var front atomic.Pointer[application.WebviewWindow]
@@ -89,7 +96,7 @@ func main() {
 		Services: []application.Service{
 			service(NewAppService(appDB, emit)),
 			service(NewDisplayScreenService()),
-			service(NewSettingsService(appDB, emitClubs, nativeDialogs{})),
+			service(NewSettingsService(appDB, awake.follow(emitClubs), nativeDialogs{})),
 			service(NewPresetService(appDB, emitClubs, time.Now)),
 			service(tournaments),
 		},

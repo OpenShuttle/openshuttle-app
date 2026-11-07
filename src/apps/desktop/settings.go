@@ -27,6 +27,7 @@ const (
 	settingClubDisplay     = "clubDisplay"
 	settingCheckUpdates    = "checkUpdates"
 	settingShowBibs        = "showBibs"
+	settingKeepAwake       = "keepAwake"
 
 	// EventSettingsChanged is emitted after a setting changes, so every
 	// window applies it. Its payload is the full Settings.
@@ -74,6 +75,9 @@ type Settings struct {
 	// ShowBibs shows the bib numbers on the screens (off by default): bibs
 	// are always assigned and stored, this only hides them.
 	ShowBibs bool `json:"showBibs"`
+	// KeepAwake keeps the computer from sleeping and the screen from turning
+	// off or locking while the app runs (on by default).
+	KeepAwake bool `json:"keepAwake"`
 }
 
 // SettingsService reads and writes the app settings.
@@ -157,6 +161,12 @@ func (s *SettingsService) SetShowBibs(ctx context.Context, on bool) error {
 	return s.set(ctx, settingShowBibs, strconv.FormatBool(on))
 }
 
+// SetKeepAwake keeps the computer awake while the app runs, or lets the
+// system's own settings apply.
+func (s *SettingsService) SetKeepAwake(ctx context.Context, on bool) error {
+	return s.set(ctx, settingKeepAwake, strconv.FormatBool(on))
+}
+
 // PresetKind names a list of presets.
 type PresetKind string
 
@@ -234,7 +244,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		settingLanguage, settingOperator, settingMonitor, settingRotationSeconds,
 		settingDefaultCourts, settingDefaultMinRest, settingTournamentsDir,
 		settingDefaultFormat, settingDefaultWin, settingDefaultTiebrk, settingClubDisplay,
-		settingCheckUpdates, settingShowBibs,
+		settingCheckUpdates, settingShowBibs, settingKeepAwake,
 	} {
 		v, _, err := db.Setting(ctx, key)
 		if err != nil {
@@ -259,6 +269,7 @@ func loadSettings(ctx context.Context, db *store.AppDB) (Settings, error) {
 		ClubDisplay:     clubDisplay(raw[settingClubDisplay]),
 		CheckUpdates:    raw[settingCheckUpdates] != "false",
 		ShowBibs:        raw[settingShowBibs] == "true",
+		KeepAwake:       raw[settingKeepAwake] != "false",
 	}
 	presets, err := readPresets(ctx, db)
 	if err != nil {

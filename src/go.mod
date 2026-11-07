@@ -3,6 +3,7 @@ module github.com/OpenShuttle/openshuttle-app/src
 go 1.26.0
 
 require (
+	github.com/godbus/dbus/v5 v5.2.4
 	github.com/wailsapp/wails/v3 v3.1.0
 	golang.org/x/sys v0.49.0
 	golang.org/x/text v0.43.0
@@ -14,7 +15,6 @@ require (
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.3 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/godbus/dbus/v5 v5.2.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect

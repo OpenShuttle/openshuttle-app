@@ -356,7 +356,7 @@ sides, as many set fields as the win condition needs, and the "WO" and
 | 10 | Stages | Control desk | Category, then one tab per stage: pool standings or bracket tree | "Correction" mode to move, swap, edit; history |
 | 11 | Results | Control desk | Full standings per category | Export, archive |
 | 12 | Display screen | Players and audience | Second full-screen window, both categories mixed with a very visible code. The stages being played take turns (30 s each by default, Settings; the desk hides a stage from the Stages screen): every pool of a pools stage with its standings and the matches on court, or the bracket drawn as a tree; a stage taller than the screen scrolls slowly to its end. The latest results stay on the right, the winner with a trophy, the loser with a cross. In a timed stage: a large shared countdown | None, display only |
-| 13 | Settings | Organizer | Language, clubs shown by name or acronym, display screen monitor, defaults (courts, rest, default presets), tournaments folder | Edit |
+| 13 | Settings | Organizer | Language, clubs shown by name or acronym, keep the computer awake, display screen monitor, defaults (courts, rest, default presets), tournaments folder | Edit |
 
 ## UX principles and hardware constraints
 

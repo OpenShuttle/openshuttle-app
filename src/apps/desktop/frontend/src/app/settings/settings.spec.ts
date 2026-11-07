@@ -35,13 +35,21 @@ describe('SettingsPage', () => {
     expect(go.argsOf('SettingsService.SetShowBibs')).toEqual([[true]]);
   });
 
+  it('keeps the computer awake, or not', async () => {
+    const f = await render(SettingsPage);
+    const no = [...f.nativeElement.querySelectorAll('.seg-option')].filter((b) => b.textContent!.trim() === 'No');
+    (no[1] as HTMLButtonElement).click();
+    await new Promise((r) => setTimeout(r));
+    expect(go.argsOf('SettingsService.SetKeepAwake')).toEqual([[false]]);
+  });
+
   it('looks for a new version at startup, or not, and checks on demand', async () => {
     go.on('AppService.GetAppInfo', { version: '1.2.0', compat: 1 });
     const f = await render(SettingsPage);
     expect(text(f)).toContain('Not checked yet.');
     const seg = () => [...f.nativeElement.querySelectorAll('.seg-option')] as HTMLButtonElement[];
-    // The first Yes/No is the bib numbers, the next the update check.
-    seg().filter((b) => b.textContent!.trim() === 'No')[1].click();
+    // The Yes/No pairs are the bib numbers, keeping awake, then the update check.
+    seg().filter((b) => b.textContent!.trim() === 'No')[2].click();
     await new Promise((r) => setTimeout(r));
     expect(go.argsOf('SettingsService.SetCheckUpdates')).toEqual([[false]]);
 
