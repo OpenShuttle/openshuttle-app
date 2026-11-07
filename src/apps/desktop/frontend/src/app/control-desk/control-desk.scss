@@ -696,11 +696,16 @@
 }
 
 .queue-filter {
+  @include stack(8px);
   padding: 0 20px 10px;
   position: sticky;
   top: 52px;
   background: #fff;
   z-index: 1;
+}
+
+.queue-search {
+  width: 100%;
 }
 
 .queue-item {
@@ -740,6 +745,16 @@
 }
 
 .queue-names {
+  @include ellipsis;
+}
+
+.queue-club,
+.pending-club {
+  flex: none;
+  max-width: 45%;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
   @include ellipsis;
 }
 

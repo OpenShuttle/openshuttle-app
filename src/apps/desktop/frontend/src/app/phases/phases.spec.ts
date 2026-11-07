@@ -30,7 +30,17 @@ describe('Phases', () => {
     expect(text(f)).toContain('Pool A');
     await click(f, 'Tableau principal');
     expect(text(f)).toContain('Final');
-    expect(f.nativeElement.querySelector('.bside .origin')?.textContent).toMatch(/^[A-Z]\d$/);
+    expect(f.nativeElement.querySelector('app-bracket-match .origin')?.textContent).toMatch(/^[A-Z]\d$/);
+  });
+
+  it('shows or hides a stage on the display screen', async () => {
+    const f = await render(Phases);
+    const box = f.nativeElement.querySelector('.display-toggle input') as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    box.checked = false;
+    box.dispatchEvent(new Event('change'));
+    await new Promise((r) => setTimeout(r));
+    expect(go.argsOf('TournamentService.SetStageDisplay')).toEqual([['MD', 'S2', false]]);
   });
 
   it('shows the history and undoes the latest action', async () => {

@@ -17,7 +17,7 @@ const (
 	settingLanguage        = "language"
 	settingOperator        = "operator"
 	settingMonitor         = "monitor"
-	settingRotationSeconds = "rotationSeconds"
+	settingRotationSeconds = "displayStageSeconds"
 	settingDefaultCourts   = "defaultCourts"
 	settingDefaultMinRest  = "defaultMinRest"
 	settingDefaultFormat   = "defaultFormat"
@@ -35,9 +35,9 @@ const (
 
 // Limits and defaults of the settings.
 const (
-	DefaultRotationSeconds = 8
-	MinRotationSeconds     = 4
-	MaxRotationSeconds     = 30
+	DefaultRotationSeconds = 30
+	MinRotationSeconds     = 10
+	MaxRotationSeconds     = 120
 )
 
 // Languages are the UI languages.
@@ -52,8 +52,8 @@ type Settings struct {
 	Operator string `json:"operator"`
 	// Monitor is the screen of the display window, "" for automatic.
 	Monitor string `json:"monitor"`
-	// RotationSeconds is how long the display screen shows each standings
-	// view before the next one.
+	// RotationSeconds is how long the display screen shows each stage
+	// before the next one, at least (a long stage scrolls slowly to its end).
 	RotationSeconds int `json:"rotationSeconds"`
 	// Defaults of new tournaments.
 	DefaultCourts  int `json:"defaultCourts"`
@@ -124,7 +124,7 @@ func (s *SettingsService) SetMonitor(ctx context.Context, id string) error {
 	return s.set(ctx, settingMonitor, id)
 }
 
-// SetRotationSeconds sets how long each standings view stays on the display screen.
+// SetRotationSeconds sets how long each stage stays on the display screen.
 func (s *SettingsService) SetRotationSeconds(ctx context.Context, seconds int) error {
 	return s.setInt(ctx, settingRotationSeconds, seconds, MinRotationSeconds, MaxRotationSeconds)
 }

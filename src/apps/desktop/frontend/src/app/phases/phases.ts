@@ -7,7 +7,6 @@ import {
   PhaseCategory,
   PhasesView,
   PoolPhase,
-  SideView,
   StagePhase,
   TournamentService,
 } from '@bindings/apps/desktop';
@@ -20,8 +19,8 @@ import { Panels } from '../core/panels.service';
 import { TournamentStore } from '../core/tournament.service';
 import { HistoryPanel } from '../history/history-panel';
 import { ScorePanel } from '../score-panel/score-panel';
-import { shortRoundLabel } from '../shared/match-stage';
-import { fullNames } from '../shared/names';
+import { BracketMatch } from '../shared/bracket-match';
+import { clubs, fullNames } from '../shared/names';
 import { stageLabel, winSummary } from '../shared/stage-label';
 import { WithBibPipe } from '../shared/with-bib';
 import {
@@ -52,7 +51,7 @@ function storedLinks(): LinkFilter {
 /** Phases: pool standings and matches, with a correction mode. */
 @Component({
   selector: 'app-phases',
-  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe, PanelToggle],
+  imports: [TranslocoDirective, RouterLink, NgTemplateOutlet, ScorePanel, HistoryPanel, WithBibPipe, PanelToggle, BracketMatch],
   templateUrl: './phases.html',
   styleUrl: './phases.scss',
 })
@@ -114,15 +113,17 @@ export class Phases {
   }
 
   protected readonly short = fullNames;
+  protected readonly clubs = clubs;
+
+  /** Shows or hides the stage on the display screen. */
+  protected setDisplayed(c: PhaseCategory, b: StagePhase, event: Event): void {
+    void this.tournament.setStageDisplay(c.category, b.id, (event.target as HTMLInputElement).checked);
+  }
 
   protected toggleCorrection(): void {
     this.correction.update((on) => !on);
     this.swapping.set(null);
     this.swappingSlot.set(null);
-  }
-
-  protected shortRound(m: MatchView): { key: string; params: Record<string, number> } {
-    return shortRoundLabel(m);
   }
 
   /** The bracket shown, laid out as a tree (none for pools or a bracket not drawn). */
@@ -211,17 +212,6 @@ export class Phases {
     return s.complete ? 'finished' : s.started ? 'inProgress' : 'ready';
   }
 
-  /** Side label inside a bracket: "bye" or "to be decided"; empty when the names show. */
-  protected sideLabel(side: SideView, bye: boolean): { key?: string } {
-    if (bye) {
-      return { key: 'phases.bye' };
-    }
-    if (!side.entrant) {
-      return { key: 'phases.tbd' };
-    }
-    return {};
-  }
-
   protected place(from: number, to: number): string {
     return from === to ? String(from) : `${from}–${to}`;
   }
@@ -242,17 +232,6 @@ export class Phases {
   protected diff(won: number, lost: number): string {
     const d = won - lost;
     return d > 0 ? `+${d}` : String(d);
-  }
-
-  /** Side that won a scored match, by sets. */
-  protected winner(m: MatchView): 'a' | 'b' | '' {
-    let a = 0;
-    let b = 0;
-    for (const set of m.score?.sets ?? []) {
-      if (set.a > set.b) a++;
-      else if (set.b > set.a) b++;
-    }
-    return a > b ? 'a' : b > a ? 'b' : '';
   }
 
   protected scoreText(m: MatchView): string {

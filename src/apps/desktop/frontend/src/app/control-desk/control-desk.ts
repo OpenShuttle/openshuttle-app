@@ -12,6 +12,7 @@ import { ScorePanel } from '../score-panel/score-panel';
 import { CategoryBadge } from '../shared/category-badge';
 import { MatchStage } from '../shared/match-stage';
 import { formatCountdown, secondsLeft } from '../shared/countdown';
+import { matches } from '../check-in/check-in-search';
 import { clubs, fullNames } from '../shared/names';
 import { stageLabel } from '../shared/stage-label';
 import { WithBibPipe } from '../shared/with-bib';
@@ -69,10 +70,27 @@ export class ControlDesk {
     };
   });
 
+  /** Words typed in the queue's search field: every one must match a player or a club. */
+  protected readonly search = signal('');
+
   protected readonly queue = computed(() => {
     const filter = this.queueFilter();
-    return (this.view().queue ?? []).filter((q) => filter === 'all' || q.match.category === filter);
+    const words = this.search().split(/\s+/).filter((w) => w);
+    return (this.view().queue ?? []).filter(
+      (q) =>
+        (filter === 'all' || q.match.category === filter) &&
+        (words.length === 0 || matches([...this.searchable(q.match.a), ...this.searchable(q.match.b)], words)),
+    );
   });
+
+  /** A side's searchable fields: names and clubs (as shown and by name). */
+  private searchable(side: SideView): string[] {
+    return [...(side.names ?? []), ...(side.clubs ?? []), ...(side.clubNames ?? [])];
+  }
+
+  protected setSearch(event: Event): void {
+    this.search.set((event.target as HTMLInputElement).value);
+  }
 
   /** Seconds left in the round in progress; negative once elapsed. */
   protected readonly roundLeft = computed(() => {

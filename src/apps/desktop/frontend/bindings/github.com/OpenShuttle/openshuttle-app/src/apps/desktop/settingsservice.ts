@@ -91,7 +91,7 @@ export function SetOperator(name: string): $CancellablePromise<void> {
 }
 
 /**
- * SetRotationSeconds sets how long each standings view stays on the display screen.
+ * SetRotationSeconds sets how long each stage stays on the display screen.
  */
 export function SetRotationSeconds(seconds: number): $CancellablePromise<void> {
     return $Call.ByID(462653687, seconds);

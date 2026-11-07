@@ -64,6 +64,10 @@
                 · {{ t(b.fullPlacement ? 'format.fullPlacement' : 'format.tiedByRound') }}
               }
             </span>
+            <label class="display-toggle" [attr.title]="t('phases.displayedHint')">
+              <input type="checkbox" [checked]="b.displayed" (change)="setDisplayed(c, b, $event)" />
+              {{ t('phases.displayed') }}
+            </label>
             @if (!b.entry && !b.confirmed && !b.canFill) {
               <span class="note">{{ t('phases.waitPools') }}</span>
             }
@@ -190,51 +194,7 @@
                         [style.left.px]="left(tm.col)"
                         [style.top.px]="top(tr, tm.row)"
                       >
-                        <div class="bmatch-head">
-                          @let sr = shortRound(m);
-                          <span [attr.title]="m.id">{{ t(sr.key, sr.params) }}</span>
-                          <span class="bmatch-result">
-                            @if (m.walkover) {
-                              <!-- the WO sits on the side that forfeited -->
-                            } @else if (m.score) {
-                              {{ scoreText(m) }}
-                            } @else if (m.court && !m.endedAt) {
-                              <span class="pill pill-playing">{{
-                                t('desk.courtN', { n: m.court })
-                              }}</span>
-                            } @else if (m.endedAt) {
-                              <span class="pill pill-finished">{{ t('phases.scorePending') }}</span>
-                            }
-                          </span>
-                        </div>
-                        @let a = sideLabel(m.a, m.byeA);
-                        <div
-                          class="bside"
-                          [class.won]="winner(m) === 'a'"
-                          [class.lost]="winner(m) === 'b'"
-                        >
-                          @if (b.origins?.[m.a.entrant]; as o) {
-                            <span class="origin" [class.colored]="!!b.originColors?.[m.a.entrant]" [style.background]="b.originColors?.[m.a.entrant] ? 'var(--color-group-' + b.originColors?.[m.a.entrant] + ')' : null">{{ o }}</span>
-                          }
-                          {{ a.key ? t(a.key) : (m.a | withBib) }}
-                        @if (m.walkoverA) {
-                          <span class="pill pill-alert bside-wo">WO</span>
-                        }
-                        </div>
-                        @let bb = sideLabel(m.b, m.byeB);
-                        <div
-                          class="bside"
-                          [class.won]="winner(m) === 'b'"
-                          [class.lost]="winner(m) === 'a'"
-                        >
-                          @if (b.origins?.[m.b.entrant]; as o) {
-                            <span class="origin" [class.colored]="!!b.originColors?.[m.b.entrant]" [style.background]="b.originColors?.[m.b.entrant] ? 'var(--color-group-' + b.originColors?.[m.b.entrant] + ')' : null">{{ o }}</span>
-                          }
-                          {{ bb.key ? t(bb.key) : (m.b | withBib) }}
-                        @if (m.walkoverB) {
-                          <span class="pill pill-alert bside-wo">WO</span>
-                        }
-                        </div>
+                        <app-bracket-match [match]="m" [origins]="b.origins" [originColors]="b.originColors">
                         @if (correction() && m.a.entrant && m.b.entrant && !m.walkover) {
                           <div class="bmatch-actions">
                             <button type="button" class="btn btn-xs" (click)="scoring.set(m)">
@@ -251,6 +211,7 @@
                             }
                           </div>
                         }
+                        </app-bracket-match>
                       </div>
                     }
                   </div>
@@ -268,7 +229,15 @@
                       <app-panel-toggle key="phases.places" [title]="t('phases.places')" />
                     </span>
                     @for (p of b.places; track p.entrant.entrant) {
-                      <div class="place"><span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>{{ short(p.entrant) }}</div>
+                      <div class="place">
+                        <span class="place-n">{{ place(p.from, p.to) }}</span><span class="bib">{{ p.entrant.bib }}</span>
+                        <span class="place-who">
+                          <span class="place-names">{{ short(p.entrant) }}</span>
+                          @if (clubs(p.entrant); as cl) {
+                            <span class="club">{{ cl }}</span>
+                          }
+                        </span>
+                      </div>
                     }
                   </aside>
                 }
@@ -317,7 +286,12 @@
                       <span class="rank">{{ r.rank }}</span>
                       <span class="who">
                         <span class="bib">{{ r.entrant.bib }}</span>
-                        <span class="who-names">{{ short(r.entrant) }}</span>
+                        <span class="who-text">
+                          <span class="who-names">{{ short(r.entrant) }}</span>
+                          @if (clubs(r.entrant); as cl) {
+                            <span class="club">{{ cl }}</span>
+                          }
+                        </span>
                         @if (r.withdrawn) {
                           <span class="pill pill-alert">{{ t('phases.forfeit') }}</span>
                         }

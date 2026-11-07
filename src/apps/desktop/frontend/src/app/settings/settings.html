@@ -72,9 +72,9 @@
           <span class="hint">{{ t('settingsPage.rotationHint') }}</span>
         </div>
         <div class="stepper">
-          <button type="button" [disabled]="s.rotationSeconds <= 4" (click)="step('rotation', -1)">−</button>
+          <button type="button" [disabled]="s.rotationSeconds <= 10" (click)="step('rotation', -5)">−</button>
           <span class="stepper-value">{{ t('settingsPage.seconds', { n: s.rotationSeconds }) }}</span>
-          <button type="button" [disabled]="s.rotationSeconds >= 30" (click)="step('rotation', 1)">+</button>
+          <button type="button" [disabled]="s.rotationSeconds >= 120" (click)="step('rotation', 5)">+</button>
         </div>
       </div>
     </section>

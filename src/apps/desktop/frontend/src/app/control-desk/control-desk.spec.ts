@@ -1,7 +1,7 @@
 import { ControlDeskView, TournamentView } from '@bindings/apps/desktop';
 
 import { FakeBackend } from '../../testing/backend';
-import { buttons, click, clickAll, render, text } from '../../testing/render';
+import { buttons, click, clickAll, render, text, type } from '../../testing/render';
 import before from '../../testing/fixtures/before-desk.json';
 import finished from '../../testing/fixtures/finished-desk.json';
 import desk from '../../testing/fixtures/progress-desk.json';
@@ -99,5 +99,19 @@ describe('ControlDesk', () => {
     expect(courts.find((b) => b.textContent?.trim() === '1')?.getAttribute('title')).toBeNull();
     expect(off.every((b) => b.classList.contains('force'))).toBe(true);
     expect(off.map((b) => Number(b.textContent?.trim())).every((n) => q.offCourts.includes(n))).toBe(true);
+  });
+
+  it('searches the queue by player or club, and shows the clubs', async () => {
+    const f = await render(ControlDesk);
+    const first = desk.queue[0].match;
+    expect(text(f)).toContain(first.a.clubs[0]);
+    const input = f.nativeElement.querySelector('.queue-search') as HTMLInputElement;
+    await type(f, input, first.a.names[0].split(' ')[1].toLowerCase());
+    const items = f.nativeElement.querySelectorAll('.queue-item');
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.length).toBeLessThan(desk.queue.length);
+    expect(items[0].textContent).toContain(first.a.names[0]);
+    await type(f, input, 'zzz nobody');
+    expect(text(f)).toContain('No match found.');
   });
 });

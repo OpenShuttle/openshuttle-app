@@ -65,15 +65,19 @@ func TestControlDesk(t *testing.T) {
 	}
 	must(f.settings.SetShowBibs(ctx, false))
 	d := f.svc.GetDisplayView()
-	if len(d.Boards) != 1 || d.Boards[0].Pool != "A" || len(d.Boards[0].Standings) != 4 {
-		t.Errorf("boards = %+v", d.Boards)
-	}
-	if len(d.Calls) != 1 || d.Calls[0].ID != "MS-A1" || d.Courts[0].Match == nil || d.Courts[1].Match != nil {
+	if len(d.Stages) != 1 || d.Stages[0].ID != "S1" || d.Stages[0].Slot != 1 || len(d.Stages[0].Pools) != 1 ||
+		len(d.Stages[0].Pools[0].Standings) != 4 || len(d.Results) != 0 || d.Name == "" {
 		t.Errorf("display = %+v", d)
 	}
-	if d.Courts[0].State != tournament.CourtPlaying || d.Courts[0].Proposal != nil || d.Courts[1].Proposal == nil || d.Name == "" {
-		t.Errorf("display courts = %+v", d.Courts)
+	// A stage the desk hides leaves the display screen.
+	must(f.svc.SetStageDisplay(ctx, engine.MensSingles, "S1", false))
+	if d := f.svc.GetDisplayView(); len(d.Stages) != 0 || f.svc.GetPhasesView().Categories[0].Stages[0].Displayed {
+		t.Errorf("hidden stage shown: %+v", d.Stages)
 	}
+	if a := f.svc.GetTournamentView().LastAction; a.Type != "StageDisplaySet" || a.Params["shown"] != "false" || a.Params["stage"] != "S1" {
+		t.Errorf("display action = %+v", a)
+	}
+	must(f.svc.SetStageDisplay(ctx, engine.MensSingles, "S1", true))
 
 	f.clock = f.clock.Add(12 * time.Minute)
 	must(f.svc.EndMatch(ctx, "MS-A1"))
@@ -94,6 +98,9 @@ func TestControlDesk(t *testing.T) {
 
 	wantCode(t, f.svc.RecordScore(ctx, "MS-A1", engine.Score{Sets: []engine.SetScore{{A: 21, B: 20}, {A: 3, B: 21}}}), engine.CodeInvalidSetScore)
 	must(f.svc.RecordScore(ctx, "MS-A1", engine.Score{Sets: []engine.SetScore{{A: 21, B: 10}, {A: 19, B: 21}, {A: 30, B: 29}}}))
+	if d := f.svc.GetDisplayView(); len(d.Results) != 1 || d.Results[0].ID != "MS-A1" {
+		t.Errorf("results = %+v", d.Results)
+	}
 	if a := f.svc.GetTournamentView().LastAction; a.Params["score"] != "21-10 19-21 30-29" {
 		t.Errorf("score action = %+v", a)
 	}

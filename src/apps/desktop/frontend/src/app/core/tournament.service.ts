@@ -327,6 +327,10 @@ export class TournamentStore {
     return this.command(() => Backend.DrawLots(category, stage, pool));
   }
 
+  setStageDisplay(category: Category, stage: string, shown: boolean): Promise<boolean> {
+    return this.command(() => Backend.SetStageDisplay(category, stage, shown));
+  }
+
   startRound(): Promise<boolean> {
     return this.command(() => Backend.StartRound());
   }

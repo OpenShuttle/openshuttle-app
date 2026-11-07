@@ -559,6 +559,13 @@ export function SetSeeds(c: engine$0.Category, ranking: engine$0.EntrantID[] | n
 }
 
 /**
+ * SetStageDisplay shows or hides a stage on the display screen.
+ */
+export function SetStageDisplay(c: engine$0.Category, stage: string, shown: boolean): $CancellablePromise<void> {
+    return $Call.ByID(1251527062, c, stage, shown);
+}
+
+/**
  * SplitEntrant takes a player out of a pair: both wait for a partner again.
  */
 export function SplitEntrant(id: engine$0.EntrantID, player: tournament$0.PlayerID): $CancellablePromise<void> {

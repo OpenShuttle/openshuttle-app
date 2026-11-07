@@ -1,5 +1,5 @@
 {
-  "now": "2026-10-17T10:18:57Z",
+  "now": "2026-10-17T10:18:56Z",
   "first": "MD",
   "categories": [
     {
@@ -456,7 +456,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 1,
       "start": "2026-10-17T09:00:56Z",
@@ -558,7 +561,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T09:00:57Z",
@@ -656,7 +662,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 3,
       "start": "2026-10-17T09:00:58Z",
@@ -754,7 +763,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T09:00:59Z",
@@ -852,7 +864,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 5,
       "start": "2026-10-17T09:01:00Z",
@@ -954,7 +969,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 6,
       "start": "2026-10-17T09:01:01Z",
@@ -1052,7 +1070,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 1,
       "start": "2026-10-17T09:35:18Z",
@@ -1150,7 +1171,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T09:35:19Z",
@@ -1252,7 +1276,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 3,
       "start": "2026-10-17T09:35:20Z",
@@ -1350,7 +1377,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T09:35:21Z",
@@ -1448,7 +1478,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 5,
       "start": "2026-10-17T09:35:22Z",
@@ -1546,7 +1579,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 6,
       "start": "2026-10-17T09:35:23Z",
@@ -1633,7 +1669,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 1,
       "start": "2026-10-17T10:09:40Z",
@@ -1720,7 +1759,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T10:09:41Z",
@@ -1807,7 +1849,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 3,
       "start": "2026-10-17T10:09:42Z",
@@ -1894,7 +1939,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T10:09:43Z",
@@ -1981,7 +2029,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 5,
       "start": "2026-10-17T10:09:44Z",
@@ -2068,7 +2119,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 6,
       "start": "2026-10-17T10:09:45Z",
@@ -2166,7 +2220,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 7,
       "start": "2026-10-17T09:01:02Z",
@@ -2268,7 +2325,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 7,
       "start": "2026-10-17T09:35:24Z",
@@ -2355,7 +2415,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 7,
       "start": "2026-10-17T10:09:46Z",
@@ -2442,11 +2505,14 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 1,
-      "start": "2026-10-17T10:18:57Z",
-      "end": "2026-10-17T10:40:57Z",
+      "start": "2026-10-17T10:18:56Z",
+      "end": "2026-10-17T10:40:56Z",
       "unrested": false,
       "offRules": false,
       "leftA": 2,
@@ -2529,7 +2595,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T10:31:41Z",
@@ -2616,7 +2685,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T10:31:43Z",
@@ -2759,11 +2831,14 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 1,
-      "start": "2026-10-17T10:40:57Z",
-      "end": "2026-10-17T11:02:57Z",
+      "start": "2026-10-17T10:40:56Z",
+      "end": "2026-10-17T11:02:56Z",
       "unrested": true,
       "offRules": false,
       "leftA": 1,
@@ -2846,11 +2921,14 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 6,
-      "start": "2026-10-17T10:40:57Z",
-      "end": "2026-10-17T11:02:57Z",
+      "start": "2026-10-17T10:40:56Z",
+      "end": "2026-10-17T11:02:56Z",
       "unrested": true,
       "offRules": false,
       "leftA": 1,
@@ -2933,7 +3011,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T10:53:43Z",
@@ -3020,7 +3101,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T10:53:43Z",
@@ -3107,8 +3191,8 @@
       "placeTo": 4,
       "match": null,
       "court": 1,
-      "start": "2026-10-17T11:02:57Z",
-      "end": "2026-10-17T11:24:57Z",
+      "start": "2026-10-17T11:02:56Z",
+      "end": "2026-10-17T11:24:56Z",
       "unrested": false,
       "offRules": false,
       "leftA": 0,
@@ -3191,7 +3275,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 2,
       "start": "2026-10-17T11:15:43Z",
@@ -3278,7 +3365,10 @@
         "byeA": false,
         "byeB": false,
         "walkoverA": false,
-        "walkoverB": false
+        "walkoverB": false,
+        "letter": "",
+        "fromA": null,
+        "fromB": null
       },
       "court": 4,
       "start": "2026-10-17T11:15:43Z",
@@ -3309,8 +3399,8 @@
       "placeTo": 4,
       "match": null,
       "court": 1,
-      "start": "2026-10-17T11:24:57Z",
-      "end": "2026-10-17T11:46:57Z",
+      "start": "2026-10-17T11:24:56Z",
+      "end": "2026-10-17T11:46:56Z",
       "unrested": false,
       "offRules": false,
       "leftA": 0,
@@ -3337,8 +3427,8 @@
       "placeTo": 2,
       "match": null,
       "court": 7,
-      "start": "2026-10-17T11:24:57Z",
-      "end": "2026-10-17T11:46:57Z",
+      "start": "2026-10-17T11:24:56Z",
+      "end": "2026-10-17T11:46:56Z",
       "unrested": false,
       "offRules": false,
       "leftA": 0,
@@ -3457,7 +3547,7 @@
       "leftB": 0
     }
   ],
-  "validatedAt": "2026-10-17T10:18:52Z",
+  "validatedAt": "2026-10-17T10:18:51Z",
   "blocks": [
     {
       "key": "MD/S2/R1",
@@ -3501,8 +3591,8 @@
       "placeTo": 0,
       "pending": false,
       "matches": 1,
-      "start": "2026-10-17T10:18:57Z",
-      "end": "2026-10-17T10:40:57Z",
+      "start": "2026-10-17T10:18:56Z",
+      "end": "2026-10-17T10:40:56Z",
       "unrested": 0
     },
     {
@@ -3571,7 +3661,7 @@
       "pending": true,
       "matches": 2,
       "start": "2026-10-17T10:53:45Z",
-      "end": "2026-10-17T11:24:57Z",
+      "end": "2026-10-17T11:24:56Z",
       "unrested": 0
     },
     {
@@ -3593,8 +3683,8 @@
       "placeTo": 0,
       "pending": false,
       "matches": 2,
-      "start": "2026-10-17T10:40:57Z",
-      "end": "2026-10-17T11:02:57Z",
+      "start": "2026-10-17T10:40:56Z",
+      "end": "2026-10-17T11:02:56Z",
       "unrested": 2
     },
     {
@@ -3639,8 +3729,8 @@
       "placeTo": 4,
       "pending": true,
       "matches": 1,
-      "start": "2026-10-17T11:24:57Z",
-      "end": "2026-10-17T11:46:57Z",
+      "start": "2026-10-17T11:24:56Z",
+      "end": "2026-10-17T11:46:56Z",
       "unrested": 0
     },
     {
@@ -3662,8 +3752,8 @@
       "placeTo": 2,
       "pending": true,
       "matches": 1,
-      "start": "2026-10-17T11:24:57Z",
-      "end": "2026-10-17T11:46:57Z",
+      "start": "2026-10-17T11:24:56Z",
+      "end": "2026-10-17T11:46:56Z",
       "unrested": 0
     },
     {
